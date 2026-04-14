@@ -73,7 +73,6 @@ struct ResyncWallet {
                 return .none
 
             case .startResyncTapped:
-                state.isFailureSheetUp = true
                 return .none
                 
             case .tryAgain:

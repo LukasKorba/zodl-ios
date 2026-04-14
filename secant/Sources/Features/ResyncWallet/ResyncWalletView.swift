@@ -20,16 +20,16 @@ struct ResyncWalletView: View {
     var body: some View {
         WithPerceptionTracking {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Confirm Resync ")
+                Text(localizable: .resyncWalletConfirmTitle)
                     .zFont(.semiBold, size: 24, style: Design.Text.primary)
                     .padding(.top, 40)
 
-                Text("Resync the current wallet without resetting the app. This can be used to troubleshoot issues that would normally require restoring your wallet like fixing your Keystone balance.")
+                Text(localizable: .resyncWalletDescription)
                     .zFont(size: 14, style: Design.Text.primary)
                     .padding(.top, 12)
                     .lineSpacing(2)
 
-                Text("Unless you specify otherwise below, Zodl will resync from the date displayed. ")
+                Text(localizable: .resyncWalletDateInfo)
                     .zFont(size: 14, style: Design.Text.primary)
                     .padding(.top, 12)
 
@@ -78,11 +78,11 @@ struct ResyncWalletView: View {
                 ZashiText(withAttributedString: attrText, colorScheme: colorScheme)
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
                     .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, Design.Spacing._md)
+                    .padding(.bottom, Design.Spacing._xl)
             }
 
             ZashiButton(
-                "Change",
+                String(localizable: .resyncWalletChange),
                 type: .secondary
             ) {
                 store.send(.changeBirthdayTapped)
@@ -120,12 +120,12 @@ struct ResyncWalletView: View {
                 }
                 .padding(.top, 48)
 
-            Text("Resync Failed")
+            Text(localizable: .resyncWalletFailedTitle)
                 .zFont(.semiBold, size: 24, style: Design.Text.primary)
                 .padding(.top, 16)
                 .padding(.bottom, 12)
             
-            Text("We tried but couldn’t trigger the Resync. Please try again or report an issue.")
+            Text(localizable: .resyncWalletFailedDescription)
                 .zFont(size: 14, style: Design.Text.tertiary)
                 .fixedSize(horizontal: false, vertical: true)
                 .multilineTextAlignment(.center)

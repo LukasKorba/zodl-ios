@@ -68,16 +68,6 @@ struct WalletBirthdayEstimatedHeightView: View {
 
                 Spacer()
 
-                if !store.isKeystoneFlow && !store.isResyncFlow {
-                    ZashiButton(
-                        String(localizable: .keystoneAddHWWalletEnterManually),
-                        type: .ghost
-                    ) {
-                        store.send(.enterManuallyTapped)
-                    }
-                    .padding(.bottom, 12)
-                }
-
                 ZashiButton(
                     store.isKeystoneFlow
                     ? String(localizable: .keystoneAddHWWalletConnect)

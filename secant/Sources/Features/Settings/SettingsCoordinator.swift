@@ -150,6 +150,17 @@ extension Settings {
                 restoreInfoState.isResyncFlow = true
                 state.path.append(.resyncRestoreInfo(restoreInfoState))
                 return .none
+                
+            case .path(.element(id: _, action: .resyncWallet(.startResyncTapped))):
+                for element in state.path {
+                    if case .resyncWallet(let resyncWalletState) = element {
+                        state.resyncBirthday = resyncWalletState.birthday
+                    }
+                }
+                var restoreInfoState = RestoreInfo.State.initial
+                restoreInfoState.isResyncFlow = true
+                state.path.append(.resyncRestoreInfo(restoreInfoState))
+                return .none
 
             case .path(.element(id: _, action: .resyncRestoreInfo(.gotItTapped))):
                 return .send(.resyncFinished)

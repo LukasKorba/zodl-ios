@@ -33,14 +33,7 @@ struct WalletBirthdayView: View {
                     .padding(.top, 40)
                     .padding(.bottom, 8)
 
-                Text(
-                    localizable:
-                        store.isKeystoneFlow
-                    ? .addHWWalletBirthdayInfo
-                    : store.isResyncFlow
-                    ? .resyncWalletBirthdayInfo
-                    : .restoreWalletBirthdayInfo
-                )
+                Text(localizable: .walletBirthdayHeightSubtitle)
                 .zFont(size: 14, style: Design.Text.primary)
                 .padding(.bottom, 32)
                 

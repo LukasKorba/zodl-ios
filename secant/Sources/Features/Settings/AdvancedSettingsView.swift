@@ -60,6 +60,7 @@ struct AdvancedSettingsView: View {
                         ) {
                             store.send(.operationAccessCheck(.resyncWallet))
                         }
+                        .disabled(walletStatus.isNotReadyForFullySyncedOperation)
 
                         ActionRow(
                             icon: Asset.Assets.Icons.shieldZap.image,
