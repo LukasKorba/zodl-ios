@@ -161,7 +161,7 @@ extension VotingCryptoClient: DependencyKey {
             generateHotkey: { roundId, seed in
                 let backend = try await dbActor.backend()
                 let hotkey = try backend.generateHotkey(roundId: roundId, seed: seed)
-                return VotingModels.VotingHotkey(
+                return VotingHotkey(
                     secretKey: Data(hotkey.secretKey),
                     publicKey: Data(hotkey.publicKey),
                     address: hotkey.address
@@ -326,7 +326,7 @@ extension VotingCryptoClient: DependencyKey {
                                 proposalId: proposalId,
                                 proof: Data(result.proof),
                                 encShares: result.encShares.map {
-                                    VotingModels.EncryptedShare(
+                                    EncryptedShare(
                                         c1: Data($0.c1),
                                         c2: Data($0.c2),
                                         shareIndex: $0.shareIndex
@@ -670,7 +670,7 @@ extension Data {
     }
 }
 
-private extension VotingModels.NoteInfo {
+private extension NoteInfo {
     func toSDK() -> VotingNoteInfo {
         VotingNoteInfo(
             commitment: [UInt8](commitment),
@@ -699,8 +699,8 @@ private extension VotingRoundPhase {
 }
 
 private extension VotingVoteRecord {
-    func toModel() -> VotingModels.VoteRecord {
-        VotingModels.VoteRecord(
+    func toModel() -> VoteRecord {
+        VoteRecord(
             proposalId: proposalId,
             bundleIndex: bundleIndex,
             choice: VoteChoice.fromFFI(choice),

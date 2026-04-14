@@ -53,7 +53,7 @@ struct VotingCryptoClient {
     var verifyWitness: @Sendable (_ witness: WitnessData) async throws -> Bool
 
     // --- Crypto operations ---
-    var generateHotkey: @Sendable (_ roundId: String, _ seed: [UInt8]) async throws -> VotingModels.VotingHotkey
+    var generateHotkey: @Sendable (_ roundId: String, _ seed: [UInt8]) async throws -> VotingHotkey
     /// Build a governance-specific PCZT for Keystone signing.
     /// The PCZT's single Orchard action IS the governance dummy action, so Keystone's
     /// SpendAuth signature will be over the governance-bound ZIP-244 sighash.
