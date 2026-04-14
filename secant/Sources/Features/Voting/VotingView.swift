@@ -126,11 +126,11 @@ struct NoRoundsView: View {
 // MARK: - Placeholders
 
 extension Voting.State {
-    public static let initial = Voting.State()
+    static let initial = Voting.State()
 }
 
 extension StoreOf<Voting> {
-    public static let placeholder = StoreOf<Voting>(
+    static let placeholder = StoreOf<Voting>(
         initialState: .initial
     ) {
         Voting()
