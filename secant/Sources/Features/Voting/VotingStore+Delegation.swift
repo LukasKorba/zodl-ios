@@ -287,7 +287,7 @@ extension Voting {
             return .send(.startDelegationProof)
 
         case .delegationRejected:
-            state.pendingGovernancePczt = nil
+            state.pendingVotingPczt = nil
             state.pendingUnsignedDelegationPczt = nil
             state.keystoneSigningStatus = .idle
             state.keystoneBundleSignatures = []
@@ -303,7 +303,7 @@ extension Voting {
             return .send(.dismissFlow)
 
         case .retryKeystoneSigning:
-            state.pendingGovernancePczt = nil
+            state.pendingVotingPczt = nil
             state.pendingUnsignedDelegationPczt = nil
             state.keystoneSigningStatus = .idle
             state.currentKeystoneBundleIndex = 0
@@ -387,8 +387,8 @@ extension Voting {
                                 await send(.delegationProofCompleted)
                                 return
                             }
-                            // Build governance PCZT for the current bundle — its single Orchard
-                            // action IS the governance dummy action, so Keystone's SpendAuth
+                            // Build voting PCZT for the current bundle — its single Orchard
+                            // action IS the voting dummy action, so Keystone's SpendAuth
                             // signature will verify against the PCZT's ZIP-244 sighash.
                             let noteChunks = cachedNotes.smartBundles().bundles
                             let bundleNotes = noteChunks[Int(keystoneBundleIndex)]
@@ -400,7 +400,7 @@ extension Voting {
                                 bundleNotes[0].ufvkStr, networkId
                             )
                             votingLogger.info("Keystone: preparing PCZT for bundle \(keystoneBundleIndex + 1)/\(bundleCount)")
-                            let govPczt = try await votingCrypto.buildGovernancePczt(
+                            let govPczt = try await votingCrypto.buildVotingPczt(
                                 roundId,
                                 keystoneBundleIndex,
                                 bundleNotes,
@@ -448,7 +448,7 @@ extension Voting {
             )
 
         case let .keystoneSigningPrepared(govPczt, unsignedPczt):
-            state.pendingGovernancePczt = govPczt
+            state.pendingVotingPczt = govPczt
 
             state.pendingUnsignedDelegationPczt = unsignedPczt
             state.keystoneSigningStatus = .awaitingSignature
@@ -469,7 +469,7 @@ extension Voting {
         case .keystoneScan(.presented(.foundVotingDelegationPCZT(let signedPczt))):
             state.keystoneScan = nil
             state.keystoneSigningStatus = .parsingSignature
-            guard let govPczt = state.pendingGovernancePczt else {
+            guard let govPczt = state.pendingVotingPczt else {
                 return .send(.spendAuthSignatureExtractionFailed(
                     VotingFlowError.missingPendingUnsignedPczt.localizedDescription
                 ))
@@ -494,7 +494,7 @@ extension Voting {
             return .none
 
         case let .spendAuthSignatureExtracted(keystoneSig, signedPczt):
-            guard let rk = state.pendingGovernancePczt?.rk else { // swiftlint:disable:this identifier_name
+            guard let rk = state.pendingVotingPczt?.rk else { // swiftlint:disable:this identifier_name
                 return .send(.delegationProofFailed(
                     VotingFlowError.missingPendingUnsignedPczt.localizedDescription
                 ))
@@ -518,7 +518,7 @@ extension Voting {
 
         case let .keystoneBundleSignatureStored(signature, bundleIndex, bundleCount):
             state.keystoneBundleSignatures.append(signature)
-            state.pendingGovernancePczt = nil
+            state.pendingVotingPczt = nil
             state.pendingUnsignedDelegationPczt = nil
 
             // Persist to recovery store so signatures survive app restarts
@@ -726,7 +726,7 @@ extension Voting {
             }
             state.votingWeight = signedWeight
 
-            state.pendingGovernancePczt = nil
+            state.pendingVotingPczt = nil
             state.pendingUnsignedDelegationPczt = nil
             state.keystoneSigningStatus = .idle
             state.screenStack = [.pollsList, .proposalList]
@@ -840,7 +840,7 @@ extension Voting {
             let bundleNotes = noteChunks[Int(bundleIndex)]
             votingLogger.info("Delegation bundle \(bundleIndex + 1)/\(bundleCount) (\(bundleNotes.count) notes)")
 
-            _ = try await votingCrypto.buildGovernancePczt(
+            _ = try await votingCrypto.buildVotingPczt(
                 roundId, bundleIndex, bundleNotes,
                 senderSeed, hotkeySeed, networkId, accountIndex, roundName,
                 nil, nil

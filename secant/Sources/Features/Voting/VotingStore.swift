@@ -322,8 +322,8 @@ struct Voting {
         /// Collected Keystone signatures for each bundle, accumulated during the signing loop.
         var keystoneBundleSignatures: [KeystoneBundleSignature] = []
 
-        /// Governance PCZT result for Keystone signing flow (contains metadata + pczt_bytes).
-        var pendingGovernancePczt: GovernancePcztResult?
+        /// Voting PCZT result for Keystone signing flow (contains metadata + pczt_bytes).
+        var pendingVotingPczt: VotingPcztResult?
         /// Unsigned delegation PCZT request shown as QR and used for signature extraction.
         var pendingUnsignedDelegationPczt: Pczt?
         @Presents var keystoneScan: Scan.State?
@@ -596,7 +596,7 @@ struct Voting {
         case copyHotkeyAddress
         case delegationApproved
         case delegationRejected
-        case keystoneSigningPrepared(GovernancePcztResult, Pczt)
+        case keystoneSigningPrepared(VotingPcztResult, Pczt)
         case keystoneSigningFailed(String)
         case openKeystoneSignatureScan
         case retryKeystoneSigning

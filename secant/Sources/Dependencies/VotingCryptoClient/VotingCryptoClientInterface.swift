@@ -54,10 +54,10 @@ struct VotingCryptoClient {
 
     // --- Crypto operations ---
     var generateHotkey: @Sendable (_ roundId: String, _ seed: [UInt8]) async throws -> VotingHotkey
-    /// Build a governance-specific PCZT for Keystone signing.
-    /// The PCZT's single Orchard action IS the governance dummy action, so Keystone's
-    /// SpendAuth signature will be over the governance-bound ZIP-244 sighash.
-    var buildGovernancePczt: @Sendable (
+    /// Build a voting PCZT for Keystone signing.
+    /// The PCZT's single Orchard action IS the voting dummy action, so Keystone's
+    /// SpendAuth signature will be over the voting-bound ZIP-244 sighash.
+    var buildVotingPczt: @Sendable (
         _ roundId: String,
         _ bundleIndex: UInt32,
         _ notes: [NoteInfo],
@@ -68,7 +68,7 @@ struct VotingCryptoClient {
         _ roundName: String,
         _ orchardFvkOverride: Data?,
         _ keystoneSeedFingerprintOverride: Data?
-    ) async throws -> GovernancePcztResult
+    ) async throws -> VotingPcztResult
     var storeTreeState: @Sendable (_ roundId: String, _ treeState: Data) async throws -> Void
     var extractSpendAuthSignatureFromSignedPczt: @Sendable (
         _ signedPczt: Data,
@@ -80,7 +80,7 @@ struct VotingCryptoClient {
     /// Build and prove the real delegation ZKP (#1). Long-running.
     /// Loads data from voting DB and wallet DB, fetches IMT proofs from server,
     /// generates a real Halo2 proof, and reports progress.
-    /// Requires `buildGovernancePczt` to have been called first for this bundle —
+    /// Requires `buildVotingPczt` to have been called first for this bundle —
     /// it stores the delegation data (alpha, secrets, sighash) needed by the prover.
     var buildAndProveDelegation: @Sendable (
         _ roundId: String,

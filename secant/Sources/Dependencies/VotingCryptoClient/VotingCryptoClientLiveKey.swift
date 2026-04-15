@@ -168,7 +168,7 @@ extension VotingCryptoClient: DependencyKey {
                 )
             },
             // swiftlint:disable:next line_length
-            buildGovernancePczt: { roundId, bundleIndex, notes, senderSeed, hotkeySeed, networkId, accountIndex, roundName, orchardFvkOverride, keystoneSeedFingerprintOverride in
+            buildVotingPczt: { roundId, bundleIndex, notes, senderSeed, hotkeySeed, networkId, accountIndex, roundName, orchardFvkOverride, keystoneSeedFingerprintOverride in
                 let backend = try await dbActor.backend()
                 _ = try backend.generateHotkey(roundId: roundId, seed: hotkeySeed)
                 let inputs: VotingDelegationInputs
@@ -198,7 +198,7 @@ extension VotingCryptoClient: DependencyKey {
                 // NU6 consensus branch ID; coin_type 133 = mainnet, 1 = testnet
                 let consensusBranchId: UInt32 = 0xC8E7_1055
                 let coinType: UInt32 = networkId == 0 ? 133 : 1
-                let result = try backend.buildGovernancePczt(
+                let result = try backend.buildVotingPczt(
                     roundId: roundId,
                     bundleIndex: bundleIndex,
                     notes: sdkNotes,
@@ -212,7 +212,7 @@ extension VotingCryptoClient: DependencyKey {
                     addressIndex: 0
                 )
                 publishState(backend: backend, roundId: roundId)
-                return GovernancePcztResult(
+                return VotingPcztResult(
                     pcztBytes: Data(result.pcztBytes),
                     rk: Data(result.rk),
                     alpha: Data(result.alpha),

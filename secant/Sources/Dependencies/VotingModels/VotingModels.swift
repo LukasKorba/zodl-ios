@@ -270,11 +270,11 @@ struct VotingHotkey: Equatable, Sendable {
     }
 }
 
-// MARK: - Governance PCZT
+// MARK: - Voting PCZT
 
-/// Result of building a governance-specific PCZT for Keystone signing.
+/// Result of building a voting PCZT for Keystone signing.
 /// Contains the serialized PCZT bytes plus all metadata needed for ZKP #1 witness construction.
-struct GovernancePcztResult: Equatable, Sendable {
+struct VotingPcztResult: Equatable, Sendable {
     /// Serialized PCZT bytes for UR-encoding and Keystone signing.
     let pcztBytes: Data
     /// Randomized verification key (32 bytes).
