@@ -35,9 +35,11 @@ struct WalletBirthdayEstimateDateView: View {
 
                 Text(
                     localizable:
-                        store.isKeystoneFlow
-                    ? .keystoneBirthdayEstimateDateInfo
-                    : .restoreWalletBirthdayEstimateDateInfo
+                        store.isResyncFlow
+                    ? .firstWalletTransactionSubtitleResync
+                    : store.isKeystoneFlow
+                    ? .firstWalletTransactionSubtitleHWWallet
+                    : .firstWalletTransactionSubtitleRestore
                 )
                 .zFont(size: 14, style: Design.Text.primary)
                 .padding(.bottom, 32)
@@ -69,20 +71,7 @@ struct WalletBirthdayEstimateDateView: View {
                 
                 Spacer()
 
-                if !store.isKeystoneFlow {
-                    HStack(spacing: 0) {
-                        Asset.Assets.infoOutline.image
-                            .zImage(size: 20, style: Design.Utility.Indigo._500)
-                            .padding(.trailing, 12)
-                        
-                        Text(localizable: .restoreWalletDateTip)
-                            .zFont(.medium, size: 12, style: Design.Utility.Indigo._700)
-                    }
-                    .padding(.bottom, 20)
-                    .screenHorizontalPadding()
-                }
-
-                if store.isKeystoneFlow {
+                if store.isKeystoneFlow || store.isResyncFlow {
                     ZashiButton(
                         String(localizable: .keystoneAddHWWalletEnterManually),
                         type: .ghost
@@ -121,7 +110,12 @@ struct WalletBirthdayEstimateDateView: View {
             )
             .screenHorizontalPadding()
             .applyScreenBackground()
-            .screenTitle(store.isKeystoneFlow ? "" : String(localizable: .importWalletButtonRestoreWallet))
+            .screenTitle(
+                store.isKeystoneFlow ? ""
+                : store.isResyncFlow
+                ? String(localizable: .resyncWalletTitle)
+                : String(localizable: .importWalletButtonRestoreWallet)
+            )
         }
     }
 }

@@ -9,6 +9,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct WalletBirthdayEstimatedHeightView: View {
+    @Environment(\.colorScheme) var colorScheme
+    
     @Perception.Bindable var store: StoreOf<WalletBirthday>
     
     init(store: StoreOf<WalletBirthday>) {
@@ -30,9 +32,21 @@ struct WalletBirthdayEstimatedHeightView: View {
                     .padding(.top, 40)
                     .padding(.bottom, 8)
 
-                Text(localizable: .restoreWalletBirthdayEstimatedInfo)
-                    .zFont(size: 14, style: Design.Text.primary)
-                    .padding(.bottom, 56)
+                if store.isResyncFlow {
+                    if let attrText = try? AttributedString(
+                        markdown: String(localizable: .resyncEstimatedBlockHeightInfo(store.selectedDateString, store.estimatedHeightString)),
+                        including: \.zashiApp
+                    ) {
+                        ZashiText(withAttributedString: attrText, colorScheme: colorScheme)
+                            .zFont(size: 14, style: Design.Text.primary)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.bottom, 56)
+                    }
+                } else {
+                    Text(localizable: .restoreWalletBirthdayEstimatedInfo)
+                        .zFont(size: 14, style: Design.Text.primary)
+                        .padding(.bottom, 56)
+                }
 
                 VStack {
                     Text(store.estimatedHeightString)
@@ -54,17 +68,13 @@ struct WalletBirthdayEstimatedHeightView: View {
 
                 Spacer()
 
-                if !store.isKeystoneFlow {
-                    ZashiButton(
-                        String(localizable: .keystoneAddHWWalletEnterManually),
-                        type: .ghost
-                    ) {
-                        store.send(.enterManuallyTapped)
-                    }
-                    .padding(.bottom, 12)
-                }
-
-                ZashiButton(store.isKeystoneFlow ? String(localizable: .keystoneAddHWWalletConnect) : String(localizable: .importWalletButtonRestoreWallet)) {
+                ZashiButton(
+                    store.isKeystoneFlow
+                    ? String(localizable: .keystoneAddHWWalletConnect)
+                    : store.isResyncFlow
+                    ? String(localizable: .generalConfirm)
+                    : String(localizable: .importWalletButtonRestoreWallet)
+                ) {
                     store.send(.restoreTapped)
                 }
                 .padding(.bottom, 24)
@@ -83,7 +93,12 @@ struct WalletBirthdayEstimatedHeightView: View {
             )
             .screenHorizontalPadding()
             .applyScreenBackground()
-            .screenTitle(store.isKeystoneFlow ? "" : String(localizable: .importWalletButtonRestoreWallet))
+            .screenTitle(
+                store.isKeystoneFlow ? "" :
+                    store.isResyncFlow
+                ? String(localizable: .resyncWalletTitle)
+                : String(localizable: .importWalletButtonRestoreWallet)
+            )
         }
     }
 }

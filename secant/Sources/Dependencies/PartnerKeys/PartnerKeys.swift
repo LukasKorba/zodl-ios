@@ -15,6 +15,9 @@ struct PartnerKeys {
         static let nearKey = "nearKey"
         static let cmcKey = "cmcKey"
         static let nearFeeDepositAddress = "nearFeeDepositAddress"
+#if DEBUG
+        static let testSeed = "testSeed"
+#endif
     }
     
     static var cbProjectId: String? {
@@ -40,6 +43,12 @@ struct PartnerKeys {
     static var nearFeeDepositAddress: String? {
         PartnerKeys.value(for: Constants.nearFeeDepositAddress)
     }
+    
+#if DEBUG
+    static var testSeed: String? {
+        PartnerKeys.value(for: Constants.testSeed)
+    }
+#endif
 }
 
 private extension PartnerKeys {

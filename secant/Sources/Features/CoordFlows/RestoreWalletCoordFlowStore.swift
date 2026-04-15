@@ -179,19 +179,28 @@ struct RestoreWalletCoordFlow {
                 state.isKeyboardVisible = value
                 return .none
                 
-                #if DEBUG
+#if DEBUG
             case .debugPasteSeed:
                 do {
-                    let seedToPaste = pasteboard.getString()?.data ?? ""
+                    var testSeed = ""
+                    if let testSeedPK = PartnerKeys.testSeed {
+                        testSeed = testSeedPK
+                    }
+                    let seedToPaste = pasteboard.getString()?.data ?? testSeed
                     try mnemonic.isValid(seedToPaste)
                     state.isValidSeed = true
                     state.isKeyboardVisible = false
                     state.words = seedToPaste.components(separatedBy: " ")
                 } catch {
                     state.isValidSeed = false
+                    if let testSeedPK = PartnerKeys.testSeed {
+                        state.isValidSeed = true
+                        state.isKeyboardVisible = false
+                        state.words = testSeedPK.components(separatedBy: " ")
+                    }
                 }
                 return .none
-                #endif
+#endif
 
             default: return .none
             }
