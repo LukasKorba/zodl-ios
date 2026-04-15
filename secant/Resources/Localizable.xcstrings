@@ -290,6 +290,12 @@
             "state" : "translated",
             "value" : "^[The Wallet Birthday Height](style: 'boldPrimary') is the block height (block # in the blockchain) at which your wallet was created. It is important to provide the correct height because that determines the range of blocks we will scan to display your transaction history and wallet balance. If you have recovered a seed from a different hardware device, make sure to enter the block height of your original hardware device."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "^[La Altura de Cumpleaños de la Billetera](style: 'boldPrimary') es la altura de bloque (número de bloque en la cadena de bloques) en la que se creó tu billetera. Es importante proporcionar la altura correcta porque determina el rango de bloques que se escanearán para mostrar tu historial de transacciones y saldo. Si recuperaste una semilla de un dispositivo de hardware diferente, asegúrate de ingresar la altura de bloque de tu dispositivo de hardware original."
+          }
         }
       }
     },
@@ -2575,6 +2581,12 @@
             "state" : "translated",
             "value" : "Decide how far Zodl should scan. Enter a date before your first received transaction. If you’re not sure, choose an earlier date."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decide hasta dónde debe resincronizarse Zodl. Ingresa una fecha anterior a tu primera transacción recibida."
+          }
         }
       }
     },
@@ -2585,6 +2597,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Decide how far Zodl should resync. Enter a date before your first received transaction. If you’re not sure, choose an earlier date."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decide hasta dónde debe resincronizarse Zodl. Ingresa una fecha anterior a tu primera transacción recibida."
           }
         }
       }
@@ -3262,6 +3280,12 @@
             "state" : "translated",
             "value" : "Keep screen on while resyncing"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener la pantalla encendida mientras se resincroniza"
+          }
         }
       }
     },
@@ -3273,6 +3297,63 @@
             "state" : "translated",
             "value" : "Keep screen on while syncing"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener la pantalla encendida mientras se sincroniza"
+          }
+        }
+      }
+    },
+    "keepZodlOpenInstructionsHWWallet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zodl is scanning the blockchain to retrieve your transactions. Older wallets can take hours to complete syncing. Follow these steps to prevent interruption:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zodl está escaneando la cadena de bloques para recuperar tus transacciones. Las billeteras más antiguas pueden tardar horas en sincronizarse. Sigue estos pasos para evitar interrupciones:"
+          }
+        }
+      }
+    },
+    "keepZodlOpenInstructionsRestoring" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zodl is scanning the blockchain to retrieve your transactions. Older wallets can take hours to restore. Follow these steps to prevent interruption:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zodl está escaneando la cadena de bloques para recuperar tus transacciones. Las billeteras más antiguas pueden tardar horas en restaurarse. Sigue estos pasos para evitar interrupciones:"
+          }
+        }
+      }
+    },
+    "keepZodlOpenInstructionsResyncing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zodl is scanning the blockchain to retrieve your transactions. Older wallets can take hours to resync. Follow these steps to prevent interruption:"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zodl está escaneando la cadena de bloques para recuperar tus transacciones. Las billeteras más antiguas pueden tardar horas en resincronizarse. Sigue estos pasos para evitar interrupciones:"
+          }
         }
       }
     },
@@ -3283,6 +3364,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your wallet is being synced."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu billetera se está sincronizando."
           }
         }
       }
@@ -3312,6 +3399,12 @@
             "state" : "translated",
             "value" : "Your wallet is being resynced."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu billetera se está resincronizando."
+          }
         }
       }
     },
@@ -3322,6 +3415,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "^[Warning:](style: 'boldPrimary') Your Zodl funds cannot be spent until your Keystone wallet is synced."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "^[Advertencia:](style: 'boldPrimary') Mantén la app abierta hasta que tu billetera Keystone esté sincronizada."
           }
         }
       }
@@ -3334,6 +3433,12 @@
             "state" : "translated",
             "value" : "^[Warning:](style: 'boldPrimary') Your funds cannot be spent until your wallet is restored."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "^[Advertencia:](style: 'boldPrimary') Mantén la app abierta hasta que tu billetera esté completamente restaurada."
+          }
         }
       }
     },
@@ -3344,6 +3449,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "^[Warning:](style: 'boldPrimary') Your funds cannot be spent until your wallet is resynced."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "^[Advertencia:](style: 'boldPrimary') Mantén la app abierta hasta que tu billetera se haya resincronizado."
           }
         }
       }
@@ -3626,13 +3737,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Select Zodl (Zashi) app and scan QR code"
+            "value" : "Select Zodl app and scan QR code"
           }
         },
         "es" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selecciona la app Zodl (Zashi) y escanea el código QR"
+            "state" : "needs_review",
+            "value" : "Selecciona la app Zodl y escanea el código QR"
           }
         }
       }
@@ -5552,23 +5663,6 @@
         }
       }
     },
-    "restoreInfo.tips" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zodl is scanning the blockchain to retrieve your transactions. Older wallets can take hours to restore. Follow these steps to prevent interruption:"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zodl está escaneando la cadena de bloques para recuperar tus transacciones. Las billeteras más antiguas pueden tardar horas en restaurarse. Sigue estos pasos para evitar interrupciones:"
-          }
-        }
-      }
-    },
     "restoreInfo.title" : {
       "comment" : "MARK: - Restore Info",
       "extractionState" : "manual",
@@ -5583,17 +5677,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "¡Mantén Zodl abierto!"
-          }
-        }
-      }
-    },
-    "restoreKSDesc" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zodl is scanning the blockchain to retrieve your transactions. Older wallets can take hours to complete syncing. Follow these steps to prevent interruption:"
           }
         }
       }
@@ -5828,6 +5911,12 @@
             "state" : "translated",
             "value" : "Your wallet will be resynced from ^[%@](style: 'boldPrimary') (%@ blocks). Zodl will scan and recover all transactions made after the following block number."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu billetera se resincronizará desde ^[%@](style: 'boldPrimary') (%@ bloques).. Zodl escaneará y recuperará todas las transacciones realizadas después del siguiente número de bloque."
+          }
         }
       }
     },
@@ -5838,6 +5927,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Change"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cambiar"
           }
         }
       }
@@ -5850,6 +5945,12 @@
             "state" : "translated",
             "value" : "Confirm Resync"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmar Resincronización"
+          }
         }
       }
     },
@@ -5860,6 +5961,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unless you specify otherwise below, Zodl will resync from the date displayed."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A menos que especifiques lo contrario a continuación, Zodl se resincronizará desde la fecha mostrada."
           }
         }
       }
@@ -5872,6 +5979,12 @@
             "state" : "translated",
             "value" : "Resync the current wallet without resetting the app. This can be used to troubleshoot issues that would normally require restoring your wallet like fixing your Keystone balance."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resincroniza la billetera actual sin restablecer la app. Esto puede usarse para solucionar problemas que normalmente requerirían restaurar tu billetera como corregir tu balance de Keystone."
+          }
         }
       }
     },
@@ -5882,6 +5995,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "We tried but couldn’t trigger the Resync. Please try again or report an issue."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Intentamos resincronizar, pero no lo conseguimos. Vuelve a intentarlo o informa del problema."
           }
         }
       }
@@ -5894,6 +6013,12 @@
             "state" : "translated",
             "value" : "Resync Failed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error de resincronización"
+          }
         }
       }
     },
@@ -5904,6 +6029,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start Resync"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Iniciar resincronización"
           }
         }
       }
@@ -5916,6 +6047,12 @@
             "state" : "translated",
             "value" : "Resync Wallet"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resincronizar Billetera"
+          }
         }
       }
     },
@@ -5926,6 +6063,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your wallet will be resynced from ^[%@](style: 'boldPrimary') (%@ blocks). Use the button below if you wish to change it."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu billetera se resincronizará desde ^[%@](style: 'boldPrimary') (%@ bloques).. Usa el botón de abajo si deseas cambiarlo."
           }
         }
       }
@@ -13162,6 +13305,12 @@
             "state" : "translated",
             "value" : "Entering your Wallet Birthday Height ensures we can display all your funds and transaction history correctly."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al introducir la fecha de nacimiento y la altura de tu monedero, nos aseguramos de poder mostrar correctamente todos tus fondos y el historial de transacciones."
+          }
         }
       }
     },
@@ -13219,7 +13368,14 @@
       }
     },
     "Zcash" : {
-
+      "localizations" : {
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zcash"
+          }
+        }
+      }
     },
     "zecKeyboard.invalid" : {
       "comment" : "MARK: - ZEC Keyboard",
