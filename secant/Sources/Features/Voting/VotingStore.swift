@@ -508,7 +508,7 @@ struct Voting {
             selectedProposalId ?? nextUnvotedProposalId
         }
 
-        var selectedProposal: Proposal? {
+        var selectedProposal: VotingProposal? {
             if case .proposalDetail(let id) = currentScreen {
                 return votingRound.proposals.first { $0.id == id }
             }

@@ -467,7 +467,7 @@ struct ProposalListView: View {
 
 extension ProposalListView {
     @ViewBuilder
-    func proposalCard(_ proposal: Proposal) -> some View {
+    func proposalCard(_ proposal: VotingProposal) -> some View {
         let choice = store.draftVotes[proposal.id] ?? store.votes[proposal.id]
 
         VStack(alignment: .leading, spacing: 12) {

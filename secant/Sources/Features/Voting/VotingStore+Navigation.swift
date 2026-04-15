@@ -4,7 +4,7 @@ import Foundation
 import ComposableArchitecture
 import os
 
-// MARK: - Navigation, Proposal List/Detail, Share Info, Share Delegation Tracking
+// MARK: - Navigation, VotingProposal List/Detail, Share Info, Share Delegation Tracking
 
 extension Voting {
     func reduceNavigation(_ state: inout State, _ action: Action) -> Effect<Action> {

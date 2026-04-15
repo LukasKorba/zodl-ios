@@ -14,7 +14,7 @@ struct VoteOption: Equatable, Sendable {
 
 /// Maps to Proposal message (zvote/v1/types.proto).
 /// Chain uses uint32 id. UI-only metadata (zipNumber, forumURL) comes from off-chain sources.
-struct Proposal: Equatable, Identifiable, Sendable {
+struct VotingProposal: Equatable, Identifiable, Sendable {
     let id: UInt32
     let title: String
     let description: String

@@ -61,9 +61,11 @@ extension BackgroundTaskClient: DependencyKey {
                 guard #available(iOS 26.0, *), let state = cpState as? ContinuedProcessingState else {
                     return false
                 }
-                let request = BGContinuedProcessingTaskRequest(identifier: identifier)
-                request.title = title
-                request.subtitle = subtitle
+                let request = BGContinuedProcessingTaskRequest(
+                    identifier: identifier,
+                    title: title,
+                    subtitle: subtitle
+                )
                 request.strategy = .queue
 
                 do {

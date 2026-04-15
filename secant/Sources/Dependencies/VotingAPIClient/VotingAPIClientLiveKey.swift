@@ -241,7 +241,7 @@ private func parseVotingSession(from round: [String: Any]) throws -> VotingSessi
     let statusRaw = parseUInt32(round["status"])
 
     // Parse proposals array with options
-    var proposals: [Proposal] = []
+    var proposals: [VotingProposal] = []
     if let proposalsJSON = round["proposals"] as? [[String: Any]] {
         proposals = proposalsJSON.map { p in
             var options: [VoteOption] = []
@@ -254,7 +254,7 @@ private func parseVotingSession(from round: [String: Any]) throws -> VotingSessi
                 }
             }
             let forumURLString = p["forum_url"] as? String
-            return Proposal(
+            return VotingProposal(
                 id: parseUInt32(p["id"]),
                 title: p["title"] as? String ?? "",
                 description: p["description"] as? String ?? "",

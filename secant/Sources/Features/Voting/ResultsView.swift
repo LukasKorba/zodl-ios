@@ -97,10 +97,10 @@ struct ResultsView: View {
         return "Voted \(dateString)  ·  Voting Power \(formatWeightZEC(record.votingWeight)) ZEC"
     }
 
-    // MARK: - Proposal Result Card
+    // MARK: - VotingProposal Result Card
 
     @ViewBuilder
-    private func proposalResultCard(proposal: Proposal) -> some View {
+    private func proposalResultCard(proposal: VotingProposal) -> some View {
         let tally = store.tallyResults[proposal.id]
         let rawEntries = tally?.entries ?? []
         // Backfill missing options so they always display (even with 0 votes).
@@ -172,7 +172,7 @@ struct ResultsView: View {
     // MARK: - Winner Badge
 
     @ViewBuilder
-    private func winnerBadge(winningEntry: TallyResult.Entry?, proposal: Proposal) -> some View {
+    private func winnerBadge(winningEntry: TallyResult.Entry?, proposal: VotingProposal) -> some View {
         HStack(spacing: 6) {
             Image(systemName: "checkmark.seal")
                 .font(.system(size: 14, weight: .regular))
@@ -231,7 +231,7 @@ struct ResultsView: View {
 
     // MARK: - Helpers
 
-    private func optionLabel(for decision: UInt32, proposal: Proposal) -> String {
+    private func optionLabel(for decision: UInt32, proposal: VotingProposal) -> String {
         if let option = proposal.options.first(where: { $0.index == decision }) {
             return option.label
         }

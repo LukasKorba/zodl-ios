@@ -9,7 +9,7 @@ struct VotingRound: Equatable {
     let snapshotDate: Date
     let votingStart: Date
     let votingEnd: Date
-    let proposals: [Proposal]
+    let proposals: [VotingProposal]
 
     init(
         id: String,
@@ -20,7 +20,7 @@ struct VotingRound: Equatable {
         snapshotDate: Date,
         votingStart: Date,
         votingEnd: Date,
-        proposals: [Proposal]
+        proposals: [VotingProposal]
     ) {
         self.id = id
         self.title = title

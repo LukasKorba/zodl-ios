@@ -102,7 +102,7 @@ func voteOptionIcon(for index: UInt32, total: Int) -> String {
 // MARK: - Vote Badge (for proposal cards)
 
 /// Resolves a `VoteChoice` to a human label and color for display on proposal cards.
-func voteBadgeInfo(for choice: VoteChoice, proposal: Proposal, colorScheme: ColorScheme) -> (label: String, color: Color) {
+func voteBadgeInfo(for choice: VoteChoice, proposal: VotingProposal, colorScheme: ColorScheme) -> (label: String, color: Color) {
     let options = proposal.options
     let hasAbstain = options.contains { $0.label.localizedCaseInsensitiveContains("abstain") }
     let synthesizedAbstainIndex: UInt32? = hasAbstain ? nil : (options.map(\.index).max() ?? 0) + 1

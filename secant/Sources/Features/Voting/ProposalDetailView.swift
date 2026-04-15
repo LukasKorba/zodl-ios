@@ -7,7 +7,7 @@ struct ProposalDetailView: View {
     @State private var showUnansweredSheet = false
 
     let store: StoreOf<Voting>
-    let proposal: Proposal
+    let proposal: VotingProposal
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
 

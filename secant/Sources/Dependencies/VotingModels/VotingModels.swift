@@ -42,7 +42,7 @@ struct VotingSession: Equatable, Sendable {
     let creator: String
     let description: String
     let discussionURL: URL?
-    let proposals: [Proposal]
+    let proposals: [VotingProposal]
     let status: SessionStatus
     let createdAtHeight: UInt64
     let title: String
@@ -86,7 +86,7 @@ struct VotingSession: Equatable, Sendable {
         creator: String,
         description: String = "",
         discussionURL: URL? = nil,
-        proposals: [Proposal],
+        proposals: [VotingProposal],
         status: SessionStatus,
         createdAtHeight: UInt64 = 0,
         title: String = ""
