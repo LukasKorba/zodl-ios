@@ -282,6 +282,9 @@
 		34AA6EE22F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C922F85774F00D244E2 /* DeeplinkWarningView.swift */; };
 		34AA6EE32F85774F00D244E2 /* ChainToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6D462F85774F00D244E2 /* ChainToken.swift */; };
 		34AA6EE42F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C522F85774F00D244E2 /* WalletStorageLiveKey.swift */; };
+		37BTC00000000000000TST02 /* BackgroundTaskClientTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */; };
+		37BTC00000000000000LIV02 /* BackgroundTaskClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */; };
+		37BTC00000000000000INT02 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37D001A796A834CF74EC0001 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		34AA6EE52F85774F00D244E2 /* PendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CD32F85774F00D244E2 /* PendingView.swift */; };
 		34AA6EE62F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C472F85774F00D244E2 /* UserPreferencesStorageLive.swift */; };
@@ -732,6 +735,9 @@
 		34AA70B02F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C922F85774F00D244E2 /* DeeplinkWarningView.swift */; };
 		34AA70B12F85774F00D244E2 /* ChainToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6D462F85774F00D244E2 /* ChainToken.swift */; };
 		34AA70B22F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C522F85774F00D244E2 /* WalletStorageLiveKey.swift */; };
+		37BTC00000000000000TST03 /* BackgroundTaskClientTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */; };
+		37BTC00000000000000LIV03 /* BackgroundTaskClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */; };
+		37BTC00000000000000INT03 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37D001A796A834CF74EC0002 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		34AA70B32F85774F00D244E2 /* PendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CD32F85774F00D244E2 /* PendingView.swift */; };
 		34AA70B42F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C472F85774F00D244E2 /* UserPreferencesStorageLive.swift */; };
@@ -1130,6 +1136,9 @@
 		34AA72462F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C922F85774F00D244E2 /* DeeplinkWarningView.swift */; };
 		34AA72472F85774F00D244E2 /* ChainToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6D462F85774F00D244E2 /* ChainToken.swift */; };
 		34AA72482F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C522F85774F00D244E2 /* WalletStorageLiveKey.swift */; };
+		37BTC00000000000000TST04 /* BackgroundTaskClientTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */; };
+		37BTC00000000000000LIV04 /* BackgroundTaskClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */; };
+		37BTC00000000000000INT04 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37D001A796A834CF74EC0003 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		34AA72492F85774F00D244E2 /* PendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CD32F85774F00D244E2 /* PendingView.swift */; };
 		34AA724A2F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C472F85774F00D244E2 /* UserPreferencesStorageLive.swift */; };
@@ -1580,6 +1589,9 @@
 		34AA74142F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C922F85774F00D244E2 /* DeeplinkWarningView.swift */; };
 		34AA74152F85774F00D244E2 /* ChainToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6D462F85774F00D244E2 /* ChainToken.swift */; };
 		34AA74162F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C522F85774F00D244E2 /* WalletStorageLiveKey.swift */; };
+		37BTC00000000000000TST05 /* BackgroundTaskClientTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */; };
+		37BTC00000000000000LIV05 /* BackgroundTaskClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */; };
+		37BTC00000000000000INT05 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37D001A796A834CF74EC0004 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		34AA74172F85774F00D244E2 /* PendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CD32F85774F00D244E2 /* PendingView.swift */; };
 		34AA74182F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C472F85774F00D244E2 /* UserPreferencesStorageLive.swift */; };
@@ -1978,6 +1990,9 @@
 		34AA75AA2F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C922F85774F00D244E2 /* DeeplinkWarningView.swift */; };
 		34AA75AB2F85774F00D244E2 /* ChainToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6D462F85774F00D244E2 /* ChainToken.swift */; };
 		34AA75AC2F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C522F85774F00D244E2 /* WalletStorageLiveKey.swift */; };
+		37BTC00000000000000TST06 /* BackgroundTaskClientTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */; };
+		37BTC00000000000000LIV06 /* BackgroundTaskClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */; };
+		37BTC00000000000000INT06 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37D001A796A834CF74EC0005 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		34AA75AD2F85774F00D244E2 /* PendingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CD32F85774F00D244E2 /* PendingView.swift */; };
 		34AA75AE2F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C472F85774F00D244E2 /* UserPreferencesStorageLive.swift */; };
@@ -2673,6 +2688,9 @@
 		34AA6C522F85774F00D244E2 /* WalletStorageLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStorageLiveKey.swift; sourceTree = "<group>"; };
 		34AA6C532F85774F00D244E2 /* WalletStorageTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStorageTestKey.swift; sourceTree = "<group>"; };
 		37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredVotingHotkey.swift; sourceTree = "<group>"; };
+		37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskClientTestKey.swift; sourceTree = "<group>"; };
+		37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskClientLiveKey.swift; sourceTree = "<group>"; };
+		37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskClientInterface.swift; sourceTree = "<group>"; };
 		34AA6C552F85774F00D244E2 /* WhatsNewProviderInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewProviderInterface.swift; sourceTree = "<group>"; };
 		34AA6C562F85774F00D244E2 /* WhatsNewProviderLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewProviderLiveKey.swift; sourceTree = "<group>"; };
 		34AA6C572F85774F00D244E2 /* WhatsNewProviderTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhatsNewProviderTestKey.swift; sourceTree = "<group>"; };
@@ -3753,6 +3771,16 @@
 			path = WalletStorage;
 			sourceTree = "<group>";
 		};
+		37BTC00000000000000GRP01 /* BackgroundTaskClient */ = {
+			isa = PBXGroup;
+			children = (
+				37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */,
+				37BTC00000000000000LIV01 /* BackgroundTaskClientLiveKey.swift */,
+				37BTC00000000000000TST01 /* BackgroundTaskClientTestKey.swift */,
+			);
+			path = BackgroundTaskClient;
+			sourceTree = "<group>";
+		};
 		34AA6C582F85774F00D244E2 /* WhatsNewProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -3815,6 +3843,7 @@
 				34AA6C492F85774F00D244E2 /* UserPreferencesStorage */,
 				34AA6C4F2F85774F00D244E2 /* WalletConfigProvider */,
 				34AA6C542F85774F00D244E2 /* WalletStorage */,
+				37BTC00000000000000GRP01 /* BackgroundTaskClient */,
 				34AA6C582F85774F00D244E2 /* WhatsNewProvider */,
 				34AA6C5C2F85774F00D244E2 /* ZcashSDKEnvironment */,
 				37CEBE952F8E939D002DA90E /* VotingAPIClient */,
@@ -6328,6 +6357,9 @@
 				34AA74142F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA74152F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA74162F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
+				37BTC00000000000000TST02 /* BackgroundTaskClientTestKey.swift in Sources */,
+				37BTC00000000000000LIV02 /* BackgroundTaskClientLiveKey.swift in Sources */,
+				37BTC00000000000000INT02 /* BackgroundTaskClientInterface.swift in Sources */,
 				37D001A796A834CF74EC0001 /* StoredVotingHotkey.swift in Sources */,
 				34AA74172F85774F00D244E2 /* PendingView.swift in Sources */,
 				34AA74182F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
@@ -6775,6 +6807,9 @@
 				34AA70B02F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA70B12F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA70B22F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
+				37BTC00000000000000TST03 /* BackgroundTaskClientTestKey.swift in Sources */,
+				37BTC00000000000000LIV03 /* BackgroundTaskClientLiveKey.swift in Sources */,
+				37BTC00000000000000INT03 /* BackgroundTaskClientInterface.swift in Sources */,
 				37D001A796A834CF74EC0002 /* StoredVotingHotkey.swift in Sources */,
 				34AA70B32F85774F00D244E2 /* PendingView.swift in Sources */,
 				34AA70B42F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
@@ -7282,6 +7317,9 @@
 				34AA75AA2F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA75AB2F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA75AC2F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
+				37BTC00000000000000TST04 /* BackgroundTaskClientTestKey.swift in Sources */,
+				37BTC00000000000000LIV04 /* BackgroundTaskClientLiveKey.swift in Sources */,
+				37BTC00000000000000INT04 /* BackgroundTaskClientInterface.swift in Sources */,
 				37D001A796A834CF74EC0003 /* StoredVotingHotkey.swift in Sources */,
 				34AA75AD2F85774F00D244E2 /* PendingView.swift in Sources */,
 				34AA75AE2F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
@@ -7729,6 +7767,9 @@
 				34AA72462F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA72472F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA72482F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
+				37BTC00000000000000TST05 /* BackgroundTaskClientTestKey.swift in Sources */,
+				37BTC00000000000000LIV05 /* BackgroundTaskClientLiveKey.swift in Sources */,
+				37BTC00000000000000INT05 /* BackgroundTaskClientInterface.swift in Sources */,
 				37D001A796A834CF74EC0004 /* StoredVotingHotkey.swift in Sources */,
 				34AA72492F85774F00D244E2 /* PendingView.swift in Sources */,
 				34AA724A2F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
@@ -8176,6 +8217,9 @@
 				34AA6EE22F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA6EE32F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA6EE42F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
+				37BTC00000000000000TST06 /* BackgroundTaskClientTestKey.swift in Sources */,
+				37BTC00000000000000LIV06 /* BackgroundTaskClientLiveKey.swift in Sources */,
+				37BTC00000000000000INT06 /* BackgroundTaskClientInterface.swift in Sources */,
 				37D001A796A834CF74EC0005 /* StoredVotingHotkey.swift in Sources */,
 				34AA6EE52F85774F00D244E2 /* PendingView.swift in Sources */,
 				34AA6EE62F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
