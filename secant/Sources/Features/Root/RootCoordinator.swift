@@ -118,13 +118,14 @@ extension Root {
                     }
                 }
                 userDefaults.setValue(leavesScreenOpen, Constants.udLeavesScreenOpen)
-                autolockHandler.value(leavesScreenOpen)
                 state.path = nil
                 state.isRestoringWallet = true
                 userDefaults.setValue(true, Constants.udIsResyncingWallet)
                 state.$walletStatus.withLock { $0 = .resyncing }
+                let leavesScreenOpenFixed = leavesScreenOpen
                 return .concatenate(
                     .run { send in
+                        await autolockHandler.value(leavesScreenOpenFixed)
                         do {
                             try await sdkSynchronizer.rescanFrom(birthday)
                         } catch {

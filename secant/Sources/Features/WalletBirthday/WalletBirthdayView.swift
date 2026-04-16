@@ -53,7 +53,7 @@ struct WalletBirthdayView: View {
                 
                 Spacer()
                 
-                if !store.isKeystoneFlow && !store.isResyncFlow {
+                if !store.isKeystoneFlow && !store.isResyncFlow && !keyboardVisible {
                     ZashiButton(
                         String(localizable: .restoreWalletBirthdayEstimate),
                         type: .ghost
@@ -76,7 +76,11 @@ struct WalletBirthdayView: View {
                 .padding(.bottom, keyboardVisible ? 48 : 24)
             }
             .zashiBack()
-            .onAppear { isBirthdayFocused = true }
+            .onAppear {
+                if store.isResyncFlow || store.isKeystoneFlow {
+                    isBirthdayFocused = true
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
             .trackKeyboardVisibility($keyboardVisible)
             .navigationBarItems(
