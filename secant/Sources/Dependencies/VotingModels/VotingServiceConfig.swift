@@ -1,7 +1,7 @@
 import Foundation
 
 /// CDN-hosted config listing vote servers and PIR servers.
-/// Fetched at startup from `VotingServiceConfig.cdnURL`.
+/// Fetched at startup from `VotingServiceConfig.configURL`.
 /// A local override file (`voting-config-local.json` in the app bundle) takes priority
 /// to simplify testing against a local chain.
 struct VotingServiceConfig: Codable, Equatable, Sendable {
@@ -31,8 +31,21 @@ struct VotingServiceConfig: Codable, Equatable, Sendable {
         case pirServers = "pir_servers"
     }
 
-    /// CDN URL for the production config (served from Vercel Edge Config).
-    static let cdnURL = URL(string: "https://shielded-vote.vercel.app/api/voting-config")!
+    public enum Environment: String, Sendable {
+        case staging
+        case production
+
+        var configURL: URL {
+            let base = "https://valargroup.github.io/token-holder-voting-config"
+            return URL(string: "\(base)/\(rawValue)/voting-config.json")!
+        }
+    }
+
+    /// Active environment. Change at launch before first config fetch.
+    public static var environment: Environment = .staging
+
+    /// Config URL for the active environment (served via GitHub Pages CDN).
+    public static var configURL: URL { environment.configURL }
 
     /// Filename for a local override bundled in the app (takes priority over CDN).
     static let localOverrideFilename = "voting-config-local.json"

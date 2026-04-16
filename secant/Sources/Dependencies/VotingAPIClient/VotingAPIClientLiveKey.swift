@@ -318,16 +318,17 @@ extension VotingAPIClient: DependencyKey {
                 }
                 #endif
 
-                // 2. Try CDN
+                // 2. Try GitHub Pages CDN
                 do {
-                    let (data, response) = try await httpSession.data(from: VotingServiceConfig.cdnURL)
+                    let configURL = VotingServiceConfig.configURL
+                    let (data, response) = try await httpSession.data(from: configURL)
                     if let http = response as? HTTPURLResponse, http.statusCode == 200 {
                         let config = try JSONDecoder().decode(VotingServiceConfig.self, from: data)
-                        print("[VotingAPI] Loaded CDN config: \(config.voteServers.count) vote servers")
+                        print("[VotingAPI] Loaded config (\(VotingServiceConfig.environment)): \(config.voteServers.count) vote servers")
                         return config
                     }
                 } catch {
-                    print("[VotingAPI] CDN config fetch failed: \(error)")
+                    print("[VotingAPI] Config fetch failed: \(error)")
                 }
 
                 // 3. Fall back to deployed dev server defaults
