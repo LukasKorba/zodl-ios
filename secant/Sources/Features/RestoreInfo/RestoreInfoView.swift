@@ -40,9 +40,15 @@ struct RestoreInfoView: View {
                 .zFont(.medium, size: 16, style: Design.Text.primary)
                 .padding(.bottom, 16)
 
-                Text(localizable: .restoreInfoTips)
-                    .zFont(size: 14, style: Design.Text.primary)
-                    .padding(.bottom, 16)
+                Text(
+                    localizable: store.isKeystoneFlow
+                    ? .keepZodlOpenInstructionsHWWallet
+                    : store.isResyncFlow
+                    ? .keepZodlOpenInstructionsResyncing
+                    : .keepZodlOpenInstructionsRestoring
+                )
+                .zFont(size: 14, style: Design.Text.primary)
+                .padding(.bottom, 16)
 
                 bulletpoint(String(localizable: .restoreInfoTip1))
                 bulletpoint(String(localizable: .restoreInfoTip2))
