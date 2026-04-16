@@ -28,7 +28,6 @@ struct AddressBook {
         var address = ""
         var addressAlreadyExists = false
         @Shared(.inMemory(.addressBookContacts)) var addressBookContacts: AddressBookContacts = .empty
-        var addressBookContactsToShow: AddressBookContacts = .empty
         @Presents var alert: AlertState<Action>?
         var context: Context = .unknown
         var deleteIdToConfirm: String?
@@ -106,7 +105,19 @@ struct AddressBook {
             : nil
         }
         
-        
+        var addressBookContactsToShow: AddressBookContacts {
+            var abContactsCopy = addressBookContacts
+            
+            abContactsCopy.contacts = abContactsCopy.contacts.filter {
+                switch context {
+                case .swap: $0.chainId != nil
+                case .send: $0.chainId == nil
+                default: true
+                }
+            }
+            
+            return abContactsCopy
+        }
 
         init() { }
     }
@@ -342,13 +353,6 @@ struct AddressBook {
                     return .none
                 }
                 state.$addressBookContacts.withLock { $0 = abContacts }
-                var abContactsCopy = abContacts
-                if state.context == .swap {
-                    abContactsCopy.contacts = abContactsCopy.contacts.filter { $0.chainId != nil }
-                } else if state.context == .send {
-                    abContactsCopy.contacts = abContactsCopy.contacts.filter { $0.chainId == nil }
-                }
-                state.addressBookContactsToShow = abContactsCopy
                 if requestToSync {
                     return .run { send in
                         do {
