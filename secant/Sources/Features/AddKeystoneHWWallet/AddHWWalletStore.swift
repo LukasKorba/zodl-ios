@@ -14,6 +14,7 @@ import ComposableArchitecture
 struct AddKeystoneHWWallet {
     @ObservableState
     struct State: Equatable {
+        var isHelpSheetPresented = false
         var isInAppBrowserOn = false
         var isKSAccountSelected = false
         var randomSuccessIconIndex = 0
@@ -71,6 +72,7 @@ struct AddKeystoneHWWallet {
         case binding(BindingAction<AddKeystoneHWWallet.State>)
         case closeTapped
         case forgetThisDeviceTapped
+        case helpSheetRequested
         case loadedWalletAccounts([WalletAccount], AccountUUID)
         case nextTapped
         case onAppear
@@ -106,6 +108,10 @@ struct AddKeystoneHWWallet {
             case .binding:
                 return .none
                 
+            case .helpSheetRequested:
+                state.isHelpSheetPresented.toggle()
+                return .none
+
             case .accountTapped:
                 state.isKSAccountSelected.toggle()
                 return .none

@@ -89,7 +89,8 @@ extension RestoreWalletCoordFlow {
                 state.path.append(.walletBirthday(WalletBirthday.State.initial))
                 return .none
                 
-            case .path(.element(id: _, action: .recoverySeedPhraseEntry(.helpSheetRequested))):
+            case .path(.element(id: _, action: .recoverySeedPhraseEntry(.helpSheetRequested))),
+                .path(.element(id: _, action: .estimatedBirthday(.helpSheetRequested))):
                 state.isHelpSheetPresented.toggle()
                 return .none
 

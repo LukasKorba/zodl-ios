@@ -3152,6 +3152,193 @@
         }
       }
     },
+    "hardwareWalletExplainer.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got It"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entendido"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.description" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A hardware wallet (HW wallet) is a physical device that stores your cryptocurrency private keys offline, keeping them safe from online hackers and malware."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un hardware wallet es un dispositivo físico que almacena tus claves privadas de criptomonedas sin conexión a internet, manteniéndolas a salvo de hackers y malware."
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.featureDescription1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your keys never leave the device, even when signing transactions"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus claves nunca salen del dispositivo, incluso al firmar transacciones"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.featureDescription2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Immune to computer viruses and phishing attacks"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inmune a virus informáticos y ataques de phishing"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.featureDescription3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You own your keys, you own your crypto"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus claves son tuyas, tu cripto es tuya"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.featureTitle1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Maximum Security"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguridad Máxima"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.featureTitle2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protection from Malware"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protección contra Malware"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.featureTitle3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Full Control"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Control Total"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.infoBoxDescription" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keystone is a popular hardware wallet brand that offers air-gapped security with QR code signing. It's one of many trusted hardware wallet options, alongside Ledger and others."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keystone es una marca popular de hardware wallet que ofrece seguridad air-gapped con firma mediante códigos QR. Es una de las muchas opciones confiables de hardware wallet, junto con Ledger y otros."
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.infoBoxTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About Keystone"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sobre Keystone"
+          }
+        }
+      }
+    },
+    "hardwareWalletExplainer.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's a Hardware Wallet?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Qué es un Hardware Wallet?"
+          }
+        }
+      }
+    },
     "home.migratingDatabases" : {
       "comment" : "MARK: - Home Screen",
       "extractionState" : "manual",
@@ -13293,6 +13480,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "^[La Altura de Creación de la Billetera (Wallet Birthday Height)](style: 'boldPrimary') corresponde a la altura del bloque (número de bloque en la cadena de bloques) en la que se creó tu billetera. Es importante proporcionar la altura correcta, ya que determina el rango de bloques que analizaremos para mostrar tu historial de transacciones y el saldo de tu billetera. Si recuperaste una semilla de otro dispositivo, asegúrate de ingresar la altura del bloque de tu dispositivo original."
+          }
+        }
+      }
+    },
+    "walletBirthdayHelpDescRecovery" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "^[The Wallet Birthday Height](style: 'boldPrimary') is the block height (block # in the blockchain) at which your wallet was created. If you ever lose access to your Zodl app and need to recover your funds, providing the block height along with your recovery phrase can significantly speed up the process."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "^[La Altura de Cumpleaños de la Billetera](style: 'boldPrimary') es la altura del bloque (número de bloque en la blockchain) en el que tu billetera fue creada. Si alguna vez pierdes acceso a tu aplicación Zodl y necesitas recuperar tus fondos, proporcionar la altura del bloque junto con tu frase de recuperación puede acelerar significativamente el proceso."
           }
         }
       }
