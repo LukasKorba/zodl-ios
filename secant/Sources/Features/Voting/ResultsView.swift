@@ -12,22 +12,18 @@ private func formatWeightZEC(_ weight: UInt64) -> String {
     return String(format: "%.3f", zec)
 }
 
-/// Picks the design-system winner color for an option index. Mirrors
-/// `voteOptionColor`'s green/red convention for binary proposals so the visual
-/// rhythm matches existing screens, but uses the Figma utility-500 tokens.
-private func winnerColorForDecision(
-    _ decision: UInt32,
-    total: Int,
+/// Color for a tally entry. Looks the option up on the proposal so Abstain
+/// stays HyperBlue; falls back to a synthetic VoteOption for entries whose
+/// decision index isn't in `proposal.options` (e.g. legacy Support/Oppose).
+private func tallyEntryColor(
+    decision: UInt32,
+    proposal: VotingProposal,
+    fallbackLabel: String,
     colorScheme: ColorScheme
 ) -> Color {
-    if total == 2 {
-        return decision == 0
-            ? Design.Utility.SuccessGreen._500.color(colorScheme)
-            : Design.Utility.ErrorRed._500.color(colorScheme)
-    }
-    // For 3+ options the design hasn't specified a palette yet — fall back to
-    // the existing palette so we don't crash on a multi-option round.
-    return voteOptionColor(for: decision, total: total, colorScheme: colorScheme)
+    let option = proposal.options.first { $0.index == decision }
+        ?? VoteOption(index: decision, label: fallbackLabel)
+    return voteOptionColor(for: option, total: proposal.options.count, colorScheme: colorScheme)
 }
 
 struct ResultsView: View {
@@ -138,13 +134,15 @@ struct ResultsView: View {
             VStack(spacing: 12) {
                 ForEach(entries, id: \.decision) { entry in
                     let isWinner = entry.decision == winningEntry?.decision
+                    let label = optionLabel(for: entry.decision, proposal: proposal)
                     resultBar(
-                        label: optionLabel(for: entry.decision, proposal: proposal),
+                        label: label,
                         amount: entry.amount,
                         total: totalAmount,
-                        winnerColor: winnerColorForDecision(
-                            entry.decision,
-                            total: proposal.options.count,
+                        winnerColor: tallyEntryColor(
+                            decision: entry.decision,
+                            proposal: proposal,
+                            fallbackLabel: label,
                             colorScheme: colorScheme
                         ),
                         isWinner: isWinner
@@ -184,9 +182,10 @@ struct ResultsView: View {
 
                 if let winner = winningEntry {
                     let label = optionLabel(for: winner.decision, proposal: proposal)
-                    let color = winnerColorForDecision(
-                        winner.decision,
-                        total: proposal.options.count,
+                    let color = tallyEntryColor(
+                        decision: winner.decision,
+                        proposal: proposal,
+                        fallbackLabel: label,
                         colorScheme: colorScheme
                     )
                     Text(label)

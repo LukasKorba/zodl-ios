@@ -71,25 +71,31 @@ struct PrototypeBanner: View {
 
 // MARK: - Vote Option Palette
 
-/// Color for a vote option index. For 2-option proposals this preserves the classic
-/// green (Support) / red (Oppose) look; for 3+ options it cycles through a palette.
-func voteOptionColor(for index: UInt32, total: Int, colorScheme: ColorScheme) -> Color {
+/// Color for a vote option. 2-option proposals keep the classic green (Support)
+/// / red (Oppose) look. Any option labeled "Abstain" gets HyperBlue so the
+/// colour is stable whether Abstain is native to the proposal or synthesised
+/// by the client at review time. 3+ non-abstain options rotate through a
+/// palette that deliberately excludes HyperBlue (reserved for Abstain).
+func voteOptionColor(for option: VoteOption, total: Int, colorScheme: ColorScheme) -> Color {
+    if option.label.localizedCaseInsensitiveContains("abstain") {
+        return Design.Utility.HyperBlue._700.color(colorScheme)
+    }
     if total == 2 {
-        return index == 0
+        return option.index == 0
             ? Design.Utility.SuccessGreen._500.color(colorScheme)
             : Design.Utility.ErrorRed._500.color(colorScheme)
     }
     let palette: [Color] = [
         Design.Utility.SuccessGreen._500.color(colorScheme),
         Design.Utility.ErrorRed._500.color(colorScheme),
-        Design.Utility.HyperBlue._500.color(colorScheme),
         Design.Utility.Purple._500.color(colorScheme),
         Design.Utility.WarningYellow._500.color(colorScheme),
         Design.Utility.Indigo._500.color(colorScheme),
         Design.Utility.Brand._500.color(colorScheme),
-        Design.Utility.Gray._500.color(colorScheme)
+        Design.Utility.Gray._500.color(colorScheme),
+        Design.Utility.Indigo._700.color(colorScheme)
     ]
-    return palette[Int(index) % palette.count]
+    return palette[Int(option.index) % palette.count]
 }
 
 /// SF Symbol for a vote option index. For 2-option proposals this preserves the classic
@@ -104,20 +110,19 @@ func voteOptionIcon(for index: UInt32, total: Int) -> String {
 /// Resolves a `VoteChoice` to a human label and color for display on proposal cards.
 func voteBadgeInfo(for choice: VoteChoice, proposal: VotingProposal, colorScheme: ColorScheme) -> (label: String, color: Color) {
     let options = proposal.options
-    let hasAbstain = options.contains { $0.label.localizedCaseInsensitiveContains("abstain") }
-    let synthesizedAbstainIndex: UInt32? = hasAbstain ? nil : (options.map(\.index).max() ?? 0) + 1
-    let abstainBlue = Design.Utility.HyperBlue._700.color(colorScheme)
-
-    if let syntheticIdx = synthesizedAbstainIndex, choice.index == syntheticIdx {
-        return ("Abstain", abstainBlue)
+    if let matched = options.first(where: { $0.index == choice.index }) {
+        return (matched.label, voteOptionColor(for: matched, total: options.count, colorScheme: colorScheme))
     }
 
-    if let matched = options.first(where: { $0.index == choice.index }) {
-        if matched.label.localizedCaseInsensitiveContains("abstain") {
-            return (matched.label, abstainBlue)
-        }
-        let color = voteOptionColor(for: matched.index, total: options.count, colorScheme: colorScheme)
-        return (matched.label, color)
+    // Synthesized Abstain: the user confirmed "abstain on unanswered" for a
+    // proposal whose options don't include Abstain natively. The draft choice
+    // is written at max(option.index) + 1, matching ProposalDetailView's
+    // synthesized row and VotingStore.confirmUnanswered.
+    let synthesizedAbstainIndex = (options.map(\.index).max() ?? 0) + 1
+    if !options.contains(where: { $0.label.localizedCaseInsensitiveContains("abstain") })
+        && choice.index == synthesizedAbstainIndex {
+        let synthetic = VoteOption(index: choice.index, label: "Abstain")
+        return (synthetic.label, voteOptionColor(for: synthetic, total: options.count + 1, colorScheme: colorScheme))
     }
 
     return ("Voted", Design.Utility.Gray._500.color(colorScheme))

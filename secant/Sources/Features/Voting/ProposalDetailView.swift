@@ -162,7 +162,7 @@ struct ProposalDetailView: View {
                 voteOptionRow(
                     label: option.label,
                     isSelected: isSelected,
-                    color: voteOptionColor(for: option.index, total: options.count, colorScheme: colorScheme),
+                    color: voteOptionColor(for: option, total: options.count, colorScheme: colorScheme),
                     isLocked: isLocked
                 ) {
                     impactFeedback.impactOccurred()
