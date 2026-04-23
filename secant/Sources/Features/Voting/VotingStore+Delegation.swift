@@ -359,8 +359,13 @@ extension Voting {
             let keystoneSeedFingerprint = keystoneMetadata?.seedFingerprint
             let isKeystoneUser = state.isKeystoneUser
             let roundName = state.votingRound.title
-            // PIR server URL from resolved service config
-            let pirServerUrl = state.serviceConfig?.pirServers.first?.url ?? "https://46-101-255-48.sslip.io/nullifier"
+            // serviceConfig is guaranteed loaded by the time the user reaches any voting
+            // pipeline: the .configError gate in .initialize/.allRoundsLoaded blocks entry
+            // to the voting screens when config is missing. The guard is defense-in-depth.
+            guard let pirServerUrl = state.serviceConfig?.pirEndpoints.first?.url else {
+                votingLogger.error("serviceConfig unexpectedly nil in startActiveRoundPipeline; aborting")
+                return .none
+            }
             let keystoneBundleIndex = state.currentKeystoneBundleIndex
             let bundleCount = state.bundleCount
             return .merge(
@@ -564,7 +569,10 @@ extension Voting {
             let network = zcashSDKEnvironment.network
             let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
             let accountIndex: UInt32 = state.selectedWalletAccount.flatMap(\.zip32AccountIndex).map { UInt32($0.index) } ?? 0
-            let pirServerUrl = state.serviceConfig?.pirServers.first?.url ?? "https://46-101-255-48.sslip.io/nullifier"
+            guard let pirServerUrl = state.serviceConfig?.pirEndpoints.first?.url else {
+                votingLogger.error("serviceConfig unexpectedly nil during delegation proof; aborting")
+                return .none
+            }
             let storedSignatures = state.keystoneBundleSignatures
             let signedCount = storedSignatures.count
 

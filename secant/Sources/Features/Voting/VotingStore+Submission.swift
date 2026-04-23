@@ -79,13 +79,18 @@ extension Voting {
             let roundId = state.roundId
             let network = zcashSDKEnvironment.network
             let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
-            let chainNodeUrl = state.serviceConfig?.voteServers.first?.url ?? "https://46-101-255-48.sslip.io"
+            guard
+                let chainNodeUrl = state.serviceConfig?.voteServers.first?.url,
+                let pirServerUrl = state.serviceConfig?.pirEndpoints.first?.url
+            else {
+                votingLogger.error("serviceConfig unexpectedly nil during vote submission; aborting")
+                return .none
+            }
             let bundleCount = state.bundleCount
             let singleShare = state.activeSession?.isLastMoment ?? false
             let proposals = state.votingRound.proposals
             let cachedNotes = state.walletNotes
             let roundName = state.votingRound.title
-            let pirServerUrl = state.serviceConfig?.pirServers.first?.url ?? "https://46-101-255-48.sslip.io/nullifier"
 
             let submitAtDeadline: Double?
             if singleShare {

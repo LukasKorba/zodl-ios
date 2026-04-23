@@ -120,6 +120,7 @@ struct Voting {
             case reviewVotes
             case confirmSubmission
             case error(String)
+            case configError(String)
             case walletSyncing
         }
 
@@ -216,6 +217,10 @@ struct Voting {
 
         /// Resolved service config from CDN or local override.
         var serviceConfig: VotingServiceConfig?
+
+        /// Set after one attempted lazy config refresh during the current session.
+        /// Prevents a refresh → allRoundsLoaded → refresh loop when the fresh config still doesn't match.
+        var hasAttemptedConfigRefresh: Bool = false
 
         /// Tally results for finalized rounds (proposalId -> TallyResult).
         var tallyResults: [UInt32: TallyResult] = [:]
@@ -569,6 +574,7 @@ struct Voting {
         // Initialization (DB, wallet notes, hotkey)
         case initialize
         case serviceConfigLoaded(VotingServiceConfig)
+        case configUnsupported(String)
         case activeSessionLoaded(VotingSession)
         case noActiveRound
         case votingWeightLoaded(UInt64, [NoteInfo])
@@ -696,6 +702,7 @@ struct Voting {
             // MARK: - Initialization
             case .initialize,
                 .serviceConfigLoaded,
+                .configUnsupported,
                 .startActiveRoundPipeline,
                 .activeSessionLoaded,
                 .noActiveRound,

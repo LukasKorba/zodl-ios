@@ -13,6 +13,60 @@ extension Voting {
         // MARK: - Rounds List
 
         case .allRoundsLoaded(let sessions):
+            // Bind the CDN config to its chain round and verify proposals match.
+            // Per ZIP 1244, the config is published per-round and must pin exactly
+            // one on-chain round via `vote_round_id`; the `proposals_hash` commits
+            // to the proposals the user will see.
+            //
+            // Skip the binding check when the chain has no rounds at all — that's a
+            // legitimate "no active voting" state, not a tampered config, and the
+            // existing noRounds-screen branch below handles it.
+            if let config = state.serviceConfig, !sessions.isEmpty {
+                let configRoundId = config.voteRoundId.lowercased()
+                let hasMatch = sessions.contains { $0.voteRoundId.hexString == configRoundId }
+
+                // Stale-config recovery: if the cached config doesn't match any on-chain
+                // round (e.g. a new round activated while the wallet was open), attempt
+                // one fresh fetch before bricking. The flag gates the retry so we don't
+                // loop when the fresh config still doesn't bind.
+                if !hasMatch && !state.hasAttemptedConfigRefresh {
+                    state.hasAttemptedConfigRefresh = true
+                    votingLogger.info("Config round \(configRoundId.prefix(16))... not in chain rounds; refreshing config")
+                    return .run { [votingAPI] send in
+                        let fresh = try await votingAPI.fetchServiceConfig()
+                        await send(.serviceConfigLoaded(fresh))
+                    } catch: { error, send in
+                        let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                        await send(.configUnsupported(message))
+                    }
+                }
+
+                guard let matchingSession = sessions.first(where: { $0.voteRoundId.hexString == configRoundId }) else {
+                    let chainIds = sessions.map { $0.voteRoundId.hexString.prefix(16) }.joined(separator: ", ")
+                    votingLogger.error("Config round \(configRoundId.prefix(16))... not found in chain rounds [\(chainIds)] after refresh")
+                    let error = VotingConfigError.roundIdMismatch(
+                        configRoundId: configRoundId,
+                        chainRoundId: sessions.first?.voteRoundId.hexString ?? ""
+                    )
+                    state.screenStack = [.configError(error.errorDescription ?? "Voting config is invalid.")]
+                    return .none
+                }
+                let computed = VotingServiceConfig.computeProposalsHash(config.proposals)
+                if computed != matchingSession.proposalsHash {
+                    votingLogger.error("proposals_hash mismatch: expected=\(matchingSession.proposalsHash.base64EncodedString()) got=\(computed.base64EncodedString())")
+                    let error = VotingConfigError.proposalsHashMismatch(
+                        expected: matchingSession.proposalsHash,
+                        actual: computed
+                    )
+                    state.screenStack = [.configError(error.errorDescription ?? "Voting config is invalid.")]
+                    return .none
+                }
+
+                // Binding succeeded. Reset the one-shot retry flag so a later round
+                // transition in this session can still get its own auto-retry attempt.
+                state.hasAttemptedConfigRefresh = false
+            }
+
             // Sort by created_at_height ascending for reliable creation order
             let sorted = sessions.sorted { $0.createdAtHeight < $1.createdAtHeight }
             state.allRounds = sorted.enumerated().map { index, session in
@@ -82,14 +136,25 @@ extension Voting {
         case .initialize:
             // Guard against onAppear re-firing while already initialized
             guard state.currentScreen == .loading else { return .none }
+            // Reset the one-shot auto-retry gate so a cold re-entry into voting
+            // (e.g. after dismissing from .configError) gets its own retry allotment
+            // instead of inheriting a stuck-true flag from the prior session.
+            state.hasAttemptedConfigRefresh = false
             return .run { [votingAPI] send in
-                // 1. Fetch service config (local override -> CDN -> deployed dev server fallback)
+                // 1. Fetch service config (local override -> CDN). Decode or version failures
+                //    surface as VotingConfigError and block the voting feature entirely;
+                //    the wallet must be updated before the user can proceed.
                 let config = try await votingAPI.fetchServiceConfig()
                 await send(.serviceConfigLoaded(config))
             } catch: { error, send in
-                votingLogger.error("Service config fetch failed: \(error)")
-                await send(.serviceConfigLoaded(.fallback))
+                votingLogger.error("Service config unavailable: \(error)")
+                let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                await send(.configUnsupported(message))
             }
+
+        case .configUnsupported(let message):
+            state.screenStack = [.configError(message)]
+            return .none
 
         case .serviceConfigLoaded(let config):
             state.serviceConfig = config

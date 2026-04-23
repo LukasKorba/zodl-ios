@@ -44,6 +44,7 @@ struct VotingView: View {
         case .reviewVotes: return "reviewVotes"
         case .confirmSubmission: return "confirmSubmission"
         case .error: return "error"
+        case .configError: return "configError"
         case .walletSyncing: return "walletSyncing"
         }
     }
@@ -85,6 +86,8 @@ struct VotingView: View {
             ResultsView(store: store)
         case .error(let message):
             VotingErrorView(store: store, errorMessage: message)
+        case .configError(let message):
+            VotingConfigErrorView(store: store, errorMessage: message)
         case .walletSyncing:
             WalletSyncingView(store: store)
         }

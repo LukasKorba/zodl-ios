@@ -564,20 +564,7 @@ struct VanWitness: Equatable, Sendable {
     }
 }
 
-// MARK: - Tree & Transactions
-
-/// Maps to CommitmentTreeState (zvote/v1/types.proto).
-struct CommitmentTreeState: Equatable, Sendable {
-    let nextIndex: UInt64
-    let root: Data
-    let height: UInt64
-
-    init(nextIndex: UInt64, root: Data, height: UInt64) {
-        self.nextIndex = nextIndex
-        self.root = root
-        self.height = height
-    }
-}
+// MARK: - Transactions
 
 /// Computed signature fields for cast-vote TX submission.
 /// Returned by signCastVote after ZKP #2 builds the vote commitment bundle.

@@ -12,18 +12,18 @@ actor SvAPIConfigStore {
     static let shared = SvAPIConfigStore()
 
     /// Primary vote server URL (serves both chain API and helper endpoints).
-    var baseURL = "https://46-101-255-48.sslip.io"
+    var baseURL = "https://vote-chain-primary.valargroup.org"
     /// All vote server URLs from CDN config (used for share distribution).
-    var voteServerURLs: [String] = ["https://46-101-255-48.sslip.io"]
+    var voteServerURLs: [String] = ["https://vote-chain-primary.valargroup.org"]
     /// Primary PIR server URL.
-    var pirServerURL = "https://46-101-255-48.sslip.io/nullifier"
+    var pirServerURL = "https://pir.valargroup.org"
 
     func configure(from config: VotingServiceConfig) {
         if let first = config.voteServers.first {
             baseURL = first.url
         }
         voteServerURLs = config.voteServers.map(\.url)
-        if let first = config.pirServers.first {
+        if let first = config.pirEndpoints.first {
             pirServerURL = first.url
         }
     }
@@ -289,51 +289,59 @@ private func parseVotingSession(from round: [String: Any]) throws -> VotingSessi
     )
 }
 
-/// Parse a CommitmentTreeState from the "tree" JSON object.
-private func parseCommitmentTree(from tree: [String: Any]) -> CommitmentTreeState {
-    CommitmentTreeState(
-        nextIndex: parseUInt64(tree["next_index"]),
-        root: parseBase64(tree["root"]),
-        height: parseUInt64(tree["height"])
-    )
-}
-
 // MARK: - Live Implementation
 
 extension VotingAPIClient: DependencyKey {
     static var liveValue: Self {
         Self(
             fetchServiceConfig: {
-                // 1. Check for local override in app bundle (debug builds only)
+                // 1. Check for local override in app bundle (debug builds only).
+                //    A malformed override is a developer error — propagate the decode error.
                 #if DEBUG
                 if let localURL = Bundle.main.url(
                     forResource: "voting-config-local",
                     withExtension: "json"
                 ) {
-                    if let data = try? Data(contentsOf: localURL),
-                       let config = try? JSONDecoder().decode(VotingServiceConfig.self, from: data) {
-                        print("[VotingAPI] Using local override config: \(config.voteServers.count) vote servers")
-                        return config
+                    let data: Data
+                    do {
+                        data = try Data(contentsOf: localURL)
+                    } catch {
+                        throw VotingConfigError.decodeFailed("local override unreadable: \(error.localizedDescription)")
                     }
+                    let config: VotingServiceConfig
+                    do {
+                        config = try JSONDecoder().decode(VotingServiceConfig.self, from: data)
+                    } catch {
+                        throw VotingConfigError.decodeFailed("local override: \(error.localizedDescription)")
+                    }
+                    try config.validate()
+                    print("[VotingAPI] Using local override config: \(config.voteServers.count) vote servers")
+                    return config
                 }
                 #endif
 
-                // 2. Try GitHub Pages CDN
+                // 2. Fetch and decode the CDN config. Any failure (transport, HTTP, decode,
+                //    or version-validation) surfaces as a VotingConfigError — no silent fallback.
+                let configURL = VotingServiceConfig.configURL
+                let data: Data
+                let response: URLResponse
                 do {
-                    let configURL = VotingServiceConfig.configURL
-                    let (data, response) = try await httpSession.data(from: configURL)
-                    if let http = response as? HTTPURLResponse, http.statusCode == 200 {
-                        let config = try JSONDecoder().decode(VotingServiceConfig.self, from: data)
-                        print("[VotingAPI] Loaded config from CDN: \(config.voteServers.count) vote servers")
-                        return config
-                    }
+                    (data, response) = try await httpSession.data(from: configURL)
                 } catch {
-                    print("[VotingAPI] Config fetch failed: \(error)")
+                    throw VotingConfigError.decodeFailed("CDN fetch failed: \(error.localizedDescription)")
                 }
-
-                // 3. Fall back to deployed dev server defaults
-                print("[VotingAPI] Using fallback config (deployed dev server)")
-                return .fallback
+                if let http = response as? HTTPURLResponse, http.statusCode != 200 {
+                    throw VotingConfigError.decodeFailed("CDN returned HTTP \(http.statusCode)")
+                }
+                let config: VotingServiceConfig
+                do {
+                    config = try JSONDecoder().decode(VotingServiceConfig.self, from: data)
+                } catch {
+                    throw VotingConfigError.decodeFailed("CDN decode failed: \(error.localizedDescription)")
+                }
+                try config.validate()
+                print("[VotingAPI] Loaded config from CDN: \(config.voteServers.count) vote servers")
+                return config
             },
             configureURLs: { config in
                 await SvAPIConfigStore.shared.configure(from: config)
@@ -382,32 +390,6 @@ extension VotingAPIClient: DependencyKey {
                     grouped[proposalId, default: []].append(tallyEntry)
                 }
                 return grouped.mapValues { TallyResult(entries: $0) }
-            },
-            fetchVotingWeight: { _ in
-                // Weight is computed locally from wallet notes; this endpoint is unused.
-                fatalError("fetchVotingWeight is deprecated — weight is computed from wallet notes")
-            },
-            fetchNoteInclusionProofs: { _ in
-                // Witnesses are generated by votingCrypto; this endpoint is unused.
-                fatalError("fetchNoteInclusionProofs is deprecated — witnesses come from votingCrypto")
-            },
-            fetchNullifierExclusionProofs: { _ in
-                // Nullifier exclusion proofs are fetched by the Rust PIR client; this endpoint is unused.
-                fatalError("fetchNullifierExclusionProofs is deprecated — handled by PIR client")
-            },
-            fetchCommitmentTreeState: { height in
-                let json = try await getJSON("/shielded-vote/v1/commitment-tree/\(height)")
-                guard let tree = json["tree"] as? [String: Any] else {
-                    throw SvAPIError.invalidResponse("missing 'tree' in response")
-                }
-                return parseCommitmentTree(from: tree)
-            },
-            fetchLatestCommitmentTree: {
-                let json = try await getJSON("/shielded-vote/v1/commitment-tree/latest")
-                guard let tree = json["tree"] as? [String: Any] else {
-                    throw SvAPIError.invalidResponse("missing 'tree' in response")
-                }
-                return parseCommitmentTree(from: tree)
             },
             submitDelegation: { registration in
                 let body: [String: Any] = [
