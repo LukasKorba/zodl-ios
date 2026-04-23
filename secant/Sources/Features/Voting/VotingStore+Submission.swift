@@ -148,9 +148,23 @@ extension Voting {
                 for (draftIndex, draft) in drafts.enumerated() {
                     let proposalId = draft.key
                     let choice = draft.value
-                    let numOptions = UInt32(proposals.first { $0.id == proposalId }?.options.count ?? 3)
+                    let proposal = proposals.first { $0.id == proposalId }
+                    let numOptions = UInt32(proposal?.options.count ?? 3)
 
                     await send(.batchSubmissionProgress(currentIndex: draftIndex, totalCount: totalCount, proposalId: proposalId))
+
+                    // Synthetic abstain: when proposal data doesn't declare an
+                    // Abstain option, the UI synthesizes one at an index outside
+                    // the declared range. There's no valid commitment to build for
+                    // it — skip submission so no VAN is consumed and nothing hits
+                    // chain. UX treats it as "done" (draft cleared, counted as
+                    // successful).
+                    let isSyntheticAbstain = !(proposal?.options.contains { $0.index == choice.index } ?? true)
+                    if isSyntheticAbstain {
+                        successCount += 1
+                        await send(.batchVoteSubmitted(proposalId: proposalId, choice: choice))
+                        continue
+                    }
 
                     do {
                         let existingVotes = try await votingCrypto.getVotes(roundId)

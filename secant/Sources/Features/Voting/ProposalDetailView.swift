@@ -121,11 +121,12 @@ struct ProposalDetailView: View {
     @ViewBuilder
     private func bottomSection() -> some View {
         let confirmedVote = store.votes[proposal.id]
-        let isLocked = confirmedVote != nil || store.allVoted || store.isBatchSubmitting
+        let isSubmitted = store.voteRecord != nil
+        let isLocked = confirmedVote != nil || store.allVoted || store.isBatchSubmitting || isSubmitted
 
         VStack(spacing: 20) {
-            voteOptions(confirmedVote: confirmedVote, isLocked: isLocked)
-            if !store.allVoted {
+            voteOptions(isLocked: isLocked)
+            if !store.allVoted && !isSubmitted {
                 navigationButtons()
             }
         }
@@ -149,10 +150,9 @@ struct ProposalDetailView: View {
     }
 
     @ViewBuilder
-    private func voteOptions(confirmedVote: VoteChoice?, isLocked: Bool) -> some View {
+    private func voteOptions(isLocked: Bool) -> some View {
         let options = displayOptions
-        let draftChoice = store.draftVotes[proposal.id]
-        let displayChoice = confirmedVote ?? draftChoice
+        let displayChoice = store.effectiveChoices[proposal.id]
 
         VStack(spacing: 0) {
             ForEach(Array(options.enumerated()), id: \.element.index) { offset, option in

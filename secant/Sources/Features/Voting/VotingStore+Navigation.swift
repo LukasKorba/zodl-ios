@@ -318,6 +318,7 @@ extension Voting {
         // MARK: - Proposal Detail
 
         case let .castVote(proposalId, choice):
+            guard state.voteRecord == nil else { return .none }
             guard state.votes[proposalId] == nil else { return .none }
             if state.draftVotes[proposalId] == choice {
                 state.draftVotes.removeValue(forKey: proposalId)
@@ -399,8 +400,10 @@ extension Voting {
             return .none
 
         case .confirmUnanswered:
+            guard state.voteRecord == nil else { return .none }
             // Auto-draft Abstain for every unanswered proposal, then go to review.
-            for proposal in state.votingRound.proposals where state.draftVotes[proposal.id] == nil {
+            for proposal in state.votingRound.proposals
+                where state.draftVotes[proposal.id] == nil && state.votes[proposal.id] == nil {
                 let abstainIndex: UInt32
                 if let existing = proposal.options.first(where: {
                     $0.label.localizedCaseInsensitiveContains("abstain")

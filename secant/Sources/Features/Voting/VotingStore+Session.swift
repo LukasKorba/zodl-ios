@@ -22,6 +22,17 @@ extension Voting {
             // legitimate "no active voting" state, not a tampered config, and the
             // existing noRounds-screen branch below handles it.
             if let config = state.serviceConfig, !sessions.isEmpty {
+                #if DEBUG
+                // DEBUG escape hatch: trust the chain unconditionally. Local dev against
+                // an admin-created round produces a round_id (and possibly proposals) that
+                // won't match whatever config the bundle ships — bricking on that would
+                // block the whole iteration loop. The checks only exist to prove the
+                // client and chain agree on the question set for production releases.
+                let configRoundId = config.voteRoundId.lowercased()
+                let chainIds = sessions.map { $0.voteRoundId.hexString.prefix(16) }.joined(separator: ", ")
+                votingLogger.info("DEBUG: skipping config↔chain binding. config=\(configRoundId.prefix(16))... chain=[\(chainIds)]")
+                state.hasAttemptedConfigRefresh = false
+                #else
                 let configRoundId = config.voteRoundId.lowercased()
                 let hasMatch = sessions.contains { $0.voteRoundId.hexString == configRoundId }
 
@@ -65,6 +76,7 @@ extension Voting {
                 // Binding succeeded. Reset the one-shot retry flag so a later round
                 // transition in this session can still get its own auto-retry attempt.
                 state.hasAttemptedConfigRefresh = false
+                #endif
             }
 
             // Sort by created_at_height ascending for reliable creation order

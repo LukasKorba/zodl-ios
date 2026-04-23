@@ -503,6 +503,33 @@ struct Voting {
             votingRound.proposals.allSatisfy { draftVotes[$0.id] != nil }
         }
 
+        /// Display-time choice per proposal. Prefers the draft, then the
+        /// submitted vote. Once voteRecord is set, falls back to the
+        /// synthesized Abstain index — the submission flow guarantees every
+        /// proposal is either explicitly voted or abstained, so a missing
+        /// entry post-submit is always an abstain (either one we skipped on
+        /// the wire, or one dropped from state.votes by a DB resync).
+        var effectiveChoices: [UInt32: VoteChoice] {
+            let hasSubmitted = voteRecord != nil
+            var result: [UInt32: VoteChoice] = [:]
+            for proposal in votingRound.proposals {
+                if let explicit = draftVotes[proposal.id] ?? votes[proposal.id] {
+                    result[proposal.id] = explicit
+                } else if hasSubmitted {
+                    let fallbackIndex: UInt32
+                    if let abstain = proposal.options.first(where: {
+                        $0.label.localizedCaseInsensitiveContains("abstain")
+                    }) {
+                        fallbackIndex = abstain.index
+                    } else {
+                        fallbackIndex = (proposal.options.map(\.index).max() ?? 0) + 1
+                    }
+                    result[proposal.id] = .option(fallbackIndex)
+                }
+            }
+            return result
+        }
+
         /// Whether the current proposal detail was opened from the review screen.
         var isEditingFromReview: Bool {
             guard case .proposalDetail = screenStack.last else { return false }

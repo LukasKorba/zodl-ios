@@ -279,10 +279,10 @@ struct ProposalListView: View {
     @ViewBuilder
     private func voteProgressBar() -> some View {
         let total = max(store.totalProposals, 1)
-        // Count proposals with an explicit choice (draft or confirmed).
-        let voted = store.votingRound.proposals.filter { p in
-            store.draftVotes[p.id] != nil || store.votes[p.id] != nil
-        }.count
+        // Count proposals with a resolved choice (draft, confirmed, or the
+        // post-submit abstain fallback).
+        let choices = store.effectiveChoices
+        let voted = store.votingRound.proposals.filter { choices[$0.id] != nil }.count
         let ratio = Double(voted) / Double(total)
 
         GeometryReader { geo in
@@ -357,12 +357,8 @@ struct ProposalListView: View {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
 
-        if !store.votes.isEmpty {
-            if let record = store.voteRecord {
-                dateString = "Voted \(dateFormatter.string(from: record.votedAt))"
-            } else {
-                dateString = "Voted"
-            }
+        if let record = store.voteRecord {
+            dateString = "Voted \(dateFormatter.string(from: record.votedAt))"
         } else if let session = store.activeSession {
             dateString = "Ends \(dateFormatter.string(from: session.voteEndTime))"
         } else {
@@ -384,13 +380,9 @@ struct ProposalListView: View {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MMM d, yyyy"
 
-        if !store.votes.isEmpty {
+        if let record = store.voteRecord {
             // Already voted — show voted date
-            if let record = store.voteRecord {
-                dateString = "Voted \(dateFormatter.string(from: record.votedAt))"
-            } else {
-                dateString = "Voted"
-            }
+            dateString = "Voted \(dateFormatter.string(from: record.votedAt))"
             votingPowerString = "Voting Power \(store.votingWeightZECString) ZEC"
             timeLeftString = timeLeftLabel
         } else if let session = store.activeSession {
@@ -468,7 +460,7 @@ struct ProposalListView: View {
 extension ProposalListView {
     @ViewBuilder
     func proposalCard(_ proposal: VotingProposal) -> some View {
-        let choice = store.draftVotes[proposal.id] ?? store.votes[proposal.id]
+        let choice = store.effectiveChoices[proposal.id]
 
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -519,7 +511,7 @@ extension ProposalListView {
 extension ProposalListView {
     @ViewBuilder
     func bottomCTA() -> some View {
-        if !store.votes.isEmpty {
+        if store.voteRecord != nil {
             // Votes already submitted — no CTA
             EmptyView()
         } else {
