@@ -169,6 +169,35 @@ struct ConfirmSubmissionView: View {
         return "\(address.prefix(6))...\(address.suffix(5))"
     }
 
+    // MARK: - Progress
+
+    // Unified 0-1 fill across authorization + all submissions so the bar is
+    // monotonic. When the batch ran delegation in-session, it fills the first
+    // slice; otherwise the bar starts at 0 and covers only submissions.
+    private var submissionProgress: (Double, String) {
+        let delegationWeight = 0.3
+
+        switch status {
+        case .authorizing:
+            let p: Double
+            switch store.delegationProofStatus {
+            case .generating(let pp): p = pp
+            case .complete: p = 1.0
+            default: p = 0
+            }
+            return (p * delegationWeight, "Authorizing...")
+
+        case let .submitting(currentIndex, totalCount, _):
+            let offset = store.delegationProofStatus == .complete ? delegationWeight : 0.0
+            let fraction = Double(currentIndex + 1) / Double(max(totalCount, 1))
+            let overall = min(1.0, offset + fraction * (1.0 - offset))
+            return (overall, "Submitting your votes...")
+
+        default:
+            return (0, "")
+        }
+    }
+
     // MARK: - Bottom Section
 
     @ViewBuilder
@@ -179,41 +208,11 @@ struct ConfirmSubmissionView: View {
                 store.send(.submitAllDrafts)
             }
 
-        case .authorizing:
+        case .authorizing, .submitting:
+            let (progress, title) = submissionProgress
             VStack(spacing: Design.Spacing._lg) {
                 VStack(alignment: .leading, spacing: Design.Spacing._lg) {
-                    Text("Authorizing vote...")
-                        .zFont(.semiBold, size: 15, style: Design.Text.primary)
-
-                    if case .generating(let progress) = store.delegationProofStatus {
-                        GeometryReader { geo in
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(Design.Surfaces.bgTertiary.color(colorScheme))
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(Design.Text.primary.color(colorScheme))
-                                    .frame(width: geo.size.width * progress)
-                                    .animation(.easeInOut(duration: 0.3), value: progress)
-                            }
-                        }
-                        .frame(height: 3)
-
-                        Text("\(Int(progress * 100))%")
-                            .zFont(.regular, size: 12, style: Design.Text.tertiary)
-                    }
-                }
-                .padding(Design.Spacing._2xl)
-                .background(Design.Surfaces.bgSecondary.color(colorScheme))
-                .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
-
-                ZashiButton("Authorizing...") {}
-                    .disabled(true)
-            }
-
-        case let .submitting(currentIndex, totalCount, _):
-            VStack(spacing: Design.Spacing._lg) {
-                VStack(alignment: .leading, spacing: Design.Spacing._lg) {
-                    Text("Submitting vote \(currentIndex + 1) of \(totalCount)...")
+                    Text(title)
                         .zFont(.semiBold, size: 15, style: Design.Text.primary)
 
                     GeometryReader { geo in
@@ -222,22 +221,17 @@ struct ConfirmSubmissionView: View {
                                 .fill(Design.Surfaces.bgTertiary.color(colorScheme))
                             RoundedRectangle(cornerRadius: 2)
                                 .fill(Design.Text.primary.color(colorScheme))
-                                .frame(width: geo.size.width * Double(currentIndex + 1) / Double(totalCount))
-                                .animation(.easeInOut(duration: 0.3), value: currentIndex)
+                                .frame(width: geo.size.width * progress)
+                                .animation(.easeInOut(duration: 0.3), value: progress)
                         }
                     }
                     .frame(height: 3)
-
-                    if let stepLabel = store.voteSubmissionStepLabel {
-                        Text(stepLabel)
-                            .zFont(.regular, size: 12, style: Design.Text.tertiary)
-                    }
                 }
                 .padding(Design.Spacing._2xl)
                 .background(Design.Surfaces.bgSecondary.color(colorScheme))
                 .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
 
-                ZashiButton("Submitting vote \(currentIndex + 1) of \(totalCount)") {}
+                ZashiButton(title) {}
                     .disabled(true)
             }
 
