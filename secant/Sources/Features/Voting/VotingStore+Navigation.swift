@@ -151,6 +151,7 @@ extension Voting {
                 votes = state.votes,
                 proposals = state.votingRound.proposals,
                 singleShare = state.activeSession?.isLastMoment ?? false,
+                voteEndTime = UInt64(state.activeSession?.voteEndTime.timeIntervalSince1970 ?? 0),
                 votingAPI, votingCrypto
             ] send in
                 // Load fresh delegations from DB so we don't re-query already-confirmed shares.
@@ -192,13 +193,29 @@ extension Voting {
                                     roundId, share.bundleIndex, share.proposalId, share.shareIndex
                                 )
                                 newlyConfirmed += 1
-                            } else if share.submitAt > 0, now >= share.submitAt + 3600 {
-                                // Still pending and well overdue (1 hour past submitAt)
-                                resubmitQueue.append(ResubmitCandidate(
-                                    share: share,
-                                    proposalId: share.proposalId,
-                                    bundleIndex: share.bundleIndex
-                                ))
+                            } else if share.submitAt > 0 {
+                                // Adaptive overdue threshold: wait 25% of the share's
+                                // remaining window after submitAt before resubmitting,
+                                // clamped to [30s, 3600s]. Lets resubmission fire within
+                                // a normal round (e.g. 15-min round → 30–200 s) instead of
+                                // a fixed 1 h threshold, which was always past voteEndTime
+                                // and so never saved a round where a helper silently
+                                // dropped shares at its broadcast step.
+                                let remainingAtSubmit = voteEndTime > share.submitAt
+                                    ? voteEndTime - share.submitAt : 0
+                                let overdueThreshold: UInt64 = max(30, min(3600, remainingAtSubmit / 4))
+                                // Skip resubmission if the round is already closing — chain
+                                // rejects MsgRevealShare after voteEndTime, so a resubmit
+                                // would only waste a POST and noise the log.
+                                let resubmitCutoff: UInt64 = 10
+                                if now >= share.submitAt + overdueThreshold,
+                                   voteEndTime > now + resubmitCutoff {
+                                    resubmitQueue.append(ResubmitCandidate(
+                                        share: share,
+                                        proposalId: share.proposalId,
+                                        bundleIndex: share.bundleIndex
+                                    ))
+                                }
                             }
                         } catch {
                             // On error, skip remaining shares this cycle
@@ -252,7 +269,7 @@ extension Voting {
                                     roundId, bundleIndex, proposalId,
                                     candidate.share.shareIndex, newServers
                                 )
-                                votingLogger.info("Resubmitted share \(candidate.share.shareIndex) to \(newServers.count) new server(s)")
+                                votingLogger.info("Resubmitted share p\(proposalId)s\(candidate.share.shareIndex) to \(newServers.count) new server(s)")
                             }
                         }
                     } catch {
