@@ -23,11 +23,19 @@ struct ProposalDetailView: View {
             .applyScreenBackground()
             .navigationBarBackButtonHidden(true)
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showUnansweredSheet) {
-                unansweredConfirmationSheet()
-                    .presentationDetents([.height(320)])
-                    .presentationDragIndicator(.hidden)
-            }
+            .votingSheet(
+                isPresented: $showUnansweredSheet,
+                title: "Unanswered Questions",
+                message: unansweredMessage,
+                primary: .init(title: "Go back", style: .primary) {
+                    showUnansweredSheet = false
+                    store.send(.dismissUnanswered)
+                },
+                secondary: .init(title: "Confirm", style: .secondary) {
+                    showUnansweredSheet = false
+                    store.send(.confirmUnanswered)
+                }
+            )
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button {
@@ -244,54 +252,10 @@ struct ProposalDetailView: View {
         }
     }
 
-    // MARK: - Unanswered Confirmation Sheet
-
-    @ViewBuilder
-    private func unansweredConfirmationSheet() -> some View {
+    private var unansweredMessage: String {
         let count = store.votingRound.proposals.filter { store.draftVotes[$0.id] == nil }.count
-
-        VStack(spacing: 0) {
-            Capsule()
-                .fill(Color.secondary.opacity(0.4))
-                .frame(width: 36, height: 5)
-                .padding(.top, 8)
-                .padding(.bottom, 24)
-
-            ZStack {
-                Circle()
-                    .fill(Design.Utility.ErrorRed._500.color(colorScheme).opacity(0.1))
-                    .frame(width: 48, height: 48)
-                Image(systemName: "exclamationmark.circle")
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundStyle(Design.Utility.ErrorRed._500.color(colorScheme).opacity(0.8))
-            }
-            .padding(.bottom, 16)
-
-            Text("Unanswered Questions")
-                .zFont(.semiBold, size: 22, style: Design.Text.primary)
-                .padding(.bottom, 8)
-
-            Text(
-                "You have not responded to \(count) question\(count == 1 ? "" : "s"). "
-                + "Confirm to abstain from \(count == 1 ? "this question" : "these questions") or go back to respond."
-            )
-                .zFont(size: 14, style: Design.Text.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
-
-            VStack(spacing: 12) {
-                ZashiButton("Confirm", type: .secondary) {
-                    showUnansweredSheet = false
-                    store.send(.confirmUnanswered)
-                }
-
-                ZashiButton("Go back") {
-                    showUnansweredSheet = false
-                    store.send(.dismissUnanswered)
-                }
-            }
-            .padding(.horizontal, 24)
-        }
+        let questionNoun = count == 1 ? "question" : "questions"
+        let target = count == 1 ? "this question" : "these questions"
+        return "You have not responded to \(count) \(questionNoun). Confirm to abstain from \(target) or go back to respond."
     }
 }
