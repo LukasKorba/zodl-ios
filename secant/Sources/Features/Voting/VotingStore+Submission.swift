@@ -81,9 +81,11 @@ extension Voting {
             let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
             guard
                 let chainNodeUrl = state.serviceConfig?.voteServers.first?.url,
-                let pirServerUrl = state.serviceConfig?.pirEndpoints.first?.url
+                let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
+                !pirEndpoints.isEmpty,
+                let expectedSnapshotHeight = state.activeSession?.snapshotHeight
             else {
-                votingLogger.error("serviceConfig unexpectedly nil during vote submission; aborting")
+                votingLogger.error("serviceConfig/activeSession unexpectedly nil during vote submission; aborting")
                 return .none
             }
             let bundleCount = state.bundleCount
@@ -134,7 +136,8 @@ extension Voting {
                             networkId: networkId,
                             accountIndex: 0,
                             roundName: roundName,
-                            pirServerUrl: pirServerUrl,
+                            pirEndpoints: pirEndpoints,
+                            expectedSnapshotHeight: expectedSnapshotHeight,
                             votingCrypto: votingCrypto,
                             votingAPI: votingAPI,
                             send: send

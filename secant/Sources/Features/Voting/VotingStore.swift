@@ -56,6 +56,23 @@ enum VotingErrorMapper {
         if rawError.contains("PIR server connect failed") || rawError.contains("PIR parallel fetch failed") {
             return "Unable to reach the nullifier service. Please check your internet connection and try again."
         }
+        // PirSnapshotResolverError.noMatchingEndpoint — no configured PIR
+        // endpoint is serving the round's exact snapshot height (some are
+        // behind catching up, some may be ahead, others unreachable), so the
+        // SDK refuses to delegate against a mismatched tree. There's nothing
+        // the user can do besides wait.
+        if rawError.contains("No PIR server matches") {
+            return "The nullifier service is out of sync with the round's snapshot. " +
+                "Voting cannot proceed until a PIR server reports the matching snapshot. " +
+                "Please try again in a few minutes."
+        }
+        // PirSnapshotResolverError.noEndpointsConfigured — the voting config
+        // shipped without any PIR endpoints; this is a config-side bug, not
+        // something the user can fix on-device.
+        if rawError.contains("No PIR endpoints are configured") {
+            return "The voting configuration is missing nullifier-service endpoints. " +
+                "Please update the app and try again."
+        }
         if rawError.contains("Commitment tree did not grow") {
             return "Your transaction hasn't been confirmed yet. The network may be congested — please wait a moment and try again."
         }

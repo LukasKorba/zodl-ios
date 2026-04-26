@@ -82,6 +82,13 @@ struct VotingCryptoClient {
     /// generates a real Halo2 proof, and reports progress.
     /// Requires `buildVotingPczt` to have been called first for this bundle —
     /// it stores the delegation data (alpha, secrets, sighash) needed by the prover.
+    /// Pass every PIR endpoint configured for the round, plus the round's
+    /// expected snapshot height. The SDK probes each endpoint's `GET /root`
+    /// and uses the first endpoint (in config order) whose served snapshot
+    /// height equals `expectedSnapshotHeight` exactly. Endpoints that are
+    /// behind, ahead, missing snapshot metadata, or unreachable are excluded.
+    /// If none match, the stream finishes with a `PirSnapshotResolverError`
+    /// — there is no fallback to mismatched endpoints.
     var buildAndProveDelegation: @Sendable (
         _ roundId: String,
         _ bundleIndex: UInt32,
@@ -90,9 +97,10 @@ struct VotingCryptoClient {
         _ hotkeySeed: [UInt8],
         _ networkId: UInt32,
         _ accountIndex: UInt32,
-        _ pirServerUrl: String
+        _ pirEndpoints: [String],
+        _ expectedSnapshotHeight: UInt64
     ) -> AsyncThrowingStream<ProofEvent, Error>
-        = { _, _, _, _, _, _, _, _ in AsyncThrowingStream { $0.finish() } }
+        = { _, _, _, _, _, _, _, _, _ in AsyncThrowingStream { $0.finish() } }
     /// Extract Orchard FVK bytes from a UFVK string.
     var extractOrchardFvkFromUfvk: @Sendable (_ ufvkStr: String, _ networkId: UInt32) throws -> Data
     var decomposeWeight: @Sendable (_ weight: UInt64) -> [UInt64] = { _ in [] }
