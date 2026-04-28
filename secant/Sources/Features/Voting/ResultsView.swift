@@ -73,7 +73,7 @@ struct ResultsView: View {
             }
             .applyScreenBackground()
             .screenTitle("Coinholder Polling")
-            .zashiBack { store.send(.dismissFlow) }
+            .zashiBack { store.send(.backToRoundsList) }
             .votingSheet(
                 isPresented: loadErrorBinding,
                 title: "Couldn't load results",
