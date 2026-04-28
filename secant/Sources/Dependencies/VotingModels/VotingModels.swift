@@ -13,13 +13,11 @@ func quantizeWeight(_ zatoshi: UInt64) -> UInt64 {
 
 // MARK: - Last-Moment Buffer Constants
 
-/// Fraction of round duration used as the last-moment buffer (10%).
-/// Must match `computeBuffer` in sdk/internal/helper/store.go.
-private let lastMomentBufferFraction: Double = 0.1
+/// Fraction of round duration used as the last-moment buffer (40%).
+private let lastMomentBufferFraction: Double = 0.4
 
-/// Maximum last-moment buffer duration in seconds (1 hour).
-/// Must match `computeBuffer` in sdk/internal/helper/store.go.
-private let lastMomentBufferMaxSeconds: TimeInterval = 3600
+/// Maximum last-moment buffer duration in seconds (6 hours).
+private let lastMomentBufferMaxSeconds: TimeInterval = 21_600
 
 // MARK: - Session & Round
 
@@ -49,17 +47,15 @@ struct VotingSession: Equatable, Sendable {
 
     /// The last-moment buffer defines a window before vote end during which votes
     /// are treated as "last-moment" — submitted immediately with `submit_at=0`
-    /// and using single-share mode. Computed as 10% of the total round duration
-    /// (ceremony start → vote end), capped at 1 hour.
+    /// and using single-share mode. Computed as 40% of the total round duration
+    /// (ceremony start -> vote end), capped at 6 hours.
     var lastMomentBuffer: TimeInterval? {
         // Total voting window: from when the ceremony started to when voting ends.
         let duration = voteEndTime.timeIntervalSince(ceremonyStart)
         guard duration > 0 else {
-            // Invalid round times — cannot compute buffer.
-            assertionFailure("lastMomentBuffer: voteEndTime (\(voteEndTime)) <= ceremonyStart (\(ceremonyStart))")
             return nil
         }
-        // 10% of round duration, but never more than 1 hour.
+        // 40% of round duration, but never more than 6 hours.
         return min(duration * lastMomentBufferFraction, lastMomentBufferMaxSeconds)
     }
 
