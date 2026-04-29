@@ -41,8 +41,19 @@ struct VotingView: View {
     private var pollClosedBinding: Binding<Bool> {
         Binding(
             get: { store.showPollClosedSheet },
+            // Guard against SwiftUI re-firing this setter after a *programmatic*
+            // dismiss (e.g. `viewPollClosedResults` flips `showPollClosedSheet`
+            // to false and switches the screen). On iOS 16+ the sheet's binding
+            // gets a `set(false)` callback once the dismiss animation settles —
+            // without this guard, that spurious callback would send
+            // `.dismissPollClosedSheet` → `.backToRoundsList` and pop the user
+            // back to the polls list right after we just routed them to
+            // results/tallying. Only the *interactive* drag-dismiss path runs
+            // with the state still true at the moment of the setter call.
             set: { newValue in
-                if !newValue { store.send(.dismissPollClosedSheet) }
+                if !newValue && store.showPollClosedSheet {
+                    store.send(.dismissPollClosedSheet)
+                }
             }
         )
     }
