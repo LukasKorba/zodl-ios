@@ -75,6 +75,67 @@ final class VotingSubmissionTests: XCTestCase {
         XCTAssertNil(Voting.loadVoteRecord(walletId: walletId, roundId: roundId))
     }
 
+    func testBatchSubmissionProgressClearsPreviousSubmissionStep() {
+        var state = makeState(walletId: UUID().uuidString, roundId: UUID().uuidString, proposalCount: 1)
+        state.voteSubmissionStep = .sendingShares
+        state.currentVoteBundleIndex = 0
+
+        _ = Voting().reduceSubmission(
+            &state,
+            .batchSubmissionProgress(currentIndex: 0, totalCount: 1, proposalId: 1)
+        )
+
+        XCTAssertNil(state.voteSubmissionStep)
+        XCTAssertNil(state.currentVoteBundleIndex)
+    }
+
+    func testNativeAbstainIsNotSyntheticAbstain() {
+        let proposal = VotingProposal(
+            id: 1,
+            title: "Proposal",
+            description: "Description",
+            options: [
+                VoteOption(index: 0, label: "No"),
+                VoteOption(index: 1, label: "Abstain"),
+                VoteOption(index: 2, label: "Yes")
+            ]
+        )
+
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(0), proposal: proposal))
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(1), proposal: proposal))
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(2), proposal: proposal))
+    }
+
+    func testSyntheticAbstainIsOnlyExactFallbackIndex() {
+        let proposal = VotingProposal(
+            id: 1,
+            title: "Proposal",
+            description: "Description",
+            options: [
+                VoteOption(index: 0, label: "No"),
+                VoteOption(index: 2, label: "Yes")
+            ]
+        )
+
+        XCTAssertTrue(Voting.isSyntheticAbstain(choice: .option(3), proposal: proposal))
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(4), proposal: proposal))
+    }
+
+    func testOutOfRangeChoiceIsNotSyntheticWhenNativeAbstainExists() {
+        let proposal = VotingProposal(
+            id: 1,
+            title: "Proposal",
+            description: "Description",
+            options: [
+                VoteOption(index: 0, label: "No"),
+                VoteOption(index: 1, label: "Abstain"),
+                VoteOption(index: 2, label: "Yes")
+            ]
+        )
+
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(3), proposal: proposal))
+    }
+
     private func makeState(
         walletId: String,
         roundId: String,

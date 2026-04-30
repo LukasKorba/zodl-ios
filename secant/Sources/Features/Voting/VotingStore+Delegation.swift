@@ -558,6 +558,7 @@ extension Voting {
                 state.keystoneSigningStatus = .idle
                 state.delegationProofStatus = .generating(progress: 0)
                 state.batchSubmissionStatus = .authorizing
+                state.voteSubmissionStep = .authorizingVote
                 if state.screenStack.last == .delegationSigning {
                     state.screenStack.removeLast()
                 }

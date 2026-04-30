@@ -57,6 +57,7 @@ extension Voting {
             state.batchSubmissionStatus = delegationDone
                 ? .submitting(currentIndex: 0, totalCount: totalCount, currentProposalId: drafts[0].key)
                 : .authorizing
+            state.voteSubmissionStep = delegationDone ? nil : .authorizingVote
             state.batchVoteErrors = [:]
 
             let roundId = state.roundId
@@ -152,13 +153,10 @@ extension Voting {
                     await send(.batchSubmissionProgress(currentIndex: draftIndex, totalCount: totalCount, proposalId: proposalId))
 
                     // Synthetic abstain: when proposal data doesn't declare an
-                    // Abstain option, the UI synthesizes one at an index outside
-                    // the declared range. There's no valid commitment to build for
-                    // it — skip submission so no VAN is consumed and nothing hits
-                    // chain. UX treats it as "done" (draft cleared, counted as
-                    // successful).
-                    let isSyntheticAbstain = !(proposal?.options.contains { $0.index == choice.index } ?? true)
-                    if isSyntheticAbstain {
+                    // Abstain option, the UI synthesizes one at max(index) + 1.
+                    // There's no on-chain option to submit for that fallback, so
+                    // count it as done for UX/progress and skip ZKP #2/cast-vote.
+                    if Self.isSyntheticAbstain(choice: choice, proposal: proposal) {
                         successCount += 1
                         await send(.batchVoteSubmitted(proposalId: proposalId, choice: choice))
                         continue
@@ -354,6 +352,8 @@ extension Voting {
             )
             state.submittingProposalId = proposalId
             state.isSubmittingVote = true
+            state.voteSubmissionStep = nil
+            state.currentVoteBundleIndex = nil
             return .none
 
         case let .batchVoteSubmitted(proposalId, choice):
@@ -438,5 +438,22 @@ extension Voting {
         default:
             return .none
         }
+    }
+
+    static func isSyntheticAbstain(choice: VoteChoice, proposal: VotingProposal?) -> Bool {
+        guard let proposal else { return false }
+
+        if proposal.options.contains(where: { $0.index == choice.index }) {
+            return false
+        }
+
+        // Synthesized Abstain is the one fallback index the UI creates when a
+        // proposal has no native Abstain option. Other out-of-range choices
+        // should not be silently treated as abstains.
+        guard !proposal.options.contains(where: { $0.label.localizedCaseInsensitiveContains("abstain") }) else {
+            return false
+        }
+        let synthesizedAbstainIndex = (proposal.options.map(\.index).max() ?? 0) + 1
+        return choice.index == synthesizedAbstainIndex
     }
 }

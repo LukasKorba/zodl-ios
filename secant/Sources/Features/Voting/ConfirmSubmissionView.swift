@@ -221,9 +221,8 @@ struct ConfirmSubmissionView: View {
 
     // MARK: - Progress
 
-    // Unified 0-1 fill across authorization + all submissions so the bar is
-    // monotonic. When the batch ran delegation in-session, it fills the first
-    // slice; otherwise the bar starts at 0 and covers only submissions.
+    // Authorization has its own label; after that, the user-facing progress is
+    // proposal count only, regardless of the protocol phase inside each vote.
     private var submissionProgress: (Double, String) {
         let delegationWeight = 0.3
 
@@ -241,7 +240,15 @@ struct ConfirmSubmissionView: View {
             let offset = store.delegationProofStatus == .complete ? delegationWeight : 0.0
             let fraction = Double(currentIndex + 1) / Double(max(totalCount, 1))
             let overall = min(1.0, offset + fraction * (1.0 - offset))
-            return (overall, String(localizable: .coinVoteConfirmSubmissionProgressSubmittingVotes))
+            return (
+                overall,
+                String(
+                    localizable: .coinVoteConfirmSubmissionProgressSubmittingVoteCount(
+                        String(currentIndex + 1),
+                        String(totalCount)
+                    )
+                )
+            )
 
         case .authorizationFailed:
             return (0, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing))
@@ -249,7 +256,15 @@ struct ConfirmSubmissionView: View {
         case let .submissionFailed(_, submittedCount, totalCount):
             let fraction = Double(submittedCount) / Double(max(totalCount, 1))
             let overall = min(1.0, delegationWeight + fraction * (1.0 - delegationWeight))
-            return (overall, String(localizable: .coinVoteConfirmSubmissionProgressSubmittingVotes))
+            return (
+                overall,
+                String(
+                    localizable: .coinVoteConfirmSubmissionProgressSubmittingVoteCount(
+                        String(submittedCount),
+                        String(totalCount)
+                    )
+                )
+            )
 
         default:
             return (0, "")
@@ -296,7 +311,7 @@ struct ConfirmSubmissionView: View {
                 .background(Design.Surfaces.bgSecondary.color(colorScheme))
                 .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
 
-                ZashiButton(title) {}
+                ZashiButton(String(localizable: .coinVoteConfirmSubmissionProgressSubmittingVotes)) {}
                     .disabled(true)
             }
 

@@ -1813,6 +1813,17 @@
         }
       }
     },
+    "coinVote.confirmSubmission.progressSubmittingVoteCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting vote (%@/%@)..."
+          }
+        }
+      }
+    },
     "coinVote.confirmSubmission.submissionFailedMessage" : {
       "extractionState" : "manual",
       "localizations" : {
