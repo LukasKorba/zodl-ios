@@ -2322,11 +2322,6 @@
 		37CEBF1D2F8E940A002DA90E /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF022F8E940A002DA90E /* TallyingView.swift */; };
 		37CEBF1E2F8E940A002DA90E /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFE2F8E940A002DA90E /* PollsListView.swift */; };
 		37CEBF1F2F8E940A002DA90E /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF052F8E940A002DA90E /* VotingErrorView.swift */; };
-		9E48425B2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
-		9E48425C2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
-		9E48425D2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
-		9E48425E2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
-		9E48425F2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
 		37CEBF202F8E940A002DA90E /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */; };
 		37CEBF212F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF222F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
@@ -2464,6 +2459,7 @@
 		9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E9ECC8E28589E150099D5A2 /* WelcomeSnapshotTests.swift */; };
 		9E41FFA82CB2814500783CFD /* ReadTransactionsStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9E2706652AFF99F5000DA6EC /* ReadTransactionsStorageModel.xcdatamodeld */; };
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
+		AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00112D00000100000002 /* VotingSubmissionTests.swift */; };
 		9E41FFAF2CB2814500783CFD /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */; };
 		9E41FFB02CB2814500783CFD /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E2F1C8B280ED6A7004E65FE /* LaunchScreen.storyboard */; };
 		9E41FFB12CB2814500783CFD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9E90751D2A269BE300269308 /* Assets.xcassets */; };
@@ -2483,6 +2479,11 @@
 		9E48424C2F87C41200D0649B /* ResyncWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E4842492F87C41200D0649B /* ResyncWalletView.swift */; };
 		9E48424D2F87C41200D0649B /* ResyncWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E4842492F87C41200D0649B /* ResyncWalletView.swift */; };
 		9E48424E2F87C41200D0649B /* ResyncWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E4842492F87C41200D0649B /* ResyncWalletView.swift */; };
+		9E48425B2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
+		9E48425C2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
+		9E48425D2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
+		9E48425E2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
+		9E48425F2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */; };
 		9E4938D82ACE8E8F003C4C1D /* SecurityWarningSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E4938D72ACE8E8F003C4C1D /* SecurityWarningSnapshotTests.swift */; };
 		9E4AB2A42BA1BEE900F5D6DB /* ReadTransactionsStorageModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 9E2706652AFF99F5000DA6EC /* ReadTransactionsStorageModel.xcdatamodeld */; };
 		9E4AB2AF2BA1BEE900F5D6DB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0D4E7A0F26B364180058B01E /* Preview Assets.xcassets */; };
@@ -3026,7 +3027,6 @@
 		37CEBF032F8E940A002DA90E /* VoteSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoteSubmissionView.swift; sourceTree = "<group>"; };
 		37CEBF042F8E940A002DA90E /* VotingComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingComponents.swift; sourceTree = "<group>"; };
 		37CEBF052F8E940A002DA90E /* VotingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingErrorView.swift; sourceTree = "<group>"; };
-		9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingErrorSheet.swift; sourceTree = "<group>"; };
 		37CEBF062F8E940A002DA90E /* VotingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStore.swift; sourceTree = "<group>"; };
 		37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Delegation.swift"; sourceTree = "<group>"; };
 		37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Helpers.swift"; sourceTree = "<group>"; };
@@ -3057,6 +3057,7 @@
 		9E4691992AD5735E0082D7DF /* TabsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabsTests.swift; sourceTree = "<group>"; };
 		9E48423D2F87C40400D0649B /* ResyncWalletStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResyncWalletStore.swift; sourceTree = "<group>"; };
 		9E4842492F87C41200D0649B /* ResyncWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResyncWalletView.swift; sourceTree = "<group>"; };
+		9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingErrorSheet.swift; sourceTree = "<group>"; };
 		9E4938D72ACE8E8F003C4C1D /* SecurityWarningSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityWarningSnapshotTests.swift; sourceTree = "<group>"; };
 		9E4A01762B0C9ABD005AFC7E /* CHANGELOG.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = CHANGELOG.md; sourceTree = "<group>"; };
 		9E4AB2B72BA1BEE900F5D6DB /* secant-distrib.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "secant-distrib.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3095,6 +3096,7 @@
 		9EAFEB812805793200199FC9 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		9EAFEB852805A23100199FC9 /* SecItemClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecItemClientTests.swift; sourceTree = "<group>"; };
 		AD0D00102D00000100000002 /* VotingSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingSessionTests.swift; sourceTree = "<group>"; };
+		AD0D00112D00000100000002 /* VotingSubmissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingSubmissionTests.swift; sourceTree = "<group>"; };
 		9ECDD9512CA687B300D81CA0 /* secant-mainnet.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "secant-mainnet.entitlements"; sourceTree = "<group>"; };
 		9ECDD9522CA6B2B400D81CA0 /* zashi-internal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "zashi-internal.entitlements"; sourceTree = "<group>"; };
 		9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
@@ -5240,6 +5242,7 @@
 			children = (
 				A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */,
 				AD0D00102D00000100000002 /* VotingSessionTests.swift */,
+				AD0D00112D00000100000002 /* VotingSubmissionTests.swift */,
 			);
 			path = VotingTests;
 			sourceTree = "<group>";
@@ -5836,6 +5839,25 @@
 			shellPath = /bin/zsh;
 			shellScript = "swiftgen_version=\"SwiftGen v6.6.2 (Stencil v0.15.1, StencilSwiftKit v2.10.1, SwiftGenKit v6.6.2)\"\n\nif which swiftgen >/dev/null; then\n  if [[ $(swiftgen --version) != $swiftgen_version ]]; then\n    echo \"warning: Compatible SwiftGen version not installed, download version $swiftgen_version. Currently installed version is $(swiftgen --version)\"\n  fi\n  \n  echo \"Running swiftgen\" \n  swiftgen config run --config secant/swiftgen.yml\nelse\n  echo \"warning: swiftgen not installed\"\nfi\n";
 		};
+		37VOTE0001000000CONFIG01 /* Copy Voting Config */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Voting Config";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/zsh;
+			shellScript = "if [[ \"$CONFIGURATION\" != \"Debug\" ]]; then\n    echo \"Skipping voting-config-local.json copy (non-Debug build)\"\n    exit 0\nfi\n\nVC_FILE=\"${SRCROOT}/secant/Resources/voting-config-local.json\"\nif [[ -f \"$VC_FILE\" ]]; then\n    echo \"Copying voting-config-local.json into bundle\"\n    cp \"$VC_FILE\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\nelse\n    echo \"No voting-config-local.json found, skipping\"\nfi\n";
+		};
 		6696BA8726F0B1D200D5C875 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -6073,25 +6095,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/zsh;
 			shellScript = "swiftlint_version=0.50.3\n\nif which swiftlint >/dev/null; then\n  if [[ $(swiftlint version) != $swiftlint_version ]]; then\n    echo \"warning: Compatible SwiftLint version not installed, download version $swiftlint_version from https://github.com/realm/SwiftLint. Currently installed version is $(swiftlint version)\"\n  fi\n   \n  echo \"Linting the Secant code\"\n  #swiftlint lint --config .swiftlint.yml\n  echo \"Linting tests\"\n  #swiftlint lint --config .swiftlint_tests.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
-		};
-		37VOTE0001000000CONFIG01 /* Copy Voting Config */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Voting Config";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/zsh;
-			shellScript = "if [[ \"$CONFIGURATION\" != \"Debug\" ]]; then\n    echo \"Skipping voting-config-local.json copy (non-Debug build)\"\n    exit 0\nfi\n\nVC_FILE=\"${SRCROOT}/secant/Resources/voting-config-local.json\"\nif [[ -f \"$VC_FILE\" ]]; then\n    echo \"Copying voting-config-local.json into bundle\"\n    cp \"$VC_FILE\" \"${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\nelse\n    echo \"No voting-config-local.json found, skipping\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -7025,6 +7028,7 @@
 				A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */,
 				9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */,
 				AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */,
+				AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */,
 				9E3451C529C857E400177D16 /* TransactionListSnapshotTests.swift in Sources */,
 				9EEB06C62B344F1E00EEE50F /* SyncProgressTests.swift in Sources */,
 				9E34519C29C4A91A00177D16 /* HomeTests.swift in Sources */,

@@ -279,8 +279,8 @@ struct Voting {
         @Shared(.appStorage(.hasSeenHowToVote))
         var hasSeenHowToVote: Bool = false
 
-        /// Persisted record of when the user confirmed their vote in the current
-        /// round, loaded from UserDefaults in `roundTapped`. Used by Results to
+        /// Persisted record of when the current round finished submitting,
+        /// loaded from UserDefaults in `roundTapped`. Used by Results to
         /// render "Voted MMM d - Voting Power X.XXX ZEC" days after submission.
         var voteRecord: VoteRecord?
 
@@ -288,7 +288,8 @@ struct Voting {
         /// one-time scan of UserDefaults during `allRoundsLoaded`. The polls
         /// list uses this to render the Voted pill on active-round cards and
         /// the "X of Y voted" indicator on closed cards without re-querying
-        /// UserDefaults from the view.
+        /// UserDefaults from the view. A record exists only once the round has
+        /// no remaining draft votes to edit or retry.
         var voteRecords: [String: VoteRecord] = [:]
 
         var selectedProposalId: UInt32?

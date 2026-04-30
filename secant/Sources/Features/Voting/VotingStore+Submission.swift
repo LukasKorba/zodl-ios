@@ -43,23 +43,6 @@ extension Voting {
             guard state.canSubmitBatch || state.isBatchSubmitting else { return .none }
             guard state.activeSession != nil else { return .none }
 
-            // Record the moment the user confirmed their vote. Persisted so the
-            // Results screen can show "Voted MMM d - Voting Power X.XXX ZEC"
-            // and the polls list can show "X of Y voted" long after the
-            // active session is gone. Recorded once per round —
-            // re-confirmations (e.g. retry after a partial failure) keep the
-            // original timestamp.
-            if state.voteRecord == nil {
-                let record = VoteRecord(
-                    votedAt: Date(),
-                    votingWeight: state.votingWeight,
-                    proposalCount: state.draftVotes.count
-                )
-                state.voteRecord = record
-                Self.persistVoteRecord(record, walletId: state.walletId, roundId: state.roundId)
-                state.voteRecords[state.roundId] = record
-            }
-
             // Keystone: delegation requires QR signing UI, so route through
             // the delegation signing screen before batch submission.
             if state.isKeystoneUser && !state.isDelegationReady {
@@ -399,6 +382,20 @@ extension Voting {
                     totalCount: successCount + failCount
                 )
             } else {
+                // Persist the round-level submission marker only after every
+                // proposal in the batch has completed. Until then, the user
+                // must still be able to re-enter the round and edit/retry any
+                // outstanding drafts.
+                if state.voteRecord == nil {
+                    let record = VoteRecord(
+                        votedAt: Date(),
+                        votingWeight: state.votingWeight,
+                        proposalCount: state.totalProposals
+                    )
+                    state.voteRecord = record
+                    Self.persistVoteRecord(record, walletId: state.walletId, roundId: state.roundId)
+                    state.voteRecords[state.roundId] = record
+                }
                 state.batchSubmissionStatus = .completed(successCount: successCount)
                 Self.clearPersistedDrafts(walletId: state.walletId, roundId: state.roundId)
             }

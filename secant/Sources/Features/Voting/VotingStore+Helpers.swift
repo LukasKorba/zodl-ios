@@ -7,8 +7,8 @@ extension Voting {
     private static let draftPrefix = "voting.draftVotes."
     private static let voteRecordPrefix = "voting.voteRecord."
 
-    /// Persisted record of when the user confirmed their vote in a given round,
-    /// the voting weight at that moment, and how many proposals they voted on.
+    /// Persisted record of when a round's vote submission fully completed,
+    /// the voting weight at that moment, and how many proposals were included.
     /// Survives app termination so the Results screen can render
     /// "Voted Feb 15 - Voting Power X.XXX ZEC" and the polls list can show the
     /// "X of Y voted" indicator days after submission, even though the live
@@ -56,6 +56,21 @@ extension Voting {
             votingWeight: weight,
             proposalCount: count
         )
+    }
+
+    static func clearPersistedVoteRecord(walletId: String, roundId: String) {
+        UserDefaults.standard.removeObject(forKey: voteRecordKey(walletId: walletId, roundId: roundId))
+    }
+
+    /// A round-level vote record is only valid once all drafts are gone.
+    /// Older builds wrote it too early, so clear it if there is still
+    /// outstanding editable work for the round.
+    static func loadCompletedVoteRecord(walletId: String, roundId: String) -> VoteRecord? {
+        guard loadDrafts(walletId: walletId, roundId: roundId).isEmpty else {
+            clearPersistedVoteRecord(walletId: walletId, roundId: roundId)
+            return nil
+        }
+        return loadVoteRecord(walletId: walletId, roundId: roundId)
     }
 
     private static func draftKey(walletId: String, roundId: String) -> String {

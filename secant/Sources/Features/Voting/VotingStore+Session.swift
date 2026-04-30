@@ -108,12 +108,12 @@ extension Voting {
 
             // Populate voteRecords from persisted UserDefaults so the polls
             // list can render the Voted pill and "X of Y voted" indicator
-            // for rounds the user has already confirmed in. Per-round, sync
+            // for rounds the user has fully submitted. Per-round, sync
             // read — fast even for tens of rounds.
             let walletId = state.walletId
             var loadedRecords: [String: VoteRecord] = [:]
             for item in state.allRounds {
-                if let record = Self.loadVoteRecord(walletId: walletId, roundId: item.id) {
+                if let record = Self.loadCompletedVoteRecord(walletId: walletId, roundId: item.id) {
                     loadedRecords[item.id] = record
                 }
             }
@@ -136,7 +136,7 @@ extension Voting {
             state.activeSession = session
             state.roundId = session.voteRoundId.hexString
             state.votingRound = sessionBackedRound(from: session, title: item.title, fallback: state.votingRound)
-            state.voteRecord = Self.loadVoteRecord(walletId: state.walletId, roundId: state.roundId)
+            state.voteRecord = Self.loadCompletedVoteRecord(walletId: state.walletId, roundId: state.roundId)
             reconcileProposalState(&state)
 
             switch session.status {
