@@ -51,6 +51,9 @@ enum VotingErrorMapper {
         if rawError.contains("vote round not found") {
             return String(localizable: .coinVoteStoreUserErrorRoundNotFound)
         }
+        if rawError.contains("No active voting round") {
+            return String(localizable: .coinVoteStoreUserErrorRoundNotActive)
+        }
         if rawError.contains("PIR server connect failed") || rawError.contains("PIR parallel fetch failed") {
             return String(localizable: .coinVoteStoreUserErrorPirUnavailable)
         }

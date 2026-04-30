@@ -34,6 +34,7 @@ actor SvAPIConfigStore {
 private enum SvAPIError: LocalizedError {
     case httpError(statusCode: Int, message: String)
     case invalidResponse(String)
+    case noActiveVotingSession
     case txFailed(code: UInt32, log: String)
 
     var errorDescription: String? {
@@ -42,6 +43,8 @@ private enum SvAPIError: LocalizedError {
             return "HTTP \(code): \(message)"
         case .invalidResponse(let detail):
             return "Invalid API response: \(detail)"
+        case .noActiveVotingSession:
+            return "No active voting round"
         case .txFailed(let code, let log):
             return "Transaction failed (code \(code)): \(log)"
         }
@@ -466,7 +469,15 @@ extension VotingAPIClient: DependencyKey {
                 print("[VotingAPI] URLs configured: base=\(base), servers=\(config.voteServers.count), pir=\(pir)")
             },
             fetchActiveVotingSession: {
-                let json = try await getJSON("/shielded-vote/v1/rounds/active")
+                let json: [String: Any]
+                do {
+                    json = try await getJSON("/shielded-vote/v1/rounds/active")
+                } catch SvAPIError.httpError(let statusCode, _) where statusCode == 404 {
+                    throw SvAPIError.noActiveVotingSession
+                }
+                if json["round"] == nil || json["round"] is NSNull {
+                    throw SvAPIError.noActiveVotingSession
+                }
                 guard let round = json["round"] as? [String: Any] else {
                     throw SvAPIError.invalidResponse("missing 'round' in response")
                 }
