@@ -2979,6 +2979,17 @@
         }
       }
     },
+    "coinVote.store.userError.pirInvalidProofData" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The nullifier service returned invalid proof data. Please try again in a few minutes."
+          }
+        }
+      }
+    },
     "coinVote.store.userError.pirSnapshotMismatch" : {
       "extractionState" : "manual",
       "localizations" : {

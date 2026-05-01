@@ -3,6 +3,22 @@ import XCTest
 @testable import secant_testnet
 
 final class VotingSubmissionTests: XCTestCase {
+    func testVotingErrorMapperMapsPirProofRootMismatchToSnapshotMismatch() {
+        let message = VotingErrorMapper.userFriendlyMessage(
+            from: "Internal error: PIR proof root mismatch: expected aa, got bb"
+        )
+
+        XCTAssertEqual(message, String(localizable: .coinVoteStoreUserErrorPirSnapshotMismatch))
+    }
+
+    func testVotingErrorMapperMapsPirProofVerificationFailureBeforeFetchFailure() {
+        let message = VotingErrorMapper.userFriendlyMessage(
+            from: "PIR parallel fetch failed: PIR proof verification failed: bad path"
+        )
+
+        XCTAssertEqual(message, String(localizable: .coinVoteStoreUserErrorPirInvalidProofData))
+    }
+
     func testAuthenticationSucceededDoesNotPersistVoteRecordBeforeSubmission() {
         let walletId = UUID().uuidString
         let roundId = UUID().uuidString
