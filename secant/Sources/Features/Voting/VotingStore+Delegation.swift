@@ -6,6 +6,22 @@ import os
 
 // MARK: - Delegation (Witness Verification, Round Resume, Delegation Signing, ZKP)
 
+func votingSeedFingerprint(for account: WalletAccount?) -> Data? {
+    if let seedFingerprint = account?.seedFingerprint, seedFingerprint.count == 32 {
+        return Data(seedFingerprint)
+    }
+    return nil
+}
+
+func votingAccountIndex(for account: WalletAccount?) -> UInt32 {
+    account.flatMap(\.zip32AccountIndex).map { UInt32($0.index) } ?? 0
+}
+
+/// `senderSeed` is unused in seedless PCZT prep — when an Orchard FVK override and a
+/// seed fingerprint are supplied, `buildVotingPczt` derives `ak` from the FVK directly
+/// and never touches the seed. Pass this at those call sites instead of a bare `[]`.
+let emptySenderSeed: [UInt8] = []
+
 extension Voting {
     func reduceDelegation(_ state: inout State, _ action: Action) -> Effect<Action> {
         switch action {
@@ -151,6 +167,8 @@ extension Voting {
             // flash of "Preparing note witnesses..." when resuming a round.
             state.witnessStatus = .inProgress
             state.delegationProofStatus = .notStarted
+            state.delegationPrecomputeStatus = .notStarted
+            state.isDelegationPrecomputeInFlight = false
             return .none
 
         case .rerunWitnessVerification:
@@ -158,7 +176,9 @@ extension Voting {
             state.noteWitnessResults = []
             state.cachedWitnesses = []
             state.witnessTiming = nil
-            return .send(.verifyWitnesses)
+            state.delegationPrecomputeStatus = .notStarted
+            state.isDelegationPrecomputeInFlight = false
+            return .merge(.cancel(id: cancelDelegationPrecomputeId), .send(.verifyWitnesses))
 
         case let .witnessVerificationCompleted(results, witnesses, timing, bundleCount):
             state.noteWitnessResults = results
@@ -177,14 +197,16 @@ extension Voting {
                 }
             }
             // Delegation (ZKP #1) is deferred until the user submits their vote.
-            // Witnesses are ready; delegation will use them at submission time.
-            return .none
+            // Witnesses are ready; start seedless PIR prep if the hotkey is also ready.
+            return .send(.maybeStartDelegationPrecompute)
 
         case .witnessVerificationFailed(let error):
             let message = VotingErrorMapper.userFriendlyMessage(from: error)
             state.witnessStatus = .failed(message)
             state.delegationProofStatus = .failed(message)
             state.isDelegationProofInFlight = false
+            state.delegationPrecomputeStatus = .failed(message)
+            state.isDelegationPrecomputeInFlight = false
             return .none
 
         // MARK: - Round Resume
@@ -315,6 +337,115 @@ extension Voting {
 
         // MARK: - ZKP Delegation
 
+        case .maybeStartDelegationPrecompute:
+            guard !state.isKeystoneUser else { return .none }
+            guard !state.isDelegationReady else { return .none }
+            guard !state.isDelegationProofInFlight, !state.isDelegationPrecomputeInFlight else { return .none }
+            guard state.delegationPrecomputeStatus == .notStarted else { return .none }
+            guard state.witnessStatus == .completed, state.hotkeyAddress != nil else { return .none }
+            guard let activeSession = state.activeSession, activeSession.status == .active else { return .none }
+            guard state.bundleCount > 0, !state.walletNotes.isEmpty else { return .none }
+            guard
+                let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
+                !pirEndpoints.isEmpty
+            else {
+                return .none
+            }
+            guard let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount) else {
+                votingLogger.debug("Skipping delegation PIR precompute: missing selected-account seed fingerprint")
+                return .none
+            }
+
+            state.delegationPrecomputeStatus = .inProgress
+            state.isDelegationPrecomputeInFlight = true
+
+            let roundId = activeSession.voteRoundId.hexString
+            let expectedSnapshotHeight = activeSession.snapshotHeight
+            let cachedNotes = state.walletNotes
+            let bundleCount = state.bundleCount
+            let network = zcashSDKEnvironment.network
+            let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
+            let roundName = state.votingRound.title
+
+            return .run { [votingCrypto, mnemonic, walletStorage] send in
+                let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
+                let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
+                let noteChunks = cachedNotes.smartBundles().bundles
+                guard Int(bundleCount) <= noteChunks.count else {
+                    throw "Delegation precompute bundle count exceeds prepared note bundles"
+                }
+
+                var totalCached: UInt32 = 0
+                var totalFetched: UInt32 = 0
+                for bundleIndex: UInt32 in 0..<bundleCount {
+                    try Task.checkCancellation()
+                    if case .present? = try? await votingCrypto.getDelegationTxHash(roundId, bundleIndex) {
+                        continue
+                    }
+
+                    let bundleNotes = noteChunks[Int(bundleIndex)]
+                    guard let firstNote = bundleNotes.first else { continue }
+                    let orchardFvk = try votingCrypto.extractOrchardFvkFromUfvk(firstNote.ufvkStr, networkId)
+
+                    _ = try await votingCrypto.buildVotingPczt(
+                        roundId,
+                        bundleIndex,
+                        bundleNotes,
+                        emptySenderSeed,
+                        hotkeySeed,
+                        networkId,
+                        accountIndex,
+                        roundName,
+                        orchardFvk,
+                        seedFingerprint
+                    )
+
+                    let result = try await votingCrypto.precomputeDelegationPir(
+                        roundId,
+                        bundleIndex,
+                        bundleNotes,
+                        pirEndpoints,
+                        expectedSnapshotHeight,
+                        networkId
+                    )
+                    totalCached += result.cachedCount
+                    totalFetched += result.fetchedCount
+                    votingLogger.info(
+                        "Delegation PIR precompute bundle \(bundleIndex + 1)/\(bundleCount): cached=\(result.cachedCount) fetched=\(result.fetchedCount)"
+                    )
+                }
+
+                votingLogger.info("Delegation PIR precompute complete: cached=\(totalCached) fetched=\(totalFetched)")
+                await send(.delegationPrecomputeCompleted(roundId: roundId))
+            } catch: { error, send in
+                await send(.delegationPrecomputeFailed(roundId: roundId, error: error.localizedDescription))
+            }
+            .cancellable(id: cancelDelegationPrecomputeId, cancelInFlight: true)
+
+        case let .delegationPrecomputeCompleted(roundId):
+            guard state.roundId == roundId else { return .none }
+            state.delegationPrecomputeStatus = .ready
+            state.isDelegationPrecomputeInFlight = false
+            if state.pendingBatchSubmission && !state.isKeystoneUser {
+                state.pendingBatchSubmission = false
+                state.batchSubmissionStatus = .idle
+                return .send(.authenticationSucceeded)
+            }
+            return .none
+
+        case let .delegationPrecomputeFailed(roundId, error):
+            guard state.roundId == roundId else { return .none }
+            let message = VotingErrorMapper.userFriendlyMessage(from: error)
+            state.delegationPrecomputeStatus = .failed(message)
+            state.isDelegationPrecomputeInFlight = false
+            if state.pendingBatchSubmission && !state.isKeystoneUser {
+                state.pendingBatchSubmission = false
+                state.batchSubmissionStatus = .idle
+                return .send(.authenticationSucceeded)
+            }
+            return .none
+
         case .startDelegationProof:
             guard !state.isDelegationProofInFlight && state.delegationProofStatus != .complete else {
                 return .none
@@ -358,11 +489,15 @@ extension Voting {
             }
             let cachedNotes = state.walletNotes
             let network = zcashSDKEnvironment.network
-            let walletDbPath = databaseFiles.dataDbURLFor(network).path
             let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
-            let accountIndex: UInt32 = keystoneMetadata?.accountIndex ?? 0
-            let keystoneSeedFingerprint = keystoneMetadata?.seedFingerprint
             let isKeystoneUser = state.isKeystoneUser
+            let accountIndex: UInt32 = isKeystoneUser
+                ? keystoneMetadata?.accountIndex ?? 0
+                : votingAccountIndex(for: state.selectedWalletAccount)
+            let keystoneSeedFingerprint = keystoneMetadata?.seedFingerprint
+            let pcztSeedFingerprint = isKeystoneUser
+                ? keystoneSeedFingerprint
+                : votingSeedFingerprint(for: state.selectedWalletAccount)
             let roundName = state.votingRound.title
             // serviceConfig is guaranteed loaded by the time the user reaches any voting
             // pipeline: the .configError gate in .initialize/.allRoundsLoaded blocks entry
@@ -377,6 +512,7 @@ extension Voting {
             }
             let keystoneBundleIndex = state.currentKeystoneBundleIndex
             let bundleCount = state.bundleCount
+            let delegationPrepared = state.isDelegationPrecomputeReady
             return .merge(
                 // Subscribe to DB state stream (follows SDKSynchronizer pattern)
                 .publisher {
@@ -391,8 +527,6 @@ extension Voting {
                     let bgTaskId = await backgroundTask.beginTask("Delegation proof generation")
                     do {
                         // Reload hotkey from keychain (generated during initialize)
-                        let senderPhrase = try walletStorage.exportWallet().seedPhrase.value()
-                        let senderSeed = try mnemonic.toSeed(senderPhrase)
                         let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
                         let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
                         if isKeystoneUser {
@@ -418,7 +552,7 @@ extension Voting {
                                 roundId,
                                 keystoneBundleIndex,
                                 bundleNotes,
-                                senderSeed,
+                                emptySenderSeed,
                                 hotkeySeed,
                                 networkId,
                                 accountIndex,
@@ -434,6 +568,8 @@ extension Voting {
                         }
 
                         // Non-Keystone path: delegate using shared pipeline helper.
+                        let senderPhrase = try walletStorage.exportWallet().seedPhrase.value()
+                        let senderSeed = try mnemonic.toSeed(senderPhrase)
                         try await Self.runDelegationPipeline(
                             roundId: roundId,
                             cachedNotes: cachedNotes,
@@ -444,6 +580,8 @@ extension Voting {
                             roundName: roundName,
                             pirEndpoints: pirEndpoints,
                             expectedSnapshotHeight: expectedSnapshotHeight,
+                            delegationPrepared: delegationPrepared,
+                            seedFingerprint: pcztSeedFingerprint,
                             votingCrypto: votingCrypto,
                             votingAPI: votingAPI,
                             send: send
@@ -819,6 +957,7 @@ extension Voting {
 
         case .delegationProofFailed(let roundId, let error):
             guard state.roundId == roundId else { return .none }
+            votingLogger.error("Delegation proof failed (raw): \(error)")
             state.currentKeystoneBundleIndex = 0
             state.keystoneBundleSignatures = []
             let userMessage: String
@@ -857,6 +996,8 @@ extension Voting {
         roundName: String,
         pirEndpoints: [String],
         expectedSnapshotHeight: UInt64,
+        delegationPrepared: Bool = false,
+        seedFingerprint: Data? = nil,
         votingCrypto: VotingCryptoClient,
         votingAPI: VotingAPIClient,
         send: Send<Action>
@@ -885,11 +1026,18 @@ extension Voting {
                 votingLogger.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) using cached submission")
                 registration = cachedRegistration
             } else {
-                _ = try await votingCrypto.buildVotingPczt(
-                    roundId, bundleIndex, bundleNotes,
-                    senderSeed, hotkeySeed, networkId, accountIndex, roundName,
-                    nil, nil
-                )
+                if delegationPrepared {
+                    votingLogger.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) using precomputed PIR data")
+                } else {
+                    let orchardFvk = try seedFingerprint.map { _ in
+                        try votingCrypto.extractOrchardFvkFromUfvk(bundleNotes[0].ufvkStr, networkId)
+                    }
+                    _ = try await votingCrypto.buildVotingPczt(
+                        roundId, bundleIndex, bundleNotes,
+                        senderSeed, hotkeySeed, networkId, accountIndex, roundName,
+                        orchardFvk, seedFingerprint
+                    )
+                }
 
                 for try await event in votingCrypto.buildAndProveDelegation(
                     roundId, bundleIndex, bundleNotes,

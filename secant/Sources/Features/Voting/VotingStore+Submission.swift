@@ -51,9 +51,18 @@ extension Voting {
                 return .send(.startDelegationProof)
             }
 
+            if !state.isKeystoneUser && !state.isDelegationReady && state.isDelegationPrecomputeInFlight {
+                state.pendingBatchSubmission = true
+                state.batchSubmissionStatus = .authorizing
+                state.voteSubmissionStep = .authorizingVote
+                state.delegationProofStatus = .generating(progress: 0)
+                return .none
+            }
+
             let drafts = state.draftVotes.sorted { $0.key < $1.key }
             let totalCount = drafts.count
             let delegationDone = state.isDelegationReady
+            let delegationPrepared = state.isDelegationPrecomputeReady
             state.batchSubmissionStatus = delegationDone
                 ? .submitting(currentIndex: 0, totalCount: totalCount, currentProposalId: drafts[0].key)
                 : .authorizing
@@ -66,6 +75,8 @@ extension Voting {
             let roundId = state.roundId
             let network = zcashSDKEnvironment.network
             let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
+            let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount)
             guard
                 let chainNodeUrl = state.serviceConfig?.voteServers.first?.url,
                 let voteServerURLs = state.serviceConfig?.voteServers.map(\.url),
@@ -125,15 +136,18 @@ extension Voting {
                             senderSeed: senderSeed,
                             hotkeySeed: hotkeySeed,
                             networkId: networkId,
-                            accountIndex: 0,
+                            accountIndex: accountIndex,
                             roundName: roundName,
                             pirEndpoints: pirEndpoints,
                             expectedSnapshotHeight: expectedSnapshotHeight,
+                            delegationPrepared: delegationPrepared,
+                            seedFingerprint: seedFingerprint,
                             votingCrypto: votingCrypto,
                             votingAPI: votingAPI,
                             send: send
                         )
                     } catch {
+                        votingLogger.error("Delegation pipeline failed (raw): \(error.localizedDescription)")
                         await send(.batchAuthorizationFailed(
                             error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription)
                         ))

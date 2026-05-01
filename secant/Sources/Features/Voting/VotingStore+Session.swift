@@ -74,6 +74,8 @@ extension Voting {
             if isSwitchingRounds {
                 state.delegationProofStatus = .notStarted
                 state.isDelegationProofInFlight = false
+                state.delegationPrecomputeStatus = .notStarted
+                state.isDelegationPrecomputeInFlight = false
                 state.pendingBatchSubmission = false
                 state.currentKeystoneBundleIndex = 0
                 state.keystoneBundleSignatures = []
@@ -87,6 +89,9 @@ extension Voting {
             let cancelStaleDelegation: Effect<Action> = isSwitchingRounds
                 ? .cancel(id: cancelDelegationProofId)
                 : .none
+            let cancelStalePrecompute: Effect<Action> = isSwitchingRounds
+                ? .cancel(id: cancelDelegationPrecomputeId)
+                : .none
 
             switch session.status {
             case .active:
@@ -95,6 +100,7 @@ extension Voting {
                 state.screenStack = [.pollsList, .proposalList]
                 return .merge(
                     cancelStaleDelegation,
+                    cancelStalePrecompute,
                     .cancel(id: cancelNewRoundPollingId),
                     .send(.startRoundStatusPolling),
                     // Defer pipeline start so SwiftUI renders the navigation
@@ -103,11 +109,12 @@ extension Voting {
                 )
             case .tallying:
                 state.screenStack = [.tallying]
-                return .merge(cancelStaleDelegation, .send(.startRoundStatusPolling))
+                return .merge(cancelStaleDelegation, cancelStalePrecompute, .send(.startRoundStatusPolling))
             case .finalized:
                 state.screenStack = [.results]
                 return .merge(
                     cancelStaleDelegation,
+                    cancelStalePrecompute,
                     .send(.fetchTallyResults),
                     .send(.startNewRoundPolling)
                 )
@@ -336,7 +343,7 @@ extension Voting {
 
         case .hotkeyLoaded(let address):
             state.hotkeyAddress = address
-            return .none
+            return .send(.maybeStartDelegationPrecompute)
 
         // MARK: - Round Status Polling
 

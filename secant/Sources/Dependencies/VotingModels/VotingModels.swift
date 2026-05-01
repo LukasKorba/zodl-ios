@@ -763,6 +763,11 @@ enum ProofEvent: Equatable, Sendable {
     case completed(Data)
 }
 
+struct DelegationPirPrecomputeResult: Equatable, Sendable {
+    let cachedCount: UInt32
+    let fetchedCount: UInt32
+}
+
 /// Streaming events for vote commitment build (ZKP #2).
 /// Keeps bundle payloads separate from generic proof streams used elsewhere.
 enum VoteCommitmentBuildEvent: Equatable, Sendable {

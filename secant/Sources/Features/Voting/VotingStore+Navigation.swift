@@ -105,6 +105,7 @@ extension Voting {
                 .cancel(id: cancelStatusPollingId),
                 .cancel(id: cancelPipelineId),
                 .cancel(id: cancelDelegationProofId),
+                .cancel(id: cancelDelegationPrecomputeId),
                 .cancel(id: cancelNewRoundPollingId),
                 .cancel(id: cancelShareTrackingId)
             )
@@ -142,6 +143,8 @@ extension Voting {
             state.witnessStatus = .notStarted
             state.delegationProofStatus = .notStarted
             state.isDelegationProofInFlight = false
+            state.delegationPrecomputeStatus = .notStarted
+            state.isDelegationPrecomputeInFlight = false
             state.pendingBatchSubmission = false
             state.currentKeystoneBundleIndex = 0
             state.keystoneBundleSignatures = []
@@ -169,6 +172,7 @@ extension Voting {
                 .cancel(id: cancelStatusPollingId),
                 .cancel(id: cancelPipelineId),
                 .cancel(id: cancelDelegationProofId),
+                .cancel(id: cancelDelegationPrecomputeId),
                 .cancel(id: cancelNewRoundPollingId),
                 .cancel(id: cancelShareTrackingId),
                 .run { [votingAPI] send in

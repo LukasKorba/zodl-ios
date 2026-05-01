@@ -80,6 +80,16 @@ struct VotingCryptoClient {
     /// Extract the ZIP-244 shielded sighash from finalized PCZT bytes.
     /// Returns the 32-byte sighash that Keystone signed internally.
     var extractPcztSighash: @Sendable (_ pcztBytes: Data) throws -> Data
+    /// Resolve the round PIR endpoint, fetch ZKP #1 IMT proofs, and cache them in the voting DB.
+    /// Requires `buildVotingPczt` to have stored delegation data for this bundle first.
+    var precomputeDelegationPir: @Sendable (
+        _ roundId: String,
+        _ bundleIndex: UInt32,
+        _ bundleNotes: [NoteInfo],
+        _ pirEndpoints: [String],
+        _ expectedSnapshotHeight: UInt64,
+        _ networkId: UInt32
+    ) async throws -> DelegationPirPrecomputeResult
     /// Build and prove the real delegation ZKP (#1). Long-running.
     /// Loads data from voting DB and wallet DB, fetches IMT proofs from server,
     /// generates a real Halo2 proof, and reports progress.

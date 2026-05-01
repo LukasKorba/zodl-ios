@@ -182,6 +182,13 @@ struct Voting {
             case failed(String)
         }
 
+        enum DelegationPrecomputeStatus: Equatable {
+            case notStarted
+            case inProgress
+            case ready
+            case failed(String)
+        }
+
         struct WitnessTiming: Equatable {
             let treeStateFetchMs: UInt64
             let witnessGenerationMs: UInt64
@@ -386,6 +393,8 @@ struct Voting {
         /// True while the delegation proof `.run` effect is in-flight. Guards against
         /// re-entrant `.startDelegationProof` dispatches from round polling re-triggers.
         var isDelegationProofInFlight: Bool = false
+        var delegationPrecomputeStatus: DelegationPrecomputeStatus = .notStarted
+        var isDelegationPrecomputeInFlight: Bool = false
         var keystoneSigningStatus: KeystoneSigningStatus = .idle
 
         /// Which bundle the Keystone signing loop is currently processing (0-based).
@@ -536,6 +545,10 @@ struct Voting {
             delegationProofStatus == .complete
         }
 
+        var isDelegationPrecomputeReady: Bool {
+            delegationPrecomputeStatus == .ready
+        }
+
         /// Whether all share delegations have been confirmed on-chain.
         var allSharesConfirmed: Bool {
             !shareDelegations.isEmpty && shareDelegations.allSatisfy(\.confirmed)
@@ -673,6 +686,7 @@ struct Voting {
     let cancelStatusPollingId = UUID()
     let cancelPipelineId = UUID()
     let cancelDelegationProofId = UUID()
+    let cancelDelegationPrecomputeId = UUID()
     let cancelNewRoundPollingId = UUID()
     let cancelShareTrackingId = UUID()
 
@@ -741,6 +755,9 @@ struct Voting {
 
         // ZKP delegation
         case startDelegationProof
+        case maybeStartDelegationPrecompute
+        case delegationPrecomputeCompleted(roundId: String)
+        case delegationPrecomputeFailed(roundId: String, error: String)
         case delegationProofProgress(roundId: String, progress: Double)
         case delegationProofCompleted(roundId: String)
         case delegationProofFailed(roundId: String, error: String)
@@ -904,6 +921,9 @@ struct Voting {
 
             // MARK: - ZKP Delegation
             case .startDelegationProof,
+                .maybeStartDelegationPrecompute,
+                .delegationPrecomputeCompleted,
+                .delegationPrecomputeFailed,
                 .keystoneSigningPrepared,
                 .keystoneSigningFailed,
                 .openKeystoneSignatureScan,
