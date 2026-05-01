@@ -11,7 +11,6 @@ final class VotingServiceConfigTests: XCTestCase {
         let json = """
         {
           "config_version": 1,
-          "vote_round_id": "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
           "vote_servers": [
             {"url": "https://vote1.example.com", "label": "validator-1"}
           ],
@@ -30,7 +29,6 @@ final class VotingServiceConfigTests: XCTestCase {
         let config = try JSONDecoder().decode(VotingServiceConfig.self, from: data)
 
         XCTAssertEqual(config.configVersion, 1)
-        XCTAssertEqual(config.voteRoundId, "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899")
         XCTAssertEqual(config.voteServers.count, 1)
         XCTAssertEqual(config.pirEndpoints.first?.label, "pir-1")
         XCTAssertEqual(config.supportedVersions.voteServer, "v1")
@@ -41,7 +39,6 @@ final class VotingServiceConfigTests: XCTestCase {
         let json = """
         {
           "config_version": 1,
-          "vote_round_id": "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
           "vote_servers": [{"url": "https://x", "label": "a"}],
           "pir_endpoints": [{"url": "https://y", "label": "b"}],
           "supported_versions": {"pir": ["v0"], "vote_protocol": "v0", "tally": "v0", "vote_server": "v1"}
@@ -55,7 +52,6 @@ final class VotingServiceConfigTests: XCTestCase {
     private func makeConfig(supportedVersions: VotingServiceConfig.SupportedVersions) -> VotingServiceConfig {
         VotingServiceConfig(
             configVersion: 1,
-            voteRoundId: String(repeating: "a", count: 64),
             voteServers: [.init(url: "https://x", label: "a")],
             pirEndpoints: [.init(url: "https://y", label: "b")],
             supportedVersions: supportedVersions

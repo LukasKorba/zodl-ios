@@ -18,7 +18,6 @@ Per the [Vote Configuration Format ZIP](https://github.com/zcash/zips/pull/1244)
 ```json
 {
   "config_version": 1,
-  "vote_round_id": "aabbccddeeff00112233445566778899aabbccddeeff00112233445566778899",
   "vote_servers": [
     {"url": "https://vote-chain-primary.valargroup.org", "label": "primary"},
     {"url": "https://vote-chain-secondary.valargroup.org", "label": "secondary"}
@@ -40,7 +39,6 @@ All fields are required. `JSONDecoder` throws on any missing field, which surfac
 | Field                | Purpose                                                                                                                                                                     |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `config_version`     | Schema version of this document. Currently 1.                                                                                                                               |
-| `vote_round_id`      | Lowercase hex (64 chars) id of the voting round this config is published for. The wallet checks that the chain returns a matching round.                                |
 | `vote_servers`       | Chain REST + helper API endpoints. The wallet's first entry serves API traffic; all entries are used for distributing share submissions.                                    |
 | `pir_endpoints`      | PIR servers for nullifier-exclusion proofs. The first entry is used.                                                                                                        |
 | `supported_versions` | What versions of each component the server speaks. See "Version handling" below.                                                                                            |
@@ -67,21 +65,27 @@ The CDN config does not carry proposals. After each config fetch, the wallet con
 - `/shielded-vote/v1/round/{round_id}`
 - `/shielded-vote/v1/tally-results/{round_id}`
 
-`VoteRound.proposals` is the authoritative source for proposal IDs, titles, descriptions, options, forum links, and result labels. `VoteRound.snapshot_height` and `VoteRound.vote_end_time` are the authoritative snapshot and deadline values used by the wallet. `VoteRound.proposals_hash` remains chain state and can be shown/debugged, but the wallet no longer recomputes it from CDN JSON because the CDN no longer publishes proposal JSON.
-
-On `.allRoundsLoaded`, the wallet still checks that `config.vote_round_id` exists in the chain rounds. A missing match triggers one fresh CDN fetch to recover from a stale config before surfacing `.configError`.
+`VoteRound.vote_round_id` is the authoritative round id used for UI state,
+draft/vote persistence, crypto initialization, and transaction submission.
+`VoteRound.proposals` is the authoritative source for proposal IDs, titles,
+descriptions, options, forum links, and result labels.
+`VoteRound.snapshot_height` and `VoteRound.vote_end_time` are the authoritative
+snapshot and deadline values used by the wallet. `VoteRound.proposals_hash`
+remains chain state and can be shown/debugged, but the wallet no longer
+recomputes it from CDN JSON because the CDN no longer publishes proposal JSON.
 
 ## Failure recovery
 
-- **Transient failure during a round transition** (CDN mid-deploy, cached config now stale): `.allRoundsLoaded` silently auto-retries one fetch per staleness window before surfacing an error. The flag gating the retry resets on every successful binding and on `.initialize`, so each round transition gets its own retry allotment.
-- **Permanent failure** (unsupported version, round-id mismatch after retry): terminal for the voting session. The user dismisses and re-enters once they've updated the wallet or the publisher has corrected the CDN/chain state.
+- **Transient failure** (CDN unreachable, vote server temporarily unavailable, or chain API mid-restart): the wallet surfaces the relevant config or round-loading error and the user can retry by re-entering the flow.
+- **Permanent failure** (unsupported version or incompatible endpoint set): terminal for the voting session. The user dismisses and re-enters once they've updated the wallet or the publisher has corrected the CDN/chain state.
 
 ## Publisher responsibilities
 
 The config publisher (currently [`valargroup/token-holder-voting-config`](https://github.com/valargroup/token-holder-voting-config)) must:
 
-1. Update `vote_round_id` at or before each on-chain round activates. Any window where the CDN is behind the chain causes transient `.configError`s for wallets booted during that window (auto-retry covers most cases, but the publisher pipeline should be fast).
-2. Ensure the configured vote servers expose the chain round and its `VoteRound.proposals` via `/shielded-vote/v1/rounds` and `/shielded-vote/v1/round/{round_id}`.
+1. Keep `vote_servers` and `pir_endpoints` current so wallets can reach healthy infrastructure.
+2. Ensure the configured vote servers expose the chain round and its `VoteRound.proposals` via `/shielded-vote/v1/rounds`, `/shielded-vote/v1/rounds/active`, and `/shielded-vote/v1/round/{round_id}`.
 3. Keep `supported_versions.vote_server` aligned with the REST path prefix the deployed server actually serves (the wallet hits `/shielded-vote/v1/` when `vote_server: "v1"`).
 
-When no round is active, `vote_round_id` may be `"0" * 64`; wallets correctly skip the binding check when the chain also has no rounds.
+When no round is active, `/shielded-vote/v1/rounds/active` returns no active
+round and the wallet shows the no-rounds state from chain data.

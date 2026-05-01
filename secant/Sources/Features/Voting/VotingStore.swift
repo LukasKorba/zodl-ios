@@ -253,10 +253,6 @@ struct Voting {
         /// Resolved service config from CDN or local override.
         var serviceConfig: VotingServiceConfig?
 
-        /// Set after one attempted lazy config refresh during the current session.
-        /// Prevents a refresh → allRoundsLoaded → refresh loop when the fresh config still doesn't match.
-        var hasAttemptedConfigRefresh: Bool = false
-
         /// Tally results for finalized rounds (proposalId -> TallyResult).
         var tallyResults: [UInt32: TallyResult] = [:]
         var isLoadingTallyResults: Bool = false

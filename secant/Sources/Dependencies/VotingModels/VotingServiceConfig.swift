@@ -2,11 +2,10 @@ import Foundation
 
 /// CDN-hosted voting service configuration as specified in ZIP 1244 §"Vote Configuration Format".
 ///
-/// A JSON document published per voting round; fetched at startup from `configURL`.
+/// A JSON document for service discovery; fetched at startup from `configURL`.
 /// A debug-only local override (`localOverrideFilename` in the app bundle) takes priority for testing.
 struct VotingServiceConfig: Codable, Equatable, Sendable {
     let configVersion: Int
-    let voteRoundId: String
     let voteServers: [ServiceEndpoint]
     let pirEndpoints: [ServiceEndpoint]
     let supportedVersions: SupportedVersions
@@ -44,13 +43,11 @@ struct VotingServiceConfig: Codable, Equatable, Sendable {
 
     init(
         configVersion: Int,
-        voteRoundId: String,
         voteServers: [ServiceEndpoint],
         pirEndpoints: [ServiceEndpoint],
         supportedVersions: SupportedVersions
     ) {
         self.configVersion = configVersion
-        self.voteRoundId = voteRoundId
         self.voteServers = voteServers
         self.pirEndpoints = pirEndpoints
         self.supportedVersions = supportedVersions
@@ -58,7 +55,6 @@ struct VotingServiceConfig: Codable, Equatable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case configVersion = "config_version"
-        case voteRoundId = "vote_round_id"
         case voteServers = "vote_servers"
         case pirEndpoints = "pir_endpoints"
         case supportedVersions = "supported_versions"
@@ -75,7 +71,6 @@ struct VotingServiceConfig: Codable, Equatable, Sendable {
     /// a CDN fetch or decode failure surfaces as a `VotingConfigError` instead.
     static let debugFallback = VotingServiceConfig(
         configVersion: 1,
-        voteRoundId: String(repeating: "0", count: 64),
         voteServers: [ServiceEndpoint(url: "https://vote-chain-primary.valargroup.org", label: "Primary")],
         pirEndpoints: [ServiceEndpoint(url: "https://pir.valargroup.org", label: "PIR Server")],
         supportedVersions: SupportedVersions(
@@ -105,7 +100,6 @@ enum WalletCapabilities {
 enum VotingConfigError: Error, Equatable, LocalizedError {
     case decodeFailed(String)
     case unsupportedVersion(component: String, advertised: String)
-    case roundIdMismatch(configRoundId: String, chainRoundId: String)
 
     var errorDescription: String? {
         switch self {
@@ -113,13 +107,6 @@ enum VotingConfigError: Error, Equatable, LocalizedError {
             return String(localizable: .coinVoteConfigErrorDecodeFailed(detail))
         case .unsupportedVersion(let component, let advertised):
             return String(localizable: .coinVoteConfigErrorUnsupportedVersion(component, advertised))
-        case .roundIdMismatch(let configRoundId, let chainRoundId):
-            return String(
-                localizable: .coinVoteConfigErrorRoundIdMismatch(
-                    String(configRoundId.prefix(16)),
-                    String(chainRoundId.prefix(16))
-                )
-            )
         }
     }
 }

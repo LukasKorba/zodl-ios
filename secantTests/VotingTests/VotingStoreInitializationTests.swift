@@ -55,7 +55,6 @@ final class VotingStoreInitializationTests: XCTestCase {
     private func makeConfig() -> VotingServiceConfig {
         VotingServiceConfig(
             configVersion: 1,
-            voteRoundId: String(repeating: "a", count: 64),
             voteServers: [.init(url: "https://vote.example.com", label: "vote")],
             pirEndpoints: [.init(url: "https://pir.example.com", label: "pir")],
             supportedVersions: .init(
