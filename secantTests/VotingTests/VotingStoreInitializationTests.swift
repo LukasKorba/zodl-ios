@@ -28,6 +28,10 @@ final class VotingStoreInitializationTests: XCTestCase {
             await callCounter.incrementRoundFetches()
             return [session]
         }
+        store.dependencies.votingAPI.fetchZodlEndorsedRoundIds = {
+            await callCounter.incrementEndorsementFetches()
+            return [session.voteRoundId.hexString]
+        }
         store.dependencies.votingCrypto.openDatabase = { _ in }
         store.dependencies.votingCrypto.setWalletId = { _ in }
 
@@ -54,12 +58,17 @@ final class VotingStoreInitializationTests: XCTestCase {
             $0.screenStack = [.pollsList]
             $0.voteRecords = [:]
         }
+        await store.receive(.fetchZodlEndorsements)
+        await store.receive(.zodlEndorsementsLoaded([session.voteRoundId.hexString])) {
+            $0.zodlEndorsedRoundIds = [session.voteRoundId.hexString]
+        }
 
         await store.send(.initialize) {
             $0.serviceConfig = nil
             $0.activeSession = nil
             $0.allRounds = []
             $0.voteRecords = [:]
+            $0.zodlEndorsedRoundIds = []
             $0.voteRecord = nil
             $0.roundId = ""
             $0.votingRound = VotingRound(
@@ -85,10 +94,15 @@ final class VotingStoreInitializationTests: XCTestCase {
             $0.screenStack = [.pollsList]
             $0.voteRecords = [:]
         }
+        await store.receive(.fetchZodlEndorsements)
+        await store.receive(.zodlEndorsementsLoaded([session.voteRoundId.hexString])) {
+            $0.zodlEndorsedRoundIds = [session.voteRoundId.hexString]
+        }
 
         XCTAssertEqual(await callCounter.configFetches, 2)
         XCTAssertEqual(await callCounter.urlConfigurations, 2)
         XCTAssertEqual(await callCounter.roundFetches, 2)
+        XCTAssertEqual(await callCounter.endorsementFetches, 2)
     }
 
     func testInitializeClearsStaleRoundsAndShowsConfigErrorWhenConfigFails() async {
@@ -153,6 +167,41 @@ final class VotingStoreInitializationTests: XCTestCase {
         }
     }
 
+    func testFetchZodlEndorsementsStoresLoadedRoundIds() async {
+        let roundId = Data(repeating: 0xAB, count: 32).hexString
+        let store = TestStore(
+            initialState: Voting.State()
+        ) {
+            Voting()
+        }
+        store.dependencies.votingAPI.fetchZodlEndorsedRoundIds = {
+            [roundId]
+        }
+
+        await store.send(.fetchZodlEndorsements)
+        await store.receive(.zodlEndorsementsLoaded([roundId])) {
+            $0.zodlEndorsedRoundIds = [roundId]
+        }
+    }
+
+    func testFetchZodlEndorsementsFailureClearsToEmptySet() async {
+        var initialState = Voting.State()
+        initialState.zodlEndorsedRoundIds = ["stale"]
+        let store = TestStore(
+            initialState: initialState
+        ) {
+            Voting()
+        }
+        store.dependencies.votingAPI.fetchZodlEndorsedRoundIds = {
+            throw TestEndorsementError()
+        }
+
+        await store.send(.fetchZodlEndorsements)
+        await store.receive(.zodlEndorsementsLoaded([])) {
+            $0.zodlEndorsedRoundIds = []
+        }
+    }
+
     private func makeConfig() -> VotingServiceConfig {
         VotingServiceConfig(
             configVersion: 1,
@@ -207,10 +256,13 @@ private struct TestConfigError: LocalizedError {
     }
 }
 
+private struct TestEndorsementError: Error {}
+
 private actor CallCounter {
     private(set) var configFetches = 0
     private(set) var urlConfigurations = 0
     private(set) var roundFetches = 0
+    private(set) var endorsementFetches = 0
 
     func incrementConfigFetches() {
         configFetches += 1
@@ -222,5 +274,9 @@ private actor CallCounter {
 
     func incrementRoundFetches() {
         roundFetches += 1
+    }
+
+    func incrementEndorsementFetches() {
+        endorsementFetches += 1
     }
 }

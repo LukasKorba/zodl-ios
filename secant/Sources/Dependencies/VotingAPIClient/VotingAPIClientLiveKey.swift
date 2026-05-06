@@ -815,6 +815,22 @@ extension VotingAPIClient: DependencyKey {
                 }
                 return grouped.mapValues { TallyResult(entries: $0) }
             },
+            fetchZodlEndorsedRoundIds: {
+                do {
+                    let json = try await getJSON("/shielded-vote/v1/endorsed-rounds/zodl")
+                    guard let ids = json["vote_round_ids"] as? [String] else {
+                        return []
+                    }
+                    // Chain returns base64-encoded 32-byte round ids; the app
+                    // keys rounds by lowercase hex.
+                    return Set(ids.compactMap { encoded in
+                        Data(base64Encoded: encoded).map(hexString(from:))
+                    })
+                } catch SvAPIError.httpError(let statusCode, _) where statusCode == 400 || statusCode == 404 {
+                    // Endorser not configured on this chain. Treat as no endorsements.
+                    return []
+                }
+            },
             submitDelegation: { registration in
                 let body: [String: Any] = [
                     "rk": registration.rk.base64EncodedString(),

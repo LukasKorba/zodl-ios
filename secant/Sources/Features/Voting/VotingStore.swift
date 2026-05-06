@@ -314,6 +314,10 @@ struct Voting {
         /// no remaining draft votes to edit or retry.
         var voteRecords: [String: VoteRecord] = [:]
 
+        /// Round ids (lowercase hex) endorsed by the on-chain `zodl` endorser.
+        /// Used to render a small endorsement icon on finalized round cards and the Results header.
+        var zodlEndorsedRoundIds: Set<String> = []
+
         var selectedProposalId: UInt32?
 
         // MARK: - Batch voting
@@ -793,6 +797,8 @@ struct Voting {
         case tallyResultsLoaded([UInt32: TallyResult])
         case tallyResultsLoadFailed
         case retryLoadTallyResults
+        case fetchZodlEndorsements
+        case zodlEndorsementsLoaded(Set<String>)
 
         // Share info sheet
         case showShareInfo(UInt32)
@@ -875,7 +881,9 @@ struct Voting {
             case .fetchTallyResults,
                 .tallyResultsLoaded,
                 .tallyResultsLoadFailed,
-                .retryLoadTallyResults:
+                .retryLoadTallyResults,
+                .fetchZodlEndorsements,
+                .zodlEndorsementsLoaded:
                 return reduceSession(&state, action)
 
             // MARK: - DB State Stream

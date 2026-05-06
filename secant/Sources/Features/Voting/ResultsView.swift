@@ -12,6 +12,19 @@ private func formatWeightZEC(_ weight: UInt64) -> String {
     return String(format: "%.3f", zec)
 }
 
+private func zodlEndorsementIndicator(colorScheme: ColorScheme) -> some View {
+    HStack(spacing: 4) {
+        Image(systemName: "checkmark.seal.fill")
+            .font(.system(size: 18, weight: .medium))
+
+        Text("Endorsed by ZODL")
+            .zFont(.medium, size: 12, style: Design.Text.tertiary)
+    }
+    .foregroundStyle(Design.Text.tertiary.color(colorScheme))
+    .accessibilityElement(children: .combine)
+    .accessibilityLabel(Text("Endorsed by ZODL"))
+}
+
 /// Color for a tally entry. Looks the option up on the proposal so Abstain
 /// stays HyperBlue; falls back to a synthetic VoteOption for entries whose
 /// decision index isn't in `proposal.options` (e.g. legacy Support/Oppose).
@@ -116,9 +129,15 @@ struct ResultsView: View {
     @ViewBuilder
     private func roundHeader() -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(store.votingRound.title)
-                .zFont(.semiBold, size: 24, style: Design.Text.primary)
-                .fixedSize(horizontal: false, vertical: true)
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(store.votingRound.title)
+                    .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if store.zodlEndorsedRoundIds.contains(store.roundId) {
+                    zodlEndorsementIndicator(colorScheme: colorScheme)
+                }
+            }
 
             if !store.votingRound.description.isEmpty {
                 Text(store.votingRound.description)

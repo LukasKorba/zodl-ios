@@ -62,6 +62,9 @@ struct VotingAPIClient {
     var fetchAllRounds: @Sendable () async throws -> [VotingSession]
     var fetchRoundById: @Sendable (_ roundIdHex: String) async throws -> VotingSession
     var fetchTallyResults: @Sendable (_ roundIdHex: String) async throws -> [UInt32: TallyResult]
+    /// Fetch the set of round ids (lowercase hex) that the `zodl` endorser has endorsed on-chain.
+    /// Returns an empty set if the endorser is not configured.
+    var fetchZodlEndorsedRoundIds: @Sendable () async throws -> Set<String>
     var submitDelegation: @Sendable (_ registration: DelegationRegistration) async throws -> TxResult
     var submitVoteCommitment: @Sendable (_ bundle: VoteCommitmentBundle, _ signature: CastVoteSignature) async throws -> TxResult
     /// Distribute shares across the provided active-submission vote server set.

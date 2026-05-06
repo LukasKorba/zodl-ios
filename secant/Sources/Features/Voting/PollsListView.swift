@@ -96,6 +96,10 @@ struct PollsListView: View {
             // Top row: state pill + closes/closed date
             HStack(spacing: 0) {
                 pollStatusPill(state)
+                if store.zodlEndorsedRoundIds.contains(item.id) {
+                    endorsementIndicator(fontSize: 12, iconSize: 14)
+                        .padding(.leading, 8)
+                }
                 Spacer()
                 Text(dateLabel(for: state, item: item))
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
@@ -152,6 +156,19 @@ struct PollsListView: View {
     }
 
     private static let shadowSm = Color(red: 35.0 / 255.0, green: 31.0 / 255.0, blue: 32.0 / 255.0).opacity(0.04)
+
+    private func endorsementIndicator(fontSize: CGFloat, iconSize: CGFloat) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "checkmark.seal.fill")
+                .font(.system(size: iconSize, weight: .medium))
+
+            Text("Endorsed by ZODL")
+                .zFont(.medium, size: fontSize, style: Design.Text.tertiary)
+        }
+        .foregroundStyle(Design.Text.tertiary.color(colorScheme))
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("Endorsed by ZODL"))
+    }
 
     /// Per-round count of proposals the user voted on. Falls back to the total
     /// proposal count for legacy records (written before proposalCount was

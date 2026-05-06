@@ -60,10 +60,11 @@ extension Voting {
             // against onAppear re-firing while the user is mid-vote.
             if state.allRounds.isEmpty {
                 state.screenStack = [.noRounds]
+                return .none
             } else if state.activeSession == nil {
                 state.screenStack = [.pollsList]
             }
-            return .none
+            return .send(.fetchZodlEndorsements)
 
         case .roundTapped(let roundId):
             guard let item = state.allRounds.first(where: { $0.id == roundId }) else { return .none }
@@ -116,6 +117,7 @@ extension Voting {
                     cancelStaleDelegation,
                     cancelStalePrecompute,
                     .send(.fetchTallyResults),
+                    .send(.fetchZodlEndorsements),
                     .send(.startNewRoundPolling)
                 )
             case .unspecified:
@@ -431,6 +433,7 @@ extension Voting {
                 let sideEffects: Effect<Action> = .merge(
                     .cancel(id: cancelStatusPollingId),
                     .send(.fetchTallyResults),
+                    .send(.fetchZodlEndorsements),
                     .send(.startNewRoundPolling)
                 )
                 if state.isInActiveVotingFlow {
@@ -509,6 +512,22 @@ extension Voting {
             state.resultsLoadError = false
             return .send(.fetchTallyResults)
 
+        // MARK: - Zodl Endorsements
+
+        case .fetchZodlEndorsements:
+            return .run { [votingAPI] send in
+                let ids = try await votingAPI.fetchZodlEndorsedRoundIds()
+                await send(.zodlEndorsementsLoaded(ids))
+            } catch: { error, send in
+                votingLogger.error("Failed to fetch zodl endorsements: \(error)")
+                // Non-fatal decoration: no icon is shown when endorsements are unavailable.
+                await send(.zodlEndorsementsLoaded([]))
+            }
+
+        case .zodlEndorsementsLoaded(let ids):
+            state.zodlEndorsedRoundIds = ids
+            return .none
+
         // MARK: - DB State Stream
 
         case .votingDbStateChanged(let dbState):
@@ -574,6 +593,7 @@ extension Voting.State {
         activeSession = nil
         allRounds = []
         voteRecords = [:]
+        zodlEndorsedRoundIds = []
         voteRecord = nil
         roundId = ""
         votingRound = VotingRound(
