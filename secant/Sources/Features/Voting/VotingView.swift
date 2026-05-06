@@ -26,6 +26,11 @@ struct VotingView: View {
         ) { scanStore in
             ScanView(store: scanStore, popoverRatio: 1.075)
         }
+        .sheet(
+            store: store.scope(state: \.$configSettings, action: \.configSettings)
+        ) { configSettingsStore in
+            VotingConfigSettingsView(store: configSettingsStore)
+        }
         .votingSheet(
             isPresented: pollClosedBinding,
             title: String(localizable: .coinVoteVotingViewPollClosedTitle),

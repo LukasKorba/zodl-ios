@@ -2,7 +2,8 @@ import SwiftUI
 import ComposableArchitecture
 
 struct HowToVoteView: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme)
+    var colorScheme
 
     let store: StoreOf<Voting>
 
@@ -55,6 +56,18 @@ struct HowToVoteView: View {
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
             .zashiBack { store.send(.dismissFlow) }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        store.send(.openConfigSettings)
+                    } label: {
+                        Image(systemName: "gearshape")
+                            .font(.system(size: 16, weight: .medium))
+                            .zForegroundColor(Design.Text.primary)
+                    }
+                    .accessibilityLabel("Voting chain config")
+                }
+            }
         }
     }
 

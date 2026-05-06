@@ -2316,6 +2316,7 @@
 		37CEBEF32F8E939D002DA90E /* VotingStorageClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEA22F8E939D002DA90E /* VotingStorageClientLiveKey.swift */; };
 		37CEBEF42F8E939D002DA90E /* VotingRound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBE9D2F8E939D002DA90E /* VotingRound.swift */; };
 		37C0F1002F94000000000002 /* VotingConfigSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1002F94000000000001 /* VotingConfigSettings.swift */; };
+		37C0F1012F94000000000002 /* VotingConfigSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */; };
 		37CEBF0F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
 		37CEBF102F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
 		37CEBF112F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
@@ -2337,6 +2338,7 @@
 		37CEBF212F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF222F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
 		37C0F1002F94000000000003 /* VotingConfigSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1002F94000000000001 /* VotingConfigSettings.swift */; };
+		37C0F1012F94000000000003 /* VotingConfigSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */; };
 		37CEBF232F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
 		37CEBF242F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
 		37CEBF252F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
@@ -2358,6 +2360,7 @@
 		37CEBF352F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF362F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
 		37C0F1002F94000000000004 /* VotingConfigSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1002F94000000000001 /* VotingConfigSettings.swift */; };
+		37C0F1012F94000000000004 /* VotingConfigSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */; };
 		37CEBF372F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
 		37CEBF382F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
 		37CEBF392F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
@@ -2379,6 +2382,7 @@
 		37CEBF492F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF4A2F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
 		37C0F1002F94000000000005 /* VotingConfigSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1002F94000000000001 /* VotingConfigSettings.swift */; };
+		37C0F1012F94000000000005 /* VotingConfigSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */; };
 		37CEBF4B2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
 		37CEBF4C2F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
 		37CEBF4D2F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
@@ -2400,6 +2404,7 @@
 		37CEBF5D2F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF5E2F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
 		37C0F1002F94000000000006 /* VotingConfigSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1002F94000000000001 /* VotingConfigSettings.swift */; };
+		37C0F1012F94000000000006 /* VotingConfigSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */; };
 		37CEBF5F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
 		37CEBF602F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
 		37CEBF612F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
@@ -3035,6 +3040,7 @@
 		37CEBEA22F8E939D002DA90E /* VotingStorageClientLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientLiveKey.swift; sourceTree = "<group>"; };
 		37CEBEA32F8E939D002DA90E /* VotingStorageClientTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientTestKey.swift; sourceTree = "<group>"; };
 		37C0F1002F94000000000001 /* VotingConfigSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingConfigSettings.swift; sourceTree = "<group>"; };
+		37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingConfigSettingsView.swift; sourceTree = "<group>"; };
 		37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmSubmissionView.swift; sourceTree = "<group>"; };
 		37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationSigningView.swift; sourceTree = "<group>"; };
 		37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowToVoteView.swift; sourceTree = "<group>"; };
@@ -4939,6 +4945,7 @@
 				37CEBF022F8E940A002DA90E /* TallyingView.swift */,
 				37CEBF032F8E940A002DA90E /* VoteSubmissionView.swift */,
 				37C0F1002F94000000000001 /* VotingConfigSettings.swift */,
+				37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */,
 				37CEBF042F8E940A002DA90E /* VotingComponents.swift */,
 				37CEBF052F8E940A002DA90E /* VotingErrorView.swift */,
 				9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */,
@@ -6239,6 +6246,7 @@
 				34AA737F2F85774F00D244E2 /* ScanCoordFlowCoordinator.swift in Sources */,
 				34AA73802F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000005 /* VotingConfigSettings.swift in Sources */,
+				37C0F1012F94000000000005 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF4B2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
 				37CEBF4C2F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
 				37CEBF4D2F8E940A002DA90E /* ResultsView.swift in Sources */,
@@ -6693,6 +6701,7 @@
 				34AA701B2F85774F00D244E2 /* ScanCoordFlowCoordinator.swift in Sources */,
 				34AA701C2F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000003 /* VotingConfigSettings.swift in Sources */,
+				37C0F1012F94000000000003 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF232F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
 				37CEBF242F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
 				37CEBF252F8E940A002DA90E /* ResultsView.swift in Sources */,
@@ -7210,6 +7219,7 @@
 				34AA75152F85774F00D244E2 /* ScanCoordFlowCoordinator.swift in Sources */,
 				34AA75162F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000006 /* VotingConfigSettings.swift in Sources */,
+				37C0F1012F94000000000006 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF5F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
 				37CEBF602F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
 				37CEBF612F8E940A002DA90E /* ResultsView.swift in Sources */,
@@ -7664,6 +7674,7 @@
 				34AA71B12F85774F00D244E2 /* ScanCoordFlowCoordinator.swift in Sources */,
 				34AA71B22F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000004 /* VotingConfigSettings.swift in Sources */,
+				37C0F1012F94000000000004 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF372F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
 				37CEBF382F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
 				37CEBF392F8E940A002DA90E /* ResultsView.swift in Sources */,
@@ -8118,6 +8129,7 @@
 				34AA6E4D2F85774F00D244E2 /* ScanCoordFlowCoordinator.swift in Sources */,
 				34AA6E4E2F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000002 /* VotingConfigSettings.swift in Sources */,
+				37C0F1012F94000000000002 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF0F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
 				37CEBF102F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
 				37CEBF112F8E940A002DA90E /* ResultsView.swift in Sources */,
