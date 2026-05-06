@@ -121,6 +121,24 @@ extension Voting {
             state.screenStack = [.loading]
             return .send(.initialize)
 
+        case .openConfigSettings:
+            let currentOverride = state.votingConfigOverrideURL
+            state.configSettingsOpenedOverride = currentOverride
+            state.configSettings = .init()
+            state.configSettings?.urlInput = currentOverride
+            return .none
+
+        case .configSettings(.dismiss):
+            let previousOverride = state.configSettingsOpenedOverride
+            state.configSettingsOpenedOverride = nil
+            guard previousOverride != state.votingConfigOverrideURL else {
+                return .none
+            }
+            return .send(.initialize)
+
+        case .configSettings:
+            return .none
+
         case .viewMyVotesTapped(let roundId):
             // Reuse roundTapped to load the session and navigate into it.
             // The proposal list will show confirmed votes in read-only mode.

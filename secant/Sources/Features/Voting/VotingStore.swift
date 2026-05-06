@@ -420,8 +420,11 @@ struct Voting {
         var pendingVotingPczt: VotingPcztResult?
         /// Unsigned delegation PCZT request shown as QR and used for signature extraction.
         var pendingUnsignedDelegationPczt: Pczt?
+        @Presents var configSettings: VotingConfigSettings.State?
         @Presents var keystoneScan: Scan.State?
         @Presents var skipBundlesAlert: AlertState<Action>?
+        /// Snapshot of the active override when settings opens; used to decide whether to refresh after dismissal.
+        var configSettingsOpenedOverride: String?
 
         /// Whether a vote commitment is being built and submitted to chain.
         var isSubmittingVote: Bool = false
@@ -702,6 +705,8 @@ struct Voting {
         case goBack
         case backToRoundsList
         case howToVoteContinueTapped
+        case openConfigSettings
+        case configSettings(PresentationAction<VotingConfigSettings.Action>)
         case viewMyVotesTapped(roundId: String)
 
         // Rounds list
@@ -844,6 +849,8 @@ struct Voting {
             case .dismissFlow,
                 .goBack,
                 .howToVoteContinueTapped,
+                .openConfigSettings,
+                .configSettings,
                 .viewMyVotesTapped,
                 .backToRoundsList,
                 .doneTapped:
@@ -985,6 +992,9 @@ struct Voting {
                 .dismissBatchResults:
                 return reduceSubmission(&state, action)
             }
+        }
+        .ifLet(\.$configSettings, action: \.configSettings) {
+            VotingConfigSettings()
         }
         .ifLet(\.$keystoneScan, action: \.keystoneScan) {
             Scan()

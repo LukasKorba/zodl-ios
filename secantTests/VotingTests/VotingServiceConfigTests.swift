@@ -120,14 +120,20 @@ final class VotingServiceConfigTests: XCTestCase {
         )
 
         XCTAssertEqual(source.url.absoluteString, "https://example.com/static-voting-config.json?foo=bar&baz=qux")
-        XCTAssertEqual(source.sha256.count, 32)
-        XCTAssertEqual(source.sha256.first, 0x0a)
+        XCTAssertEqual(source.sha256?.count, 32)
+        XCTAssertEqual(source.sha256?.first, 0x0a)
+    }
+
+    func testPinnedConfigSourceParseAcceptsMissingChecksum() throws {
+        let source = try PinnedConfigSource.parse("https://example.com/static-voting-config.json")
+
+        XCTAssertEqual(source.url.absoluteString, "https://example.com/static-voting-config.json")
+        XCTAssertNil(source.sha256)
     }
 
     func testPinnedConfigSourceParseRejectsMalformedSources() {
         let validHex = String(repeating: "0a", count: 32)
         let cases = [
-            "https://example.com/static-voting-config.json",
             "https://example.com/static-voting-config.json?checksum=sha512:\(validHex)",
             "https://example.com/static-voting-config.json?checksum=sha256:\(String(repeating: "0A", count: 32))",
             "https://example.com/static-voting-config.json?checksum=sha256:\(String(repeating: "0g", count: 32))",
