@@ -54,13 +54,13 @@ struct AdvancedSettingsView: View {
                             }
                         }
 
-                        ActionRow(
-                            icon: Asset.Assets.refreshCCW.image,
-                            title: String(localizable: .resyncWalletTitle)
-                        ) {
-                            store.send(.operationAccessCheck(.resyncWallet))
-                        }
-                        .disabled(walletStatus.isNotReadyForFullySyncedOperation)
+//                        ActionRow(
+//                            icon: Asset.Assets.refreshCCW.image,
+//                            title: String(localizable: .resyncWalletTitle)
+//                        ) {
+//                            store.send(.operationAccessCheck(.resyncWallet))
+//                        }
+//                        .disabled(walletStatus.isNotReadyForFullySyncedOperation)
 
                         ActionRow(
                             icon: Asset.Assets.Icons.shieldZap.image,
