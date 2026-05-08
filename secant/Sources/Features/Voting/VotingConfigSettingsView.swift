@@ -80,13 +80,6 @@ struct VotingConfigSettingsView: View {
                                 .listRowSeparator(.hidden)
                         }
 
-                        if store.showAddChainFields {
-                            addChainFields
-                                .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                        }
-
                         Color.clear
                             .frame(height: 24)
                             .listRowInsets(EdgeInsets())
@@ -105,6 +98,9 @@ struct VotingConfigSettingsView: View {
             }
             .padding(.horizontal, 24)
             .applyScreenBackground()
+            .zashiSheet(isPresented: addCustomChainSheetBinding) {
+                addCustomChainSheet
+            }
             .onAppear {
                 expandedDefaultChain = false
                 expandedChainIds.removeAll()
@@ -444,34 +440,6 @@ struct VotingConfigSettingsView: View {
         }
     }
 
-    private var addChainFields: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Custom chain")
-                .zFont(.semiBold, size: 16, style: Design.Text.primary)
-
-            ZashiTextField(
-                text: pendingNewChainNameBinding,
-                placeholder: String(localized: "Name"),
-                title: String(localized: "Name"),
-                error: nil
-            )
-
-            ZashiTextField(
-                text: pendingNewChainURLBinding,
-                placeholder: String(localized: "Enter URL"),
-                title: String(localized: "URL"),
-                error: validationError
-            )
-            .keyboardType(.URL)
-            .textInputAutocapitalization(.never)
-            .autocorrectionDisabled()
-
-            Text("Pin is optional. If present, it is checked against the response body's SHA-256 hash.")
-                .zFont(size: 13, style: Design.Text.tertiary)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-    }
-
     private var bottomBar: some View {
         VStack(spacing: 12) {
             if !store.showAddChainFields {
@@ -495,6 +463,82 @@ struct VotingConfigSettingsView: View {
             .disabled(saveDisabled)
         }
         .animation(.easeInOut(duration: 0.2), value: store.showAddChainFields)
+    }
+
+    private var addCustomChainSheet: some View {
+        VStack(alignment: .leading, spacing: 32) {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Add Custom URL")
+                        .zFont(.semiBold, size: 20, style: Design.Text.primary)
+                        .lineSpacing(2)
+
+                    Text("Add a poll source that isn't listed by default. You'll need a valid chain URL from the provider hosting the poll.")
+                        .zFont(size: 14, style: Design.Text.tertiary)
+                        .lineSpacing(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                VStack(alignment: .leading, spacing: 16) {
+                    customChainSheetTextField(
+                        text: pendingNewChainNameBinding,
+                        placeholder: String(localized: "Enter title....")
+                    )
+                    .textInputAutocapitalization(.words)
+
+                    customChainSheetTextField(
+                        text: pendingNewChainURLBinding,
+                        placeholder: String(localized: "Enter url...")
+                    )
+                    .keyboardType(.URL)
+                    .textInputAutocapitalization(.never)
+                    .autocorrectionDisabled()
+
+                    if let validationError {
+                        Text(validationError)
+                            .font(.custom(FontFamily.Inter.regular.name, size: 14))
+                            .foregroundColor(Design.Inputs.ErrorFilled.hint.color(colorScheme))
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+            }
+
+            VStack(spacing: 12) {
+                ZashiButton(String(localized: "Cancel"), type: .secondary) {
+                    store.send(.addCustomChainButtonTapped)
+                }
+
+                ZashiButton(addSourceTitle) {
+                    store.send(.saveTapped)
+                }
+                .disabled(saveDisabled)
+            }
+        }
+        .padding(.top, 8)
+        .padding(.bottom, 32)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func customChainSheetTextField(
+        text: Binding<String>,
+        placeholder: String
+    ) -> some View {
+        TextField(
+            "",
+            text: text,
+            prompt: Text(placeholder)
+                .font(.custom(FontFamily.Inter.regular.name, size: 16))
+                .foregroundColor(Design.Text.tertiary.color(colorScheme))
+        )
+        .font(.custom(FontFamily.Inter.regular.name, size: 16))
+        .foregroundColor(Design.Text.primary.color(colorScheme))
+        .lineLimit(1)
+        .padding(.vertical, 10)
+        .padding(.horizontal, 14)
+        .background {
+            RoundedRectangle(cornerRadius: Design.Radius._lg)
+                .fill(Design.Inputs.Default.bg.color(colorScheme))
+        }
     }
 
     private func selectionIndicator(isSelected: Bool) -> some View {
@@ -555,6 +599,17 @@ struct VotingConfigSettingsView: View {
         )
     }
 
+    private var addCustomChainSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.showAddChainFields },
+            set: { isPresented in
+                if !isPresented, store.showAddChainFields {
+                    store.send(.addCustomChainButtonTapped)
+                }
+            }
+        )
+    }
+
     @Environment(\.colorScheme)
     private var colorScheme
 
@@ -596,6 +651,10 @@ struct VotingConfigSettingsView: View {
 
     private var saveTitle: String {
         isValidating ? String(localized: "Validating...") : String(localized: "Save")
+    }
+
+    private var addSourceTitle: String {
+        isValidating ? String(localized: "Validating...") : String(localized: "Add source")
     }
 
     private var isValidating: Bool {
