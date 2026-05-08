@@ -19,6 +19,8 @@ private enum VotingChainDisplayURL {
 struct VotingConfigSettingsView: View {
     let store: StoreOf<VotingConfigSettings>
 
+    private static let shadowXxs = Color(red: 35.0 / 255.0, green: 31.0 / 255.0, blue: 32.0 / 255.0).opacity(0.04)
+
     @Dependency(\.pasteboard) private var pasteboard
 
     private let copyTapFeedback = UIImpactFeedbackGenerator(style: .light)
@@ -108,7 +110,7 @@ struct VotingConfigSettingsView: View {
 
     private var header: some View {
         ZStack {
-            Text("SELECT CHAIN")
+            Text(String(localized: "SELECT CHAIN"))
                 .zFont(.semiBold, size: 16, style: Design.Text.primary)
                 .textCase(.uppercase)
                 .tracking(-0.176)
@@ -149,11 +151,11 @@ struct VotingConfigSettingsView: View {
 
     private var introSection: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Poll Data Source")
+            Text(String(localized: "Poll Data Source"))
                 .zFont(.semiBold, size: 24, style: Design.Text.primary)
                 .tracking(-0.384)
 
-            Text("Select or enter a chain URL to fetch poll data from")
+            Text(String(localized: "Select or enter a chain URL to fetch poll data from"))
                 .zFont(size: 14, style: Design.Text.tertiary)
                 .tracking(-0.084)
                 .fixedSize(horizontal: false, vertical: true)
@@ -291,7 +293,7 @@ struct VotingConfigSettingsView: View {
                     Asset.Assets.copy.image
                         .zImage(size: 20, style: Design.Text.primary)
 
-                    Text("Copy Chain URL")
+                    Text(String(localized: "Copy Chain URL"))
                         .zFont(.semiBold, size: 14, style: Design.Text.primary)
                         .tracking(-0.224)
                 }
@@ -304,7 +306,7 @@ struct VotingConfigSettingsView: View {
                             RoundedRectangle(cornerRadius: Design.Radius._xl)
                                 .stroke(Design.Btns.Secondary.border.color(colorScheme))
                         }
-                        .shadow(color: .black.opacity(0.04), radius: 0.5, x: 0, y: 1)
+                        .shadow(color: Self.shadowXxs, radius: 0.5, x: 0, y: 1)
                 }
             }
             .buttonStyle(.plain)
@@ -329,12 +331,12 @@ struct VotingConfigSettingsView: View {
     private var editChainSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Custom chain")
+                Text(String(localized: "Custom chain"))
                     .zFont(.semiBold, size: 16, style: Design.Text.primary)
 
                 Spacer()
 
-                Button("Cancel") {
+                Button(String(localized: "Cancel")) {
                     store.send(.cancelChainEditTapped)
                 }
                 .zFont(.medium, size: 14, style: Design.Text.tertiary)
@@ -357,7 +359,7 @@ struct VotingConfigSettingsView: View {
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
 
-            Text("Pin is optional. If present, it is checked against the response body's SHA-256 hash.")
+            Text(String(localized: "Pin is optional. If present, it is checked against the response body's SHA-256 hash."))
                 .zFont(size: 13, style: Design.Text.tertiary)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -374,11 +376,11 @@ struct VotingConfigSettingsView: View {
         VStack(alignment: .leading, spacing: 32) {
             VStack(alignment: .leading, spacing: 20) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Add Custom URL")
+                    Text(String(localized: "Add Custom URL"))
                         .zFont(.semiBold, size: 20, style: Design.Text.primary)
                         .lineSpacing(2)
 
-                    Text("Manually add a poll source using its chain URL.")
+                    Text(String(localized: "Manually add a poll source using its chain URL."))
                         .zFont(size: 14, style: Design.Text.tertiary)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)

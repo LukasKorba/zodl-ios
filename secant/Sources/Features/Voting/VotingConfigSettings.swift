@@ -290,7 +290,7 @@ struct VotingConfigSettings {
                 switch context {
                 case .addPanelNewChain:
                     let trimmedName = state.pendingNewChainName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let resolvedName = trimmedName.isEmpty ? "Custom chain" : trimmedName
+                    let resolvedName = trimmedName.isEmpty ? String(localized: "Custom chain") : trimmedName
                     let entry = CustomChainEntry(name: resolvedName, url: rawURL)
                     var chains = Self.decodeChains(state.customChainsJSON)
                     chains.append(entry)

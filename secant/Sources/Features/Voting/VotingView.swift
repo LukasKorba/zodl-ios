@@ -54,7 +54,8 @@ struct VotingView: View {
             },
             secondary: .init(title: String(localized: "Proceed anyway"), style: .secondary) {
                 store.send(.unverifiedPollWarningProceedTapped)
-            }
+            },
+            visualStyle: .unverifiedWarning
         )
     }
 
