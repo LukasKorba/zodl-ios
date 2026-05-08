@@ -262,8 +262,7 @@ struct ProposalListView: View {
                 .foregroundStyle(Design.Text.tertiary.color(colorScheme))
         }
 
-        // Use the first proposal's forum URL as the round-level link
-        if let url = store.votingRound.proposals.first?.forumURL {
+        if let url = store.votingRound.discussionURL {
             Link(destination: url) { content }
         } else {
             content
