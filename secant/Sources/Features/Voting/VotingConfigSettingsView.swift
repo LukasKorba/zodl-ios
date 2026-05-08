@@ -29,16 +29,15 @@ struct VotingConfigSettingsView: View {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
+                header
+                    .padding(.vertical, 12)
+
                 List {
                     Section {
-                        VStack(alignment: .leading, spacing: 24) {
-                            header
-                            introSection
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .listRowInsets(EdgeInsets(top: 32, leading: 0, bottom: 24, trailing: 0))
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                        introSection
+                            .listRowInsets(EdgeInsets(top: 12, leading: 0, bottom: 24, trailing: 0))
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
 
                         defaultChainOption
                             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
@@ -47,29 +46,27 @@ struct VotingConfigSettingsView: View {
 
                         ForEach(store.chains) { chain in
                             customChainRow(chain)
-                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 12, trailing: 0))
+                                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 8, trailing: 0))
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                                     Button {
                                         expandedChainIds.remove(chain.id)
                                         store.send(.customChainDeleteTapped(chain.id))
                                     } label: {
-                                        VStack(spacing: 4) {
-                                            Image(systemName: "trash.fill")
-                                                .font(.system(size: 16, weight: .semibold))
-                                            Text("Delete")
-                                                .zFont(.medium, size: 12, style: Design.Surfaces.bgPrimary)
-                                        }
-                                        .foregroundStyle(.white)
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                        .background {
-                                            RoundedRectangle(cornerRadius: Design.Radius._xl)
-                                                .fill(Color.black)
-                                        }
+                                        Label(String(localized: "Delete"), systemImage: "trash.fill")
                                     }
-                                    .tint(Color.clear)
+                                    .tint(.red)
                                     .accessibilityLabel(String(localized: "Delete \(chain.name)"))
+
+                                    Button {
+                                        expandedChainIds.remove(chain.id)
+                                        store.send(.editChainTapped(chain.id))
+                                    } label: {
+                                        Label(String(localized: "Edit"), systemImage: "pencil")
+                                    }
+                                    .tint(Design.Text.tertiary.color(colorScheme))
+                                    .accessibilityLabel(String(localized: "Edit \(chain.name)"))
                                 }
                         }
 
@@ -106,234 +103,216 @@ struct VotingConfigSettingsView: View {
                 expandedChainIds.removeAll()
                 store.send(.onAppear)
             }
-            .onChange(of: store.selection) { newSelection in
-                if case .bundled = newSelection, !store.showAddChainFields {
-                    expandedChainIds.removeAll()
-                }
-            }
-            .onChange(of: store.showAddChainFields) { showing in
-                if !showing {
-                    if case .bundled = store.selection {
-                        expandedChainIds.removeAll()
-                    }
-                }
-            }
-        }
-    }
-
-    /// Expanded custom-chain details (checksum, copy fields) only when a custom chain is selected or Add is active.
-    private var allowsCustomChainDisclosure: Bool {
-        switch store.selection {
-        case .custom:
-            return true
-        case .bundled:
-            return store.showAddChainFields
         }
     }
 
     private var header: some View {
-        HStack(alignment: .center) {
-            Color.clear
-                .frame(width: 32, height: 32)
-
+        ZStack {
             Text("SELECT CHAIN")
-                .zFont(.semiBold, size: 22, style: Design.Text.primary)
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: .infinity)
+                .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                .textCase(.uppercase)
+                .tracking(-0.176)
 
-            Button {
-                store.send(.dismissTapped)
-            } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .semibold))
-                    .zForegroundColor(Design.Text.tertiary)
-                    .frame(width: 32, height: 32)
+            HStack {
+                Button {
+                    store.send(.dismissTapped)
+                } label: {
+                    Asset.Assets.Icons.arrowNarrowLeft.image
+                        .zImage(size: 20, style: Design.Text.primary)
+                        .padding(8)
+                        .background {
+                            RoundedRectangle(cornerRadius: Design.Radius._md)
+                                .fill(Design.Btns.Ghost.bg.color(colorScheme))
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "Back"))
+
+                Spacer()
+
+                Button {
+                    store.send(.addCustomChainButtonTapped)
+                } label: {
+                    Asset.Assets.Icons.plus.image
+                        .zImage(size: 20, style: Design.Text.primary)
+                        .padding(8)
+                        .background {
+                            RoundedRectangle(cornerRadius: Design.Radius._md)
+                                .fill(Design.Btns.Ghost.bg.color(colorScheme))
+                        }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localized: "Add custom chain"))
             }
-            .accessibilityLabel(String(localized: "Cancel"))
         }
     }
 
     private var introSection: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Poll Data Source")
-                .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                .tracking(-0.384)
 
             Text("Select or enter a chain URL to fetch poll data from")
-                .zFont(size: 13, style: Design.Text.tertiary)
+                .zFont(size: 14, style: Design.Text.tertiary)
+                .tracking(-0.084)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var defaultChainOption: some View {
         let isSelected = store.selection == .bundled
         let pair = VotingChainDisplayURL.defaultBundled
 
-        return HStack(alignment: .top, spacing: 12) {
-            Button {
-                store.send(.bundledTapped)
-            } label: {
-                selectionIndicator(isSelected: isSelected)
-                    .padding(.top, 2)
-            }
-            .buttonStyle(.plain)
-            .accessibilityAddTraits(isSelected ? .isSelected : [])
-            .accessibilityLabel(String(localized: "Default chain"))
-
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text("Default")
-                        .zFont(.semiBold, size: 16, style: Design.Text.primary)
-
-                    if isCurrentBundled {
-                        currentPill
-                    }
-
-                    Spacer(minLength: 0)
-
-                    Button {
-                        expandedDefaultChain.toggle()
-                    } label: {
-                        disclosureChevron(expanded: expandedDefaultChain)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(
-                        expandedDefaultChain
-                            ? String(localized: "Hide full chain URL")
-                            : String(localized: "Show full chain URL")
-                    )
-                }
-
-                Text(pair.compact)
-                    .zFont(size: 12, style: Design.Text.tertiary)
-                    .lineLimit(2)
-                    .truncationMode(.middle)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        return chainCard(isExpanded: expandedDefaultChain) {
+            VStack(spacing: 20) {
+                chainTopRow(
+                    name: String(localized: "Default"),
+                    isExpanded: expandedDefaultChain,
+                    isSelected: isSelected,
+                    onChevronTap: { expandedDefaultChain.toggle() },
+                    onSelectTap: { store.send(.bundledTapped) },
+                    selectAccessibilityLabel: String(localized: "Default chain"),
+                    chevronAccessibilityLabel: expandedDefaultChain
+                        ? String(localized: "Hide full chain URL")
+                        : String(localized: "Show full chain URL")
+                )
 
                 if expandedDefaultChain {
-                    expandedDefaultExtras(fullChainURL: pair.full)
+                    chainExpandedContent(url: pair.full)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: Design.Radius._xl)
-                .fill(Design.Surfaces.bgSecondary.color(colorScheme))
-                .overlay {
-                    RoundedRectangle(cornerRadius: Design.Radius._xl)
-                        .stroke(
-                            isSelected
-                                ? Asset.Colors.primary.color
-                                : Design.Surfaces.strokeSecondary.color(colorScheme),
-                            lineWidth: isSelected ? 1.5 : 1
-                        )
-                }
         }
         .accessibilityElement(children: .contain)
     }
 
     private func customChainRow(_ chain: CustomChainEntry) -> some View {
         let isSelected = isCustomSelected(chain.id)
-        let isExpanded = allowsCustomChainDisclosure && expandedChainIds.contains(chain.id)
+        let isExpanded = expandedChainIds.contains(chain.id)
         let pair = VotingChainDisplayURL.compactAndFull(for: chain.url)
 
-        return HStack(alignment: .top, spacing: 12) {
-            Button {
-                store.send(.customChainSelected(chain.id))
-            } label: {
-                selectionIndicator(isSelected: isSelected)
-                    .padding(.top, 2)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(String(localized: "Select \(chain.name)"))
-            .accessibilityAddTraits(isSelected ? .isSelected : [])
-
-            VStack(alignment: .leading, spacing: 0) {
-                ZStack(alignment: .topTrailing) {
-                    Button {
-                        expandedChainIds.remove(chain.id)
-                        store.send(.editChainTapped(chain.id))
-                    } label: {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(alignment: .firstTextBaseline, spacing: 8) {
-                                Text(chain.name)
-                                    .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                                    .multilineTextAlignment(.leading)
-
-                                if isCurrentChain(chain) {
-                                    currentPill
-                                }
-
-                                Spacer(minLength: 0)
-                                // Reserve space so the disclosure control remains tappable, not this button.
-                                Color.clear
-                                    .frame(width: 36, height: 32)
-                            }
-
-                            Text(pair.compact)
-                                .zFont(size: 12, style: Design.Text.tertiary)
-                                .lineLimit(2)
-                                .truncationMode(.middle)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(String(localized: "Edit \(chain.name)"))
-                    .accessibilityHint(String(localized: "Opens fields to change the name and URL."))
-
-                    Button {
-                        toggleExpandedChain(chain.id)
-                    } label: {
-                        disclosureChevron(expanded: isExpanded)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!allowsCustomChainDisclosure)
-                    .opacity(allowsCustomChainDisclosure ? 1 : 0.35)
-                    .padding(.top, 10)
-                    .padding(.trailing, 4)
-                    .accessibilityLabel(
-                        isExpanded
-                            ? String(localized: "Hide full chain URL")
-                            : String(localized: "Show full chain URL")
-                    )
-                }
+        return chainCard(isExpanded: isExpanded) {
+            VStack(spacing: 20) {
+                chainTopRow(
+                    name: chain.name,
+                    isExpanded: isExpanded,
+                    isSelected: isSelected,
+                    onChevronTap: { toggleExpandedChain(chain.id) },
+                    onSelectTap: { store.send(.customChainSelected(chain.id)) },
+                    selectAccessibilityLabel: String(localized: "Select \(chain.name)"),
+                    chevronAccessibilityLabel: isExpanded
+                        ? String(localized: "Hide full chain URL")
+                        : String(localized: "Show full chain URL")
+                )
 
                 if isExpanded {
-                    expandedCustomChainExtras(chain: chain, fullURL: pair.full)
+                    chainExpandedContent(url: pair.full)
                 }
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background {
-            RoundedRectangle(cornerRadius: Design.Radius._xl)
-                .fill(Design.Surfaces.bgSecondary.color(colorScheme))
-                .overlay {
-                    RoundedRectangle(cornerRadius: Design.Radius._xl)
-                        .stroke(
-                            isSelected
-                                ? Asset.Colors.primary.color
-                                : Design.Surfaces.strokeSecondary.color(colorScheme),
-                            lineWidth: isSelected ? 1.5 : 1
-                        )
-                }
         }
     }
 
-    private func disclosureChevron(expanded: Bool) -> some View {
-        Image(systemName: expanded ? "chevron.up" : "chevron.down")
-            .font(.system(size: 12, weight: .semibold))
-            .foregroundStyle(Design.Text.tertiary.color(colorScheme))
-            .frame(width: 32, height: 32)
-            .contentShape(Rectangle())
+    /// Card container shared by Default and custom chain rows.
+    /// Collapsed cards use radius-xl/12pt vertical; expanded cards use radius-2xl/16pt vertical (per Figma 739:5811 vs 739:5825).
+    private func chainCard<Content: View>(
+        isExpanded: Bool,
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        content()
+            .padding(.horizontal, 20)
+            .padding(.vertical, isExpanded ? 16 : 12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background {
+                RoundedRectangle(cornerRadius: isExpanded ? Design.Radius._2xl : Design.Radius._xl)
+                    .fill(Design.Surfaces.bgSecondary.color(colorScheme))
+            }
+    }
+
+    /// Top row: chevron toggles expansion (left); radio toggles selection (right).
+    private func chainTopRow(
+        name: String,
+        isExpanded: Bool,
+        isSelected: Bool,
+        onChevronTap: @escaping () -> Void,
+        onSelectTap: @escaping () -> Void,
+        selectAccessibilityLabel: String,
+        chevronAccessibilityLabel: String
+    ) -> some View {
+        HStack(spacing: 16) {
+            Button(action: onChevronTap) {
+                HStack(spacing: 8) {
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(Design.Text.primary.color(colorScheme))
+                        .frame(width: 20, height: 20)
+
+                    Text(name)
+                        .zFont(.medium, size: 16, style: Design.Text.primary)
+                        .tracking(-0.256)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(chevronAccessibilityLabel)
+
+            Button(action: onSelectTap) {
+                selectionIndicator(isSelected: isSelected)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(selectAccessibilityLabel)
+            .accessibilityAddTraits(isSelected ? .isSelected : [])
+        }
+    }
+
+    /// Expanded payload: URL block (bgTertiary) + Copy Chain URL secondary button.
+    private func chainExpandedContent(url: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(url)
+                .zFont(size: 12, style: Design.Text.tertiary)
+                .tracking(-0.072)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .background {
+                    RoundedRectangle(cornerRadius: Design.Radius._xl)
+                        .fill(Design.Surfaces.bgTertiary.color(colorScheme))
+                }
+                .accessibilityLabel(String(localized: "Chain URL"))
+                .accessibilityValue(url)
+
+            Button {
+                copyToPasteboard(url)
+            } label: {
+                HStack(spacing: 4) {
+                    Asset.Assets.copy.image
+                        .zImage(size: 20, style: Design.Text.primary)
+
+                    Text("Copy Chain URL")
+                        .zFont(.semiBold, size: 14, style: Design.Text.primary)
+                        .tracking(-0.224)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 40)
+                .background {
+                    RoundedRectangle(cornerRadius: Design.Radius._xl)
+                        .fill(Design.Btns.Secondary.bg.color(colorScheme))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: Design.Radius._xl)
+                                .stroke(Design.Btns.Secondary.border.color(colorScheme))
+                        }
+                        .shadow(color: .black.opacity(0.04), radius: 0.5, x: 0, y: 1)
+                }
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(String(localized: "Copy Chain URL"))
+        }
     }
 
     private func toggleExpandedChain(_ id: UUID) {
-        guard allowsCustomChainDisclosure else { return }
         if expandedChainIds.contains(id) {
             expandedChainIds.remove(id)
         } else {
@@ -345,62 +324,6 @@ struct VotingConfigSettingsView: View {
         pasteboard.setString(string.redacted)
         copyTapFeedback.prepare()
         copyTapFeedback.impactOccurred()
-    }
-
-    /// Read-only row styled like a text field; tap copies `value`.
-    private func tapToCopyInputShape(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.custom(FontFamily.Inter.medium.name, size: 14))
-                .zForegroundColor(Design.Inputs.Filled.label)
-
-            Button {
-                copyToPasteboard(value)
-            } label: {
-                Text(value)
-                    .font(.custom(FontFamily.Inter.regular.name, size: 14))
-                    .foregroundStyle(Design.Text.primary.color(colorScheme))
-                    .multilineTextAlignment(.leading)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 12)
-                    .padding(.horizontal, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: Design.Radius._lg)
-                            .fill(Design.Inputs.Default.bg.color(colorScheme))
-                            .overlay {
-                                RoundedRectangle(cornerRadius: Design.Radius._lg)
-                                    .stroke(Design.Inputs.Default.bg.color(colorScheme))
-                            }
-                    )
-            }
-            .buttonStyle(.plain)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title), \(value)")
-        .accessibilityHint(String(localized: "Tap to copy to clipboard."))
-    }
-
-    private func expandedDefaultExtras(fullChainURL: String) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Divider()
-                .background(Design.Surfaces.strokeSecondary.color(colorScheme))
-
-            tapToCopyInputShape(title: String(localized: "Name"), value: String(localized: "Default"))
-            tapToCopyInputShape(title: String(localized: "Configuration URL"), value: fullChainURL)
-        }
-        .padding(.top, 4)
-    }
-
-    private func expandedCustomChainExtras(chain: CustomChainEntry, fullURL: String) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Divider()
-                .background(Design.Surfaces.strokeSecondary.color(colorScheme))
-
-            tapToCopyInputShape(title: String(localized: "Name"), value: chain.name)
-            tapToCopyInputShape(title: String(localized: "Configuration URL"), value: fullURL)
-        }
-        .padding(.top, 4)
     }
 
     private var editChainSection: some View {
@@ -441,28 +364,10 @@ struct VotingConfigSettingsView: View {
     }
 
     private var bottomBar: some View {
-        VStack(spacing: 12) {
-            if !store.showAddChainFields {
-                Button {
-                    store.send(.addCustomChainButtonTapped)
-                } label: {
-                    Text("+ Add custom chain")
-                        .zFont(.medium, size: 16, style: Design.Text.primary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Design.Surfaces.bgTertiary.color(colorScheme))
-                        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
-                }
-                .buttonStyle(.plain)
-                .transition(.opacity.combined(with: .move(edge: .bottom)))
-            }
-
-            ZashiButton(saveTitle) {
-                store.send(.saveTapped)
-            }
-            .disabled(saveDisabled)
+        ZashiButton(saveTitle) {
+            store.send(.saveTapped)
         }
-        .animation(.easeInOut(duration: 0.2), value: store.showAddChainFields)
+        .disabled(saveDisabled)
     }
 
     private var addCustomChainSheet: some View {
@@ -473,22 +378,24 @@ struct VotingConfigSettingsView: View {
                         .zFont(.semiBold, size: 20, style: Design.Text.primary)
                         .lineSpacing(2)
 
-                    Text("Add a poll source that isn't listed by default. You'll need a valid chain URL from the provider hosting the poll.")
+                    Text("Manually add a poll source using its chain URL.")
                         .zFont(size: 14, style: Design.Text.tertiary)
                         .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 20) {
                     customChainSheetTextField(
+                        title: String(localized: "Title"),
                         text: pendingNewChainNameBinding,
-                        placeholder: String(localized: "Enter title....")
+                        placeholder: String(localized: "Enter....")
                     )
                     .textInputAutocapitalization(.words)
 
                     customChainSheetTextField(
+                        title: String(localized: "URL"),
                         text: pendingNewChainURLBinding,
-                        placeholder: String(localized: "Enter url...")
+                        placeholder: String(localized: "Enter...")
                     )
                     .keyboardType(.URL)
                     .textInputAutocapitalization(.never)
@@ -520,24 +427,31 @@ struct VotingConfigSettingsView: View {
     }
 
     private func customChainSheetTextField(
+        title: String,
         text: Binding<String>,
         placeholder: String
     ) -> some View {
-        TextField(
-            "",
-            text: text,
-            prompt: Text(placeholder)
-                .font(.custom(FontFamily.Inter.regular.name, size: 16))
-                .foregroundColor(Design.Text.tertiary.color(colorScheme))
-        )
-        .font(.custom(FontFamily.Inter.regular.name, size: 16))
-        .foregroundColor(Design.Text.primary.color(colorScheme))
-        .lineLimit(1)
-        .padding(.vertical, 10)
-        .padding(.horizontal, 14)
-        .background {
-            RoundedRectangle(cornerRadius: Design.Radius._lg)
-                .fill(Design.Inputs.Default.bg.color(colorScheme))
+        VStack(alignment: .leading, spacing: 6) {
+            Text(title)
+                .font(.custom(FontFamily.Inter.medium.name, size: 14))
+                .foregroundColor(Design.Text.primary.color(colorScheme))
+
+            TextField(
+                "",
+                text: text,
+                prompt: Text(placeholder)
+                    .font(.custom(FontFamily.Inter.regular.name, size: 16))
+                    .foregroundColor(Design.Text.tertiary.color(colorScheme))
+            )
+            .font(.custom(FontFamily.Inter.regular.name, size: 16))
+            .foregroundColor(Design.Text.primary.color(colorScheme))
+            .lineLimit(1)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .background {
+                RoundedRectangle(cornerRadius: Design.Radius._lg)
+                    .fill(Design.Inputs.Default.bg.color(colorScheme))
+            }
         }
     }
 
@@ -558,17 +472,6 @@ struct VotingConfigSettingsView: View {
                     .frame(width: 12, height: 12)
             }
         }
-    }
-
-    private var currentPill: some View {
-        Text("Current")
-            .zFont(.semiBold, size: 12, style: Design.Surfaces.bgPrimary)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background {
-                Capsule()
-                    .fill(Asset.Colors.primary.color)
-            }
     }
 
     private var pendingNewChainNameBinding: Binding<String> {
@@ -613,15 +516,6 @@ struct VotingConfigSettingsView: View {
     @Environment(\.colorScheme)
     private var colorScheme
 
-    private var isCurrentBundled: Bool {
-        store.override.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
-    private func isCurrentChain(_ chain: CustomChainEntry) -> Bool {
-        let o = store.override.trimmingCharacters(in: .whitespacesAndNewlines)
-        return !o.isEmpty && o == chain.url
-    }
-
     private func isCustomSelected(_ id: UUID) -> Bool {
         if case .custom(let sid) = store.selection {
             return sid == id
@@ -650,7 +544,7 @@ struct VotingConfigSettingsView: View {
     }
 
     private var saveTitle: String {
-        isValidating ? String(localized: "Validating...") : String(localized: "Save")
+        isValidating ? String(localized: "Validating...") : String(localized: "Save changes")
     }
 
     private var addSourceTitle: String {
