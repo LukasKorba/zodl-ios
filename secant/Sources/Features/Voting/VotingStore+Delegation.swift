@@ -374,7 +374,7 @@ extension Voting {
             let cachedNotes = state.walletNotes
             let bundleCount = state.bundleCount
             let network = zcashSDKEnvironment.network
-            let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let networkId: UInt32 = network.networkType.votingRustNetworkId
             let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
             let roundName = state.votingRound.title
 
@@ -499,7 +499,7 @@ extension Voting {
             }
             let cachedNotes = state.walletNotes
             let network = zcashSDKEnvironment.network
-            let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let networkId: UInt32 = network.networkType.votingRustNetworkId
             let isKeystoneUser = state.isKeystoneUser
             let accountIndex: UInt32 = isKeystoneUser
                 ? keystoneMetadata?.accountIndex ?? 0
@@ -732,7 +732,7 @@ extension Voting {
             let expectedSnapshotHeight = activeSession.snapshotHeight
             let cachedNotes = state.walletNotes
             let network = zcashSDKEnvironment.network
-            let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let networkId: UInt32 = network.networkType.votingRustNetworkId
             let accountIndex: UInt32 = state.selectedWalletAccount.flatMap(\.zip32AccountIndex).map { UInt32($0.index) } ?? 0
             guard
                 let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
@@ -1226,5 +1226,17 @@ extension Voting {
         }
 
         throw lastExhaustionError ?? ShareDelegationError.noReachableVoteServers
+    }
+}
+
+// MARK: - libzcashlc `network_id` (`parse_network` in zcash-swift-wallet-sdk/rust/src/lib.rs)
+
+extension NetworkType {
+    /// `network_id` for voting FFI: `0` = testnet, `1` = mainnet.
+    var votingRustNetworkId: UInt32 {
+        switch self {
+        case .mainnet: 1
+        case .testnet: 0
+        }
     }
 }

@@ -74,7 +74,7 @@ extension Voting {
 
             let roundId = state.roundId
             let network = zcashSDKEnvironment.network
-            let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let networkId: UInt32 = network.networkType.votingRustNetworkId
             let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
             let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount)
             guard

@@ -208,7 +208,7 @@ extension Voting {
             guard let session = state.activeSession, session.status == .active else { return .none }
             let network = zcashSDKEnvironment.network
             let walletDbPath = databaseFiles.dataDbURLFor(network).path
-            let networkId: UInt32 = network.networkType == .mainnet ? 0 : 1
+            let networkId: UInt32 = network.networkType.votingRustNetworkId
             let snapshotHeight = session.snapshotHeight
             let roundId = session.voteRoundId.hexString
             let accountUUID: [UInt8] = state.selectedWalletAccount?.id.id ?? []

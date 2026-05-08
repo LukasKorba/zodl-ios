@@ -211,9 +211,10 @@ extension VotingCryptoClient: DependencyKey {
                     actualFvkBytes = inputs.fvkBytes
                 }
                 let sdkNotes = notes.map { $0.toSDK() }
-                // NU6 consensus branch ID; coin_type 133 = mainnet, 1 = testnet
+                // NU6 consensus branch ID; BIP44 coin type 133 = Zcash mainnet, 1 = testnet
+                // (`network_id` 1 / 0 per `parse_network` in libzcashlc).
                 let consensusBranchId: UInt32 = 0xC8E7_1055
-                let coinType: UInt32 = networkId == 0 ? 133 : 1
+                let coinType: UInt32 = networkId == 1 ? 133 : 1
                 let result = try backend.buildVotingPczt(
                     roundId: roundId,
                     bundleIndex: bundleIndex,
@@ -229,7 +230,7 @@ extension VotingCryptoClient: DependencyKey {
                 )
                 publishState(backend: backend, roundId: roundId)
                 let pcztBytes: Data = Data(result.pcztBytes)
-                let rk: Data = Data(result.rk)
+                let rk: Data = Data(result.randomizedKey)
                 let alpha: Data = Data(result.alpha)
                 let nfSigned: Data = Data(result.nfSigned)
                 let cmxNew: Data = Data(result.cmxNew)
@@ -291,7 +292,7 @@ extension VotingCryptoClient: DependencyKey {
             },
             // swiftlint:disable:next line_length
             buildAndProveDelegation: { roundId, bundleIndex, bundleNotes, senderSeed, hotkeySeed, networkId, accountIndex, pirEndpoints, expectedSnapshotHeight in
-                AsyncThrowingStream { continuation in
+                AsyncThrowingStream<ProofEvent, Error> { continuation in
                     Task.detached {
                         do {
                             let backend = try await dbActor.backend()
@@ -334,18 +335,21 @@ extension VotingCryptoClient: DependencyKey {
             },
             encryptShares: { roundId, shares in
                 let backend = try await dbActor.backend()
-                let encrypted = try backend.encryptShares(roundId: roundId, shares: shares)
-                return encrypted.map { share in
+                let wireShares: [VotingWireEncryptedShare] = try backend.encryptShares(
+                    roundId: roundId,
+                    shares: shares
+                )
+                return wireShares.map { (share: VotingWireEncryptedShare) -> EncryptedShare in
                     EncryptedShare(
-                        c1: Data(share.c1),
-                        c2: Data(share.c2),
+                        c1: Data(share.ciphertext1),
+                        c2: Data(share.ciphertext2),
                         shareIndex: share.shareIndex
                     )
                 }
             },
             // swiftlint:disable:next line_length
             buildVoteCommitment: { roundId, bundleIndex, hotkeySeed, networkId, proposalId, choice, numOptions, vanAuthPath, vanPosition, anchorHeight, singleShare in
-                AsyncThrowingStream { continuation in
+                AsyncThrowingStream<VoteCommitmentBuildEvent, Error> { continuation in
                     Task.detached {
                         do {
                             let backend = try await dbActor.backend()
@@ -375,8 +379,8 @@ extension VotingCryptoClient: DependencyKey {
                             let alphaV: Data = Data(result.alphaV)
                             let encShares: [EncryptedShare] = result.encShares.map { share in
                                 EncryptedShare(
-                                    c1: Data(share.c1),
-                                    c2: Data(share.c2),
+                                    c1: Data(share.ciphertext1),
+                                    c2: Data(share.ciphertext2),
                                     shareIndex: share.shareIndex
                                 )
                             }
@@ -409,8 +413,8 @@ extension VotingCryptoClient: DependencyKey {
                 let backend = try await dbActor.backend()
                 let sdkShares = encShares.map {
                     VotingWireEncryptedShare(
-                        c1: [UInt8]($0.c1),
-                        c2: [UInt8]($0.c2),
+                        ciphertext1: [UInt8]($0.c1),
+                        ciphertext2: [UInt8]($0.c2),
                         shareIndex: $0.shareIndex
                     )
                 }
@@ -448,14 +452,14 @@ extension VotingCryptoClient: DependencyKey {
                 )
                 return payloads.map { payload in
                     let encShare = EncryptedShare(
-                        c1: Data(payload.encShare.c1),
-                        c2: Data(payload.encShare.c2),
+                        c1: Data(payload.encShare.ciphertext1),
+                        c2: Data(payload.encShare.ciphertext2),
                         shareIndex: payload.encShare.shareIndex
                     )
                     let allEncShares = payload.allEncShares.map { wire in
                         EncryptedShare(
-                            c1: Data(wire.c1),
-                            c2: Data(wire.c2),
+                            c1: Data(wire.ciphertext1),
+                            c2: Data(wire.ciphertext2),
                             shareIndex: wire.shareIndex
                         )
                     }
@@ -482,7 +486,7 @@ extension VotingCryptoClient: DependencyKey {
                     accountIndex: accountIndex
                 )
                 let voteRoundIdBytes = Data(hexString: sub.voteRoundId)
-                let rk: Data = Data(sub.rk)
+                let rk: Data = Data(sub.randomizedKey)
                 let spendAuthSig: Data = Data(sub.spendAuthSig)
                 let signedNoteNullifier: Data = Data(sub.nfSigned)
                 let cmxNew: Data = Data(sub.cmxNew)
@@ -511,7 +515,7 @@ extension VotingCryptoClient: DependencyKey {
                     sighash: [UInt8](keystoneSighash)
                 )
                 let voteRoundIdBytes = Data(hexString: sub.voteRoundId)
-                let rk: Data = Data(sub.rk)
+                let rk: Data = Data(sub.randomizedKey)
                 let spendAuthSig: Data = Data(sub.spendAuthSig)
                 let signedNoteNullifier: Data = Data(sub.nfSigned)
                 let cmxNew: Data = Data(sub.cmxNew)
