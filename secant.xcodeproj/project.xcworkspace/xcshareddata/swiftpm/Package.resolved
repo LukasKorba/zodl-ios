@@ -492,7 +492,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/valargroup/zcash-swift-wallet-sdk.git",
       "state" : {
-        "revision" : "911c3eee22b3f5c408749c4febabeda824865468"
+        "revision" : "6cc8d9099a644b3ab1f3c909569d4d33a763b819"
       }
     }
   ],
