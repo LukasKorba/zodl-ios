@@ -9,7 +9,7 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
     static let supportedVersion = 1
     static let algEd25519 = "ed25519"
     static let bundledPinnedSource =
-        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/main/static-voting-config.json" +
+        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/d19edb058081d72aba8a955a57607eabf815e5df/static-voting-config.json" +
         "?checksum=sha256:f56224c6552178e64f9cc75e8ee2a663130c46172b2470fc02efdf94c522f2ac"
 
     let staticConfigVersion: Int
