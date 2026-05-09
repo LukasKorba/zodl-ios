@@ -49,6 +49,7 @@ struct ProposalDetailView: View {
                 ToolbarItem(placement: .principal) {
                     Text(positionLabel)
                         .zFont(.semiBold, size: 14, style: Design.Text.primary)
+                        .textCase(.uppercase)
                 }
             }
         }
@@ -112,14 +113,6 @@ struct ProposalDetailView: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Design.Text.tertiary.color(colorScheme))
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
-        )
 
         if let url = proposal.forumURL {
             Link(destination: url) { content }
@@ -248,8 +241,10 @@ struct ProposalDetailView: View {
                     store.send(.saveEdit)
                 }
             } else {
-                ZashiButton(String(localizable: .coinVoteCommonBack), type: .secondary) {
-                    store.send(.backToList)
+                if let index = store.detailProposalIndex, index > 0 {
+                    ZashiButton(String(localizable: .coinVoteCommonBack), type: .secondary) {
+                        store.send(.backToList)
+                    }
                 }
                 ZashiButton(String(localizable: .coinVoteCommonNext)) {
                     let isLast = store.detailProposalIndex == store.totalProposals - 1
