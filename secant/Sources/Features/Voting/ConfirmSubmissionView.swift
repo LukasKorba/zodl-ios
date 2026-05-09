@@ -223,7 +223,7 @@ struct ConfirmSubmissionView: View {
 
     // Authorization has its own label; after that, the user-facing progress is
     // proposal count only, regardless of the protocol phase inside each vote.
-    private var submissionProgress: (Double, String) {
+    private var submissionProgress: (progress: Double, title: String, caption: String?) {
         let delegationWeight = 0.3
 
         switch status {
@@ -234,7 +234,7 @@ struct ConfirmSubmissionView: View {
             case .complete: p = 1.0
             default: p = 0
             }
-            return (p * delegationWeight, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing))
+            return (p * delegationWeight, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing), nil)
 
         case let .submitting(currentIndex, totalCount, _):
             let offset = store.delegationProofStatus == .complete ? delegationWeight : 0.0
@@ -247,11 +247,12 @@ struct ConfirmSubmissionView: View {
                         String(currentIndex + 1),
                         String(totalCount)
                     )
-                )
+                ),
+                estimatedTimeRemainingCaption(currentIndex: currentIndex, totalCount: totalCount)
             )
 
         case .authorizationFailed:
-            return (0, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing))
+            return (0, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing), nil)
 
         case let .submissionFailed(_, submittedCount, totalCount):
             let fraction = Double(submittedCount) / Double(max(totalCount, 1))
@@ -263,12 +264,24 @@ struct ConfirmSubmissionView: View {
                         String(submittedCount),
                         String(totalCount)
                     )
-                )
+                ),
+                nil
             )
 
         default:
-            return (0, "")
+            return (0, "", nil)
         }
+    }
+
+    private func estimatedTimeRemainingCaption(currentIndex: Int, totalCount: Int) -> String {
+        let remainingVotes = max(totalCount - currentIndex - 1, 1)
+        let estimatedSecondsPerVote = 18
+        let minutes = max(1, Int(ceil(Double(remainingVotes * estimatedSecondsPerVote) / 60.0)))
+
+        if minutes == 1 {
+            return String(localizable: .coinVoteConfirmSubmissionProgressTimeRemainingOne)
+        }
+        return String(localizable: .coinVoteConfirmSubmissionProgressTimeRemainingMany(String(minutes)))
     }
 
     // MARK: - Bottom Section
@@ -289,29 +302,34 @@ struct ConfirmSubmissionView: View {
             // Progress card stays on screen underneath the error sheet, which
             // is driven by the authorizationFailed / submissionFailed bindings
             // and owns the retry/cancel affordance.
-            let (progress, title) = submissionProgress
+            let progressInfo = submissionProgress
             VStack(spacing: Design.Spacing._lg) {
                 VStack(alignment: .leading, spacing: Design.Spacing._lg) {
-                    Text(title)
+                    Text(progressInfo.title)
                         .zFont(.semiBold, size: 15, style: Design.Text.primary)
 
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 2)
+                            RoundedRectangle(cornerRadius: 4)
                                 .fill(Design.Surfaces.bgTertiary.color(colorScheme))
-                            RoundedRectangle(cornerRadius: 2)
+                            RoundedRectangle(cornerRadius: 4)
                                 .fill(Design.Text.primary.color(colorScheme))
-                                .frame(width: geo.size.width * progress)
-                                .animation(.easeInOut(duration: 0.3), value: progress)
+                                .frame(width: geo.size.width * progressInfo.progress)
+                                .animation(.easeInOut(duration: 0.3), value: progressInfo.progress)
                         }
                     }
-                    .frame(height: 3)
+                    .frame(height: 8)
+
+                    if let caption = progressInfo.caption {
+                        Text(caption)
+                            .zFont(size: 13, style: Design.Text.secondary)
+                    }
                 }
                 .padding(Design.Spacing._2xl)
                 .background(Design.Surfaces.bgSecondary.color(colorScheme))
                 .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
 
-                ZashiButton(String(localizable: .coinVoteConfirmSubmissionProgressSubmittingVotes)) {}
+                ZashiButton(progressInfo.title) {}
                     .disabled(true)
             }
 

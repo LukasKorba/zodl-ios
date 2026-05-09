@@ -100,7 +100,6 @@ struct VotingView: View {
         case .delegationSigning: return "delegationSigning"
         case .proposalList: return "proposalList"
         case .proposalDetail(let id): return "detail-\(id)"
-        case .complete: return "complete"
         case .ineligible: return "ineligible"
         case .tallying: return "tallying"
         case .results: return "results"
@@ -139,8 +138,6 @@ struct VotingView: View {
                     .id(proposal.id)
                     .transition(.push(from: .trailing))
             }
-        case .complete:
-            VoteCompletionView(store: store)
         case .ineligible:
             IneligibleView(store: store)
         case .tallying:

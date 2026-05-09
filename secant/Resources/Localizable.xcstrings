@@ -1314,28 +1314,6 @@
         }
       }
     },
-    "coinVote.completion.subtitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your %@ ZEC in eligible funds has been applied to %@ proposals."
-          }
-        }
-      }
-    },
-    "coinVote.completion.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votes Submitted!"
-          }
-        }
-      }
-    },
     "coinVote.components.commitment" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1826,18 +1804,29 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Submitting vote (%@/%@)..."
+            "value" : "Submitting vote %@ of %@..."
           }
         }
       }
     },
-    "coinVote.confirmSubmission.progressSubmittingVotes" : {
+    "coinVote.confirmSubmission.progressTimeRemainingMany" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Submitting your votes..."
+            "value" : "About %@ minutes left..."
+          }
+        }
+      }
+    },
+    "coinVote.confirmSubmission.progressTimeRemainingOne" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About 1 minute left..."
           }
         }
       }

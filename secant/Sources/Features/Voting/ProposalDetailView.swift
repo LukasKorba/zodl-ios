@@ -160,8 +160,8 @@ struct ProposalDetailView: View {
         let options = displayOptions
         let displayChoice = store.effectiveChoices[proposal.id]
 
-        VStack(spacing: 0) {
-            ForEach(Array(options.enumerated()), id: \.element.index) { offset, option in
+        VStack(spacing: 4) {
+            ForEach(options, id: \.index) { option in
                 let choice = VoteChoice.option(option.index)
                 let isSelected = displayChoice == choice
 
@@ -173,16 +173,6 @@ struct ProposalDetailView: View {
                 ) {
                     impactFeedback.impactOccurred()
                     store.send(.castVote(proposalId: proposal.id, choice: choice))
-                }
-
-                // Divider between unselected adjacent options
-                if offset < options.count - 1 {
-                    let nextOption = options[offset + 1]
-                    let nextSelected = displayChoice == VoteChoice.option(nextOption.index)
-                    if !isSelected && !nextSelected {
-                        Divider()
-                            .padding(.leading, 16)
-                    }
                 }
             }
         }
@@ -222,7 +212,7 @@ struct ProposalDetailView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(isSelected ? color : Color.clear)
+            .background(isSelected ? color : Design.Surfaces.bgSecondary.color(colorScheme))
             .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
         }
         .disabled(isLocked)

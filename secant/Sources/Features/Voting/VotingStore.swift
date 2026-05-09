@@ -146,7 +146,6 @@ struct Voting {
             case delegationSigning
             case proposalList
             case proposalDetail(id: UInt32)
-            case complete
             case ineligible
             case tallying
             case results
