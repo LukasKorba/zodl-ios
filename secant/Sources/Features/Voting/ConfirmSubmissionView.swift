@@ -234,7 +234,7 @@ struct ConfirmSubmissionView: View {
             case .complete: p = 1.0
             default: p = 0
             }
-            return (p * delegationWeight, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing), nil)
+            return (p * delegationWeight, String(localizable: .coinVoteStoreSubmissionAuthorizingVote), nil)
 
         case let .submitting(currentIndex, totalCount, _):
             let offset = store.delegationProofStatus == .complete ? delegationWeight : 0.0
@@ -252,7 +252,7 @@ struct ConfirmSubmissionView: View {
             )
 
         case .authorizationFailed:
-            return (0, String(localizable: .coinVoteConfirmSubmissionProgressAuthorizing), nil)
+            return (0, String(localizable: .coinVoteStoreSubmissionAuthorizingVote), nil)
 
         case let .submissionFailed(_, submittedCount, totalCount):
             let fraction = Double(submittedCount) / Double(max(totalCount, 1))
