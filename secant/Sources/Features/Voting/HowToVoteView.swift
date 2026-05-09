@@ -13,7 +13,7 @@ struct HowToVoteView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
                         headerIcons()
-                            .padding(.top, 24)
+                            .padding(.top, 12)
                             .padding(.bottom, 24)
 
                         Text(localizable: store.isKeystoneUser
@@ -70,13 +70,13 @@ struct HowToVoteView: View {
 
     @ViewBuilder
     private func stepRow(number: Int, title: String, body: String) -> some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .top, spacing: 12) {
             ZStack {
                 Circle()
                     .fill(Design.Text.primary.color(colorScheme))
-                    .frame(width: 28, height: 28)
+                    .frame(width: 24, height: 24)
                 Text("\(number)")
-                    .zFont(.semiBold, size: 14, style: Design.Surfaces.bgPrimary)
+                    .zFont(.semiBold, size: 12, style: Design.Surfaces.bgPrimary)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -94,7 +94,7 @@ struct HowToVoteView: View {
 
     @ViewBuilder
     private func infoCard() -> some View {
-        HStack(alignment: .top, spacing: 12) {
+        HStack(alignment: .top, spacing: 8) {
             Asset.Assets.infoOutline.image
                 .zImage(size: 16, style: Design.Text.tertiary)
 
@@ -103,8 +103,6 @@ struct HowToVoteView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(14)
-        .background(Design.Surfaces.bgSecondary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .padding(.horizontal, 20)
     }
 }

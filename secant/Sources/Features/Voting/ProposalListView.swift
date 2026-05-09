@@ -83,12 +83,11 @@ struct ProposalListView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                // Pushes the title down from the COINHOLDER POLLING navbar to
-                // match the design's breathing room. The padding lives at the
-                // ScrollView content level (rather than on the title row's
-                // top) because SwiftUI tends to absorb padding on the first
-                // child of a VStack-inside-ScrollView via safe-area insets.
-                .padding(.top, 24)
+                // Aligns with the 12pt app-bar gap per design.
+                // The padding lives at the ScrollView content level because
+                // SwiftUI tends to absorb padding on the first child of a
+                // VStack-inside-ScrollView via safe-area insets.
+                .padding(.top, 12)
                 // Bottom inset large enough to scroll the last proposal card
                 // out from under the floating CTA. Approx button height (~50)
                 // + outer padding (~16) + breathing room.
@@ -243,7 +242,7 @@ struct ProposalListView: View {
             ZStack {
                 Circle()
                     .fill(Design.Surfaces.bgTertiary.color(colorScheme))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 40, height: 40)
                 Image(systemName: "bubble.left.and.bubble.right")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(Design.Text.primary.color(colorScheme))
@@ -258,6 +257,7 @@ struct ProposalListView: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Design.Text.tertiary.color(colorScheme))
         }
+        .frame(height: 40)
 
         if let url = store.votingRound.discussionURL {
             Link(destination: url) { content }

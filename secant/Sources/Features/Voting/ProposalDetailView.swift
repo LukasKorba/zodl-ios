@@ -71,23 +71,25 @@ struct ProposalDetailView: View {
 
     @ViewBuilder
     private func contentSection() -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text(proposal.title)
-                .zFont(.semiBold, size: 24, style: Design.Text.primary)
-                .tracking(-0.384)
-                .fixedSize(horizontal: false, vertical: true)
-
-            if !proposal.description.isEmpty {
-                Text(proposal.description)
-                    .zFont(size: 16, style: Design.Text.secondary)
+        VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
+                Text(proposal.title)
+                    .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                    .tracking(-0.384)
                     .fixedSize(horizontal: false, vertical: true)
+
+                if !proposal.description.isEmpty {
+                    Text(proposal.description)
+                        .zFont(size: 16, style: Design.Text.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
 
             forumLink()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 24)
-        .padding(.top, 24)
+        .padding(.top, 12)
     }
 
     // MARK: - Forum Link
@@ -98,7 +100,7 @@ struct ProposalDetailView: View {
             ZStack {
                 Circle()
                     .fill(Design.Surfaces.bgTertiary.color(colorScheme))
-                    .frame(width: 36, height: 36)
+                    .frame(width: 40, height: 40)
                 Image(systemName: "bubble.left.and.bubble.right")
                     .font(.system(size: 16, weight: .medium))
                     .foregroundStyle(Design.Text.primary.color(colorScheme))
@@ -113,6 +115,7 @@ struct ProposalDetailView: View {
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Design.Text.tertiary.color(colorScheme))
         }
+        .frame(height: 40)
 
         if let url = proposal.forumURL {
             Link(destination: url) { content }
@@ -160,7 +163,7 @@ struct ProposalDetailView: View {
         let options = displayOptions
         let displayChoice = store.effectiveChoices[proposal.id]
 
-        VStack(spacing: 4) {
+        VStack(spacing: 8) {
             ForEach(options, id: \.index) { option in
                 let choice = VoteChoice.option(option.index)
                 let isSelected = displayChoice == choice
@@ -199,19 +202,19 @@ struct ProposalDetailView: View {
                     if isSelected {
                         RoundedRectangle(cornerRadius: 4)
                             .fill(Design.Text.primary.color(colorScheme))
-                            .frame(width: 22, height: 22)
+                            .frame(width: 20, height: 20)
                         Image(systemName: "checkmark")
                             .font(.system(size: 13, weight: .bold))
                             .foregroundStyle(Design.Surfaces.bgPrimary.color(colorScheme))
                     } else {
                         RoundedRectangle(cornerRadius: 4)
                             .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1.5)
-                            .frame(width: 22, height: 22)
+                            .frame(width: 20, height: 20)
                     }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
             .background(isSelected ? color : Design.Surfaces.bgSecondary.color(colorScheme))
             .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
         }

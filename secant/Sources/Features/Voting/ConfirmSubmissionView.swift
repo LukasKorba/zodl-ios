@@ -22,7 +22,7 @@ struct ConfirmSubmissionView: View {
                 Spacer(minLength: 0)
 
                 bottomSection()
-                    .padding(.horizontal, 20)
+                    .padding(.horizontal, 24)
                     .padding(.bottom, 16)
             }
             .applyScreenBackground()
@@ -103,7 +103,7 @@ struct ConfirmSubmissionView: View {
     private func headerSection() -> some View {
         VStack(alignment: .leading, spacing: 8) {
             VotingHeaderIcons(isKeystone: store.isKeystoneUser, showCheckmark: isCompleted)
-                .padding(.top, 24)
+                .padding(.top, 12)
                 .padding(.bottom, 24)
 
             Text(headerTitle)
@@ -194,7 +194,7 @@ struct ConfirmSubmissionView: View {
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .lineLimit(1)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .padding(.vertical, 12)
     }
 
@@ -208,7 +208,7 @@ struct ConfirmSubmissionView: View {
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal, 16)
+        .padding(.horizontal, 20)
         .padding(.vertical, 12)
     }
 

@@ -26,7 +26,6 @@ struct PollsListView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-                .padding(.top, 8)
                 .padding(.bottom, 24)
             }
             .applyScreenBackground()
@@ -37,10 +36,15 @@ struct PollsListView: View {
                     Button {
                         store.send(.openConfigSettings)
                     } label: {
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 16, weight: .medium))
-                            .zForegroundColor(Design.Text.primary)
+                        Asset.Assets.Icons.settings2.image
+                            .zImage(size: 20, style: Design.Btns.Ghost.fg)
+                            .padding(8)
+                            .background {
+                                RoundedRectangle(cornerRadius: Design.Radius._md)
+                                    .fill(Design.Btns.Ghost.bg.color(colorScheme))
+                            }
                     }
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Voting chain config")
                 }
             }
