@@ -217,7 +217,7 @@ struct SendConfirmationView: View {
 // MARK: - Store
 
 extension SendConfirmation {
-    static var initial = StoreOf<SendConfirmation>(
+    @MainActor static var initial = StoreOf<SendConfirmation>(
         initialState: .initial
     ) {
         SendConfirmation()
@@ -227,11 +227,13 @@ extension SendConfirmation {
 // MARK: - Placeholders
 
 extension SendConfirmation.State {
-    static let initial = SendConfirmation.State(
-        address: "",
-        amount: .zero,
-        feeRequired: .zero,
-        message: "",
-        proposal: nil
-    )
+    static var initial: SendConfirmation.State {
+        SendConfirmation.State(
+            address: "",
+            amount: .zero,
+            feeRequired: .zero,
+            message: "",
+            proposal: nil
+        )
+    }
 }
