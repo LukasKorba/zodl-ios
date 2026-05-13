@@ -106,7 +106,7 @@ struct VotingSheetContent: View {
                 Circle()
                     .fill(Design.Surfaces.bgPrimary.color(colorScheme))
                     .frame(width: 44, height: 44)
-                Asset.Assets.Icons.alertCircle.image
+                Asset.Assets.Icons.alertOutline.image
                     .zImage(size: 20, style: Design.Utility.ErrorRed._500)
             }
         }

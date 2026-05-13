@@ -220,7 +220,9 @@ struct ResultsView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Top row: ZIP pill + Winner pill
             HStack(spacing: 0) {
-                ZIPBadge(zipNumber: proposal.zipNumber ?? String(localizable: .coinVoteCommonZipPlaceholder))
+                if let zipNumber = proposal.displayZipNumber {
+                    ZIPBadge(zipNumber: zipNumber)
+                }
                 Spacer()
                 winnerBadge(winningEntry: winningEntry, isTie: isTie, proposal: proposal)
             }

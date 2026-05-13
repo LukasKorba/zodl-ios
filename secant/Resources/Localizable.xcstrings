@@ -1573,7 +1573,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The authorization transaction failed. Check your connection and try again."
+            "value" : "We couldn't authorize your vote.\nCheck your connection and try again."
           }
         }
       }
@@ -1837,7 +1837,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The vote submission failed. Check your connection and try again."
+            "value" : "Your vote couldn't be submitted\nCheck your connection and try again."
           }
         }
       }
@@ -2249,17 +2249,6 @@
         }
       }
     },
-    "coinVote.pollsList.dateRange" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@ - %2$@"
-          }
-        }
-      }
-    },
     "coinVote.pollsList.emptyMessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2344,17 +2333,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "View My Votes"
-          }
-        }
-      }
-    },
-    "coinVote.pollsList.votedCount" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ of %@ voted"
           }
         }
       }
@@ -3179,7 +3157,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The voting period closed. Your responses cannot be submitted."
+            "value" : "The voting period has ended.\nYour vote can no longer be submitted."
           }
         }
       }
@@ -3245,7 +3223,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your wallet needs to sync past the snapshot block before you can participate in governance voting."
+            "value" : "Your wallet needs to sync to the snapshot block height before you can participate in voting."
           }
         }
       }
@@ -3256,7 +3234,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wallet Still Syncing"
+            "value" : "Wallet Syncing"
           }
         }
       }
@@ -10473,6 +10451,23 @@
         }
       }
     },
+    "settings.coinholderPolling" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beta: Coinholder Polling"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beta: Coinholder Polling"
+          }
+        }
+      }
+    },
     "settings.deleteZashi" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -10667,13 +10662,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Settings"
+            "value" : "More"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Configuración"
+            "value" : "Más"
           }
         }
       }
@@ -10701,7 +10696,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "What's new"
+            "value" : "What’s New"
           }
         },
         "es" : {
@@ -14906,8 +14901,8 @@
         }
       }
     },
-    "This poll hasn't been verified or endorsed. We can't confirm its legitimacy or how results will be used." : {
-      "comment" : "Body of the warning sheet when the user saves a voting chain URL that is not verified or Zodl-endorsed."
+    "This poll hasn't been verified. We can't confirm its legitimacy or how results will be used." : {
+      "comment" : "Body of the warning sheet before entering an unverified poll."
     },
     "Title" : {
       "comment" : "A label for the custom poll source title field.",

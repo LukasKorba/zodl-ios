@@ -85,7 +85,9 @@ struct ProposalDetailView: View {
                 }
             }
 
-            forumLink()
+            if proposal.forumURL != nil {
+                forumLink()
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 24)
@@ -119,9 +121,6 @@ struct ProposalDetailView: View {
 
         if let url = proposal.forumURL {
             Link(destination: url) { content }
-        } else {
-            content
-                .opacity(0.5)
         }
     }
 
@@ -192,7 +191,7 @@ struct ProposalDetailView: View {
         Button(action: action) {
             HStack {
                 Text(label)
-                    .zFont(.medium, size: 16,
+                    .zFont(.semiBold, size: 16,
                            color: isSelected ? Design.Surfaces.bgPrimary.color(colorScheme) : Design.Text.primary.color(colorScheme))
 
                 Spacer()
@@ -200,15 +199,19 @@ struct ProposalDetailView: View {
                 // Checkbox
                 ZStack {
                     if isSelected {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Design.Text.primary.color(colorScheme))
+                        RoundedRectangle(cornerRadius: Design.Radius._sm)
+                            .fill(Design.Checkboxes.onBg.color(colorScheme))
                             .frame(width: 20, height: 20)
                         Image(systemName: "checkmark")
                             .font(.system(size: 13, weight: .bold))
-                            .foregroundStyle(Design.Surfaces.bgPrimary.color(colorScheme))
+                            .foregroundStyle(Design.Checkboxes.onFg.color(colorScheme))
                     } else {
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1.5)
+                        RoundedRectangle(cornerRadius: Design.Radius._sm)
+                            .fill(Design.Checkboxes.offBg.color(colorScheme))
+                            .overlay {
+                                RoundedRectangle(cornerRadius: Design.Radius._sm)
+                                    .stroke(Design.Checkboxes.offStroke.color(colorScheme), lineWidth: 1)
+                            }
                             .frame(width: 20, height: 20)
                     }
                 }
