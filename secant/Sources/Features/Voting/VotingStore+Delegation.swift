@@ -976,6 +976,14 @@ extension Voting {
             }
             state.delegationProofStatus = .failed(userMessage)
             state.isDelegationProofInFlight = false
+            if case .authorizing = state.batchSubmissionStatus {
+                state.pendingBatchSubmission = false
+                state.isSubmittingVote = false
+                state.submittingProposalId = nil
+                state.voteSubmissionStep = nil
+                state.currentVoteBundleIndex = nil
+                state.batchSubmissionStatus = .authorizationFailed(error: userMessage)
+            }
             return .none
 
         default:
