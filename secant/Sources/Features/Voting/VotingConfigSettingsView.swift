@@ -52,11 +52,15 @@ struct VotingConfigSettingsView: View {
                     .padding(.vertical, 12)
 
                 ScrollView {
-                    VStack(spacing: 8) {
-                        defaultChainOption
+                    VStack(spacing: 24) {
+                        sourceListHeader
 
-                        ForEach(store.chains) { chain in
-                            customChainRow(chain)
+                        VStack(spacing: 8) {
+                            defaultChainOption
+
+                            ForEach(store.chains) { chain in
+                                customChainRow(chain)
+                            }
                         }
                     }
                     .padding(.top, 12)
@@ -89,6 +93,21 @@ struct VotingConfigSettingsView: View {
                 store.send(.onAppear)
             }
         }
+    }
+
+    private var sourceListHeader: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(String(localized: "Poll Data Source"))
+                .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                .tracking(-0.384)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(String(localized: "Pick a poll source, or add your own."))
+                .zFont(size: 14, style: Design.Text.tertiary)
+                .tracking(-0.084)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private var header: some View {
@@ -333,8 +352,7 @@ struct VotingConfigSettingsView: View {
                         placeholder: String(localized: "Enter..."),
                         error: validationError(for: .url),
                         focusField: isEditing ? .editURL : .addURL,
-                        isURL: true,
-                        copyText: isEditing ? store.editChainURL : store.pendingNewChainURL
+                        isURL: true
                     )
                 }
                 .padding(.top, 16)
@@ -470,12 +488,10 @@ struct VotingConfigSettingsView: View {
         placeholder: String = "",
         error: String?,
         focusField: SourceField,
-        isURL: Bool = false,
-        copyText: String? = nil
+        isURL: Bool = false
     ) -> some View {
         let isFocused = focusedSourceField == focusField
         let hasError = error != nil
-        let copyValue = copyText?.trimmingCharacters(in: .whitespacesAndNewlines)
 
         return VStack(alignment: .leading, spacing: 6) {
             Text(title)
@@ -505,19 +521,6 @@ struct VotingConfigSettingsView: View {
                 .textInputAutocapitalization(isURL ? .never : .words)
                 .autocorrectionDisabled()
                 .focused($focusedSourceField, equals: focusField)
-
-                if let copyValue {
-                    Button {
-                        copyToPasteboard(copyValue)
-                    } label: {
-                        Asset.Assets.copy.image
-                            .zImage(size: 20, style: Design.Inputs.Default.icon)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(copyValue.isEmpty)
-                    .opacity(copyValue.isEmpty ? 0.5 : 1)
-                    .accessibilityLabel(String(localized: "Copy Data Source URL"))
-                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)

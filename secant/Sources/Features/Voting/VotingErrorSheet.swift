@@ -8,12 +8,6 @@ import SwiftUI
 struct VotingSheetContent: View {
     @Environment(\.colorScheme) var colorScheme
 
-    private static let unverifiedWarningSheetBackground = Color(
-        red: 245.0 / 255.0,
-        green: 245.0 / 255.0,
-        blue: 245.0 / 255.0
-    ).opacity(0.96)
-
     enum ButtonStyle {
         case primary
         case secondary
@@ -86,6 +80,7 @@ struct VotingSheetContent: View {
             .padding(.bottom, buttonBottomPadding)
         }
         .frame(maxWidth: .infinity)
+        .padding(.horizontal, contentHorizontalPadding)
         .background(sheetBackgroundColor)
     }
 
@@ -104,7 +99,7 @@ struct VotingSheetContent: View {
         case .unverifiedWarning:
             ZStack {
                 Circle()
-                    .fill(Design.Surfaces.bgPrimary.color(colorScheme))
+                    .fill(Design.Surfaces.bgSecondary.color(colorScheme))
                     .frame(width: 44, height: 44)
                 Asset.Assets.Icons.alertOutline.image
                     .zImage(size: 20, style: Design.Utility.ErrorRed._500)
@@ -211,12 +206,21 @@ struct VotingSheetContent: View {
         }
     }
 
+    private var contentHorizontalPadding: CGFloat {
+        switch visualStyle {
+        case .standard:
+            return 0
+        case .unverifiedWarning:
+            return 24
+        }
+    }
+
     private var sheetBackgroundColor: Color {
         switch visualStyle {
         case .standard:
             return .clear
         case .unverifiedWarning:
-            return Self.unverifiedWarningSheetBackground
+            return Design.Surfaces.bgPrimary.color(colorScheme).opacity(0.96)
         }
     }
 
@@ -245,7 +249,11 @@ extension View {
         visualStyle: VotingSheetContent.VisualStyle = .standard,
         onDismiss: (() -> Void)? = nil
     ) -> some View {
-        zashiSheet(isPresented: isPresented, onDismiss: onDismiss) {
+        zashiSheet(
+            isPresented: isPresented,
+            horizontalPadding: visualStyle == .unverifiedWarning ? 0 : Design.Spacing._3xl,
+            onDismiss: onDismiss
+        ) {
             VotingSheetContent(
                 iconSystemName: iconSystemName,
                 iconStyle: iconStyle,

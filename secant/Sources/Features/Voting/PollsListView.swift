@@ -36,13 +36,7 @@ struct PollsListView: View {
                     Button {
                         store.send(.openConfigSettings)
                     } label: {
-                        Asset.Assets.Icons.settings2.image
-                            .zImage(size: 20, style: Design.Btns.Ghost.fg)
-                            .padding(8)
-                            .background {
-                                RoundedRectangle(cornerRadius: Design.Radius._md)
-                                    .fill(Design.Btns.Ghost.bg.color(colorScheme))
-                            }
+                        settingsButtonIcon()
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Voting chain config")
@@ -65,6 +59,23 @@ struct PollsListView: View {
                     store.send(.dismissFlow)
                 }
             )
+        }
+    }
+
+    @ViewBuilder
+    private func settingsButtonIcon() -> some View {
+        let icon = Asset.Assets.Icons.settings2.image
+            .zImage(size: 20, style: Design.Btns.Ghost.fg)
+
+        if #available(iOS 26.0, *) {
+            icon
+        } else {
+            icon
+                .padding(8)
+                .background {
+                    RoundedRectangle(cornerRadius: Design.Radius._md)
+                        .fill(Design.Btns.Ghost.bg.color(colorScheme))
+                }
         }
     }
 

@@ -10,15 +10,29 @@ struct ProposalDetailView: View {
     let proposal: VotingProposal
 
     private let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+    private static let scrollTopID = "proposal-detail-scroll-top"
 
     var body: some View {
         WithPerceptionTracking {
-            VStack(spacing: 0) {
-                ScrollView {
-                    contentSection()
-                }
+            ScrollViewReader { scrollProxy in
+                VStack(spacing: 0) {
+                    ScrollView {
+                        Color.clear
+                            .frame(height: 0)
+                            .id(Self.scrollTopID)
 
-                bottomSection()
+                        contentSection()
+                    }
+                    .id(proposal.id)
+                    .onAppear {
+                        scrollToTop(scrollProxy)
+                    }
+                    .onChange(of: proposal.id) { _ in
+                        scrollToTop(scrollProxy)
+                    }
+
+                    bottomSection()
+                }
             }
             .applyScreenBackground()
             .navigationBarBackButtonHidden(true)
@@ -51,6 +65,16 @@ struct ProposalDetailView: View {
                         .zFont(.semiBold, size: 14, style: Design.Text.primary)
                         .textCase(.uppercase)
                 }
+            }
+        }
+    }
+
+    private func scrollToTop(_ scrollProxy: ScrollViewProxy) {
+        DispatchQueue.main.async {
+            var transaction = Transaction()
+            transaction.disablesAnimations = true
+            withTransaction(transaction) {
+                scrollProxy.scrollTo(Self.scrollTopID, anchor: .top)
             }
         }
     }
@@ -192,7 +216,7 @@ struct ProposalDetailView: View {
             HStack {
                 Text(label)
                     .zFont(.semiBold, size: 16,
-                           color: isSelected ? Design.Surfaces.bgPrimary.color(colorScheme) : Design.Text.primary.color(colorScheme))
+                           color: Design.Text.primary.color(colorScheme))
 
                 Spacer()
 
@@ -238,7 +262,7 @@ struct ProposalDetailView: View {
                 }
             } else {
                 if let index = store.detailProposalIndex, index > 0 {
-                    ZashiButton(String(localizable: .coinVoteCommonBack), type: .secondary) {
+                    ZashiButton(String(localizable: .coinVoteCommonBack), type: .tertiary) {
                         store.send(.backToList)
                     }
                 }

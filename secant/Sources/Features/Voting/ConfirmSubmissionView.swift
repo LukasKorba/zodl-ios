@@ -216,7 +216,7 @@ struct ConfirmSubmissionView: View {
 
     // Authorization has its own label; after that, the user-facing progress is
     // proposal count only, regardless of the protocol phase inside each vote.
-    private var submissionProgress: (progress: Double, title: String, caption: String?) {
+    private var submissionProgress: (progress: Double, title: String) {
         let delegationWeight = 0.3
 
         switch status {
@@ -227,7 +227,7 @@ struct ConfirmSubmissionView: View {
             case .complete: p = 1.0
             default: p = 0
             }
-            return (p * delegationWeight, String(localizable: .coinVoteStoreSubmissionAuthorizingVote), nil)
+            return (p * delegationWeight, String(localizable: .coinVoteStoreSubmissionAuthorizingVote))
 
         case let .submitting(currentIndex, totalCount, _):
             let offset = store.delegationProofStatus == .complete ? delegationWeight : 0.0
@@ -240,12 +240,11 @@ struct ConfirmSubmissionView: View {
                         String(currentIndex + 1),
                         String(totalCount)
                     )
-                ),
-                estimatedTimeRemainingCaption(currentIndex: currentIndex, totalCount: totalCount)
+                )
             )
 
         case .authorizationFailed:
-            return (0, String(localizable: .coinVoteStoreSubmissionAuthorizingVote), nil)
+            return (0, String(localizable: .coinVoteStoreSubmissionAuthorizingVote))
 
         case let .submissionFailed(_, submittedCount, totalCount):
             let fraction = Double(submittedCount) / Double(max(totalCount, 1))
@@ -257,24 +256,12 @@ struct ConfirmSubmissionView: View {
                         String(submittedCount),
                         String(totalCount)
                     )
-                ),
-                nil
+                )
             )
 
         default:
-            return (0, "", nil)
+            return (0, "")
         }
-    }
-
-    private func estimatedTimeRemainingCaption(currentIndex: Int, totalCount: Int) -> String {
-        let remainingVotes = max(totalCount - currentIndex - 1, 1)
-        let estimatedSecondsPerVote = 18
-        let minutes = max(1, Int(ceil(Double(remainingVotes * estimatedSecondsPerVote) / 60.0)))
-
-        if minutes == 1 {
-            return String(localizable: .coinVoteConfirmSubmissionProgressTimeRemainingOne)
-        }
-        return String(localizable: .coinVoteConfirmSubmissionProgressTimeRemainingMany(String(minutes)))
     }
 
     // MARK: - Bottom Section
@@ -312,11 +299,6 @@ struct ConfirmSubmissionView: View {
                         }
                     }
                     .frame(height: 8)
-
-                    if let caption = progressInfo.caption {
-                        Text(caption)
-                            .zFont(size: 13, style: Design.Text.secondary)
-                    }
                 }
                 .padding(Design.Spacing._2xl)
                 .background(Design.Surfaces.bgSecondary.color(colorScheme))
