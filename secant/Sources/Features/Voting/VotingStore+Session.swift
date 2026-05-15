@@ -189,7 +189,7 @@ extension Voting {
 
         case .startActiveRoundPipeline:
             guard let session = state.activeSession, session.status == .active else { return .none }
-            let network = zcashSDKEnvironment.network
+            let network = zcashSDKEnvironment.network()
             let walletDbPath = databaseFiles.dataDbURLFor(network).path
             let networkId: UInt32 = network.networkType.votingRustNetworkId
             let snapshotHeight = session.snapshotHeight
