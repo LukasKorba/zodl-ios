@@ -2,7 +2,6 @@ import Combine
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-import os
 
 // MARK: - Session (Initialization, Rounds, Polling, Tally, DB State, Governance Tab)
 
@@ -28,7 +27,7 @@ extension Voting {
                 let allRounds = try await votingAPI.fetchAllRounds()
                 await send(.allRoundsLoaded(allRounds))
             } catch: { error, send in
-                votingLogger.error("Retry rounds fetch failed: \(error)")
+                LoggerProxy.error("Retry rounds fetch failed: \(error)")
                 await send(.roundsLoadFailed)
             }
 
@@ -41,13 +40,14 @@ extension Voting {
                 State.RoundListItem(roundNumber: index + 1, session: session)
             }
 
-            // Populate voteRecords from persisted UserDefaults so the polls
-            // list can render the Voted pill for rounds the user has fully
-            // submitted. Per-round, sync read, fast even for tens of rounds.
-            let walletId = state.walletId
+            // Populate voteRecords from the encrypted per-account voting
+            // metadata file so the polls list can render the Voted pill for
+            // rounds the user has fully submitted. The cache is loaded once at
+            // `.initialize` (see below), so these reads are O(1) per round.
+            let account = state.selectedWalletAccount?.account
             var loadedRecords: [String: VoteRecord] = [:]
             for item in state.allRounds {
-                if let record = Self.loadCompletedVoteRecord(walletId: walletId, roundId: item.id) {
+                if let record = Self.loadCompletedVoteRecord(roundId: item.id, account: account) {
                     loadedRecords[item.id] = record
                 }
             }
@@ -108,9 +108,9 @@ extension Voting {
             state.hasStartedProvingCacheWarmup = true
             return .run { [votingCrypto] _ in
                 try await votingCrypto.warmProvingCaches()
-                votingLogger.info("Voting proving caches warmed")
+                LoggerProxy.info("Voting proving caches warmed")
             } catch: { error, _ in
-                votingLogger.error("Voting proving cache warm-up failed: \(error)")
+                LoggerProxy.error("Voting proving cache warm-up failed: \(error)")
             }
 
         case .initialize:
@@ -120,6 +120,28 @@ extension Voting {
             guard state.currentScreen != .howToVote else { return .none }
             guard !state.isSubmittingVote else { return .none }
             state.prepareForServiceConfigRefresh()
+
+            // Janitorial: drop any leftover plaintext entries from the
+            // previous UserDefaults-based persistence. No real users have
+            // these (encrypted-file storage replaces a dev-only build), but
+            // the sweep guarantees nothing stays behind on internal devices.
+            Self.sweepLegacyUserDefaultsVotingKeys()
+
+            // Load the encrypted voting metadata cache for the selected
+            // account. Subsequent reads of drafts / vote records are O(1)
+            // against this cache. Sub-millisecond file read + AES-decrypt.
+            //
+            // `load(account)` itself clears the cache before refilling, but
+            // the process-wide `VotingMetadataStorage.live` singleton means
+            // stale data from a previous account could otherwise be visible
+            // for the brief window between `.initialize` firing without a
+            // selected account and the subsequent reads. Defensively reset
+            // first so a nil-account path can't serve another wallet's data.
+            @Dependency(\.votingMetadata) var votingMetadata
+            votingMetadata.reset()
+            if let account = state.selectedWalletAccount?.account {
+                try? votingMetadata.load(account)
+            }
             // Read straight from UserDefaults rather than `state.votingConfigOverrideURL`
             // so this picks up the value `VotingConfigSettings` just wrote, even when
             // its `@Shared(.appStorage(.votingConfigOverrideURL))` change has not yet
@@ -140,7 +162,7 @@ extension Voting {
                 let config = try await votingAPI.fetchServiceConfig(override)
                 await send(.serviceConfigLoaded(config))
             } catch: { error, send in
-                votingLogger.error("Service config unavailable: \(error)")
+                LoggerProxy.error("Service config unavailable: \(error)")
                 let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
                 await send(.configUnsupported(message))
             }
@@ -171,19 +193,19 @@ extension Voting {
                 //    error screen (which belongs to DB/wallet/config failures).
                 do {
                     let allRounds = try await votingAPI.fetchAllRounds()
-                    votingLogger.info("Fetched \(allRounds.count) rounds")
+                    LoggerProxy.info("Fetched \(allRounds.count) rounds")
                     for round in allRounds {
-                        votingLogger.debug(
+                        LoggerProxy.debug(
                             "round=\(round.voteRoundId.hexString.prefix(16))... status=\(round.status.rawValue) snapshot=\(round.snapshotHeight)"
                         )
                     }
                     await send(.allRoundsLoaded(allRounds))
                 } catch {
-                    votingLogger.error("Failed to fetch rounds: \(error)")
+                    LoggerProxy.error("Failed to fetch rounds: \(error)")
                     await send(.roundsLoadFailed)
                 }
             } catch: { error, send in
-                votingLogger.error("Initialization failed: \(error)")
+                LoggerProxy.error("Initialization failed: \(error)")
                 await send(.initializeFailed(error.localizedDescription))
             }
 
@@ -194,7 +216,8 @@ extension Voting {
             let networkId: UInt32 = network.networkType.votingRustNetworkId
             let snapshotHeight = session.snapshotHeight
             let roundId = session.voteRoundId.hexString
-            let accountUUID: [UInt8] = state.selectedWalletAccount?.id.id ?? []
+            let accountId = state.selectedWalletAccount?.id
+            let accountUUID: [UInt8] = accountId?.id ?? []
             return .run { [votingCrypto, mnemonic, walletStorage, sdkSynchronizer] send in
                 // Gate on the contiguous-from-birthday scan progress, not the chain tip.
                 // Spend-before-Sync scans head-first and birthday-first in parallel, so
@@ -212,7 +235,7 @@ extension Voting {
                     }
                 }
                 if walletScannedHeight < snapshotHeight {
-                    votingLogger.info("Wallet scanned to \(walletScannedHeight), snapshot at \(snapshotHeight) — not synced yet")
+                    LoggerProxy.info("Wallet scanned to \(walletScannedHeight), snapshot at \(snapshotHeight) — not synced yet")
                     await send(.walletNotSynced(scannedHeight: walletScannedHeight, snapshotHeight: snapshotHeight))
                     return
                 }
@@ -224,27 +247,34 @@ extension Voting {
                     accountUUID
                 )
                 let totalWeight = notes.reduce(UInt64(0)) { $0 + $1.value }
-                votingLogger.info("Loaded \(notes.count) notes at height \(snapshotHeight), total weight: \(totalWeight)")
+                LoggerProxy.info("Loaded \(notes.count) notes at height \(snapshotHeight), total weight: \(totalWeight)")
                 await send(.votingWeightLoaded(totalWeight, notes))
 
-                // Load or generate voting hotkey mnemonic, derive address for UI
-                do {
-                    let phrase: String
-                    if let stored = try? walletStorage.exportVotingHotkey("") {
-                        phrase = stored.seedPhrase.value()
-                    } else {
-                        phrase = try mnemonic.randomMnemonic()
-                        try walletStorage.importVotingHotkey(phrase, "")
+                // Load or generate the per-account voting hotkey mnemonic.
+                // Skipping when no account is selected matches the SettingsCoordinator
+                // guard that gates flow entry; the .run is async, so a guard here
+                // protects against the account becoming nil mid-flow.
+                if let accountId {
+                    do {
+                        let phrase: String
+                        if let stored = try? walletStorage.exportVotingHotkey(accountId) {
+                            phrase = stored.seedPhrase.value()
+                        } else {
+                            phrase = try mnemonic.randomMnemonic()
+                            try walletStorage.importVotingHotkey(phrase, accountId)
+                        }
+                        let seed = try mnemonic.toSeed(phrase)
+                        let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
+                        LoggerProxy.debug("Hotkey address: \(hotkey.address)")
+                        await send(.hotkeyLoaded(hotkey.address))
+                    } catch {
+                        LoggerProxy.error("Failed to generate hotkey: \(error)")
                     }
-                    let seed = try mnemonic.toSeed(phrase)
-                    let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
-                    votingLogger.debug("Hotkey address: \(hotkey.address)")
-                    await send(.hotkeyLoaded(hotkey.address))
-                } catch {
-                    votingLogger.error("Failed to generate hotkey: \(error)")
+                } else {
+                    LoggerProxy.error("No selected account; skipping voting hotkey generation")
                 }
             } catch: { error, send in
-                votingLogger.error("Active round pipeline failed: \(error)")
+                LoggerProxy.error("Active round pipeline failed: \(error)")
                 await send(.initializeFailed(error.localizedDescription))
             }
             .cancellable(id: cancelPipelineId, cancelInFlight: true)
@@ -255,7 +285,7 @@ extension Voting {
             state.votingRound = sessionBackedRound(from: session, title: state.votingRound.title, fallback: state.votingRound)
             reconcileProposalState(&state)
             let roundPrefix = session.voteRoundId.hexString.prefix(16)
-            votingLogger.info("activeSessionLoaded: status=\(session.status.rawValue) round=\(roundPrefix)... proposals=\(session.proposals.count)")
+            LoggerProxy.info("activeSessionLoaded: status=\(session.status.rawValue) round=\(roundPrefix)... proposals=\(session.proposals.count)")
             return .none
 
         case .noActiveRound:
@@ -277,7 +307,7 @@ extension Voting {
             state.votingWeight = eligibleWeight
             if bundleResult.droppedCount > 0 {
                 let dropped = bundleResult.droppedCount
-                votingLogger.info("Smart bundling: dropped \(dropped) notes in sub-threshold bundles (eligible: \(eligibleWeight) of \(weight) total)")
+                LoggerProxy.info("Smart bundling: dropped \(dropped) notes in sub-threshold bundles (eligible: \(eligibleWeight) of \(weight) total)")
             }
             if eligibleWeight < ballotDivisor {
                 state.ineligibilityReason = .balanceTooLow
@@ -290,12 +320,12 @@ extension Voting {
             // Don't set delegationProofStatus here — verifyWitnesses will set it
             // only for fresh rounds, avoiding a brief flash for cached rounds.
             // Restore persisted draft votes (survives app termination)
-            let restored = Self.loadDrafts(walletId: state.walletId, roundId: state.roundId)
+            let restored = Self.loadDrafts(roundId: state.roundId)
             // Only keep drafts for proposals that haven't been submitted yet
             state.draftVotes = restored.filter { state.votes[$0.key] == nil }
             if !state.draftVotes.isEmpty {
                 let draftCount = state.draftVotes.count
-                votingLogger.info("Restored \(draftCount) persisted draft votes")
+                LoggerProxy.info("Restored \(draftCount) persisted draft votes")
             }
 
             state.screenStack = [.pollsList, .proposalList]
@@ -310,7 +340,7 @@ extension Voting {
             )
 
         case .initializeFailed(let error):
-            votingLogger.error("Initialization error: \(error)")
+            LoggerProxy.error("Initialization error: \(error)")
             state.screenStack = [.error(VotingErrorMapper.userFriendlyMessage(from: error))]
             return .none
 
@@ -351,7 +381,7 @@ extension Voting {
                     await send(.roundStatusUpdated(roundId: updated.voteRoundId, updated.status))
                 }
             } catch: { error, _ in
-                votingLogger.error("Status polling error: \(error)")
+                LoggerProxy.error("Status polling error: \(error)")
             }
             .cancellable(id: cancelStatusPollingId, cancelInFlight: true)
 
@@ -365,12 +395,12 @@ extension Voting {
             guard polledRoundId == session.voteRoundId else {
                 let polledPrefix = polledRoundId.hexString.prefix(16)
                 let activePrefix = session.voteRoundId.hexString.prefix(16)
-                votingLogger.debug("roundStatusUpdated: ignoring stale poll for \(polledPrefix)..., active round is \(activePrefix)...")
+                LoggerProxy.debug("roundStatusUpdated: ignoring stale poll for \(polledPrefix)..., active round is \(activePrefix)...")
                 return .none
             }
 
             // Only react to actual transitions
-            votingLogger.info("roundStatusUpdated: old=\(session.status.rawValue) new=\(newStatus.rawValue)")
+            LoggerProxy.info("roundStatusUpdated: old=\(session.status.rawValue) new=\(newStatus.rawValue)")
             guard newStatus != session.status else { return .none }
 
             // Update session status
@@ -492,7 +522,7 @@ extension Voting {
                 let results = try await votingAPI.fetchTallyResults(roundIdHex)
                 await send(.tallyResultsLoaded(results))
             } catch: { error, send in
-                votingLogger.error("Failed to fetch tally results: \(error)")
+                LoggerProxy.error("Failed to fetch tally results: \(error)")
                 await send(.tallyResultsLoadFailed)
             }
 
@@ -518,7 +548,7 @@ extension Voting {
                 let ids = try await votingAPI.fetchZodlEndorsedRoundIds()
                 await send(.zodlEndorsementsLoaded(ids))
             } catch: { error, send in
-                votingLogger.error("Failed to fetch zodl endorsements: \(error)")
+                LoggerProxy.error("Failed to fetch zodl endorsements: \(error)")
                 // Non-fatal decoration: no icon is shown when endorsements are unavailable.
                 await send(.zodlEndorsementsLoaded([]))
             }
@@ -546,7 +576,7 @@ extension Voting {
             if let addr = dbState.roundState.hotkeyAddress {
                 state.hotkeyAddress = addr
             }
-            votingLogger.debug("DB state: phase=\(String(describing: dbState.roundState.phase)), \(dbState.votes.count) votes")
+            LoggerProxy.debug("DB state: phase=\(String(describing: dbState.roundState.phase)), \(dbState.votes.count) votes")
 
             // If votes arrived and share tracking hasn't started yet, kick it off.
             // This handles cold start where governanceTabAppeared fires before votes are loaded.
@@ -604,7 +634,10 @@ extension Voting {
             state.keystoneSigningStatus = .idle
         }
         state.votingRound = sessionBackedRound(from: session, title: item.title, fallback: state.votingRound)
-        state.voteRecord = Self.loadCompletedVoteRecord(walletId: state.walletId, roundId: state.roundId)
+        state.voteRecord = Self.loadCompletedVoteRecord(
+            roundId: state.roundId,
+            account: state.selectedWalletAccount?.account
+        )
         reconcileProposalState(&state)
         let cancelStaleDelegation: Effect<Action> = isSwitchingRounds
             ? .cancel(id: cancelDelegationProofId)

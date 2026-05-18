@@ -39,7 +39,7 @@ struct PollsListView: View {
                         settingsButtonIcon()
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Voting chain config")
+                    .accessibilityLabel(String(localizable: .coinVotePollsListChainConfigAccessibility))
                 }
             }
             .votingSheet(
@@ -224,13 +224,13 @@ struct PollsListView: View {
                     .zImage(size: 16, color: Design.Surfaces.bgPrimary.color(colorScheme))
             }
 
-            Text("Approved by Zodl")
+            Text(localizable: .coinVotePollsListApprovedByZodl)
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .tracking(-0.224)
                 .lineLimit(1)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("Approved by Zodl"))
+        .accessibilityLabel(Text(localizable: .coinVotePollsListApprovedByZodl))
     }
 
     private func unverifiedIssuerIndicator() -> some View {
@@ -241,14 +241,14 @@ struct PollsListView: View {
                 .font(.system(size: 20, weight: .regular))
                 .frame(width: 20, height: 20)
 
-            Text("Unverified Poll")
+            Text(localizable: .coinVoteVotingViewUnverifiedPollTitle)
                 .zFont(.medium, size: 14, color: foregroundColor)
                 .tracking(-0.224)
                 .lineLimit(1)
         }
         .foregroundStyle(foregroundColor)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("Unverified Poll"))
+        .accessibilityLabel(Text(localizable: .coinVoteVotingViewUnverifiedPollTitle))
     }
 
     // MARK: - Status Pill
@@ -327,9 +327,9 @@ struct PollsListView: View {
         case .active:
             return String(localizable: .coinVotePollsListEnterPoll)
         case .voted:
-            return String(localized: "Review")
+            return String(localizable: .coinVotePollsListReview)
         case .closed:
-            return String(localized: "View Results")
+            return String(localizable: .coinVoteCommonViewResults)
         }
     }
 

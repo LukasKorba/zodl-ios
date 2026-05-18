@@ -42,14 +42,15 @@ struct VotingView: View {
         .votingSheet(
             isPresented: unverifiedPollWarningBinding,
             iconSystemName: "exclamationmark.triangle",
-            title: String(localized: "Unverified Poll"),
-            message: String(
-                localized: "This poll hasn't been verified. We can't confirm its legitimacy or how results will be used."
-            ),
-            primary: .init(title: String(localized: "Go back"), style: .primary) {
+            title: String(localizable: .coinVoteVotingViewUnverifiedPollTitle),
+            message: String(localizable: .coinVoteVotingViewUnverifiedPollMessage),
+            primary: .init(title: String(localizable: .coinVoteCommonGoBack), style: .primary) {
                 store.send(.unverifiedPollWarningGoBackTapped)
             },
-            secondary: .init(title: String(localized: "Proceed anyway"), style: .secondary) {
+            secondary: .init(
+                title: String(localizable: .coinVoteVotingViewUnverifiedPollProceedAnyway),
+                style: .secondary
+            ) {
                 store.send(.unverifiedPollWarningProceedTapped)
             },
             visualStyle: .unverifiedWarning,

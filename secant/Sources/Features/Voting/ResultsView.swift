@@ -31,7 +31,7 @@ private func zodlTrustIndicator(colorScheme: ColorScheme) -> some View {
             .zFont(.medium, size: 12, color: zodlTextColor)
     }
     .accessibilityElement(children: .combine)
-    .accessibilityLabel(Text("Approved by Zodl"))
+    .accessibilityLabel(Text(localizable: .coinVoteResultsApprovedByZodl))
 }
 
 /// Color for a tally entry. Looks the option up on the proposal so Abstain

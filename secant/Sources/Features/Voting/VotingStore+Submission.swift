@@ -1,7 +1,6 @@
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-import os
 
 // MARK: - Batch Voting Submission
 
@@ -12,7 +11,7 @@ extension Voting {
         case let .setDraftVote(proposalId, choice):
             guard state.votes[proposalId] == nil else { return .none }
             state.draftVotes[proposalId] = choice
-            Self.persistDrafts(state.draftVotes, walletId: state.walletId, roundId: state.roundId)
+            Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
             // Pop back to the list so the user can continue drafting other proposals
             if case .proposalDetail = state.currentScreen {
                 state.screenStack.removeLast()
@@ -21,7 +20,7 @@ extension Voting {
 
         case let .clearDraftVote(proposalId):
             state.draftVotes.removeValue(forKey: proposalId)
-            Self.persistDrafts(state.draftVotes, walletId: state.walletId, roundId: state.roundId)
+            Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
             return .none
 
         case .submitAllDrafts:
@@ -83,9 +82,10 @@ extension Voting {
                 !voteServerURLs.isEmpty,
                 let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
                 !pirEndpoints.isEmpty,
-                let expectedSnapshotHeight = state.activeSession?.snapshotHeight
+                let expectedSnapshotHeight = state.activeSession?.snapshotHeight,
+                let accountId = state.selectedWalletAccount?.id
             else {
-                votingLogger.error("serviceConfig/activeSession unexpectedly nil during vote submission; aborting")
+                LoggerProxy.error("serviceConfig/activeSession/selectedAccount unexpectedly nil during vote submission; aborting")
                 return .none
             }
             let bundleCount = state.bundleCount
@@ -105,7 +105,7 @@ extension Voting {
 
             return .run { [backgroundTask, votingAPI, votingCrypto, mnemonic, walletStorage] send in
                 let bgTaskId = await backgroundTask.beginTask("Batch vote submission")
-                let _ = await backgroundTask.beginContinuedProcessing(
+                _ = await backgroundTask.beginContinuedProcessing(
                     "co.zodl.voting.*",
                     String(localizable: .coinVoteSubmissionContinuedProcessingTitle),
                     totalCount == 1
@@ -119,7 +119,7 @@ extension Voting {
                     }
                 }
 
-                let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
+                let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                 let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
 
                 // --- Delegation (ZKP #1) — run inline if not already done ---
@@ -147,7 +147,7 @@ extension Voting {
                             send: send
                         )
                     } catch {
-                        votingLogger.error("Delegation pipeline failed (raw): \(error.localizedDescription)")
+                        LoggerProxy.error("Delegation pipeline failed (raw): \(error.localizedDescription)")
                         await send(.batchAuthorizationFailed(
                             error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription)
                         ))
@@ -192,7 +192,7 @@ extension Voting {
 
                         for bundleIndex: UInt32 in 0..<bundleCount {
                             if submittedBundles.contains(bundleIndex) {
-                                votingLogger.debug("Batch: bundle \(bundleIndex + 1)/\(bundleCount) already submitted for proposal \(proposalId)")
+                                LoggerProxy.debug("Batch: bundle \(bundleIndex + 1)/\(bundleCount) already submitted for proposal \(proposalId)")
                                 continue
                             }
 
@@ -250,7 +250,7 @@ extension Voting {
                                                         [UInt8](votingDataFromHex(nfHex)), payload.submitAt
                                                     )
                                                 } catch {
-                                                    votingLogger.warning("Batch recovery: failed to record share delegation for share \(info.shareIndex): \(error)")
+                                                    LoggerProxy.warn("Batch recovery: failed to record share delegation for share \(info.shareIndex): \(error)")
                                                 }
                                             }
                                         }
@@ -351,7 +351,7 @@ extension Voting {
                                         [UInt8](votingDataFromHex(nullifierHex)), payload.submitAt
                                     )
                                 } catch {
-                                    votingLogger.warning("Batch: failed to record share delegation for share \(info.shareIndex): \(error)")
+                                    LoggerProxy.warn("Batch: failed to record share delegation for share \(info.shareIndex): \(error)")
                                 }
                             }
                             try await votingCrypto.markVoteSubmitted(roundId, bundleIndex, proposalId)
@@ -361,7 +361,7 @@ extension Voting {
                         await send(.batchVoteSubmitted(proposalId: proposalId, choice: choice))
                     } catch {
                         failCount += 1
-                        votingLogger.error("Batch vote failed for proposal \(proposalId): \(error)")
+                        LoggerProxy.error("Batch vote failed for proposal \(proposalId): \(error)")
                         let shouldStopBatch = error as? ShareDelegationError == .noReachableVoteServers
                         if shouldStopBatch {
                             shareServerURLs = []
@@ -378,13 +378,14 @@ extension Voting {
 
                 await send(.batchSubmissionCompleted(successCount: successCount, failCount: failCount))
             } catch: { error, send in
-                votingLogger.error("Batch submission failed at top level: \(error)")
+                LoggerProxy.error("Batch submission failed at top level: \(error)")
                 await send(.batchSubmissionFailed(
                     error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription),
                     submittedCount: 0,
                     totalCount: totalCount
                 ))
             }
+            .cancellable(id: cancelSubmissionId, cancelInFlight: true)
 
         case let .batchSubmissionProgress(currentIndex, totalCount, proposalId):
             state.batchSubmissionStatus = .submitting(
@@ -401,7 +402,7 @@ extension Voting {
         case let .batchVoteSubmitted(proposalId, choice):
             state.votes[proposalId] = choice
             state.draftVotes.removeValue(forKey: proposalId)
-            Self.persistDrafts(state.draftVotes, walletId: state.walletId, roundId: state.roundId)
+            Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
             return .none
 
         case let .batchVoteFailed(proposalId, error):
@@ -435,11 +436,11 @@ extension Voting {
                         proposalCount: state.totalProposals
                     )
                     state.voteRecord = record
-                    Self.persistVoteRecord(record, walletId: state.walletId, roundId: state.roundId)
+                    Self.persistVoteRecord(record, roundId: state.roundId, account: state.selectedWalletAccount?.account)
                     state.voteRecords[state.roundId] = record
                 }
                 state.batchSubmissionStatus = .completed(successCount: successCount)
-                Self.clearPersistedDrafts(walletId: state.walletId, roundId: state.roundId)
+                Self.clearPersistedDrafts(roundId: state.roundId, account: state.selectedWalletAccount?.account)
             }
             return .none
 

@@ -8,8 +8,6 @@ import ComposableArchitecture
 import UIKit
 import os
 
-private let logger = Logger(subsystem: "co.zodl", category: "BackgroundTaskClient")
-
 /// Tracks the active continued processing task (iOS 26+) so endContinuedProcessing can find it.
 @available(iOS 26.0, *)
 private final class ContinuedProcessingState: Sendable {
@@ -42,7 +40,7 @@ extension BackgroundTaskClient: DependencyKey {
                     UIApplication.shared.isIdleTimerDisabled = true
                     var taskId: UIBackgroundTaskIdentifier = .invalid
                     taskId = UIApplication.shared.beginBackgroundTask(withName: name) {
-                        logger.warning("Background task '\(name)' expired by iOS — ending task")
+                        LoggerProxy.warn("Background task '\(name)' expired by iOS — ending task")
                         UIApplication.shared.isIdleTimerDisabled = false
                         UIApplication.shared.endBackgroundTask(taskId)
                         taskId = .invalid
@@ -70,7 +68,7 @@ extension BackgroundTaskClient: DependencyKey {
 
                 do {
                     try BGTaskScheduler.shared.submit(request)
-                    logger.info("Continued processing task submitted: \(identifier)")
+                    LoggerProxy.info("Continued processing task submitted: \(identifier)")
 
                     // The task is delivered via the handler registered for this identifier.
                     // Register a one-shot handler to capture the task object.
@@ -84,7 +82,7 @@ extension BackgroundTaskClient: DependencyKey {
                     }
                     return true
                 } catch {
-                    logger.warning("Continued processing submission failed: \(error)")
+                    LoggerProxy.warn("Continued processing submission failed: \(error)")
                     return false
                 }
             },
@@ -94,7 +92,7 @@ extension BackgroundTaskClient: DependencyKey {
                 }
                 if let task = state.take() {
                     task.setTaskCompleted(success: true)
-                    logger.info("Continued processing task completed")
+                    LoggerProxy.info("Continued processing task completed")
                 }
             }
         )

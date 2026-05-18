@@ -6,6 +6,19 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ## [Unreleased]
 
+### Added
+- We hardened the Coinholder Polling feature for security and privacy: voting drafts and per-round vote records are now stored in an encrypted, per-account local file (ChaChaPoly + HKDF), and the voting hotkey lives in the iOS Keychain scoped per account.
+- Voting network traffic (API calls, health probes, custom-chain validation) now respects the Tor setting — when Tor is enabled, all voting requests are routed through it.
+
+### Changed
+- Voting server health probes no longer fall back to the system URLSession; if the Tor-aware fetcher isn't ready, probes stay paused rather than leak the device IP.
+- Reset Zashi now wipes voting drafts, vote records, custom-chain overrides, and the local voting database so no voting state survives a wallet reset.
+- Dynamic voting config URLs are now required to be HTTPS.
+
+### Fixed
+- Hardened ServerHealthTracker by removing force-unwraps that could have crashed on stale server entries.
+- Cancelled in-flight vote submissions when the user dismisses the voting flow.
+
 ## 3.4.0 build 1 (2026-05-11)
 
 ### Added
