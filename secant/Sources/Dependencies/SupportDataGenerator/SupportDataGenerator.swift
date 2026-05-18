@@ -19,8 +19,8 @@ struct SupportData: Equatable {
 enum SupportDataGenerator {
     enum Constants {
         static let email = "support@zodl.com"
-        static let subject = String(localizable: .accountsZashi)
-        static let subjectPPE = String(localizable: .proposalPartialMailSubject)
+        static let subject = "Zodl"
+        static let subjectPPE = "TEX Transaction Error"
     }
     
     static func generate(_ prefix: String? = nil) -> SupportData {
@@ -67,10 +67,6 @@ private protocol SupportDataGeneratorItem {
 }
 
 private struct TimeItem: SupportDataGeneratorItem {
-    private enum Constants {
-        static let timeKey = String(localizable: .supportDataTimeItemTime)
-    }
-
     let dateFormatter: DateFormatter
 
     init() {
@@ -80,30 +76,24 @@ private struct TimeItem: SupportDataGeneratorItem {
     }
 
     func generate() -> [(String, String)] {
-        return [(Constants.timeKey, dateFormatter.string(from: Date()))]
+        return [("Current time", dateFormatter.string(from: Date()))]
     }
 }
 
 private struct AppVersionItem: SupportDataGeneratorItem {
-    private enum Constants {
-        static let bundleIdentifierKey = String(localizable: .supportDataAppVersionItemBundleIdentifier)
-        static let versionKey = String(localizable: .supportDataAppVersionItemVersion)
-        static let unknownVersion = String(localizable: .generalUnknown)
-    }
-
     func generate() -> [(String, String)] {
         let bundle = Bundle.main
-        guard let infoDict = bundle.infoDictionary else { return [(Constants.versionKey, Constants.unknownVersion)] }
+        guard let infoDict = bundle.infoDictionary else { return [("App version", "Unknown")] }
 
         var data: [(String, String)] = []
         if let bundleIdentifier = bundle.bundleIdentifier {
-            data.append((Constants.bundleIdentifierKey, bundleIdentifier))
+            data.append(("App identifier", bundleIdentifier))
         }
 
         if let build = infoDict["CFBundleVersion"] as? String, let version = infoDict["CFBundleShortVersionString"] as? String {
-            data.append((Constants.versionKey, "\(version) (\(build))"))
+            data.append(("App version", "\(version) (\(build))"))
         } else {
-            data.append((Constants.versionKey, Constants.unknownVersion))
+            data.append(("App version", "Unknown"))
         }
 
         return data
@@ -111,22 +101,13 @@ private struct AppVersionItem: SupportDataGeneratorItem {
 }
 
 private struct SystemVersionItem: SupportDataGeneratorItem {
-    private enum Constants {
-        static let systemVersionKey = String(localizable: .supportDataSystemVersionItemVersion)
-    }
-
     func generate() -> [(String, String)] {
         let version = ProcessInfo.processInfo.operatingSystemVersion
-        return [(Constants.systemVersionKey, "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)")]
+        return [("iOS version", "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)")]
     }
 }
 
 private struct DeviceModelItem: SupportDataGeneratorItem {
-    private enum Constants {
-        static let deviceModelKey = String(localizable: .supportDataDeviceModelItemDevice)
-        static let unknownDevice = String(localizable: .generalUnknown)
-    }
-
     func generate() -> [(String, String)] {
         var systemInfo = utsname()
         uname(&systemInfo)
@@ -135,36 +116,23 @@ private struct DeviceModelItem: SupportDataGeneratorItem {
             readModel = String(cString: charPointer, encoding: .ascii)
         }
 
-        let model = readModel ?? Constants.unknownDevice
-        return [(Constants.deviceModelKey, model)]
+        return [("Device", readModel ?? "Unknown")]
     }
 }
 
 private struct LocaleItem: SupportDataGeneratorItem {
-    private enum Constants {
-        static let localeKey = String(localizable: .supportDataLocaleItemLocale)
-        static let groupingSeparatorKey = String(localizable: .supportDataLocaleItemGroupingSeparator)
-        static let decimalSeparatorKey = String(localizable: .supportDataLocaleItemDecimalSeparator)
-        static let unknownSeparator = String(localizable: .generalUnknown)
-    }
-
     func generate() -> [(String, String)] {
         let locale = Locale.current
 
         return [
-            (Constants.localeKey, locale.identifier),
-            (Constants.groupingSeparatorKey, "'\(locale.groupingSeparator ?? Constants.unknownSeparator)'"),
-            (Constants.decimalSeparatorKey, "'\(locale.decimalSeparator ?? Constants.unknownSeparator)'")
+            ("Locale", locale.identifier),
+            ("Currency grouping separator", "'\(locale.groupingSeparator ?? "Unknown")'"),
+            ("Currency decimal separator", "'\(locale.decimalSeparator ?? "Unknown")'")
         ]
     }
 }
 
 private struct FreeDiskSpaceItem: SupportDataGeneratorItem {
-    private enum Constants {
-        static let freeDiskSpaceKey = String(localizable: .supportDataFreeDiskSpaceItemFreeDiskSpace)
-        static let freeDiskSpaceUnknown = String(localizable: .generalUnknown)
-    }
-
     func generate() -> [(String, String)] {
         let freeDiskSpace: String
 
@@ -174,27 +142,18 @@ private struct FreeDiskSpaceItem: SupportDataGeneratorItem {
             if let freeSpace = values.volumeAvailableCapacityForImportantUsage {
                 freeDiskSpace = "\(freeSpace / 1024 / 1024) MB"
             } else {
-                freeDiskSpace = Constants.freeDiskSpaceUnknown
+                freeDiskSpace = "Unknown"
             }
         } catch {
             LoggerProxy.debug("Can't get free disk space: \(error)")
-            freeDiskSpace = Constants.freeDiskSpaceUnknown
+            freeDiskSpace = "Unknown"
         }
 
-        return [(Constants.freeDiskSpaceKey, freeDiskSpace)]
+        return [("Usable storage", freeDiskSpace)]
     }
 }
 
 private struct PermissionsItems: SupportDataGeneratorItem {
-    private enum Constants {
-        static let permissionsKey = String(localizable: .supportDataPermissionItemPermissions)
-        static let cameraPermKey = String(localizable: .supportDataPermissionItemCamera)
-        static let faceIDAvailable = String(localizable: .supportDataPermissionItemFaceID)
-        static let touchIDAvailable = String(localizable: .supportDataPermissionItemTouchID)
-        static let yesText = String(localizable: .generalYes)
-        static let noText = String(localizable: .generalNo)
-    }
-
     func generate() -> [(String, String)] {
         let cameraAuthorized = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
 
@@ -202,10 +161,10 @@ private struct PermissionsItems: SupportDataGeneratorItem {
         let biometricAuthAvailable = bioAuthContext.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
 
         return [
-            (Constants.permissionsKey, ""),
-            (Constants.cameraPermKey, cameraAuthorized ? Constants.yesText : Constants.noText),
-            (Constants.faceIDAvailable, biometricAuthAvailable && bioAuthContext.biometryType == .faceID ? Constants.yesText : Constants.noText),
-            (Constants.touchIDAvailable, biometricAuthAvailable && bioAuthContext.biometryType == .touchID ? Constants.yesText : Constants.noText)
+            ("Permissions", ""),
+            ("Camera access", cameraAuthorized ? "Yes" : "No"),
+            ("FaceID available", biometricAuthAvailable && bioAuthContext.biometryType == .faceID ? "Yes" : "No"),
+            ("TouchID available", biometricAuthAvailable && bioAuthContext.biometryType == .touchID ? "Yes" : "No")
         ]
     }
 }
