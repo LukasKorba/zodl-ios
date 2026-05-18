@@ -117,7 +117,6 @@ extension SwapAndPayCoordFlow {
                             await send(.updateTxIdToExpand(sendConfirmationState.txIdToExpand))
                             await send(
                                 .updateFailedData(
-                                    sendConfirmationState.failedCode,
                                     sendConfirmationState.failedDescription ?? "",
                                     sendConfirmationState.failedPcztMsg
                                 )
@@ -220,8 +219,7 @@ extension SwapAndPayCoordFlow {
                 state.isSwapToZecExperience.toggle()
                 return .none
 
-            case let .updateFailedData(code, desc, pcztMsg):
-                state.failedCode = code
+            case let .updateFailedData(desc, pcztMsg):
                 state.failedDescription = desc
                 #if DEBUG
                 state.failedPcztMsg = pcztMsg
@@ -322,7 +320,7 @@ extension SwapAndPayCoordFlow {
                             let isTxIdPresentInTheDB = try await sdkSynchronizer.txIdExists(txIds.last)
                             await send(.sendFailed("sdkSynchronizer.createProposedTransactions-grpcFailure".toZcashError(), isTxIdPresentInTheDB))
                         case let .failure(txIds, code, description):
-                            await send(.updateFailedData(code, description, ""))
+                            await send(.updateFailedData("SDK code \(code): \(description)", ""))
                             await send(.updateTxIdToExpand(txIds.last))
                             let isTxIdPresentInTheDB = try await sdkSynchronizer.txIdExists(txIds.last)
                             await send(.sendFailed("sdkSynchronizer.createProposedTransactions-failure \(code) \(description)".toZcashError(), isTxIdPresentInTheDB))

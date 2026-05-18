@@ -52,7 +52,7 @@ extension Root {
                 var supportData = SupportDataGenerator.generate()
                 supportData.message =
                 """
-                code: -3000
+                Category: Shielding
                 \(state.messageToBeShared)
                 
                 \(supportData.message)

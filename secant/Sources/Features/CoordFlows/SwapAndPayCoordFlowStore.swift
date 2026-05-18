@@ -37,7 +37,6 @@ struct SwapAndPayCoordFlow {
             case success
         }
         
-        var failedCode: Int?
         var failedDescription = ""
         var failedPcztMsg: String?
         var isHelpSheetPresented = false
@@ -80,7 +79,7 @@ struct SwapAndPayCoordFlow {
         case storeLastUsedAsset
         case swapAndPay(SwapAndPay.Action)
         case swapRequested
-        case updateFailedData(Int?, String, String?)
+        case updateFailedData(String, String?)
         case updateResult(State.Result?)
         case updateTxIdToExpand(String?)
     }

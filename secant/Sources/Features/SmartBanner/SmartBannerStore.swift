@@ -255,7 +255,7 @@ struct SmartBanner {
                 var supportData = SupportDataGenerator.generate()
                 supportData.message =
                 """
-                code: -2000
+                Category: Sync
                 \(state.lastKnownErrorMessage)
                 
                 \(supportData.message)
