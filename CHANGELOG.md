@@ -6,6 +6,9 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ## [Unreleased]
 
+### Changed
+- We updated the copy on the shielding Wallet Status Widget from "Transparent Balance Detected" to "Unshielded Balance" so it's easier to understand at a glance.
+
 ## 3.4.0 build 1 (2026-05-11)
 
 ### Added
