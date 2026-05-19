@@ -153,17 +153,6 @@ struct Voting {
             case walletSyncing
         }
 
-        struct RoundListItem: Equatable, Identifiable {
-            var id: String { session.voteRoundId.hexString }
-            let roundNumber: Int
-            let session: VotingSession
-            var title: String {
-                session.title.isEmpty
-                    ? String(localizable: .coinVoteStoreRoundTitle(String(roundNumber)))
-                    : session.title
-            }
-        }
-
         struct NoteWitnessResult: Equatable, Identifiable {
             var id: UInt64 { position }
             let position: UInt64

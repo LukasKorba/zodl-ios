@@ -108,7 +108,7 @@ final class VotingStoreInitializationTests: XCTestCase {
         }
         await store.receive(.allRoundsLoaded([session])) {
             $0.allRounds = [
-                Voting.State.RoundListItem(roundNumber: 1, session: session)
+                RoundListItem(roundNumber: 1, session: session)
             ]
             $0.screenStack = [.pollsList]
             $0.voteRecords = [:]
@@ -144,7 +144,7 @@ final class VotingStoreInitializationTests: XCTestCase {
         }
         await store.receive(.allRoundsLoaded([session])) {
             $0.allRounds = [
-                Voting.State.RoundListItem(roundNumber: 1, session: session)
+                RoundListItem(roundNumber: 1, session: session)
             ]
             $0.screenStack = [.pollsList]
             $0.voteRecords = [:]
@@ -162,7 +162,7 @@ final class VotingStoreInitializationTests: XCTestCase {
 
     func testInitializeClearsStaleRoundsAndShowsConfigErrorWhenConfigFails() async {
         let session = makeSession()
-        let staleRound = Voting.State.RoundListItem(roundNumber: 1, session: session)
+        let staleRound = RoundListItem(roundNumber: 1, session: session)
         var initialState = Voting.State()
         initialState.screenStack = [.pollsList]
         initialState.serviceConfig = makeConfig()

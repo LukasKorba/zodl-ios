@@ -79,7 +79,7 @@ struct PollsListView: View {
         }
     }
 
-    private var visiblePolls: [Voting.State.RoundListItem] {
+    private var visiblePolls: [RoundListItem] {
         guard store.isOnDefaultConfig else {
             return store.allRounds
         }
@@ -112,7 +112,7 @@ struct PollsListView: View {
         case closed     // round is finalized or tallying — read-only results
     }
 
-    private func cardState(for item: Voting.State.RoundListItem) -> CardState {
+    private func cardState(for item: RoundListItem) -> CardState {
         switch item.session.status {
         case .active:
             return store.voteRecords[item.id] != nil ? .voted : .active
@@ -122,7 +122,7 @@ struct PollsListView: View {
     }
 
     @ViewBuilder
-    private func pollCard(for item: Voting.State.RoundListItem) -> some View {
+    private func pollCard(for item: RoundListItem) -> some View {
         let state = cardState(for: item)
 
         VStack(alignment: .leading, spacing: 16) {
@@ -205,7 +205,7 @@ struct PollsListView: View {
     private static let shadowSm = Color(red: 35.0 / 255.0, green: 31.0 / 255.0, blue: 32.0 / 255.0).opacity(0.04)
 
     @ViewBuilder
-    private func issuerTrustIndicator(for item: Voting.State.RoundListItem) -> some View {
+    private func issuerTrustIndicator(for item: RoundListItem) -> some View {
         if store.isOnDefaultConfig, store.zodlEndorsedRoundIds.contains(item.id) {
             zodlTrustIndicator()
         } else if !store.isOnDefaultConfig {
@@ -306,7 +306,7 @@ struct PollsListView: View {
 
     // MARK: - Date Label
 
-    private func dateLabel(for state: CardState, item: Voting.State.RoundListItem) -> String {
+    private func dateLabel(for state: CardState, item: RoundListItem) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
         let session = item.session
@@ -342,7 +342,7 @@ struct PollsListView: View {
         }
     }
 
-    private func tapPollCard(for item: Voting.State.RoundListItem, state: CardState) {
+    private func tapPollCard(for item: RoundListItem, state: CardState) {
         switch state {
         case .active:
             store.send(.roundTapped(item.id))
@@ -354,7 +354,7 @@ struct PollsListView: View {
     }
 
     private func pollCardAccessibilityLabel(
-        for item: Voting.State.RoundListItem,
+        for item: RoundListItem,
         state: CardState
     ) -> String {
         let status = pollStatusPillStyle(for: state).label

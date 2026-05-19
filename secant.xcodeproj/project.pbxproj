@@ -2622,6 +2622,11 @@
 		9EEBF8912FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
 		9EEBF8922FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
 		9EEBF8932FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF89B2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89C2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89D2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89E2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89F2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
 		A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */; };
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
 		AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00112D00000100000002 /* VotingSubmissionTests.swift */; };
@@ -3209,6 +3214,7 @@
 		9EEBF8752FBC650D00DD38DB /* RoundSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundSession.swift; sourceTree = "<group>"; };
 		9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowStore.swift; sourceTree = "<group>"; };
 		9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowView.swift; sourceTree = "<group>"; };
+		9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundListItem.swift; sourceTree = "<group>"; };
 		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
 		A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingServiceConfigTests.swift; sourceTree = "<group>"; };
@@ -4529,6 +4535,7 @@
 				34AA6D562F85774F00D244E2 /* WalletConfig.swift */,
 				9E27153E2F88FB1E00046B74 /* WalletStatus.swift */,
 				9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */,
+				9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -6624,6 +6631,7 @@
 				34AA74202F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA74212F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA74222F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89E2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA74232F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA74242F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA74252F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -7093,6 +7101,7 @@
 				34AA70BC2F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA70BD2F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA70BE2F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89C2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA70BF2F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA70C02F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA70C12F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -7625,6 +7634,7 @@
 				34AA75B62F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA75B72F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA75B82F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89F2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA75B92F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA75BA2F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA75BB2F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -8094,6 +8104,7 @@
 				34AA72522F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA72532F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA72542F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89D2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA72552F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA72562F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA72572F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -8563,6 +8574,7 @@
 				34AA6EEE2F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA6EEF2F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA6EF02F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89B2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA6EF12F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA6EF22F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA6EF32F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
