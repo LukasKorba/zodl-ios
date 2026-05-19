@@ -127,7 +127,7 @@ struct VotingView: View {
         case .noRounds:
             NoRoundsView(store: store)
         case .pollsList:
-            PollsListView(store: store)
+            LegacyPollsListView(store: store)
         case .delegationSigning:
             DelegationSigningView(store: store)
         case .proposalList:

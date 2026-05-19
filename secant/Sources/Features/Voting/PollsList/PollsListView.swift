@@ -1,13 +1,24 @@
+//
+//  PollsListView.swift
+//  Zashi
+//
+
 import SwiftUI
 import ComposableArchitecture
 
+/// Renders the list of voting rounds returned by the voting service.
+///
+/// Bound to the new `VotingCoordFlow` parent reducer. Card layout mirrors
+/// the legacy view (`LegacyPollsListView`) one-to-one; the difference is
+/// the data binding flows from `VotingCoordFlow.State` rather than the old
+/// monolithic `Voting.State`.
 struct PollsListView: View {
     @Environment(\.colorScheme)
     var colorScheme
     @State private var loadErrorSheetPresented = true
     @State private var dismissFlowAfterLoadErrorSheetDismiss = false
 
-    let store: StoreOf<Voting>
+    let store: StoreOf<VotingCoordFlow>
 
     var body: some View {
         WithPerceptionTracking {
@@ -17,9 +28,9 @@ struct PollsListView: View {
                     if store.pollsLoadError || visiblePolls.isEmpty {
                         PollsListSkeletonCard()
                     } else {
-                        // Newest polls first. allRounds is stored ascending so the
-                        // assigned round numbers stay sane (round 1 = oldest), but
-                        // the list shows the latest at the top.
+                        // Newest polls first. `allRounds` is stored ascending
+                        // so assigned round numbers stay sane (round 1 =
+                        // oldest), but the list shows the latest at the top.
                         ForEach(Array(visiblePolls.reversed()), id: \.id) { item in
                             pollCard(for: item)
                         }
@@ -132,17 +143,16 @@ struct PollsListView: View {
                 Spacer()
                 Text(dateLabel(for: state, item: item))
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                    .tracking(-0.224) // -1.6% × 14pt
+                    .tracking(-0.224)
             }
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(item.title)
                     .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                    .tracking(-0.256) // -1.6% × 16pt
+                    .tracking(-0.256)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // "Poll Description" label + description
             if !item.session.description.isEmpty {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(localizable: .coinVoteCommonPollDescription)
@@ -364,31 +374,6 @@ struct PollsListView: View {
 
     private func pollCardAccessibilityHint(for state: CardState) -> String {
         cardActionTitle(for: state)
-    }
-}
-
-struct PollsListSkeletonCard: View {
-    @Environment(\.colorScheme)
-    var colorScheme
-
-    var body: some View {
-        let barFill = Design.Surfaces.bgTertiary.color(colorScheme)
-        return VStack(alignment: .leading, spacing: 14) {
-            RoundedRectangle(cornerRadius: 4).fill(barFill).frame(width: 80, height: 12)
-            VStack(alignment: .leading, spacing: 10) {
-                RoundedRectangle(cornerRadius: 4).fill(barFill).frame(height: 12)
-                RoundedRectangle(cornerRadius: 4).fill(barFill).frame(height: 12)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(barFill)
-                    .frame(width: 240, height: 12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            RoundedRectangle(cornerRadius: 4).fill(barFill).frame(width: 60, height: 12)
-        }
-        .padding(Design.Spacing._xl)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
     }
 }
 

@@ -61,7 +61,7 @@ struct VotingCoordFlowView: View {
         case .noRounds:
             Text("No rounds")
         case .pollsList:
-            Text("Polls list")
+            PollsListView(store: store)
         case .walletSyncing:
             Text("Wallet syncing")
         case let .error(message):

@@ -167,6 +167,19 @@ extension VotingCoordFlow {
             case .openConfigSettings:
                 state.path.append(.configSettings(VotingConfigSettings.State()))
                 return .none
+
+            case .roundTapped:
+                // TODO Phase 3d: cache lookup, push to .proposalList (active),
+                // .results (finalized), .tallying (tallying), or .ineligible.
+                // For now this is a no-op so the polls list view compiles
+                // against the new store.
+                return .none
+
+            case .viewMyVotesTapped:
+                // TODO Phase 3d: same destination logic as .roundTapped but
+                // forces review-mode on the proposal list so the user sees
+                // their submitted votes read-only.
+                return .none
             }
         }
     }

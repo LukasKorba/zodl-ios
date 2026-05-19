@@ -75,6 +75,16 @@ struct VotingCoordFlow {
         /// loaded list (if any) remains visible behind it.
         var pollsLoadError: Bool = false
 
+        /// Round ids endorsed by Zodl (fetched from the bundled service
+        /// config). On the default chain, only endorsed rounds are listed
+        /// and any non-endorsed entry surfaces an unverified-poll warning.
+        var zodlEndorsedRoundIds: Set<String> = []
+
+        /// Whether the user is on the default (Zodl-bundled) voting service
+        /// vs a custom override pinned via VotingConfigSettings. Drives the
+        /// trust-indicator UI on the polls list cards.
+        var isOnDefaultConfig: Bool { votingConfigOverrideURL.isEmpty }
+
         @Shared(.inMemory(.selectedWalletAccount))
         var selectedWalletAccount: WalletAccount?
 
@@ -110,6 +120,8 @@ struct VotingCoordFlow {
         case roundsLoadFailed
         case configUnsupported(String)
         case initializeFailed(String)
+        case roundTapped(String)
+        case viewMyVotesTapped(roundId: String)
     }
 
     @Dependency(\.votingAPI) var votingAPI
