@@ -168,17 +168,41 @@ extension VotingCoordFlow {
                 state.path.append(.configSettings(VotingConfigSettings.State()))
                 return .none
 
-            case .roundTapped:
-                // TODO Phase 3d: cache lookup, push to .proposalList (active),
-                // .results (finalized), .tallying (tallying), or .ineligible.
-                // For now this is a no-op so the polls list view compiles
-                // against the new store.
+            case .roundTapped(let roundId):
+                // Route by round status. Voted rounds in active phase
+                // surface read-only review; not-yet-voted rounds go to the
+                // voting list; tallying/finalized rounds skip the proposal
+                // list entirely and land on the status screen.
+                guard let item = state.allRounds.first(where: { $0.id == roundId }) else {
+                    return .none
+                }
+                // TODO Phase 4: kick off witness/hotkey/weight pipeline on
+                // cache miss; consult `state.roundCache[roundId]` first to
+                // skip the pipeline on re-entry.
+                switch item.session.status {
+                case .active:
+                    if state.voteRecords[roundId] != nil {
+                        state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
+                    } else {
+                        state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
+                    }
+                case .tallying:
+                    state.path.append(.tallying(Tallying.State(roundId: roundId)))
+                case .finalized:
+                    state.path.append(.results(Results.State(roundId: roundId)))
+                case .unspecified:
+                    // Defensive: an unknown status shouldn't be tappable, but
+                    // if it is, drop the tap rather than push an arbitrary
+                    // destination.
+                    return .none
+                }
                 return .none
 
-            case .viewMyVotesTapped:
-                // TODO Phase 3d: same destination logic as .roundTapped but
-                // forces review-mode on the proposal list so the user sees
-                // their submitted votes read-only.
+            case .viewMyVotesTapped(let roundId):
+                // Explicit user intent to view submitted votes in read-only
+                // form. Always routes to reviewVotes regardless of round
+                // status (active or finalized — both have a vote record).
+                state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
                 return .none
             }
         }
