@@ -255,11 +255,11 @@ extension Settings {
                 var votingState = VotingCoordFlow.State()
                 votingState.isKeystoneUser = state.isKeystoneAccount
                 votingState.walletId = account.id.id.map { String(format: "%02x", $0) }.joined()
-                state.path.append(.votingCoordFlow(votingState))
+                state.votingCoordFlow = votingState
                 return .none
 
-            case .path(.element(id: _, action: .votingCoordFlow(.dismissFlow))):
-                let _ = state.path.popLast()
+            case .votingCoordFlow(.presented(.dismissFlow)):
+                state.votingCoordFlow = nil
                 return .none
             #endif
 

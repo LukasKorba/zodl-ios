@@ -157,10 +157,6 @@ struct SettingsView: View {
                     TorSetupView(store: store)
                 case let .voting(store):
                     VotingView(store: store)
-                #if DEBUG
-                case let .votingCoordFlow(store):
-                    VotingCoordFlowView(store: store)
-                #endif
                 case let .whatsNew(store):
                     WhatsNewView(store: store)
                 }
@@ -175,6 +171,13 @@ struct SettingsView: View {
             .zashiSheet(isPresented: $store.isResyncHelpSheetPresented) {
                 resyncHelpSheetContent()
             }
+            #if DEBUG
+            .fullScreenCover(
+                item: $store.scope(state: \.votingCoordFlow, action: \.votingCoordFlow)
+            ) { votingStore in
+                VotingCoordFlowView(store: votingStore)
+            }
+            #endif
         }
     }
     
