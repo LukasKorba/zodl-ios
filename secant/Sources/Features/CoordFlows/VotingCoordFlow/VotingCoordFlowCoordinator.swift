@@ -250,9 +250,18 @@ extension VotingCoordFlow {
 
             case .submitAllDraftsTapped:
                 // TODO Phase 5: real submission pipeline (auth → delegation
-                // proof → per-vote ZKPs → share delegation → success). For
-                // now, just log so we can verify the navigation contract.
-                LoggerProxy.info("submitAllDraftsTapped — pipeline pending Phase 5")
+                // proof → per-vote ZKPs → share delegation → success).
+                // Until then, surface an alert so the DEBUG entry doesn't
+                // silently swallow the tap and so testers route to the
+                // legacy Coinholder Polling entry for actual votes.
+                state.submissionAlert = AlertState {
+                    TextState("Submission not wired yet")
+                } message: {
+                    TextState("The new voting flow's submission pipeline lands in Phase 5. To submit votes today, use the legacy 'Coinholder Polling' entry in Settings.")
+                }
+                return .none
+
+            case .submissionAlert:
                 return .none
 
                 // MARK: - Tally results

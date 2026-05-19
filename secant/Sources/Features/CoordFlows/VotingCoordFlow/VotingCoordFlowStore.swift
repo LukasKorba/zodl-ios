@@ -95,6 +95,13 @@ struct VotingCoordFlow {
         /// round.
         var pendingPipelineRoundId: String?
 
+        /// Alert surfaced when the user taps Submit but the new flow's
+        /// submission pipeline is not yet wired (Phase 5). Production users
+        /// should use the legacy Coinholder Polling entry until Phase 5
+        /// ships; this alert exists so the DEBUG entry doesn't silently
+        /// swallow the Submit tap.
+        @Presents var submissionAlert: AlertState<Never>?
+
         @Shared(.inMemory(.selectedWalletAccount))
         var selectedWalletAccount: WalletAccount?
 
@@ -145,6 +152,7 @@ struct VotingCoordFlow {
         case fetchTallyResults(roundId: String)
         case tallyResultsLoaded(roundId: String, results: [UInt32: TallyResult])
         case tallyResultsFailed(roundId: String, message: String)
+        case submissionAlert(PresentationAction<Never>)
     }
 
     @Dependency(\.databaseFiles) var databaseFiles
@@ -165,5 +173,6 @@ struct VotingCoordFlow {
     var body: some Reducer<State, Action> {
         coordinatorReduce()
             .forEach(\.path, action: \.path)
+            .ifLet(\.$submissionAlert, action: \.submissionAlert)
     }
 }

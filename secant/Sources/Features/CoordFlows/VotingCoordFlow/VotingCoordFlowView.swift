@@ -59,6 +59,7 @@ struct VotingCoordFlowView: View {
                     }
                 }
             }
+            .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
         }
     }
 
