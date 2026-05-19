@@ -19,6 +19,15 @@ directly impact users rather than highlighting other crucial architectural updat
 - Hardened ServerHealthTracker by removing force-unwraps that could have crashed on stale server entries.
 - Cancelled in-flight vote submissions when the user dismisses the voting flow.
 
+## 3.4.1 build 1 (2026-05-18)
+
+### Changed
+- We updated the copy on the shielding Wallet Status Widget from "Transparent Balance Detected" to "Unshielded Balance" so it's easier to understand at a glance.
+
+### Fixed
+- We fixed a bug that prevented shielding when many small transparent inputs were involved.
+- We fixed a broken Restore Wallet flow when switching Tor ON in the Tor sheet — the Restore button now takes you to the next screen in both Tor ON and Tor OFF cases.
+
 ## 3.4.0 build 1 (2026-05-11)
 
 ### Added
