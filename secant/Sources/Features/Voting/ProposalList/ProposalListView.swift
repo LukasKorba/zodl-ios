@@ -55,6 +55,7 @@ struct ProposalListView: View {
                 .padding(.top, 12)
                 .padding(.bottom, 24)
             }
+            .padding(.vertical, 1)
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
             .zashiBack()

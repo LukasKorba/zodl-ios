@@ -63,6 +63,7 @@ struct VotingConfigSettingsView: View {
                     .padding(.top, 12)
                     .padding(.bottom, 24)
                 }
+                .padding(.vertical, 1)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                 bottomBar

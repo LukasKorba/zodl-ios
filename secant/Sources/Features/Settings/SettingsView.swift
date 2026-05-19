@@ -175,7 +175,12 @@ struct SettingsView: View {
             .fullScreenCover(
                 item: $store.scope(state: \.votingCoordFlow, action: \.votingCoordFlow)
             ) { votingStore in
-                VotingCoordFlowView(store: votingStore)
+                // fullScreenCover content is an escaping closure — needs its
+                // own WithPerceptionTracking so reads inside the presented
+                // store register with TCA's observation system.
+                WithPerceptionTracking {
+                    VotingCoordFlowView(store: votingStore)
+                }
             }
             #endif
         }

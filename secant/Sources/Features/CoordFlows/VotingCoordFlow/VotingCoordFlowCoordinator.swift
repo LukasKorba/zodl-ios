@@ -18,6 +18,25 @@ extension VotingCoordFlow {
 
                 // MARK: - Path
 
+            case .path(.element(id: _, action: .configSettings(.delegate(.dismiss)))):
+                // VotingConfigSettings emits `.delegate(.dismiss)` from its
+                // back button; pop the settings push so the user returns to
+                // the polls list. Re-fetch is handled by `.delegate(.saved)`
+                // separately (Phase 4+).
+                if !state.path.isEmpty {
+                    state.path.removeLast()
+                }
+                return .none
+
+            case .path(.element(id: _, action: .configSettings(.delegate(.saved)))):
+                // Save closes the settings screen and re-runs initialize so
+                // the new pinned config takes effect.
+                if !state.path.isEmpty {
+                    state.path.removeLast()
+                }
+                state.rootScreen = .loading
+                return .send(.initialize)
+
             case .path:
                 return .none
 

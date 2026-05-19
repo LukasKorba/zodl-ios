@@ -39,6 +39,7 @@ struct PollsListView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
             }
+            .padding(.vertical, 1)
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
             .zashiBack { store.send(.dismissFlow) }

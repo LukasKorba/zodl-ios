@@ -19,46 +19,48 @@ struct VotingCoordFlowView: View {
                 rootContent
                     .onAppear { store.send(.onAppear) }
             } destination: { destinationStore in
-                // Pushed screens read both their path-scoped state (just
-                // `roundId` for most cases) and the parent store's shared
-                // round cache. The parent `store` is captured from the outer
-                // closure so destinations can resolve their data via roundId.
-                switch destinationStore.case {
-                case let .proposalList(scoped):
-                    ProposalListView(
-                        store: store,
-                        roundId: scoped.roundId,
-                        mode: .voting
-                    )
-                case let .proposalDetail(scoped):
-                    ProposalDetailView(
-                        store: store,
-                        roundId: scoped.roundId,
-                        proposalId: scoped.proposalId
-                    )
-                case let .reviewVotes(scoped):
-                    ProposalListView(
-                        store: store,
-                        roundId: scoped.roundId,
-                        mode: .review
-                    )
-                case .confirmSubmission:
-                    // TODO Phase 4f.
-                    Text("Confirm submission")
-                case .delegationSigning:
-                    // TODO Phase 5.
-                    Text("Delegation signing")
-                case .tallying:
-                    // TODO Phase 6.
-                    Text("Tallying")
-                case .results:
-                    // TODO Phase 6.
-                    Text("Results")
-                case .ineligible:
-                    // TODO Phase 7.
-                    Text("Ineligible")
-                case let .configSettings(configStore):
-                    VotingConfigSettingsView(store: configStore)
+                // NavigationStack's destination closure is escaping; it needs
+                // its own WithPerceptionTracking so reads from
+                // `destinationStore` and the captured parent `store` register
+                // with TCA's observation machinery.
+                WithPerceptionTracking {
+                    switch destinationStore.case {
+                    case let .proposalList(scoped):
+                        ProposalListView(
+                            store: store,
+                            roundId: scoped.roundId,
+                            mode: .voting
+                        )
+                    case let .proposalDetail(scoped):
+                        ProposalDetailView(
+                            store: store,
+                            roundId: scoped.roundId,
+                            proposalId: scoped.proposalId
+                        )
+                    case let .reviewVotes(scoped):
+                        ProposalListView(
+                            store: store,
+                            roundId: scoped.roundId,
+                            mode: .review
+                        )
+                    case .confirmSubmission:
+                        // TODO Phase 4f.
+                        Text("Confirm submission")
+                    case .delegationSigning:
+                        // TODO Phase 5.
+                        Text("Delegation signing")
+                    case .tallying:
+                        // TODO Phase 6.
+                        Text("Tallying")
+                    case .results:
+                        // TODO Phase 6.
+                        Text("Results")
+                    case .ineligible:
+                        // TODO Phase 7.
+                        Text("Ineligible")
+                    case let .configSettings(configStore):
+                        VotingConfigSettingsView(store: configStore)
+                    }
                 }
             }
         }
