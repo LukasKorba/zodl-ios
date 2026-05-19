@@ -34,6 +34,12 @@ struct RoundSession: Equatable {
     /// address every time for a given (wallet, round) pair.
     var hotkeyAddress: String?
 
+    /// Draft votes the user has selected but not yet submitted. Keyed by
+    /// proposal id. Hydrated from the encrypted voting metadata file on
+    /// round entry; mutations write through to disk so drafts survive an
+    /// app restart.
+    var draftVotes: [UInt32: VoteChoice] = [:]
+
     // Phase 4c+ will add: witnessResults, delegationProofStatus,
     // delegationPrecomputeStatus, bundleCount, tallyResults, voteRecord,
     // draftVotes, etc. Each addition stays append-only — once a field is

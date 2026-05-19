@@ -197,6 +197,14 @@ extension VotingCoordFlow {
                 }
                 switch item.session.status {
                 case .active:
+                    // Hydrate drafts from disk on every entry — they may have
+                    // been edited from a different surface or app session.
+                    let drafts = Voting.loadDrafts(roundId: roundId)
+                    if state.roundCache[roundId] == nil {
+                        state.roundCache[roundId] = RoundSession(roundId: roundId)
+                    }
+                    state.roundCache[roundId]?.draftVotes = drafts
+
                     if state.voteRecords[roundId] != nil {
                         // Already submitted — review-mode read-only, no
                         // pipeline needed.
@@ -234,6 +242,18 @@ extension VotingCoordFlow {
                         ProposalDetail.State(roundId: roundId, proposalId: proposalId)
                     )
                 )
+                return .none
+
+            case let .draftVoteSet(roundId, proposalId, choice):
+                // Write through to cache + disk so the choice survives both
+                // navigation pops and app restarts. Snapshot the drafts
+                // before persisting so the disk call runs without holding
+                // the inout state reference.
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)]
+                    .draftVotes[proposalId] = choice
+                let drafts = state.roundCache[roundId]?.draftVotes ?? [:]
+                let account = state.selectedWalletAccount?.account
+                Voting.persistDrafts(drafts, roundId: roundId, account: account)
                 return .none
 
                 // MARK: - Per-round pipeline
