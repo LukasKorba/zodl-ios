@@ -176,33 +176,181 @@ extension VotingCoordFlow {
                 guard let item = state.allRounds.first(where: { $0.id == roundId }) else {
                     return .none
                 }
-                // TODO Phase 4: kick off witness/hotkey/weight pipeline on
-                // cache miss; consult `state.roundCache[roundId]` first to
-                // skip the pipeline on re-entry.
                 switch item.session.status {
                 case .active:
                     if state.voteRecords[roundId] != nil {
+                        // Already submitted — review-mode read-only, no
+                        // pipeline needed.
                         state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                    } else {
-                        state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
+                        return .none
                     }
+                    state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
+                    // Cache check: skip pipeline if hotkey is already
+                    // populated for this round. Re-entry within the same
+                    // session is instant.
+                    if let cached = state.roundCache[roundId], cached.hotkeyAddress != nil {
+                        return .none
+                    }
+                    return .send(.startActiveRoundPipeline(roundId: roundId))
                 case .tallying:
                     state.path.append(.tallying(Tallying.State(roundId: roundId)))
+                    return .none
                 case .finalized:
                     state.path.append(.results(Results.State(roundId: roundId)))
+                    return .none
                 case .unspecified:
-                    // Defensive: an unknown status shouldn't be tappable, but
-                    // if it is, drop the tap rather than push an arbitrary
-                    // destination.
                     return .none
                 }
-                return .none
 
             case .viewMyVotesTapped(let roundId):
                 // Explicit user intent to view submitted votes in read-only
                 // form. Always routes to reviewVotes regardless of round
                 // status (active or finalized — both have a vote record).
                 state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
+                return .none
+
+                // MARK: - Per-round pipeline
+
+            case .startActiveRoundPipeline(let roundId):
+                guard let item = state.allRounds.first(where: { $0.id == roundId }),
+                      item.session.status == .active else {
+                    return .none
+                }
+                let session = item.session
+                let snapshotHeight = session.snapshotHeight
+                let network = zcashSDKEnvironment.network
+                let walletDbPath = databaseFiles.dataDbURLFor(network).path
+                let networkId: UInt32 = network.networkType.votingRustNetworkId
+                let accountId = state.selectedWalletAccount?.id
+                let accountUUID: [UInt8] = accountId?.id ?? []
+
+                // Seed the cache entry so subsequent re-entries see an
+                // in-progress session and don't trigger duplicate pipelines.
+                if state.roundCache[roundId] == nil {
+                    state.roundCache[roundId] = RoundSession(roundId: roundId)
+                }
+                state.pendingPipelineRoundId = roundId
+
+                return .run { [votingCrypto, mnemonic, walletStorage, sdkSynchronizer] send in
+                    // 1. Wallet sync gate.
+                    //
+                    // Spend-before-Sync scans both head-first and birthday-
+                    // first in parallel — a `latestScannedHeight` past the
+                    // snapshot from the head doesn't imply the snapshot
+                    // itself has been scanned. We need the contiguous-from-
+                    // birthday `fullyScannedHeight` instead. The SDK
+                    // synchronizer may report 0 briefly on cold start before
+                    // it hydrates state — retry a few times.
+                    var walletScannedHeight = UInt64(sdkSynchronizer.latestState().fullyScannedHeight)
+                    if walletScannedHeight == 0 {
+                        for _ in 0..<5 {
+                            try await Task.sleep(for: .seconds(1))
+                            walletScannedHeight = UInt64(sdkSynchronizer.latestState().fullyScannedHeight)
+                            if walletScannedHeight > 0 { break }
+                        }
+                    }
+                    if walletScannedHeight < snapshotHeight {
+                        await send(
+                            .walletNotSynced(
+                                roundId: roundId,
+                                scannedHeight: walletScannedHeight,
+                                snapshotHeight: snapshotHeight
+                            )
+                        )
+                        return
+                    }
+
+                    // 2. Notes + weight.
+                    let notes = try await votingCrypto.getWalletNotes(
+                        walletDbPath,
+                        snapshotHeight,
+                        networkId,
+                        accountUUID
+                    )
+                    let totalWeight = notes.reduce(UInt64(0)) { $0 + $1.value }
+                    await send(.votingWeightLoaded(roundId: roundId, weight: totalWeight, notes: notes))
+
+                    // 3. Hotkey: load or generate the per-account hotkey
+                    // mnemonic, then derive this round's hotkey address.
+                    guard let accountId else {
+                        LoggerProxy.error("No selected account; skipping voting hotkey generation")
+                        return
+                    }
+                    let phrase: String
+                    if let stored = try? walletStorage.exportVotingHotkey(accountId) {
+                        phrase = stored.seedPhrase.value()
+                    } else {
+                        phrase = try mnemonic.randomMnemonic()
+                        try walletStorage.importVotingHotkey(phrase, accountId)
+                    }
+                    let seed = try mnemonic.toSeed(phrase)
+                    let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
+                    await send(.hotkeyLoaded(roundId: roundId, address: hotkey.address))
+                } catch: { error, send in
+                    LoggerProxy.error("Active round pipeline failed: \(error)")
+                    await send(.pipelineFailed(roundId: roundId, message: error.localizedDescription))
+                }
+                .cancellable(id: cancelPipelineId, cancelInFlight: true)
+
+            case let .walletNotSynced(roundId, scannedHeight, snapshotHeight):
+                // Pop any pushed screens — the user can't proceed into the
+                // round until the wallet catches up. Show the WalletSyncing
+                // root. Once synced, the polling loop restarts the pipeline
+                // and re-pushes the proposal list.
+                state.path.removeAll()
+                state.walletScannedHeight = scannedHeight
+                state.pendingPipelineRoundId = roundId
+                state.rootScreen = .walletSyncing
+                return .run { [sdkSynchronizer] send in
+                    while !Task.isCancelled {
+                        try await Task.sleep(for: .seconds(2))
+                        let height = UInt64(sdkSynchronizer.latestState().fullyScannedHeight)
+                        await send(.walletSyncProgressUpdated(height: height))
+                        if height >= snapshotHeight {
+                            await send(.startActiveRoundPipeline(roundId: roundId))
+                            return
+                        }
+                    }
+                } catch: { _, _ in }
+                .cancellable(id: cancelPipelineId, cancelInFlight: true)
+
+            case .walletSyncProgressUpdated(let height):
+                state.walletScannedHeight = height
+                // When sync catches up while user is on the walletSyncing
+                // screen, restore the polls-list root and push the proposal
+                // list before the pipeline action lands (visually the user
+                // sees the polls list briefly then the proposal list).
+                if state.rootScreen == .walletSyncing,
+                   let roundId = state.pendingPipelineRoundId,
+                   let item = state.allRounds.first(where: { $0.id == roundId }),
+                   height >= item.session.snapshotHeight {
+                    state.rootScreen = .pollsList
+                    state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
+                }
+                return .none
+
+            case let .votingWeightLoaded(roundId, weight, notes):
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].votingWeight = weight
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].walletNotes = notes
+                return .none
+
+            case let .hotkeyLoaded(roundId, address):
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].hotkeyAddress = address
+                if state.pendingPipelineRoundId == roundId {
+                    state.pendingPipelineRoundId = nil
+                }
+                return .none
+
+            case let .pipelineFailed(roundId, message):
+                // Pop the proposal list back to the polls list and surface
+                // the error as the blocking error root. Cache stays around
+                // (we just won't claim a hotkey was loaded); user can retry
+                // by tapping the round again.
+                if state.pendingPipelineRoundId == roundId {
+                    state.pendingPipelineRoundId = nil
+                }
+                state.path.removeAll()
+                state.rootScreen = .error(message)
                 return .none
             }
         }

@@ -85,6 +85,16 @@ struct VotingCoordFlow {
         /// trust-indicator UI on the polls list cards.
         var isOnDefaultConfig: Bool { votingConfigOverrideURL.isEmpty }
 
+        /// Current wallet scan progress, used by the WalletSyncing root
+        /// screen. Updated by the sync-progress polling loop while the user
+        /// waits for the wallet to reach a round's snapshot height.
+        var walletScannedHeight: UInt64 = 0
+
+        /// The roundId whose pipeline is gated on wallet sync. Restored once
+        /// the wallet catches up so we re-trigger the pipeline for the right
+        /// round.
+        var pendingPipelineRoundId: String?
+
         @Shared(.inMemory(.selectedWalletAccount))
         var selectedWalletAccount: WalletAccount?
 
@@ -122,6 +132,12 @@ struct VotingCoordFlow {
         case initializeFailed(String)
         case roundTapped(String)
         case viewMyVotesTapped(roundId: String)
+        case startActiveRoundPipeline(roundId: String)
+        case walletNotSynced(roundId: String, scannedHeight: UInt64, snapshotHeight: UInt64)
+        case walletSyncProgressUpdated(height: UInt64)
+        case votingWeightLoaded(roundId: String, weight: UInt64, notes: [NoteInfo])
+        case hotkeyLoaded(roundId: String, address: String)
+        case pipelineFailed(roundId: String, message: String)
     }
 
     @Dependency(\.databaseFiles) var databaseFiles
