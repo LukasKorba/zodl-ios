@@ -136,6 +136,13 @@ struct PollsListView: View {
 
     @ViewBuilder
     private func pollCard(for item: RoundListItem) -> some View {
+        WithPerceptionTracking {
+            pollCardBody(for: item)
+        }
+    }
+
+    @ViewBuilder
+    private func pollCardBody(for item: RoundListItem) -> some View {
         let state = cardState(for: item)
 
         VStack(alignment: .leading, spacing: 16) {
