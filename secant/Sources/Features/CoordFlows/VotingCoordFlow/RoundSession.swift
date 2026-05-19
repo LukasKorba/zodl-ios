@@ -40,6 +40,16 @@ struct RoundSession: Equatable {
     /// app restart.
     var draftVotes: [UInt32: VoteChoice] = [:]
 
+    /// Per-proposal tally results from the voting service. Cached for
+    /// finalized rounds — these are immutable post-finalization, so we
+    /// never refetch them once populated.
+    var tallyResults: [UInt32: TallyResult] = [:]
+
+    /// True when a tally fetch has been initiated for this round (so the
+    /// Results view doesn't show "loading" indefinitely after the response
+    /// arrives empty).
+    var tallyFetched: Bool = false
+
     // Phase 4c+ will add: witnessResults, delegationProofStatus,
     // delegationPrecomputeStatus, bundleCount, tallyResults, voteRecord,
     // draftVotes, etc. Each addition stays append-only — once a field is

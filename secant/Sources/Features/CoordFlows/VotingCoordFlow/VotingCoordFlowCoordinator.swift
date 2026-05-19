@@ -255,6 +255,38 @@ extension VotingCoordFlow {
                 LoggerProxy.info("submitAllDraftsTapped — pipeline pending Phase 5")
                 return .none
 
+                // MARK: - Tally results
+
+            case let .fetchTallyResults(roundId):
+                // Cache hit on finalized round = no refetch. Tally results
+                // are immutable post-finalization.
+                if let cached = state.roundCache[roundId], cached.tallyFetched {
+                    return .none
+                }
+                if state.roundCache[roundId] == nil {
+                    state.roundCache[roundId] = RoundSession(roundId: roundId)
+                }
+                return .run { [votingAPI] send in
+                    do {
+                        let results = try await votingAPI.fetchTallyResults(roundId)
+                        await send(.tallyResultsLoaded(roundId: roundId, results: results))
+                    } catch {
+                        LoggerProxy.error("Failed to fetch tally results: \(error)")
+                        await send(.tallyResultsFailed(roundId: roundId, message: error.localizedDescription))
+                    }
+                }
+
+            case let .tallyResultsLoaded(roundId, results):
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)]
+                    .tallyResults = results
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)]
+                    .tallyFetched = true
+                return .none
+
+            case .tallyResultsFailed:
+                // Surface via UI later; for now we just stop "loading".
+                return .none
+
             case let .draftVoteSet(roundId, proposalId, choice):
                 // Write through to cache + disk so the choice survives both
                 // navigation pops and app restarts. Snapshot the drafts

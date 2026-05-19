@@ -48,12 +48,10 @@ struct VotingCoordFlowView: View {
                     case .delegationSigning:
                         // TODO Phase 5.
                         Text("Delegation signing")
-                    case .tallying:
-                        // TODO Phase 6.
-                        Text("Tallying")
-                    case .results:
-                        // TODO Phase 6.
-                        Text("Results")
+                    case let .tallying(scoped):
+                        TallyingView(store: store, roundId: scoped.roundId)
+                    case let .results(scoped):
+                        ResultsView(store: store, roundId: scoped.roundId)
                     case .ineligible:
                         // TODO Phase 7.
                         Text("Ineligible")

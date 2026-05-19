@@ -142,6 +142,9 @@ struct VotingCoordFlow {
         case draftVoteSet(roundId: String, proposalId: UInt32, choice: VoteChoice)
         case submitTapped(roundId: String)
         case submitAllDraftsTapped(roundId: String)
+        case fetchTallyResults(roundId: String)
+        case tallyResultsLoaded(roundId: String, results: [UInt32: TallyResult])
+        case tallyResultsFailed(roundId: String, message: String)
     }
 
     @Dependency(\.databaseFiles) var databaseFiles

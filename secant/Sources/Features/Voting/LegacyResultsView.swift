@@ -48,7 +48,7 @@ private func tallyEntryColor(
     return voteOptionColor(for: option, total: proposal.options.count, colorScheme: colorScheme)
 }
 
-struct ResultsView: View {
+struct LegacyResultsView: View {
     @Environment(\.colorScheme)
     var colorScheme
     @State private var loadErrorSheetPresented = true

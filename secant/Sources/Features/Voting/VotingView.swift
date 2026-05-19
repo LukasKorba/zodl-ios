@@ -146,9 +146,9 @@ struct VotingView: View {
         case .ineligible:
             IneligibleView(store: store)
         case .tallying:
-            TallyingView(store: store)
+            LegacyTallyingView(store: store)
         case .results:
-            ResultsView(store: store)
+            LegacyResultsView(store: store)
         case .error(let message):
             VotingErrorView(store: store, errorMessage: message)
         case .configError(let message):

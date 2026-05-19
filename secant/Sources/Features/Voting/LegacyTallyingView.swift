@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct TallyingView: View {
+struct LegacyTallyingView: View {
     @Environment(\.colorScheme)
     var colorScheme
 
