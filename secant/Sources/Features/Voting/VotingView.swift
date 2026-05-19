@@ -131,10 +131,10 @@ struct VotingView: View {
         case .delegationSigning:
             DelegationSigningView(store: store)
         case .proposalList:
-            ProposalListView(store: store, mode: .voting)
+            LegacyProposalListView(store: store, mode: .voting)
                 .transition(.opacity)
         case .reviewVotes:
-            ProposalListView(store: store, mode: .review)
+            LegacyProposalListView(store: store, mode: .review)
         case .confirmSubmission:
             ConfirmSubmissionView(store: store)
         case .proposalDetail:

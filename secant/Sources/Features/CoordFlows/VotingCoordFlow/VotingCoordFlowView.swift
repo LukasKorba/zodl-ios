@@ -18,26 +18,41 @@ struct VotingCoordFlowView: View {
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 rootContent
                     .onAppear { store.send(.onAppear) }
-            } destination: { store in
-                // TODO Phase 3+: render each pushed screen by binding the
-                // matching child reducer to its real View. Phase 2 renders
-                // a placeholder to verify the architecture compiles.
-                switch store.case {
-                case .proposalList:
-                    Text("Proposal list")
+            } destination: { destinationStore in
+                // Pushed screens read both their path-scoped state (just
+                // `roundId` for most cases) and the parent store's shared
+                // round cache. The parent `store` is captured from the outer
+                // closure so destinations can resolve their data via roundId.
+                switch destinationStore.case {
+                case let .proposalList(scoped):
+                    ProposalListView(
+                        store: store,
+                        roundId: scoped.roundId,
+                        mode: .voting
+                    )
                 case .proposalDetail:
+                    // TODO Phase 4d: real proposal detail view.
                     Text("Proposal detail")
-                case .reviewVotes:
-                    Text("Review votes")
+                case let .reviewVotes(scoped):
+                    ProposalListView(
+                        store: store,
+                        roundId: scoped.roundId,
+                        mode: .review
+                    )
                 case .confirmSubmission:
+                    // TODO Phase 4f.
                     Text("Confirm submission")
                 case .delegationSigning:
+                    // TODO Phase 5.
                     Text("Delegation signing")
                 case .tallying:
+                    // TODO Phase 6.
                     Text("Tallying")
                 case .results:
+                    // TODO Phase 6.
                     Text("Results")
                 case .ineligible:
+                    // TODO Phase 7.
                     Text("Ineligible")
                 case let .configSettings(configStore):
                     VotingConfigSettingsView(store: configStore)
