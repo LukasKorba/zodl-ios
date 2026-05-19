@@ -16,6 +16,26 @@ import Foundation
 /// makes "back" feel like a real pop instead of a teardown.
 struct RoundSession: Equatable {
     let roundId: String
-    // Fields populated incrementally as each phase migrates them off the
-    // monolithic Voting.State. See the migration plan for the full schema.
+
+    // MARK: - Pipeline outputs (Phase 4b populates)
+
+    /// Total voting power for this wallet at the round's snapshot height,
+    /// derived from eligible notes after bundling (5-note bundles, dropped
+    /// if below `ballotDivisor`). Constant across navigation for a given
+    /// (wallet, round) pair until a new snapshot or wallet rescan.
+    var votingWeight: UInt64 = 0
+
+    /// Eligible notes at the round's snapshot height. Cached because the
+    /// SDK query is non-trivial and the snapshot is immutable.
+    var walletNotes: [NoteInfo] = []
+
+    /// Per-round hotkey address derived deterministically from the per-
+    /// account hotkey mnemonic (in the Keychain) and the round id. Same
+    /// address every time for a given (wallet, round) pair.
+    var hotkeyAddress: String?
+
+    // Phase 4c+ will add: witnessResults, delegationProofStatus,
+    // delegationPrecomputeStatus, bundleCount, tallyResults, voteRecord,
+    // draftVotes, etc. Each addition stays append-only — once a field is
+    // populated, navigation pops never clear it.
 }

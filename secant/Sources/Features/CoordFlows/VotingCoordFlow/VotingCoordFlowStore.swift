@@ -124,9 +124,20 @@ struct VotingCoordFlow {
         case viewMyVotesTapped(roundId: String)
     }
 
+    @Dependency(\.databaseFiles) var databaseFiles
+    @Dependency(\.mnemonic) var mnemonic
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.votingAPI) var votingAPI
     @Dependency(\.votingCrypto) var votingCrypto
     @Dependency(\.votingMetadata) var votingMetadata
+    @Dependency(\.walletStorage) var walletStorage
+    @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
+
+    /// Cancellation id for the per-round pipeline (witness verify, hotkey
+    /// derivation, voting weight). Phase 4b's `.startActiveRoundPipeline`
+    /// effect attaches to this so a new round entry or `.dismissFlow` can
+    /// cancel an in-flight pipeline.
+    let cancelPipelineId = UUID()
 
     var body: some Reducer<State, Action> {
         coordinatorReduce()
