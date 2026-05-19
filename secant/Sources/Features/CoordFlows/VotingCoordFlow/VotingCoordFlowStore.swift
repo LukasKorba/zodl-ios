@@ -46,17 +46,60 @@ struct VotingCoordFlow {
         /// voting service config change. See `RoundSession`.
         var roundCache: [String: RoundSession] = [:]
 
+        /// Hex-encoded wallet account identifier, used to scope the voting
+        /// SQLite DB and the encrypted voting metadata file to this wallet.
+        var walletId: String = ""
+
+        /// Whether the currently selected wallet account is a Keystone
+        /// hardware wallet. Drives the signing path (Keystone QR flow vs
+        /// in-app delegation).
+        var isKeystoneUser: Bool = false
+
         init() {}
     }
 
     enum Action {
         case path(StackActionOf<Path>)
+        case onAppear
+        case dismissFlow
+        case howToVoteContinueTapped
+        case retryLoadRounds
+        case openConfigSettings
     }
 
     var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
             case .path:
+                return .none
+
+            case .onAppear:
+                // TODO Phase 3+: load service config, fetch rounds, transition
+                // rootScreen based on result (howToVote first-time, pollsList
+                // when rounds exist, noRounds when empty, walletSyncing when
+                // SDK not caught up, configError on service unavailable).
+                return .none
+
+            case .dismissFlow:
+                // TODO Phase 3+: cancel polling effects, evict roundCache,
+                // dismiss the flow back to Settings.
+                state.roundCache.removeAll()
+                state.path.removeAll()
+                return .none
+
+            case .howToVoteContinueTapped:
+                // TODO Phase 3+: persist the per-account hasSeenHowToVote
+                // flag and re-run `.onAppear` to advance past the intro.
+                return .send(.onAppear)
+
+            case .retryLoadRounds:
+                // TODO Phase 3+: re-issue the rounds fetch from the empty
+                // state.
+                state.rootScreen = .loading
+                return .send(.onAppear)
+
+            case .openConfigSettings:
+                state.path.append(.configSettings(VotingConfigSettings.State()))
                 return .none
             }
         }

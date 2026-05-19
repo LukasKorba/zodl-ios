@@ -2617,6 +2617,11 @@
 		9EEBF8832FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
 		9EEBF8842FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
 		9EEBF8852FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
+		9EEBF88F2FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8902FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8912FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8922FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8932FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
 		A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */; };
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
 		AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00112D00000100000002 /* VotingSubmissionTests.swift */; };
@@ -3203,6 +3208,7 @@
 		9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IneligibleStore.swift; sourceTree = "<group>"; };
 		9EEBF8752FBC650D00DD38DB /* RoundSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundSession.swift; sourceTree = "<group>"; };
 		9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowStore.swift; sourceTree = "<group>"; };
+		9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowView.swift; sourceTree = "<group>"; };
 		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
 		A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingServiceConfigTests.swift; sourceTree = "<group>"; };
@@ -5359,6 +5365,7 @@
 			children = (
 				9EEBF8752FBC650D00DD38DB /* RoundSession.swift */,
 				9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */,
+				9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */,
 			);
 			path = VotingCoordFlow;
 			sourceTree = "<group>";
@@ -6539,6 +6546,7 @@
 				34AA73D82F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA73D92F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA73DB2F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8922FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
 				9EEBF7992FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA73DC2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA73DD2F85774F00D244E2 /* LogStore.swift in Sources */,
@@ -7007,6 +7015,7 @@
 				34AA70742F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA70752F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA70772F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8912FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
 				9EEBF7972FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA70782F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA70792F85774F00D244E2 /* LogStore.swift in Sources */,
@@ -7538,6 +7547,7 @@
 				34AA756E2F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA756F2F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA75712F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8932FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
 				9EEBF79B2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA75722F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA75732F85774F00D244E2 /* LogStore.swift in Sources */,
@@ -8006,6 +8016,7 @@
 				34AA720A2F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA720B2F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA720D2F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8902FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
 				9EEBF79A2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA720E2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA720F2F85774F00D244E2 /* LogStore.swift in Sources */,
@@ -8474,6 +8485,7 @@
 				34AA6EA62F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA6EA72F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA6EA92F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF88F2FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
 				9EEBF7982FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA6EAA2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA6EAB2F85774F00D244E2 /* LogStore.swift in Sources */,
