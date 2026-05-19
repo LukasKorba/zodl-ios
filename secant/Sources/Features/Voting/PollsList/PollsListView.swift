@@ -91,10 +91,11 @@ struct PollsListView: View {
     }
 
     private var visiblePolls: [RoundListItem] {
-        guard store.isOnDefaultConfig else {
-            return store.allRounds
-        }
-        return store.allRounds.filter { store.zodlEndorsedRoundIds.contains($0.id) }
+        // TODO Phase 4+: re-apply the Zodl endorsement filter once the
+        // parent reducer fetches `zodlEndorsedRoundIds` from the bundled
+        // config. For now we surface every round so the polls list isn't
+        // empty during demo.
+        store.allRounds
     }
 
     // MARK: - Load Error Sheet

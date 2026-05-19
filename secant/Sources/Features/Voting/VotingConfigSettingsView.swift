@@ -48,9 +48,6 @@ struct VotingConfigSettingsView: View {
     var body: some View {
         WithPerceptionTracking {
             VStack(spacing: 0) {
-                header
-                    .padding(.vertical, 12)
-
                 ScrollView {
                     VStack(spacing: 24) {
                         sourceListHeader
@@ -75,6 +72,8 @@ struct VotingConfigSettingsView: View {
             }
             .padding(.horizontal, 24)
             .applyScreenBackground()
+            .screenTitle(String(localized: "Select Data Source"))
+            .zashiBack { store.send(.dismissTapped) }
             .zashiSheet(
                 isPresented: addCustomChainSheetBinding,
                 horizontalPadding: 0,
@@ -108,33 +107,6 @@ struct VotingConfigSettingsView: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private var header: some View {
-        ZStack {
-            Text(String(localized: "SELECT DATA SOURCE"))
-                .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                .textCase(.uppercase)
-                .tracking(-0.176)
-
-            HStack {
-                Button {
-                    store.send(.dismissTapped)
-                } label: {
-                    Asset.Assets.Icons.arrowNarrowLeft.image
-                        .zImage(size: 20, style: Design.Text.primary)
-                        .padding(8)
-                        .background {
-                            RoundedRectangle(cornerRadius: Design.Radius._md)
-                                .fill(Design.Btns.Ghost.bg.color(colorScheme))
-                        }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(String(localized: "Back"))
-
-                Spacer()
-            }
-        }
     }
 
     private var defaultChainOption: some View {
