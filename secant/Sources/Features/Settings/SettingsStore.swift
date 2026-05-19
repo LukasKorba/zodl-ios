@@ -43,13 +43,11 @@ struct Settings {
         var isResyncHelpSheetPresented = false
         var isTorOn = false
         var path = StackState<Path.State>()
-        #if DEBUG
-        /// DEBUG-only fullScreenCover for the new voting CoordFlow, so we can
-        /// test it side-by-side with the legacy flow without nesting two
-        /// NavigationStacks (which triggers SwiftUI's
-        /// `AnyNavigationPath.Error.comparisonTypeMismatch`).
+        /// fullScreenCover for the new voting CoordFlow. Isolating its
+        /// NavigationStack via fullScreenCover avoids SwiftUI's
+        /// `AnyNavigationPath.Error.comparisonTypeMismatch` that fires when
+        /// two NavigationStacks are nested.
         @Presents var votingCoordFlow: VotingCoordFlow.State?
-        #endif
         var resyncBirthday: BlockHeight? = nil
         @Shared(.inMemory(.selectedWalletAccount)) var selectedWalletAccount: WalletAccount? = nil
         var txidToEnhance = ""
@@ -82,10 +80,8 @@ struct Settings {
         case checkFundsForAddress(String)
         case closeResyncHelpSheetTapped
         case coinholderPollingTapped
-        #if DEBUG
         case coinholderPollingNewTapped
         case votingCoordFlow(PresentationAction<VotingCoordFlow.Action>)
-        #endif
         case currencyConversionTapped
         case enableEnhanceTransactionMode
         case enableRecoverFundsMode
@@ -143,7 +139,6 @@ struct Settings {
                     }
                 }
 
-            #if DEBUG
             case .coinholderPollingNewTapped:
                 // Handled in coordinatorReduce; no-op here so the body's
                 // exhaustive switch over the Action enum still compiles.
@@ -153,7 +148,6 @@ struct Settings {
                 // through .ifLet at the body level + the coordinator's
                 // dismiss handler.
                 return .none
-            #endif
             case .coinholderPollingTapped:
                 return .none
 
@@ -203,10 +197,8 @@ struct Settings {
             }
         }
         .forEach(\.path, action: \.path)
-        #if DEBUG
         .ifLet(\.$votingCoordFlow, action: \.votingCoordFlow) {
             VotingCoordFlow()
         }
-        #endif
     }
 }

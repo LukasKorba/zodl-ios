@@ -372,23 +372,31 @@ struct PollsListSkeletonCard: View {
     var colorScheme
 
     var body: some View {
-        let barFill = Design.Surfaces.bgTertiary.color(colorScheme)
-        return VStack(alignment: .leading, spacing: 14) {
-            RoundedRectangle(cornerRadius: 4).fill(barFill).frame(width: 80, height: 12)
+        VStack(alignment: .leading, spacing: 14) {
+            shimmerBar(width: 80, height: 12)
             VStack(alignment: .leading, spacing: 10) {
-                RoundedRectangle(cornerRadius: 4).fill(barFill).frame(height: 12)
-                RoundedRectangle(cornerRadius: 4).fill(barFill).frame(height: 12)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(barFill)
-                    .frame(width: 240, height: 12)
+                shimmerBar(height: 12)
+                shimmerBar(height: 12)
+                shimmerBar(width: 240, height: 12)
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
-            RoundedRectangle(cornerRadius: 4).fill(barFill).frame(width: 60, height: 12)
+            shimmerBar(width: 60, height: 12)
         }
         .padding(Design.Spacing._xl)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Design.Surfaces.bgPrimary.color(colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
+        .overlay(
+            RoundedRectangle(cornerRadius: Design.Radius._2xl)
+                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
+        )
+    }
+
+    private func shimmerBar(width: CGFloat? = nil, height: CGFloat) -> some View {
+        Color.gray.opacity(0.25)
+            .frame(width: width, height: height)
+            .shimmer(true)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 }
 

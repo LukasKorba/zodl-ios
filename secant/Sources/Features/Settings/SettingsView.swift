@@ -34,19 +34,10 @@ struct SettingsView: View {
                             
                             ActionRow(
                                 icon: Asset.Assets.Icons.checkVerified.image,
-                                title: String(localizable: .settingsCoinholderPolling)
-                            ) {
-                                store.send(.coinholderPollingTapped)
-                            }
-
-                            #if DEBUG
-                            ActionRow(
-                                icon: Asset.Assets.Icons.checkVerified.image,
-                                title: "Coinholder Polling (NEW)"
+                                title: "Beta: Coinholder Polling"
                             ) {
                                 store.send(.coinholderPollingNewTapped)
                             }
-                            #endif
 
                             ActionRow(
                                 icon: Asset.Assets.Icons.settings.image,
@@ -171,7 +162,6 @@ struct SettingsView: View {
             .zashiSheet(isPresented: $store.isResyncHelpSheetPresented) {
                 resyncHelpSheetContent()
             }
-            #if DEBUG
             .fullScreenCover(
                 item: $store.scope(state: \.votingCoordFlow, action: \.votingCoordFlow)
             ) { votingStore in
@@ -182,7 +172,6 @@ struct SettingsView: View {
                     VotingCoordFlowView(store: votingStore)
                 }
             }
-            #endif
         }
     }
     

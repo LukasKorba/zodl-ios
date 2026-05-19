@@ -211,6 +211,7 @@ struct VotingConfigSettingsView: View {
                     .padding(-2)
             }
         }
+        .padding(.horizontal, 2)
     }
 
     private func sourceActionsMenu(fullURL: String, chain: CustomChainEntry?) -> some View {

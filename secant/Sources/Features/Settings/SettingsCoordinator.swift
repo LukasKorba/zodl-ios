@@ -249,7 +249,6 @@ extension Settings {
                 let _ = state.path.popLast()
                 return .none
 
-            #if DEBUG
             case .coinholderPollingNewTapped:
                 guard let account = state.selectedWalletAccount else { return .none }
                 var votingState = VotingCoordFlow.State()
@@ -261,7 +260,6 @@ extension Settings {
             case .votingCoordFlow(.presented(.dismissFlow)):
                 state.votingCoordFlow = nil
                 return .none
-            #endif
 
             case .whatsNewTapped:
                 state.path.append(.whatsNew(WhatsNew.State.initial))

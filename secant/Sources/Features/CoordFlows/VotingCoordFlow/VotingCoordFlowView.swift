@@ -69,7 +69,7 @@ struct VotingCoordFlowView: View {
     private var rootContent: some View {
         switch store.rootScreen {
         case .loading:
-            ProgressView()
+            VotingCoordFlowBackdrop(store: store)
         case .howToVote:
             HowToVoteView(store: store)
         case .noRounds:
