@@ -2627,6 +2627,11 @@
 		9EEBF89D2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
 		9EEBF89E2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
 		9EEBF89F2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF8A82FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8A92FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8AA2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8AB2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8AC2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
 		A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */; };
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
 		AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00112D00000100000002 /* VotingSubmissionTests.swift */; };
@@ -3215,6 +3220,7 @@
 		9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowStore.swift; sourceTree = "<group>"; };
 		9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowView.swift; sourceTree = "<group>"; };
 		9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundListItem.swift; sourceTree = "<group>"; };
+		9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowCoordinator.swift; sourceTree = "<group>"; };
 		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
 		A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingServiceConfigTests.swift; sourceTree = "<group>"; };
@@ -5373,6 +5379,7 @@
 				9EEBF8752FBC650D00DD38DB /* RoundSession.swift */,
 				9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */,
 				9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */,
+				9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */,
 			);
 			path = VotingCoordFlow;
 			sourceTree = "<group>";
@@ -6676,6 +6683,7 @@
 				34AA744B2F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA744C2F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA744D2F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8AC2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
 				34AA744E2F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA744F2F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA74502F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -7146,6 +7154,7 @@
 				34AA70E72F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA70E82F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA70E92F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8AB2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
 				34AA70EA2F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA70EB2F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA70EC2F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -7679,6 +7688,7 @@
 				34AA75E12F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA75E22F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA75E32F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8A92FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
 				34AA75E42F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA75E52F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA75E62F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -8149,6 +8159,7 @@
 				34AA727D2F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA727E2F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA727F2F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8A82FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
 				34AA72802F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA72812F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA72822F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -8619,6 +8630,7 @@
 				34AA6F192F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA6F1A2F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA6F1B2F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8AA2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
 				34AA6F1C2F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA6F1D2F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA6F1E2F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,

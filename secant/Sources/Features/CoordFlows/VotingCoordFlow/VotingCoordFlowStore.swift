@@ -5,6 +5,7 @@
 
 import ComposableArchitecture
 import Foundation
+@preconcurrency import ZcashLightClientKit
 
 @Reducer
 struct VotingCoordFlow {
@@ -55,6 +56,44 @@ struct VotingCoordFlow {
         /// in-app delegation).
         var isKeystoneUser: Bool = false
 
+        /// Service config loaded from the pinned CDN (or a user override).
+        /// Pins voting/PIR endpoints + the bundled round id allow-list.
+        var serviceConfig: VotingServiceConfig?
+
+        /// Rounds returned by the voting service, sorted by created_at_height.
+        var allRounds: [RoundListItem] = []
+
+        /// Per-round vote summaries persisted in the encrypted voting
+        /// metadata file. Hydrated from disk once at `.initialize`; subsequent
+        /// reads are O(1). Qualified with `Voting.` to distinguish from the
+        /// top-level `VoteRecord` in `VotingModels` (which is the per-proposal
+        /// Rust DB record).
+        var voteRecords: [String: Voting.VoteRecord] = [:]
+
+        /// True when the most recent rounds fetch failed (network/server).
+        /// The polls list overlays a recoverable error sheet; the previously
+        /// loaded list (if any) remains visible behind it.
+        var pollsLoadError: Bool = false
+
+        @Shared(.inMemory(.selectedWalletAccount))
+        var selectedWalletAccount: WalletAccount?
+
+        @Shared(.appStorage(.hasSeenHowToVote))
+        var hasSeenHowToVoteForZashi: Bool = false
+
+        @Shared(.appStorage(.hasSeenHowToVoteKeystone))
+        var hasSeenHowToVoteForKeystone: Bool = false
+
+        @Shared(.appStorage(.votingConfigOverrideURL))
+        var votingConfigOverrideURL: String = ""
+
+        /// Whether the current wallet account has already seen the
+        /// "How to vote" intro. Keystone and Zashi accounts have separate
+        /// flags so a user switching wallets sees the intro once per side.
+        var hasSeenHowToVoteForCurrentWallet: Bool {
+            isKeystoneUser ? hasSeenHowToVoteForKeystone : hasSeenHowToVoteForZashi
+        }
+
         init() {}
     }
 
@@ -65,44 +104,20 @@ struct VotingCoordFlow {
         case howToVoteContinueTapped
         case retryLoadRounds
         case openConfigSettings
+        case initialize
+        case serviceConfigLoaded(VotingServiceConfig)
+        case allRoundsLoaded([VotingSession])
+        case roundsLoadFailed
+        case configUnsupported(String)
+        case initializeFailed(String)
     }
 
+    @Dependency(\.votingAPI) var votingAPI
+    @Dependency(\.votingCrypto) var votingCrypto
+    @Dependency(\.votingMetadata) var votingMetadata
+
     var body: some Reducer<State, Action> {
-        Reduce { state, action in
-            switch action {
-            case .path:
-                return .none
-
-            case .onAppear:
-                // TODO Phase 3+: load service config, fetch rounds, transition
-                // rootScreen based on result (howToVote first-time, pollsList
-                // when rounds exist, noRounds when empty, walletSyncing when
-                // SDK not caught up, configError on service unavailable).
-                return .none
-
-            case .dismissFlow:
-                // TODO Phase 3+: cancel polling effects, evict roundCache,
-                // dismiss the flow back to Settings.
-                state.roundCache.removeAll()
-                state.path.removeAll()
-                return .none
-
-            case .howToVoteContinueTapped:
-                // TODO Phase 3+: persist the per-account hasSeenHowToVote
-                // flag and re-run `.onAppear` to advance past the intro.
-                return .send(.onAppear)
-
-            case .retryLoadRounds:
-                // TODO Phase 3+: re-issue the rounds fetch from the empty
-                // state.
-                state.rootScreen = .loading
-                return .send(.onAppear)
-
-            case .openConfigSettings:
-                state.path.append(.configSettings(VotingConfigSettings.State()))
-                return .none
-            }
-        }
-        .forEach(\.path, action: \.path)
+        coordinatorReduce()
+            .forEach(\.path, action: \.path)
     }
 }
