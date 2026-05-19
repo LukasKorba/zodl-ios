@@ -140,6 +140,8 @@ struct VotingCoordFlow {
         case hotkeyLoaded(roundId: String, address: String)
         case pipelineFailed(roundId: String, message: String)
         case draftVoteSet(roundId: String, proposalId: UInt32, choice: VoteChoice)
+        case submitTapped(roundId: String)
+        case submitAllDraftsTapped(roundId: String)
     }
 
     @Dependency(\.databaseFiles) var databaseFiles

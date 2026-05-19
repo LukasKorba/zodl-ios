@@ -136,7 +136,7 @@ struct VotingView: View {
         case .reviewVotes:
             LegacyProposalListView(store: store, mode: .review)
         case .confirmSubmission:
-            ConfirmSubmissionView(store: store)
+            LegacyConfirmSubmissionView(store: store)
         case .proposalDetail:
             if let proposal = store.selectedProposal {
                 LegacyProposalDetailView(store: store, proposal: proposal)

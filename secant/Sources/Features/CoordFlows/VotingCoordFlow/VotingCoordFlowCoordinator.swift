@@ -244,6 +244,17 @@ extension VotingCoordFlow {
                 )
                 return .none
 
+            case let .submitTapped(roundId):
+                state.path.append(.confirmSubmission(ConfirmSubmission.State(roundId: roundId)))
+                return .none
+
+            case .submitAllDraftsTapped:
+                // TODO Phase 5: real submission pipeline (auth → delegation
+                // proof → per-vote ZKPs → share delegation → success). For
+                // now, just log so we can verify the navigation contract.
+                LoggerProxy.info("submitAllDraftsTapped — pipeline pending Phase 5")
+                return .none
+
             case let .draftVoteSet(roundId, proposalId, choice):
                 // Write through to cache + disk so the choice survives both
                 // navigation pops and app restarts. Snapshot the drafts

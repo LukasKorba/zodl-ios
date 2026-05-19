@@ -43,9 +43,8 @@ struct VotingCoordFlowView: View {
                             roundId: scoped.roundId,
                             mode: .review
                         )
-                    case .confirmSubmission:
-                        // TODO Phase 4f.
-                        Text("Confirm submission")
+                    case let .confirmSubmission(scoped):
+                        ConfirmSubmissionView(store: store, roundId: scoped.roundId)
                     case .delegationSigning:
                         // TODO Phase 5.
                         Text("Delegation signing")

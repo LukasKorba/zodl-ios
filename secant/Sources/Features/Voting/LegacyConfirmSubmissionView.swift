@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct ConfirmSubmissionView: View {
+struct LegacyConfirmSubmissionView: View {
     @Environment(\.colorScheme) var colorScheme
 
     let store: StoreOf<Voting>
