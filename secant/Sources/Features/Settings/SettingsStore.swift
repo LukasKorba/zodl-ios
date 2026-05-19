@@ -28,6 +28,9 @@ struct Settings {
         case sendUsFeedback(SendFeedback)
         case torSetup(TorSetup)
         case voting(Voting)
+        #if DEBUG
+        case votingCoordFlow(VotingCoordFlow)
+        #endif
         case whatsNew(WhatsNew)
     }
     
@@ -75,6 +78,9 @@ struct Settings {
         case checkFundsForAddress(String)
         case closeResyncHelpSheetTapped
         case coinholderPollingTapped
+        #if DEBUG
+        case coinholderPollingNewTapped
+        #endif
         case currencyConversionTapped
         case enableEnhanceTransactionMode
         case enableRecoverFundsMode
@@ -132,6 +138,12 @@ struct Settings {
                     }
                 }
 
+            #if DEBUG
+            case .coinholderPollingNewTapped:
+                // Handled in coordinatorReduce; no-op here so the body's
+                // exhaustive switch over the Action enum still compiles.
+                return .none
+            #endif
             case .coinholderPollingTapped:
                 return .none
 

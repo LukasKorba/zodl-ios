@@ -39,6 +39,15 @@ struct SettingsView: View {
                                 store.send(.coinholderPollingTapped)
                             }
 
+                            #if DEBUG
+                            ActionRow(
+                                icon: Asset.Assets.Icons.checkVerified.image,
+                                title: "Coinholder Polling (NEW)"
+                            ) {
+                                store.send(.coinholderPollingNewTapped)
+                            }
+                            #endif
+
                             ActionRow(
                                 icon: Asset.Assets.Icons.settings.image,
                                 title: String(localizable: .settingsAdvanced)
@@ -148,6 +157,10 @@ struct SettingsView: View {
                     TorSetupView(store: store)
                 case let .voting(store):
                     VotingView(store: store)
+                #if DEBUG
+                case let .votingCoordFlow(store):
+                    VotingCoordFlowView(store: store)
+                #endif
                 case let .whatsNew(store):
                     WhatsNewView(store: store)
                 }
