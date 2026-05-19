@@ -121,11 +121,11 @@ struct VotingView: View {
     ) -> some View {
         switch screen {
         case .howToVote:
-            HowToVoteView(store: store)
+            LegacyHowToVoteView(store: store)
         case .loading:
             ProgressView()
         case .noRounds:
-            NoRoundsView(store: store)
+            LegacyNoRoundsView(store: store)
         case .pollsList:
             LegacyPollsListView(store: store)
         case .delegationSigning:
@@ -144,21 +144,21 @@ struct VotingView: View {
                     .transition(.push(from: .trailing))
             }
         case .ineligible:
-            IneligibleView(store: store)
+            LegacyIneligibleView(store: store)
         case .tallying:
             LegacyTallyingView(store: store)
         case .results:
             LegacyResultsView(store: store)
         case .error(let message):
-            VotingErrorView(store: store, errorMessage: message)
+            LegacyVotingErrorView(store: store, errorMessage: message)
         case .configError(let message):
-            VotingConfigErrorView(store: store, errorMessage: message)
+            LegacyVotingConfigErrorView(store: store, errorMessage: message)
         case .configSettings:
             if let configSettingsStore = store.scope(state: \.configSettings, action: \.configSettings) {
                 VotingConfigSettingsView(store: configSettingsStore)
             }
         case .walletSyncing:
-            WalletSyncingView(store: store)
+            LegacyWalletSyncingView(store: store)
         }
     }
 }
@@ -183,7 +183,7 @@ struct VotingBlockingBackdrop: View {
 
 // MARK: - No Rounds
 
-struct NoRoundsView: View {
+struct LegacyNoRoundsView: View {
     let store: StoreOf<Voting>
 
     var body: some View {

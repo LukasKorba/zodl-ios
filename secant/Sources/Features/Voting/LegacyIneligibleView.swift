@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct IneligibleView: View {
+struct LegacyIneligibleView: View {
     @Environment(\.colorScheme)
     var colorScheme
 

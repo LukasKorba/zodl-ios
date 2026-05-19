@@ -52,9 +52,8 @@ struct VotingCoordFlowView: View {
                         TallyingView(store: store, roundId: scoped.roundId)
                     case let .results(scoped):
                         ResultsView(store: store, roundId: scoped.roundId)
-                    case .ineligible:
-                        // TODO Phase 7.
-                        Text("Ineligible")
+                    case let .ineligible(scoped):
+                        IneligibleView(store: store, roundId: scoped.roundId)
                     case let .configSettings(configStore):
                         VotingConfigSettingsView(store: configStore)
                     }
@@ -67,24 +66,29 @@ struct VotingCoordFlowView: View {
 
     @ViewBuilder
     private var rootContent: some View {
-        // Phase 2 renders placeholder text per root state. Phase 3+ will
-        // swap these out for the real PollsList / NoRounds / HowToVote /
-        // WalletSyncing / error views.
         switch store.rootScreen {
         case .loading:
             ProgressView()
         case .howToVote:
-            Text("How to vote")
+            HowToVoteView(store: store)
         case .noRounds:
-            Text("No rounds")
+            NoRoundsView(store: store)
         case .pollsList:
             PollsListView(store: store)
         case .walletSyncing:
-            Text("Wallet syncing")
+            WalletSyncingView(store: store)
         case let .error(message):
-            Text("Error: \(message)")
+            VotingErrorView(
+                store: store,
+                title: "Something went wrong",
+                message: message
+            )
         case let .configError(message):
-            Text("Config error: \(message)")
+            VotingErrorView(
+                store: store,
+                title: "Voting unavailable",
+                message: message
+            )
         }
     }
 }

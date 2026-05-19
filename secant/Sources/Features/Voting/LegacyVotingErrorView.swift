@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct VotingErrorView: View {
+struct LegacyVotingErrorView: View {
     let store: StoreOf<Voting>
     let errorMessage: String
 
@@ -34,7 +34,7 @@ struct VotingErrorView: View {
     }
 }
 
-struct VotingConfigErrorView: View {
+struct LegacyVotingConfigErrorView: View {
     let store: StoreOf<Voting>
     let errorMessage: String
 
