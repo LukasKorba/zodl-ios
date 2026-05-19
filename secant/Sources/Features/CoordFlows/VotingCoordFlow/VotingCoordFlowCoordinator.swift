@@ -43,6 +43,18 @@ extension VotingCoordFlow {
                 // MARK: - Lifecycle
 
             case .onAppear:
+                // Re-entry from a nested screen pop = no-op. The user just
+                // navigated back to the polls list root; we already have
+                // rounds + service config loaded, so don't flip rootScreen
+                // back to `.loading` and re-fetch.
+                //
+                // Without this guard, NavigationStack's pop fires `.onAppear`
+                // again on the root content, which would briefly show the
+                // loading screen before the polls list re-renders.
+                if state.serviceConfig != nil {
+                    return .none
+                }
+
                 // First-time entry: show the intro before initializing the
                 // round-loading pipeline. The intro's continue button drives
                 // `.howToVoteContinueTapped` which re-enters `.onAppear` with
