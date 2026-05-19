@@ -42,7 +42,12 @@ struct ProposalListView: View {
                             .zFont(size: 14, style: Design.Text.tertiary)
                     } else {
                         ForEach(proposals) { proposal in
-                            proposalCard(proposal)
+                            Button {
+                                store.send(.proposalTapped(roundId: roundId, proposalId: proposal.id))
+                            } label: {
+                                proposalCard(proposal)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -52,7 +57,7 @@ struct ProposalListView: View {
             }
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
-            .zashiBack { store.send(.path(.popFrom(id: store.path.ids.last ?? -1))) }
+            .zashiBack()
         }
     }
 

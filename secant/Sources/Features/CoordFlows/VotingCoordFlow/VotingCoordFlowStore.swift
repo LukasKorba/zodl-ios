@@ -132,6 +132,7 @@ struct VotingCoordFlow {
         case initializeFailed(String)
         case roundTapped(String)
         case viewMyVotesTapped(roundId: String)
+        case proposalTapped(roundId: String, proposalId: UInt32)
         case startActiveRoundPipeline(roundId: String)
         case walletNotSynced(roundId: String, scannedHeight: UInt64, snapshotHeight: UInt64)
         case walletSyncProgressUpdated(height: UInt64)

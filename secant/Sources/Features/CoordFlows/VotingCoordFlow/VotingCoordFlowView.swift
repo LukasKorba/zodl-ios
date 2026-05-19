@@ -30,9 +30,12 @@ struct VotingCoordFlowView: View {
                         roundId: scoped.roundId,
                         mode: .voting
                     )
-                case .proposalDetail:
-                    // TODO Phase 4d: real proposal detail view.
-                    Text("Proposal detail")
+                case let .proposalDetail(scoped):
+                    ProposalDetailView(
+                        store: store,
+                        roundId: scoped.roundId,
+                        proposalId: scoped.proposalId
+                    )
                 case let .reviewVotes(scoped):
                     ProposalListView(
                         store: store,

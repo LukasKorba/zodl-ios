@@ -139,7 +139,7 @@ struct VotingView: View {
             ConfirmSubmissionView(store: store)
         case .proposalDetail:
             if let proposal = store.selectedProposal {
-                ProposalDetailView(store: store, proposal: proposal)
+                LegacyProposalDetailView(store: store, proposal: proposal)
                     .id(proposal.id)
                     .transition(.push(from: .trailing))
             }

@@ -209,6 +209,14 @@ extension VotingCoordFlow {
                 state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
                 return .none
 
+            case let .proposalTapped(roundId, proposalId):
+                state.path.append(
+                    .proposalDetail(
+                        ProposalDetail.State(roundId: roundId, proposalId: proposalId)
+                    )
+                )
+                return .none
+
                 // MARK: - Per-round pipeline
 
             case .startActiveRoundPipeline(let roundId):
