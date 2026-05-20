@@ -24,13 +24,24 @@ struct ConfirmSubmissionView: View {
             let session = store.roundCache[roundId]
             let weight = session?.votingWeight ?? 0
             let drafts = session?.draftVotes ?? [:]
+            let submittedVotes = session?.votes ?? [:]
             let status = session?.batchSubmissionStatus ?? .idle
             let bundleCount = session?.bundleCount ?? 0
+            let summaryVotes = submissionSummaryVotes(
+                status: status,
+                drafts: drafts,
+                submittedVotes: submittedVotes
+            )
+            let headerCount = submissionCount(
+                status: status,
+                draftCount: drafts.count,
+                submittedCount: submittedVotes.count
+            )
 
             ZStack(alignment: .bottom) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        header(weight: weight, count: drafts.count, status: status)
+                        header(weight: weight, count: headerCount, status: status)
 
                         if let step = session?.voteSubmissionStep, status.isInFlight {
                             progressCard(
@@ -43,7 +54,7 @@ struct ConfirmSubmissionView: View {
 
                         VStack(spacing: 8) {
                             ForEach(proposals) { proposal in
-                                if let choice = drafts[proposal.id],
+                                if let choice = summaryVotes[proposal.id],
                                    let label = proposal.options.first(where: { $0.index == choice.index })?.label {
                                     summaryRow(title: proposal.title, choice: label)
                                 }
@@ -109,19 +120,49 @@ struct ConfirmSubmissionView: View {
                 return String(localizable: .coinVoteCommonConfirmation)
             }
         }()
+        let verb = status.isCompleted ? "Submitted" : "Submitting"
+        let subtitle = "\(verb) \(count) vote\(count == 1 ? "" : "s") with voting power \(weight)."
 
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .zFont(.semiBold, size: 24, style: Design.Text.primary)
                 .tracking(-0.384)
 
-            Text("Submitting \(count) vote\(count == 1 ? "" : "s") with voting power \(weight).")
+            Text(subtitle)
                 .zFont(.medium, size: 14, style: Design.Text.tertiary)
                 .tracking(-0.224)
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 8)
+    }
+
+    private func submissionSummaryVotes(
+        status: BatchSubmissionStatus,
+        drafts: [UInt32: VoteChoice],
+        submittedVotes: [UInt32: VoteChoice]
+    ) -> [UInt32: VoteChoice] {
+        if case .completed = status {
+            return submittedVotes.isEmpty ? drafts : submittedVotes
+        }
+        return drafts
+    }
+
+    private func submissionCount(
+        status: BatchSubmissionStatus,
+        draftCount: Int,
+        submittedCount: Int
+    ) -> Int {
+        switch status {
+        case let .submitting(_, totalCount, _):
+            return totalCount
+        case let .completed(successCount):
+            return max(successCount, submittedCount)
+        case let .submissionFailed(_, submittedCount, totalCount):
+            return max(submittedCount, totalCount)
+        default:
+            return draftCount
+        }
     }
 
     @ViewBuilder
@@ -248,6 +289,11 @@ struct ConfirmSubmissionView: View {
 }
 
 private extension BatchSubmissionStatus {
+    var isCompleted: Bool {
+        if case .completed = self { return true }
+        return false
+    }
+
     /// True while we're actively making network/proving progress — used by
     /// the view to disable the back gesture and CTA.
     var isInFlight: Bool {
