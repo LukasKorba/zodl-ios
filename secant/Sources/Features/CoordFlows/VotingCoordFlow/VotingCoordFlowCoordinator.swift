@@ -175,7 +175,11 @@ extension VotingCoordFlow {
 
                 // Stable creation-order numbering.
                 let sorted = sessions.sorted { $0.createdAtHeight < $1.createdAtHeight }
-                state.allRounds = sorted.enumerated().map { index, session in
+                // ⚠️ LOCAL UI MOCK DATA — DO NOT COMMIT.
+                // Inflate titles, descriptions, and option labels so we can
+                // sanity-check the Figma layout against realistic copy.
+                // Remove the `.map(UIMockInflator.inflate)` call before committing.
+                state.allRounds = sorted.map(UIMockInflator.inflate).enumerated().map { index, session in
                     RoundListItem(roundNumber: index + 1, session: session)
                 }
 
@@ -3449,4 +3453,99 @@ private enum DelegationTxConfirmationStatus: Sendable {
     case confirmed(vanPosition: UInt32)
     case failed(code: UInt32, log: String)
     case notFound
+}
+
+// ============================================================================
+// ⚠️ LOCAL UI MOCK DATA — DO NOT COMMIT
+//
+// Inflates round + proposal + option strings so the UI can be sanity-checked
+// against realistic copy (the production data we're testing against today
+// uses dev placeholders like "pizza" or 1-word answers, which masks Figma
+// layout issues). Wired in `.allRoundsLoaded`.
+//
+// To remove:
+//   1) Drop the `.map(UIMockInflator.inflate)` call in `.allRoundsLoaded` above.
+//   2) Delete this entire `UIMockInflator` block.
+// ============================================================================
+
+enum UIMockInflator {
+    private static let loremShort =
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt."
+    private static let loremMedium =
+        """
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt \
+        ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation \
+        ullamco laboris nisi ut aliquip ex ea commodo consequat.
+        """
+    private static let loremLong =
+        """
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt \
+        ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation \
+        ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in \
+        reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur \
+        sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id \
+        est laborum.
+        """
+
+    /// Repeat the source string `times` times joined with `" — "`. Falls back
+    /// to a Lorem placeholder when the source is empty so the UI never sees
+    /// an empty title field.
+    private static func inflate(_ source: String, fallback: String, times: Int = 5) -> String {
+        let trimmed = source.trimmingCharacters(in: .whitespacesAndNewlines)
+        let base = trimmed.isEmpty ? fallback : trimmed
+        return Array(repeating: base, count: times).joined(separator: " — ")
+    }
+
+    static func inflate(_ session: VotingSession) -> VotingSession {
+        VotingSession(
+            voteRoundId: session.voteRoundId,
+            snapshotHeight: session.snapshotHeight,
+            snapshotBlockhash: session.snapshotBlockhash,
+            proposalsHash: session.proposalsHash,
+            voteEndTime: session.voteEndTime,
+            ceremonyStart: session.ceremonyStart,
+            eaPK: session.eaPK,
+            vkZkp1: session.vkZkp1,
+            vkZkp2: session.vkZkp2,
+            vkZkp3: session.vkZkp3,
+            ncRoot: session.ncRoot,
+            nullifierIMTRoot: session.nullifierIMTRoot,
+            creator: session.creator,
+            description: inflate(session.description, fallback: loremMedium),
+            discussionURL: session.discussionURL,
+            proposals: session.proposals.map(inflate),
+            status: session.status,
+            createdAtHeight: session.createdAtHeight,
+            title: inflate(session.title, fallback: loremShort, times: 3)
+        )
+    }
+
+    private static func inflate(_ proposal: VotingProposal) -> VotingProposal {
+        VotingProposal(
+            id: proposal.id,
+            title: inflate(proposal.title, fallback: loremShort, times: 3),
+            description: inflate(proposal.description, fallback: loremLong, times: 2),
+            options: proposal.options.enumerated().map { index, option in
+                VoteOption(
+                    index: option.index,
+                    label: loremOptionLabel(forIndex: index, original: option.label)
+                )
+            },
+            zipNumber: proposal.zipNumber,
+            forumURL: proposal.forumURL
+        )
+    }
+
+    /// Variable-length lorem ipsum so each option's text doesn't look
+    /// identical and the layout has to handle short + medium + long answers.
+    private static func loremOptionLabel(forIndex index: Int, original: String) -> String {
+        let palette: [String] = [
+            "Yes — \(original.isEmpty ? "Lorem ipsum dolor sit amet" : original)",
+            "No — sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
+            "Abstain — ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip",
+            "Maybe — duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur",
+            "Other — excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+        ]
+        return palette[index % palette.count]
+    }
 }
