@@ -441,9 +441,17 @@ struct VotingConfigSettings {
         cancelID: CancelID
     ) -> Effect<Action> {
         .run { send in
+            @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+            @Shared(.inMemory(.swapAPIAccess)) var swapAPIAccess: WalletStorage.SwapAPIAccess = .direct
             do {
                 let source = try PinnedConfigSource.parse(rawURL)
-                _ = try await StaticVotingConfig.loadFromNetwork(source: source, session: .shared)
+                _ = try await StaticVotingConfig.loadFromNetwork(source: source) { request in
+                    if swapAPIAccess == .protected {
+                        let (data, response) = try await sdkSynchronizer.httpRequestOverTor(request)
+                        return (data, response as URLResponse)
+                    }
+                    return try await URLSession.shared.data(for: request)
+                }
                 await send(.validationPassed(
                     source,
                     rawURL: rawURL,

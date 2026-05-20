@@ -190,6 +190,40 @@ private let fastHttpSession: URLSession = {
     return URLSession(configuration: config)
 }()
 
+/// Routes a request through Tor when the user enabled it in Settings
+/// (`swapAPIAccess == .protected`), otherwise through the standard or fast
+/// URLSession. Returning `URLResponse` keeps every call site uniform.
+///
+/// The "fast" policy maps to a 5 s timeout for health probes and share
+/// POSTs. With the standard URLSession that timeout comes from the session
+/// config (`fastHttpSession.timeoutIntervalForRequest = 5`). With Tor we
+/// can't pick a session, so we stamp the same value on
+/// `URLRequest.timeoutInterval` — `httpRequestOverTor` ultimately runs on
+/// URLSession too and honors per-request timeouts, which keeps the fast
+/// failover behaviour identical across Tor on/off.
+private let fastRequestTimeout: TimeInterval = 5
+
+@Sendable
+private func performVotingRequest(
+    _ request: URLRequest,
+    fast: Bool = false
+) async throws -> (Data, URLResponse) {
+    @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Shared(.inMemory(.swapAPIAccess)) var swapAPIAccess: WalletStorage.SwapAPIAccess = .direct
+
+    var request = request
+    if fast {
+        request.timeoutInterval = fastRequestTimeout
+    }
+
+    if swapAPIAccess == .protected {
+        let (data, response) = try await sdkSynchronizer.httpRequestOverTor(request)
+        return (data, response as URLResponse)
+    }
+    let session = fast ? fastHttpSession : httpSession
+    return try await session.data(for: request)
+}
+
 private func shouldTryNextVoteServer(after error: Error) -> Bool {
     if error is URLError { return true }
     if let error = error as? SvAPIError,
@@ -228,7 +262,7 @@ private func getJSON(_ path: String, baseURL base: String) async throws -> [Stri
     }
     var request = URLRequest(url: url)
     request.setValue("application/json", forHTTPHeaderField: "Accept")
-    let (data, response) = try await httpSession.data(for: request)
+    let (data, response) = try await performVotingRequest(request)
     guard let http = response as? HTTPURLResponse else {
         throw SvAPIError.invalidResponse("not an HTTP response")
     }
@@ -268,7 +302,7 @@ private func postJSON(_ path: String, body: [String: Any], baseURL base: String)
     request.setValue("application/json", forHTTPHeaderField: "Accept")
     request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-    let (data, response) = try await httpSession.data(for: request)
+    let (data, response) = try await performVotingRequest(request)
     guard let http = response as? HTTPURLResponse else {
         throw SvAPIError.invalidResponse("not an HTTP response")
     }
@@ -300,7 +334,7 @@ private func postServerJSON(_ serverURL: String, _ path: String, body: [String: 
     request.setValue("application/json", forHTTPHeaderField: "Accept")
     request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
-    let (data, response) = try await fastHttpSession.data(for: request)
+    let (data, response) = try await performVotingRequest(request, fast: true)
     guard let http = response as? HTTPURLResponse else {
         throw SvAPIError.invalidResponse("not an HTTP response")
     }
@@ -477,11 +511,14 @@ private func retryWithBackoff<T>(
     isRetryable: (Error) -> Bool,
     operation: () async throws -> T
 ) async throws -> T {
+    precondition(maxAttempts > 0, "retryWithBackoff requires at least one attempt")
     var delay = initialDelay
+    var lastError: Error?
     for attempt in 1...maxAttempts {
         do {
             return try await operation()
         } catch {
+            lastError = error
             let isLast = attempt == maxAttempts
             if isLast || !isRetryable(error) { throw error }
             LoggerProxy.warn(
@@ -494,7 +531,9 @@ private func retryWithBackoff<T>(
             delay *= factor
         }
     }
-    fatalError("unreachable")
+    // The for-loop above always exits via `return` or `throw`. This rethrow
+    // exists solely so the compiler can prove the function returns.
+    throw lastError ?? CancellationError()
 }
 
 // MARK: - Protobuf JSON Parsing Helpers
@@ -705,7 +744,7 @@ extension VotingAPIClient: DependencyKey {
                 }
                 let staticConfig = try await StaticVotingConfig.loadFromNetwork(
                     source: source,
-                    session: httpSession
+                    fetch: { request in try await performVotingRequest(request) }
                 )
 
                 // Fetch and decode the CDN config. Any failure (transport, HTTP, decode,
@@ -724,7 +763,7 @@ extension VotingAPIClient: DependencyKey {
                     )
                     request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
                     request.setValue("no-cache", forHTTPHeaderField: "Pragma")
-                    (data, response) = try await httpSession.data(for: request)
+                    (data, response) = try await performVotingRequest(request)
                 } catch {
                     throw VotingConfigError.decodeFailed("CDN fetch failed: \(error.localizedDescription)")
                 }
@@ -758,7 +797,10 @@ extension VotingAPIClient: DependencyKey {
             configureURLs: { config in
                 await SvAPIConfigStore.shared.configure(from: config)
                 await ServerHealthTracker.shared.initialize(
-                    serverURLs: config.voteServers.map(\.url)
+                    serverURLs: config.voteServers.map(\.url),
+                    fetcher: { request in
+                        try await performVotingRequest(request, fast: true)
+                    }
                 )
                 let base = config.voteServers.first?.url
                 let pir = config.pirEndpoints.first?.url
@@ -901,7 +943,7 @@ extension VotingAPIClient: DependencyKey {
                 // Use the same X-Helper-Token header as share submission
                 request.setValue("voting-helper", forHTTPHeaderField: "X-Helper-Token")
 
-                let (data, response) = try await fastHttpSession.data(for: request)
+                let (data, response) = try await performVotingRequest(request, fast: true)
                 guard let http = response as? HTTPURLResponse else {
                     throw SvAPIError.invalidResponse("not an HTTP response")
                 }
@@ -976,7 +1018,7 @@ extension VotingAPIClient: DependencyKey {
                     let data: Data
                     let response: URLResponse
                     do {
-                        (data, response) = try await httpSession.data(from: url)
+                        (data, response) = try await performVotingRequest(URLRequest(url: url))
                     } catch {
                         LoggerProxy.debug(
                             "fetchTxConfirmation: network error on \(base): \(error.localizedDescription)"
