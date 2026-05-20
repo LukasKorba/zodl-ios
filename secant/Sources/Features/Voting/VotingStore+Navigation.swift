@@ -76,7 +76,7 @@ func pollShareStatusesForRecovery(
                     break
                 }
             } catch {
-                votingLogger.warning("Share status check failed for helper \(helperURL), share \(share.shareIndex): \(error)")
+                LoggerProxy.warn("Share status check failed for helper \(helperURL), share \(share.shareIndex): \(error)")
             }
         }
 
@@ -215,7 +215,7 @@ extension Voting {
                     let allRounds = try await votingAPI.fetchAllRounds()
                     await send(.allRoundsLoaded(allRounds))
                 } catch: { error, _ in
-                    votingLogger.error("Failed to refresh rounds list: \(error)")
+                    LoggerProxy.error("Failed to refresh rounds list: \(error)")
                 }
             )
 
@@ -243,7 +243,7 @@ extension Voting {
                 await send(.shareDelegationsLoaded(delegations))
             } catch: { error, _ in
                 // Share tracking is non-critical — silently degrade
-                votingLogger.error("Failed to load share delegations: \(error)")
+                LoggerProxy.error("Failed to load share delegations: \(error)")
             }
 
         case .shareDelegationsLoaded(let delegations):
@@ -293,7 +293,7 @@ extension Voting {
                 let unconfirmed = freshDelegations.filter { !$0.confirmed }
                 let now = UInt64(Date().timeIntervalSince1970)
 
-                votingLogger.debug("[SharePoll] total=\(freshDelegations.count) confirmed=\(confirmed) unconfirmed=\(unconfirmed.count)")
+                LoggerProxy.debug("[SharePoll] total=\(freshDelegations.count) confirmed=\(confirmed) unconfirmed=\(unconfirmed.count)")
 
                 // Track shares that need resubmission (still pending after overdue threshold)
                 struct ResubmitCandidate {
@@ -311,7 +311,7 @@ extension Voting {
                 }
                 let futureCount = unconfirmed.count - readyShares.count
 
-                votingLogger.debug("[SharePoll] ready=\(readyShares.count) future=\(futureCount)")
+                LoggerProxy.debug("[SharePoll] ready=\(readyShares.count) future=\(futureCount)")
 
                 let pollResult = await pollShareStatusesForRecovery(
                     readyShares: readyShares,
@@ -329,7 +329,7 @@ extension Voting {
                         )
                         newlyConfirmed += 1
                     } catch {
-                        votingLogger.warning("Failed to mark share confirmed for proposal \(key.proposalId), share \(key.shareIndex): \(error)")
+                        LoggerProxy.warn("Failed to mark share confirmed for proposal \(key.proposalId), share \(key.shareIndex): \(error)")
                     }
                 }
 
@@ -342,7 +342,7 @@ extension Voting {
                 }
 
                 if !readyShares.isEmpty {
-                    votingLogger.debug("[SharePoll] queried=\(pollResult.queriedCount) newlyConfirmed=\(newlyConfirmed)")
+                    LoggerProxy.debug("[SharePoll] queried=\(pollResult.queriedCount) newlyConfirmed=\(newlyConfirmed)")
                 }
 
                 // Phase 2: Resubmit overdue pending shares
@@ -392,11 +392,11 @@ extension Voting {
                                     roundId, bundleIndex, proposalId,
                                     candidate.share.shareIndex, newServers
                                 )
-                                votingLogger.info("Resubmitted share p\(proposalId)s\(candidate.share.shareIndex) to \(newServers.count) new server(s)")
+                                LoggerProxy.info("Resubmitted share p\(proposalId)s\(candidate.share.shareIndex) to \(newServers.count) new server(s)")
                             }
                         }
                     } catch {
-                        votingLogger.warning("Share resubmission failed for bundle \(bundleIndex), proposal \(proposalId): \(error)")
+                        LoggerProxy.warn("Share resubmission failed for bundle \(bundleIndex), proposal \(proposalId): \(error)")
                     }
                 }
 
@@ -416,7 +416,7 @@ extension Voting {
 
                 let sleepSeconds: UInt64
                 if stillUnconfirmed.isEmpty {
-                    votingLogger.debug("[SharePoll] all confirmed, stopping poll")
+                    LoggerProxy.debug("[SharePoll] all confirmed, stopping poll")
                     return
                 } else if let soonest = futureCheckTimes.min() {
                     sleepSeconds = min(soonest - refreshedNow, 30)
@@ -425,7 +425,7 @@ extension Voting {
                 }
 
                 let actualSleep = max(sleepSeconds, 3)
-                votingLogger.debug("[SharePoll] sleeping \(actualSleep)s (stillUnconfirmed=\(stillUnconfirmed.count) futureShares=\(futureCheckTimes.count))")
+                LoggerProxy.debug("[SharePoll] sleeping \(actualSleep)s (stillUnconfirmed=\(stillUnconfirmed.count) futureShares=\(futureCheckTimes.count))")
                 try await Task.sleep(for: .seconds(actualSleep))
                 await send(.pollShareStatus)
             } catch: { _, _ in }
@@ -482,7 +482,7 @@ extension Voting {
             // vote, continue submitting.
             if state.canSubmitBatch {
                 let remainingCount = state.draftVotes.count
-                votingLogger.info("Auto-resuming batch submission with \(remainingCount) remaining drafts")
+                LoggerProxy.info("Auto-resuming batch submission with \(remainingCount) remaining drafts")
                 return .send(.submitAllDrafts)
             }
             // Vote finished — start share tracking now that delegation rows are written.

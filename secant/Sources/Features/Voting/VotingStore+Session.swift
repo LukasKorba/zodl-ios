@@ -28,7 +28,7 @@ extension Voting {
                 let allRounds = try await votingAPI.fetchAllRounds()
                 await send(.allRoundsLoaded(allRounds))
             } catch: { error, send in
-                votingLogger.error("Retry rounds fetch failed: \(error)")
+                LoggerProxy.error("Retry rounds fetch failed: \(error)")
                 await send(.roundsLoadFailed)
             }
 
@@ -108,9 +108,9 @@ extension Voting {
             state.hasStartedProvingCacheWarmup = true
             return .run { [votingCrypto] _ in
                 try await votingCrypto.warmProvingCaches()
-                votingLogger.info("Voting proving caches warmed")
+                LoggerProxy.info("Voting proving caches warmed")
             } catch: { error, _ in
-                votingLogger.error("Voting proving cache warm-up failed: \(error)")
+                LoggerProxy.error("Voting proving cache warm-up failed: \(error)")
             }
 
         case .initialize:
@@ -140,7 +140,7 @@ extension Voting {
                 let config = try await votingAPI.fetchServiceConfig(override)
                 await send(.serviceConfigLoaded(config))
             } catch: { error, send in
-                votingLogger.error("Service config unavailable: \(error)")
+                LoggerProxy.error("Service config unavailable: \(error)")
                 let message = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
                 await send(.configUnsupported(message))
             }
@@ -171,19 +171,19 @@ extension Voting {
                 //    error screen (which belongs to DB/wallet/config failures).
                 do {
                     let allRounds = try await votingAPI.fetchAllRounds()
-                    votingLogger.info("Fetched \(allRounds.count) rounds")
+                    LoggerProxy.info("Fetched \(allRounds.count) rounds")
                     for round in allRounds {
-                        votingLogger.debug(
+                        LoggerProxy.debug(
                             "round=\(round.voteRoundId.hexString.prefix(16))... status=\(round.status.rawValue) snapshot=\(round.snapshotHeight)"
                         )
                     }
                     await send(.allRoundsLoaded(allRounds))
                 } catch {
-                    votingLogger.error("Failed to fetch rounds: \(error)")
+                    LoggerProxy.error("Failed to fetch rounds: \(error)")
                     await send(.roundsLoadFailed)
                 }
             } catch: { error, send in
-                votingLogger.error("Initialization failed: \(error)")
+                LoggerProxy.error("Initialization failed: \(error)")
                 await send(.initializeFailed(error.localizedDescription))
             }
 
@@ -212,7 +212,7 @@ extension Voting {
                     }
                 }
                 if walletScannedHeight < snapshotHeight {
-                    votingLogger.info("Wallet scanned to \(walletScannedHeight), snapshot at \(snapshotHeight) — not synced yet")
+                    LoggerProxy.info("Wallet scanned to \(walletScannedHeight), snapshot at \(snapshotHeight) — not synced yet")
                     await send(.walletNotSynced(scannedHeight: walletScannedHeight, snapshotHeight: snapshotHeight))
                     return
                 }
@@ -224,7 +224,7 @@ extension Voting {
                     accountUUID
                 )
                 let totalWeight = notes.reduce(UInt64(0)) { $0 + $1.value }
-                votingLogger.info("Loaded \(notes.count) notes at height \(snapshotHeight), total weight: \(totalWeight)")
+                LoggerProxy.info("Loaded \(notes.count) notes at height \(snapshotHeight), total weight: \(totalWeight)")
                 await send(.votingWeightLoaded(totalWeight, notes))
 
                 // Load or generate voting hotkey mnemonic, derive address for UI
@@ -238,13 +238,13 @@ extension Voting {
                     }
                     let seed = try mnemonic.toSeed(phrase)
                     let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
-                    votingLogger.debug("Hotkey address: \(hotkey.address)")
+                    LoggerProxy.debug("Hotkey address: \(hotkey.address)")
                     await send(.hotkeyLoaded(hotkey.address))
                 } catch {
-                    votingLogger.error("Failed to generate hotkey: \(error)")
+                    LoggerProxy.error("Failed to generate hotkey: \(error)")
                 }
             } catch: { error, send in
-                votingLogger.error("Active round pipeline failed: \(error)")
+                LoggerProxy.error("Active round pipeline failed: \(error)")
                 await send(.initializeFailed(error.localizedDescription))
             }
             .cancellable(id: cancelPipelineId, cancelInFlight: true)
@@ -255,7 +255,7 @@ extension Voting {
             state.votingRound = sessionBackedRound(from: session, title: state.votingRound.title, fallback: state.votingRound)
             reconcileProposalState(&state)
             let roundPrefix = session.voteRoundId.hexString.prefix(16)
-            votingLogger.info("activeSessionLoaded: status=\(session.status.rawValue) round=\(roundPrefix)... proposals=\(session.proposals.count)")
+            LoggerProxy.info("activeSessionLoaded: status=\(session.status.rawValue) round=\(roundPrefix)... proposals=\(session.proposals.count)")
             return .none
 
         case .noActiveRound:
@@ -277,7 +277,7 @@ extension Voting {
             state.votingWeight = eligibleWeight
             if bundleResult.droppedCount > 0 {
                 let dropped = bundleResult.droppedCount
-                votingLogger.info("Smart bundling: dropped \(dropped) notes in sub-threshold bundles (eligible: \(eligibleWeight) of \(weight) total)")
+                LoggerProxy.info("Smart bundling: dropped \(dropped) notes in sub-threshold bundles (eligible: \(eligibleWeight) of \(weight) total)")
             }
             if eligibleWeight < ballotDivisor {
                 state.ineligibilityReason = .balanceTooLow
@@ -295,7 +295,7 @@ extension Voting {
             state.draftVotes = restored.filter { state.votes[$0.key] == nil }
             if !state.draftVotes.isEmpty {
                 let draftCount = state.draftVotes.count
-                votingLogger.info("Restored \(draftCount) persisted draft votes")
+                LoggerProxy.info("Restored \(draftCount) persisted draft votes")
             }
 
             state.screenStack = [.pollsList, .proposalList]
@@ -310,7 +310,7 @@ extension Voting {
             )
 
         case .initializeFailed(let error):
-            votingLogger.error("Initialization error: \(error)")
+            LoggerProxy.error("Initialization error: \(error)")
             state.screenStack = [.error(VotingErrorMapper.userFriendlyMessage(from: error))]
             return .none
 
@@ -351,7 +351,7 @@ extension Voting {
                     await send(.roundStatusUpdated(roundId: updated.voteRoundId, updated.status))
                 }
             } catch: { error, _ in
-                votingLogger.error("Status polling error: \(error)")
+                LoggerProxy.error("Status polling error: \(error)")
             }
             .cancellable(id: cancelStatusPollingId, cancelInFlight: true)
 
@@ -365,12 +365,12 @@ extension Voting {
             guard polledRoundId == session.voteRoundId else {
                 let polledPrefix = polledRoundId.hexString.prefix(16)
                 let activePrefix = session.voteRoundId.hexString.prefix(16)
-                votingLogger.debug("roundStatusUpdated: ignoring stale poll for \(polledPrefix)..., active round is \(activePrefix)...")
+                LoggerProxy.debug("roundStatusUpdated: ignoring stale poll for \(polledPrefix)..., active round is \(activePrefix)...")
                 return .none
             }
 
             // Only react to actual transitions
-            votingLogger.info("roundStatusUpdated: old=\(session.status.rawValue) new=\(newStatus.rawValue)")
+            LoggerProxy.info("roundStatusUpdated: old=\(session.status.rawValue) new=\(newStatus.rawValue)")
             guard newStatus != session.status else { return .none }
 
             // Update session status
@@ -492,7 +492,7 @@ extension Voting {
                 let results = try await votingAPI.fetchTallyResults(roundIdHex)
                 await send(.tallyResultsLoaded(results))
             } catch: { error, send in
-                votingLogger.error("Failed to fetch tally results: \(error)")
+                LoggerProxy.error("Failed to fetch tally results: \(error)")
                 await send(.tallyResultsLoadFailed)
             }
 
@@ -518,7 +518,7 @@ extension Voting {
                 let ids = try await votingAPI.fetchZodlEndorsedRoundIds()
                 await send(.zodlEndorsementsLoaded(ids))
             } catch: { error, send in
-                votingLogger.error("Failed to fetch zodl endorsements: \(error)")
+                LoggerProxy.error("Failed to fetch zodl endorsements: \(error)")
                 // Non-fatal decoration: no icon is shown when endorsements are unavailable.
                 await send(.zodlEndorsementsLoaded([]))
             }
@@ -546,7 +546,7 @@ extension Voting {
             if let addr = dbState.roundState.hotkeyAddress {
                 state.hotkeyAddress = addr
             }
-            votingLogger.debug("DB state: phase=\(String(describing: dbState.roundState.phase)), \(dbState.votes.count) votes")
+            LoggerProxy.debug("DB state: phase=\(String(describing: dbState.roundState.phase)), \(dbState.votes.count) votes")
 
             // If votes arrived and share tracking hasn't started yet, kick it off.
             // This handles cold start where governanceTabAppeared fires before votes are loaded.

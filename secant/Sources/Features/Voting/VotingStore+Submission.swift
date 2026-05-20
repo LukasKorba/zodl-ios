@@ -85,7 +85,7 @@ extension Voting {
                 !pirEndpoints.isEmpty,
                 let expectedSnapshotHeight = state.activeSession?.snapshotHeight
             else {
-                votingLogger.error("serviceConfig/activeSession unexpectedly nil during vote submission; aborting")
+                LoggerProxy.error("serviceConfig/activeSession unexpectedly nil during vote submission; aborting")
                 return .none
             }
             let bundleCount = state.bundleCount
@@ -147,7 +147,7 @@ extension Voting {
                             send: send
                         )
                     } catch {
-                        votingLogger.error("Delegation pipeline failed (raw): \(error.localizedDescription)")
+                        LoggerProxy.error("Delegation pipeline failed (raw): \(error.localizedDescription)")
                         await send(.batchAuthorizationFailed(
                             error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription)
                         ))
@@ -192,7 +192,7 @@ extension Voting {
 
                         for bundleIndex: UInt32 in 0..<bundleCount {
                             if submittedBundles.contains(bundleIndex) {
-                                votingLogger.debug("Batch: bundle \(bundleIndex + 1)/\(bundleCount) already submitted for proposal \(proposalId)")
+                                LoggerProxy.debug("Batch: bundle \(bundleIndex + 1)/\(bundleCount) already submitted for proposal \(proposalId)")
                                 continue
                             }
 
@@ -250,7 +250,7 @@ extension Voting {
                                                         [UInt8](votingDataFromHex(nfHex)), payload.submitAt
                                                     )
                                                 } catch {
-                                                    votingLogger.warning("Batch recovery: failed to record share delegation for share \(info.shareIndex): \(error)")
+                                                    LoggerProxy.warn("Batch recovery: failed to record share delegation for share \(info.shareIndex): \(error)")
                                                 }
                                             }
                                         }
@@ -351,7 +351,7 @@ extension Voting {
                                         [UInt8](votingDataFromHex(nullifierHex)), payload.submitAt
                                     )
                                 } catch {
-                                    votingLogger.warning("Batch: failed to record share delegation for share \(info.shareIndex): \(error)")
+                                    LoggerProxy.warn("Batch: failed to record share delegation for share \(info.shareIndex): \(error)")
                                 }
                             }
                             try await votingCrypto.markVoteSubmitted(roundId, bundleIndex, proposalId)
@@ -361,7 +361,7 @@ extension Voting {
                         await send(.batchVoteSubmitted(proposalId: proposalId, choice: choice))
                     } catch {
                         failCount += 1
-                        votingLogger.error("Batch vote failed for proposal \(proposalId): \(error)")
+                        LoggerProxy.error("Batch vote failed for proposal \(proposalId): \(error)")
                         let shouldStopBatch = error as? ShareDelegationError == .noReachableVoteServers
                         if shouldStopBatch {
                             shareServerURLs = []
@@ -378,7 +378,7 @@ extension Voting {
 
                 await send(.batchSubmissionCompleted(successCount: successCount, failCount: failCount))
             } catch: { error, send in
-                votingLogger.error("Batch submission failed at top level: \(error)")
+                LoggerProxy.error("Batch submission failed at top level: \(error)")
                 await send(.batchSubmissionFailed(
                     error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription),
                     submittedCount: 0,

@@ -2,9 +2,6 @@ import Combine
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-import os
-
-let votingLogger = Logger(subsystem: "co.zodl.voting", category: "VotingStore")
 
 enum VotingFlowError: LocalizedError {
     case missingActiveSession
