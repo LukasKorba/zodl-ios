@@ -264,19 +264,13 @@ extension VotingCoordFlow {
                 }
                 switch item.session.status {
                 case .active:
-                    // Hydrate drafts from disk on every entry — they may have
-                    // been edited from a different surface or app session.
-                    let drafts = Voting.loadDrafts(roundId: roundId)
-                    if state.roundCache[roundId] == nil {
-                        state.roundCache[roundId] = RoundSession(roundId: roundId)
-                    }
-                    state.roundCache[roundId]?.draftVotes = drafts
+                    hydratePersistedRoundChoices(&state, roundId: roundId)
 
                     if state.voteRecords[roundId] != nil {
                         // Already submitted — review-mode read-only, no
                         // pipeline needed.
                         state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                        return .none
+                        return loadSubmittedVotesFromDb(roundId: roundId)
                     }
                     state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
                     // Cache check: skip pipeline if hotkey is already
@@ -285,9 +279,12 @@ extension VotingCoordFlow {
                     if let cached = state.roundCache[roundId],
                        cached.hotkeyAddress != nil,
                        cached.bundleCount > 0 {
-                        return .none
+                        return loadSubmittedVotesFromDb(roundId: roundId)
                     }
-                    return .send(.startActiveRoundPipeline(roundId: roundId))
+                    return .merge(
+                        .send(.startActiveRoundPipeline(roundId: roundId)),
+                        loadSubmittedVotesFromDb(roundId: roundId)
+                    )
                 case .tallying:
                     state.path.append(.tallying(Tallying.State(roundId: roundId)))
                     return .none
@@ -302,8 +299,9 @@ extension VotingCoordFlow {
                 // Explicit user intent to view submitted votes in read-only
                 // form. Always routes to reviewVotes regardless of round
                 // status (active or finalized — both have a vote record).
+                hydratePersistedRoundChoices(&state, roundId: roundId)
                 state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                return .none
+                return loadSubmittedVotesFromDb(roundId: roundId)
 
             case let .proposalTapped(roundId, proposalId, mode):
                 state.path.append(
@@ -556,6 +554,9 @@ extension VotingCoordFlow {
                 // navigation pops and app restarts. Snapshot the drafts
                 // before persisting so the disk call runs without holding
                 // the inout state reference.
+                if state.roundCache[roundId]?.votes[proposalId] != nil {
+                    return .none
+                }
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)]
                     .draftVotes[proposalId] = choice
                 let drafts = state.roundCache[roundId]?.draftVotes ?? [:]
@@ -798,6 +799,21 @@ extension VotingCoordFlow {
                 }
                 state.path.removeAll()
                 state.rootScreen = .error(message)
+                return .none
+
+            case let .submittedVotesLoaded(roundId, votes):
+                guard !votes.isEmpty else { return .none }
+                let account = state.selectedWalletAccount?.account
+                if state.roundCache[roundId] == nil {
+                    state.roundCache[roundId] = RoundSession(roundId: roundId)
+                }
+                state.roundCache[roundId]?.votes.merge(votes) { current, _ in current }
+                let mergedVotes = state.roundCache[roundId]?.votes ?? [:]
+                let filteredDrafts = (state.roundCache[roundId]?.draftVotes ?? [:])
+                    .filter { mergedVotes[$0.key] == nil }
+                state.roundCache[roundId]?.draftVotes = filteredDrafts
+                Voting.persistSubmittedVotes(mergedVotes, roundId: roundId, account: account)
+                Voting.persistDrafts(filteredDrafts, roundId: roundId, account: account)
                 return .none
 
             case let .ineligibleForRound(roundId):
@@ -1270,6 +1286,7 @@ extension VotingCoordFlow {
         }
         if let session = state.roundCache[roundId] {
             Voting.persistDrafts(session.draftVotes, roundId: roundId, account: account)
+            Voting.persistSubmittedVotes(session.votes, roundId: roundId, account: account)
         }
         return .none
     }
@@ -1823,6 +1840,36 @@ extension VotingCoordFlow {
     }
 
     // MARK: - Helpers (state-shape adapters)
+
+    private func hydratePersistedRoundChoices(_ state: inout State, roundId: String) {
+        var submittedVotes = state.roundCache[roundId]?.votes ?? [:]
+        submittedVotes.merge(Voting.loadSubmittedVotes(roundId: roundId)) { current, _ in current }
+        let drafts = Voting.loadDrafts(roundId: roundId).filter {
+            submittedVotes[$0.key] == nil
+        }
+        let account = state.selectedWalletAccount?.account
+        let voteRecord = state.voteRecords[roundId]
+
+        if state.roundCache[roundId] == nil {
+            state.roundCache[roundId] = RoundSession(roundId: roundId)
+        }
+        state.roundCache[roundId]?.draftVotes = drafts
+        state.roundCache[roundId]?.votes = submittedVotes
+        state.roundCache[roundId]?.voteRecord = voteRecord
+
+        Voting.persistDrafts(drafts, roundId: roundId, account: account)
+    }
+
+    private func loadSubmittedVotesFromDb(roundId: String) -> Effect<Action> {
+        .run { [votingCrypto] send in
+            let records = try await votingCrypto.getVotes(roundId)
+            let bundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
+            let votes = submittedVotesByProposal(records, bundleCount: bundleCount)
+            await send(.submittedVotesLoaded(roundId: roundId, votes: votes))
+        } catch: { error, _ in
+            LoggerProxy.warn("Failed to load submitted voting choices: \(error)")
+        }
+    }
 
     private func canStartSubmission(_ session: RoundSession) -> Bool {
         guard !session.draftVotes.isEmpty else { return false }

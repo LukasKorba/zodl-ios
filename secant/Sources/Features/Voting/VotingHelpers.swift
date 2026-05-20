@@ -101,10 +101,7 @@ enum Voting {
 
     static func persistDrafts(_ drafts: [UInt32: VoteChoice], roundId: String, account: Account?) {
         @Dependency(\.votingMetadata) var votingMetadata
-        let encoded = drafts.reduce(into: [String: UInt32]()) { dict, entry in
-            dict[String(entry.key)] = entry.value.index
-        }
-        votingMetadata.setDrafts(encoded, roundId)
+        votingMetadata.setDrafts(encodedChoices(drafts), roundId)
         if let account {
             try? votingMetadata.store(account)
         }
@@ -112,11 +109,7 @@ enum Voting {
 
     static func loadDrafts(roundId: String) -> [UInt32: VoteChoice] {
         @Dependency(\.votingMetadata) var votingMetadata
-        return votingMetadata.loadDrafts(roundId).reduce(into: [UInt32: VoteChoice]()) { dict, entry in
-            if let proposalId = UInt32(entry.key) {
-                dict[proposalId] = .option(entry.value)
-            }
-        }
+        return decodedChoices(votingMetadata.loadDrafts(roundId))
     }
 
     static func clearPersistedDrafts(roundId: String, account: Account?) {
@@ -124,6 +117,47 @@ enum Voting {
         votingMetadata.clearDrafts(roundId)
         if let account {
             try? votingMetadata.store(account)
+        }
+    }
+
+    // MARK: - Submitted-vote persistence
+
+    static func persistSubmittedVotes(
+        _ votes: [UInt32: VoteChoice],
+        roundId: String,
+        account: Account?
+    ) {
+        @Dependency(\.votingMetadata) var votingMetadata
+        votingMetadata.setSubmittedVotes(encodedChoices(votes), roundId)
+        if let account {
+            try? votingMetadata.store(account)
+        }
+    }
+
+    static func loadSubmittedVotes(roundId: String) -> [UInt32: VoteChoice] {
+        @Dependency(\.votingMetadata) var votingMetadata
+        return decodedChoices(votingMetadata.loadSubmittedVotes(roundId))
+    }
+
+    static func clearPersistedSubmittedVotes(roundId: String, account: Account?) {
+        @Dependency(\.votingMetadata) var votingMetadata
+        votingMetadata.clearSubmittedVotes(roundId)
+        if let account {
+            try? votingMetadata.store(account)
+        }
+    }
+
+    private static func encodedChoices(_ choices: [UInt32: VoteChoice]) -> [String: UInt32] {
+        choices.reduce(into: [String: UInt32]()) { dict, entry in
+            dict[String(entry.key)] = entry.value.index
+        }
+    }
+
+    private static func decodedChoices(_ choices: [String: UInt32]) -> [UInt32: VoteChoice] {
+        choices.reduce(into: [UInt32: VoteChoice]()) { dict, entry in
+            if let proposalId = UInt32(entry.key) {
+                dict[proposalId] = .option(entry.value)
+            }
         }
     }
 
@@ -188,6 +222,25 @@ enum Voting {
         }
 
         throw lastExhaustionError ?? ShareDelegationError.noReachableVoteServers
+    }
+}
+
+func submittedVotesByProposal(
+    _ records: [VoteRecord],
+    bundleCount: UInt32
+) -> [UInt32: VoteChoice] {
+    var recordsByProposal: [UInt32: [VoteRecord]] = [:]
+    for record in records {
+        recordsByProposal[record.proposalId, default: []].append(record)
+    }
+
+    return recordsByProposal.reduce(into: [UInt32: VoteChoice]()) { result, entry in
+        let records = entry.value
+        let allSubmitted = records.allSatisfy(\.submitted)
+        let hasAllBundles = bundleCount == 0 || UInt32(records.count) >= bundleCount
+        if allSubmitted && hasAllBundles, let choice = records.first?.choice {
+            result[entry.key] = choice
+        }
     }
 }
 
