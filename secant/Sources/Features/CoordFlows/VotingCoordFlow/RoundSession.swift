@@ -50,6 +50,12 @@ struct RoundSession: Equatable {
     /// app restart.
     var draftVotes: [UInt32: VoteChoice] = [:]
 
+    /// Successfully submitted votes (post-`.batchVoteSubmitted`). Distinct
+    /// from `draftVotes` so the UI can render "Voted" pills on individual
+    /// proposals while others are still being processed in the batch loop.
+    /// Hydrated from the votingCrypto DB on round entry.
+    var votes: [UInt32: VoteChoice] = [:]
+
     /// Per-proposal tally results from the voting service. Cached for
     /// finalized rounds — these are immutable post-finalization, so we
     /// never refetch them once populated.
