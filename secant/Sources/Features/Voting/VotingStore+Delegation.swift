@@ -43,7 +43,7 @@ extension Voting {
             let roundId = activeSession.voteRoundId.hexString
             let snapshotHeight = activeSession.snapshotHeight
             let notes = state.walletNotes
-            let network = zcashSDKEnvironment.network
+            let network = zcashSDKEnvironment.network()
             let walletDbPath = databaseFiles.dataDbURLFor(network).path
             return .run { [sdkSynchronizer, votingCrypto, votingAPI] send in
                 // Check if this round already exists and ALL bundles have proofs
@@ -377,7 +377,7 @@ extension Voting {
             let expectedSnapshotHeight = activeSession.snapshotHeight
             let cachedNotes = state.walletNotes
             let bundleCount = state.bundleCount
-            let network = zcashSDKEnvironment.network
+            let network = zcashSDKEnvironment.network()
             let networkId: UInt32 = network.networkType.votingRustNetworkId
             let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
             let roundName = state.votingRound.title
@@ -502,7 +502,7 @@ extension Voting {
                 state.delegationProofStatus = .generating(progress: 0)
             }
             let cachedNotes = state.walletNotes
-            let network = zcashSDKEnvironment.network
+            let network = zcashSDKEnvironment.network()
             let networkId: UInt32 = network.networkType.votingRustNetworkId
             let isKeystoneUser = state.isKeystoneUser
             let accountIndex: UInt32 = isKeystoneUser
@@ -735,7 +735,7 @@ extension Voting {
             let roundId = activeSession.voteRoundId.hexString
             let expectedSnapshotHeight = activeSession.snapshotHeight
             let cachedNotes = state.walletNotes
-            let network = zcashSDKEnvironment.network
+            let network = zcashSDKEnvironment.network()
             let networkId: UInt32 = network.networkType.votingRustNetworkId
             let accountIndex: UInt32 = state.selectedWalletAccount.flatMap(\.zip32AccountIndex).map { UInt32($0.index) } ?? 0
             guard
