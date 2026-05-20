@@ -120,8 +120,19 @@ struct ConfirmSubmissionView: View {
                 return String(localizable: .coinVoteCommonConfirmation)
             }
         }()
-        let verb = status.isCompleted ? "Submitted" : "Submitting"
-        let subtitle = "\(verb) \(count) vote\(count == 1 ? "" : "s") with voting power \(weight)."
+        let subtitle: String = {
+            let countString = String(count)
+            let weightString = String(weight)
+            if status.isCompleted {
+                return count == 1
+                    ? String(localizable: .coinVoteConfirmSubmissionHeaderSubmittedCountSingle(countString, weightString))
+                    : String(localizable: .coinVoteConfirmSubmissionHeaderSubmittedCountMultiple(countString, weightString))
+            } else {
+                return count == 1
+                    ? String(localizable: .coinVoteConfirmSubmissionHeaderSubmittingCountSingle(countString, weightString))
+                    : String(localizable: .coinVoteConfirmSubmissionHeaderSubmittingCountMultiple(countString, weightString))
+            }
+        }()
 
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
@@ -182,13 +193,13 @@ struct ConfirmSubmissionView: View {
             }
 
             if bundleCount > 1, let bundleIndex {
-                Text("Bundle \(bundleIndex + 1) of \(bundleCount)")
+                Text(localizable: .coinVoteConfirmSubmissionBundleProgress(String(bundleIndex + 1), String(bundleCount)))
                     .zFont(.medium, size: 12, style: Design.Text.tertiary)
                     .tracking(-0.144)
             }
 
             if case let .submitting(currentIndex, totalCount, _) = status, totalCount > 1 {
-                Text("Vote \(currentIndex + 1) of \(totalCount)")
+                Text(localizable: .coinVoteConfirmSubmissionVoteProgress(String(currentIndex + 1), String(totalCount)))
                     .zFont(.medium, size: 12, style: Design.Text.tertiary)
                     .tracking(-0.144)
             }
@@ -230,7 +241,7 @@ struct ConfirmSubmissionView: View {
         VStack(spacing: 0) {
             switch status {
             case .idle, .authorizationFailed, .submissionFailed:
-                ZashiButton("Submit") {
+                ZashiButton(String(localizable: .coinVoteConfirmSubmissionSubmitCTA)) {
                     store.send(.submitAllDraftsTapped(roundId: roundId))
                 }
                 .disabled(drafts.isEmpty || bundleCount == 0)

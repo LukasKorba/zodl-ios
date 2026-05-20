@@ -25,11 +25,11 @@ struct IneligibleView: View {
                         .font(.system(size: 40, weight: .regular))
                         .foregroundStyle(Design.Text.tertiary.color(colorScheme))
 
-                    Text("You can't vote in this round")
+                    Text(localizable: .coinVoteIneligibleTitleNoVote)
                         .zFont(.semiBold, size: 20, style: Design.Text.primary)
                         .multilineTextAlignment(.center)
 
-                    Text("Voting power is derived from your shielded ZEC at the round's snapshot height. This wallet had no eligible notes at that moment.")
+                    Text(localizable: .coinVoteIneligibleSnapshotBody)
                         .zFont(.medium, size: 14, style: Design.Text.tertiary)
                         .multilineTextAlignment(.center)
                         .fixedSize(horizontal: false, vertical: true)

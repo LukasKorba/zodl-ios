@@ -82,7 +82,7 @@ struct ProposalDetailView: View {
                             .padding(.top, 16)
                         }
                     } else {
-                        Text("Proposal not found")
+                        Text(localizable: .coinVoteProposalDetailNotFound)
                             .zFont(.medium, size: 14, style: Design.Text.tertiary)
                             .padding(.horizontal, 24)
                             .padding(.top, 12)

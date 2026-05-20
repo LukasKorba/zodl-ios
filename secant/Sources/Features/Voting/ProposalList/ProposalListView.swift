@@ -101,19 +101,19 @@ struct ProposalListView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if ready {
-                Text("Voting power: \(weight)")
+                Text(localizable: .coinVoteProposalListVotingPower(String(weight)))
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
             } else {
                 HStack(spacing: 8) {
                     ProgressView()
                         .scaleEffect(0.75)
-                    Text("Preparing your voting power…")
+                    Text(localizable: .coinVoteProposalListPreparingVotingPower)
                         .zFont(.medium, size: 14, style: Design.Text.tertiary)
                 }
             }
 
             if mode == .review {
-                Text("Review your submitted votes")
+                Text(localizable: .coinVoteProposalListReviewSubmitted)
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
             }
         }
@@ -124,17 +124,11 @@ struct ProposalListView: View {
     @ViewBuilder
     private func proposalCard(_ proposal: VotingProposal, choice: VoteChoice?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                Text(proposal.title)
-                    .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                    .tracking(-0.256)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-
-                if let choice, let label = label(for: choice, options: proposal.options) {
-                    draftPill(label: label)
-                }
-            }
+            Text(proposal.title)
+                .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                .tracking(-0.256)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             if !proposal.description.isEmpty {
                 Text(proposal.description)
@@ -142,6 +136,11 @@ struct ProposalListView: View {
                     .tracking(-0.224)
                     .lineLimit(3)
                     .fixedSize(horizontal: false, vertical: true)
+            }
+
+            if let choice, let label = label(for: choice, options: proposal.options) {
+                yourVotePill(label: label)
+                    .padding(.top, 8)
             }
         }
         .padding(Design.Spacing._xl)
@@ -188,23 +187,92 @@ struct ProposalListView: View {
     }
 
     @ViewBuilder
-    private func draftPill(label: String) -> some View {
-        Text(label)
-            .zFont(.medium, size: 12, style: Design.Text.primary)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(Design.Utility.SuccessGreen._50.color(colorScheme))
-            .clipShape(Capsule())
-            .overlay(
-                Capsule()
-                    .stroke(Design.Utility.SuccessGreen._200.color(colorScheme), lineWidth: 1)
+    private func yourVotePill(label: String) -> some View {
+        let tone = pillTone(for: label)
+        Group {
+            // Yes / No / Abstain are enum-like → one-line HStack.
+            // Free-form custom answers (blue tone) are typically long →
+            // two-line VStack with the answer below "Your vote:".
+            if tone.isInline {
+                HStack(spacing: 6) {
+                    Text(localizable: .coinVoteProposalListYourVote)
+                        .zFont(.medium, size: 12, color: tone.label.color(colorScheme))
+                        .tracking(-0.072)
+
+                    Text(label)
+                        .zFont(.semiBold, size: 14, color: tone.text.color(colorScheme))
+                        .tracking(-0.224)
+                }
+            } else {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(localizable: .coinVoteProposalListYourVote)
+                        .zFont(.medium, size: 12, color: tone.label.color(colorScheme))
+                        .tracking(-0.072)
+
+                    Text(label)
+                        .zFont(.semiBold, size: 14, color: tone.text.color(colorScheme))
+                        .tracking(-0.224)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(tone.background.color(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._md))
+    }
+
+    /// Color category for the "Your vote:" pill. Picks a non-opinionated
+    /// palette so a free-form custom answer (e.g. "Smooth issuance curve")
+    /// doesn't get a charged green/red — only literal Yes/Support / No/Oppose
+    /// get those tones. `isInline` is true for the enum-like answers
+    /// (Yes/No/Abstain) where label + value fit on one line; false for the
+    /// long free-form answers that need a stacked layout.
+    private func pillTone(for label: String) -> PillTone {
+        switch label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "yes", "support":
+            return PillTone(
+                background: Design.Utility.SuccessGreen._50,
+                label: Design.Utility.SuccessGreen._700,
+                text: Design.Utility.SuccessGreen._700,
+                isInline: true
             )
+        case "no", "oppose":
+            return PillTone(
+                background: Design.Utility.ErrorRed._50,
+                label: Design.Utility.ErrorRed._700,
+                text: Design.Utility.ErrorRed._700,
+                isInline: true
+            )
+        case "abstain":
+            return PillTone(
+                background: Design.Utility.Gray._100,
+                label: Design.Utility.Gray._700,
+                text: Design.Utility.Gray._700,
+                isInline: true
+            )
+        default:
+            return PillTone(
+                background: Design.Utility.HyperBlue._50,
+                label: Design.Utility.HyperBlue._700,
+                text: Design.Utility.HyperBlue._700,
+                isInline: false
+            )
+        }
+    }
+
+    private struct PillTone {
+        let background: Colorable
+        let label: Colorable
+        let text: Colorable
+        let isInline: Bool
     }
 
     @ViewBuilder
     private func submitCTA(draftCount: Int) -> some View {
         VStack(spacing: 0) {
-            ZashiButton("Submit votes (\(draftCount))") {
+            ZashiButton(String(localizable: .coinVoteProposalListSubmitVotesCount(String(draftCount)))) {
                 store.send(.submitTapped(roundId: roundId))
             }
         }

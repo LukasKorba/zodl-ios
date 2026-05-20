@@ -29,9 +29,9 @@ struct TallyingView: View {
                 HStack(spacing: 12) {
                     ProgressView()
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Tallying in progress")
+                        Text(localizable: .coinVoteTallyingTitleInProgress)
                             .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                        Text("Voting has closed. Final results will appear here once the helpers finish tallying.")
+                        Text(localizable: .coinVoteTallyingBodyInProgress)
                             .zFont(.medium, size: 14, style: Design.Text.tertiary)
                             .fixedSize(horizontal: false, vertical: true)
                     }

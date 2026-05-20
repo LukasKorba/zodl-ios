@@ -89,13 +89,13 @@ struct VotingCoordFlowView: View {
         case let .error(message):
             VotingErrorView(
                 store: store,
-                title: "Something went wrong",
+                title: String(localizable: .coinVoteErrorTitle),
                 message: message
             )
         case let .configError(message):
             VotingErrorView(
                 store: store,
-                title: "Voting unavailable",
+                title: String(localizable: .coinVoteErrorConfigUnavailableTitle),
                 message: message
             )
         }

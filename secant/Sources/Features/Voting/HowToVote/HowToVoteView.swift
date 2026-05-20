@@ -37,15 +37,15 @@ struct HowToVoteView: View {
 
                         stepRow(
                             number: 1,
-                            title: "Voting on Proposals",
-                            body: "Vote on each question by selecting an answer. You can skip questions and update your choices anytime before submitting."
+                            title: String(localizable: .coinVoteHowToVoteStepVotingTitle),
+                            body: String(localizable: .coinVoteHowToVoteStepVotingBody)
                         )
                         .padding(.bottom, 16)
 
                         stepRow(
                             number: 2,
-                            title: "Authorize and Submit",
-                            body: "When you're ready, you'll confirm a small authorization transaction and submit your vote in one step. After submission, your vote cannot be changed."
+                            title: String(localizable: .coinVoteHowToVoteStepAuthorizeTitle),
+                            body: String(localizable: .coinVoteHowToVoteStepAuthorizeBody)
                         )
                     }
                     .padding(.horizontal, 24)
@@ -146,7 +146,7 @@ struct HowToVoteView: View {
                 .foregroundStyle(Design.Text.tertiary.color(colorScheme))
                 .padding(.top, 1)
 
-            Text("Your balance at the snapshot time determines your voting weight. You don't need to move your funds anywhere.")
+            Text(localizable: .coinVoteHowToVoteInfoCard)
                 .zFont(.medium, size: 13, style: Design.Text.tertiary)
                 .tracking(-0.208)
                 .fixedSize(horizontal: false, vertical: true)
@@ -157,10 +157,12 @@ struct HowToVoteView: View {
     // MARK: - Variant copy
 
     private var titleCopy: String {
-        store.isKeystoneUser ? "How to vote with Keystone" : "How to vote with Zodl"
+        store.isKeystoneUser
+            ? String(localizable: .coinVoteHowToVoteTitleKeystone)
+            : String(localizable: .coinVoteHowToVoteTitleZodl)
     }
 
     private var subtitleCopy: String {
-        "Your ZEC gives you a voice. Shape the future of the Zcash network by voting on active proposals."
+        String(localizable: .coinVoteHowToVoteSubtitle)
     }
 }
