@@ -7,14 +7,22 @@ import ComposableArchitecture
 
 @Reducer
 struct ProposalDetail {
+    /// Whether the user can change their answer here. `.review` is read-only
+    /// — the round has been submitted and editing would invalidate the
+    /// completed-vote marker (see `Voting.loadCompletedVoteRecord`, which
+    /// returns nil whenever drafts are non-empty).
+    enum Mode: Equatable { case voting, review }
+
     @ObservableState
     struct State: Equatable {
         let roundId: String
         let proposalId: UInt32
+        let mode: Mode
 
-        init(roundId: String, proposalId: UInt32) {
+        init(roundId: String, proposalId: UInt32, mode: Mode = .voting) {
             self.roundId = roundId
             self.proposalId = proposalId
+            self.mode = mode
         }
     }
 

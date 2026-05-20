@@ -35,7 +35,8 @@ struct VotingCoordFlowView: View {
                         ProposalDetailView(
                             store: store,
                             roundId: scoped.roundId,
-                            proposalId: scoped.proposalId
+                            proposalId: scoped.proposalId,
+                            mode: scoped.mode
                         )
                     case let .reviewVotes(scoped):
                         ProposalListView(

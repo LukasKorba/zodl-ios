@@ -50,6 +50,11 @@ struct RoundSession: Equatable {
     /// arrives empty).
     var tallyFetched: Bool = false
 
+    /// Last tally-fetch failure message, set by `.tallyResultsFailed`.
+    /// Non-nil = ResultsView renders a retry surface instead of the
+    /// "Loading results…" spinner. Cleared by `.retryFetchTallyResults`.
+    var tallyError: String?
+
     // Phase 4c+ will add: witnessResults, delegationProofStatus,
     // delegationPrecomputeStatus, bundleCount, tallyResults, voteRecord,
     // draftVotes, etc. Each addition stays append-only — once a field is

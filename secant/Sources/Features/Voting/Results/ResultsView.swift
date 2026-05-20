@@ -24,6 +24,7 @@ struct ResultsView: View {
             let cached = store.roundCache[roundId]
             let tallyResults = cached?.tallyResults ?? [:]
             let loaded = cached?.tallyFetched ?? false
+            let tallyError = cached?.tallyError
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -32,7 +33,25 @@ struct ResultsView: View {
                         .tracking(-0.384)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    if !loaded {
+                    if let tallyError {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Couldn't load results")
+                                .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                                .tracking(-0.256)
+
+                            Text(tallyError)
+                                .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                                .tracking(-0.224)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            ZashiButton(String(localizable: .coinVoteCommonTryAgain)) {
+                                store.send(.retryFetchTallyResults(roundId: roundId))
+                            }
+                            .padding(.top, 8)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.top, 8)
+                    } else if !loaded {
                         HStack(spacing: 8) {
                             ProgressView().scaleEffect(0.75)
                             Text("Loading results…")

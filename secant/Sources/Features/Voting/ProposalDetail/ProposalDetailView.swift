@@ -16,6 +16,19 @@ struct ProposalDetailView: View {
     let store: StoreOf<VotingCoordFlow>
     let roundId: String
     let proposalId: UInt32
+    let mode: ProposalDetail.Mode
+
+    init(
+        store: StoreOf<VotingCoordFlow>,
+        roundId: String,
+        proposalId: UInt32,
+        mode: ProposalDetail.Mode = .voting
+    ) {
+        self.store = store
+        self.roundId = roundId
+        self.proposalId = proposalId
+        self.mode = mode
+    }
 
     var body: some View {
         WithPerceptionTracking {
@@ -68,7 +81,13 @@ struct ProposalDetailView: View {
     @ViewBuilder
     private func optionRow(_ option: VoteOption, selected: VoteChoice?) -> some View {
         let isSelected = selected == .option(option.index)
+        let isReviewing = mode == .review
         Button {
+            // Suppress option taps in review mode: the round has been
+            // submitted and any draft would invalidate the completed-vote
+            // marker (drafts non-empty → `loadCompletedVoteRecord` returns
+            // nil → "Voted" pill disappears on next entry).
+            guard !isReviewing else { return }
             store.send(
                 .draftVoteSet(
                     roundId: roundId,
@@ -113,5 +132,6 @@ struct ProposalDetailView: View {
             )
         }
         .buttonStyle(.plain)
+        .disabled(isReviewing)
     }
 }

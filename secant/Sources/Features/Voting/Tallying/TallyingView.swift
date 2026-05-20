@@ -45,6 +45,13 @@ struct TallyingView: View {
                         .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
                 )
 
+                ZashiButton(
+                    String(localizable: .coinVoteCommonRefresh),
+                    type: .tertiary
+                ) {
+                    store.send(.refreshActiveRoundsList)
+                }
+
                 Spacer()
             }
             .padding(.horizontal, 24)
@@ -54,6 +61,17 @@ struct TallyingView: View {
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
             .zashiBack()
+            .task {
+                // While the user sits on this screen, re-poll the rounds
+                // list every 30s so a status flip from tallying → finalized
+                // can swap them onto ResultsView automatically. The task
+                // is cancelled when the view disappears.
+                while !Task.isCancelled {
+                    try? await Task.sleep(for: .seconds(30))
+                    guard !Task.isCancelled else { return }
+                    store.send(.refreshActiveRoundsList)
+                }
+            }
         }
     }
 }

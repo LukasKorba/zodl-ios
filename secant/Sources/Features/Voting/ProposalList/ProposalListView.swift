@@ -40,7 +40,11 @@ struct ProposalListView: View {
                         } else {
                             ForEach(proposals) { proposal in
                                 Button {
-                                    store.send(.proposalTapped(roundId: roundId, proposalId: proposal.id))
+                                    store.send(.proposalTapped(
+                                        roundId: roundId,
+                                        proposalId: proposal.id,
+                                        mode: mode == .review ? .review : .voting
+                                    ))
                                 } label: {
                                     proposalCard(proposal, drafted: drafts[proposal.id])
                                 }

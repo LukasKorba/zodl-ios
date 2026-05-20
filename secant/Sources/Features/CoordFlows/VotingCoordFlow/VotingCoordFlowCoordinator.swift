@@ -30,12 +30,27 @@ extension VotingCoordFlow {
 
             case .path(.element(id: _, action: .configSettings(.delegate(.saved)))):
                 // Save closes the settings screen and re-runs initialize so
-                // the new pinned config takes effect.
+                // the new pinned config takes effect. Voting state from the
+                // previous source has to go: round ids can collide across
+                // sources, cached per-round pipeline output (hotkey, weight,
+                // witnesses, drafts) is keyed only by round id and would
+                // happily serve stale data after the switch. Cancel the
+                // in-flight pipeline too so it doesn't race the new init.
                 if !state.path.isEmpty {
                     state.path.removeLast()
                 }
+                state.allRounds = []
+                state.roundCache.removeAll()
+                state.voteRecords.removeAll()
+                state.zodlEndorsedRoundIds = []
+                state.pendingPipelineRoundId = nil
+                state.serviceConfig = nil
+                state.pollsLoadError = false
                 state.rootScreen = .loading
-                return .send(.initialize)
+                return .merge(
+                    .cancel(id: cancelPipelineId),
+                    .send(.initialize)
+                )
 
             case .path:
                 return .none
@@ -158,6 +173,41 @@ extension VotingCoordFlow {
                 state.voteRecords = records
 
                 state.rootScreen = state.allRounds.isEmpty ? .noRounds : .pollsList
+
+                // If the user is currently on TallyingView for a round whose
+                // status just flipped to .finalized, swap the topmost path
+                // entry for ResultsView so the 30 s auto-poll on
+                // TallyingView lands them on the right screen without a
+                // manual back tap. Same for proposal list → results when a
+                // previously-active round finalized out from under them.
+                if let topRoundId = finalizedTopOfPath(state) {
+                    _ = state.path.popLast()
+                    state.path.append(.results(Results.State(roundId: topRoundId)))
+                }
+
+                // Fetch the Zodl endorsement list right after the rounds
+                // list lands. PollsListView filters bundled rounds by this
+                // set when `isOnDefaultConfig` is true, so without the
+                // fetch the list would be empty on the default source.
+                return .run { [votingAPI] send in
+                    do {
+                        let ids = try await votingAPI.fetchZodlEndorsedRoundIds()
+                        await send(.zodlEndorsementsLoaded(ids))
+                    } catch {
+                        LoggerProxy.error("Failed to fetch zodl endorsements: \(error)")
+                        await send(.zodlEndorsementsFailed)
+                    }
+                }
+
+            case let .zodlEndorsementsLoaded(ids):
+                state.zodlEndorsedRoundIds = ids
+                return .none
+
+            case .zodlEndorsementsFailed:
+                // Leave the existing set in place; the polls list either
+                // renders empty (default source) or unaffected (custom source
+                // skips the filter). The polls-list error sheet already
+                // covers the user-visible network-failure surface.
                 return .none
 
             case .roundsLoadFailed:
@@ -248,10 +298,10 @@ extension VotingCoordFlow {
                 state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
                 return .none
 
-            case let .proposalTapped(roundId, proposalId):
+            case let .proposalTapped(roundId, proposalId, mode):
                 state.path.append(
                     .proposalDetail(
-                        ProposalDetail.State(roundId: roundId, proposalId: proposalId)
+                        ProposalDetail.State(roundId: roundId, proposalId: proposalId, mode: mode)
                     )
                 )
                 return .none
@@ -281,12 +331,15 @@ extension VotingCoordFlow {
             case let .fetchTallyResults(roundId):
                 // Cache hit on finalized round = no refetch. Tally results
                 // are immutable post-finalization.
-                if let cached = state.roundCache[roundId], cached.tallyFetched {
+                if let cached = state.roundCache[roundId],
+                   cached.tallyFetched,
+                   cached.tallyError == nil {
                     return .none
                 }
                 if state.roundCache[roundId] == nil {
                     state.roundCache[roundId] = RoundSession(roundId: roundId)
                 }
+                state.roundCache[roundId]?.tallyError = nil
                 return .run { [votingAPI] send in
                     do {
                         let results = try await votingAPI.fetchTallyResults(roundId)
@@ -304,8 +357,13 @@ extension VotingCoordFlow {
                     .tallyFetched = true
                 return .none
 
-            case .tallyResultsFailed:
-                // Surface via UI later; for now we just stop "loading".
+            case let .tallyResultsFailed(roundId, message):
+                // Surface the failure on ResultsView so the user sees a
+                // retry button instead of an indefinite loading spinner.
+                if state.roundCache[roundId] == nil {
+                    state.roundCache[roundId] = RoundSession(roundId: roundId)
+                }
+                state.roundCache[roundId]?.tallyError = message
                 return .none
 
             case let .draftVoteSet(roundId, proposalId, choice):
@@ -371,15 +429,26 @@ extension VotingCoordFlow {
                         return
                     }
 
-                    // 2. Notes + weight.
+                    // 2. Notes + eligible voting weight after bundling.
+                    // `smartBundles().eligibleWeight` mirrors the Rust
+                    // chunking: groups of 5 notes, drops any bundle below
+                    // ballotDivisor (0.125 ZEC). An empty / sub-threshold
+                    // wallet must land on IneligibleView instead of
+                    // marching through hotkey generation only to fail
+                    // submission later.
                     let notes = try await votingCrypto.getWalletNotes(
                         walletDbPath,
                         snapshotHeight,
                         networkId,
                         accountUUID
                     )
-                    let totalWeight = notes.reduce(UInt64(0)) { $0 + $1.value }
-                    await send(.votingWeightLoaded(roundId: roundId, weight: totalWeight, notes: notes))
+                    let bundleResult = notes.smartBundles()
+                    let eligibleWeight = bundleResult.eligibleWeight
+                    if notes.isEmpty || eligibleWeight == 0 {
+                        await send(.ineligibleForRound(roundId: roundId))
+                        return
+                    }
+                    await send(.votingWeightLoaded(roundId: roundId, weight: eligibleWeight, notes: notes))
 
                     // 3. Hotkey: load or generate the per-account hotkey
                     // mnemonic, then derive this round's hotkey address.
@@ -463,7 +532,64 @@ extension VotingCoordFlow {
                 state.path.removeAll()
                 state.rootScreen = .error(message)
                 return .none
+
+            case let .ineligibleForRound(roundId):
+                // No eligible notes at the snapshot height (no notes at all,
+                // or every bundle dropped below ballotDivisor). Swap the
+                // proposal list at the top of the path for IneligibleView
+                // so the user sees the terminal explanation instead of
+                // sitting in the "Preparing your voting power…" header
+                // forever.
+                if case .proposalList = state.path.last {
+                    _ = state.path.popLast()
+                }
+                state.path.append(.ineligible(Ineligible.State(roundId: roundId)))
+                return .cancel(id: cancelPipelineId)
+
+            case .refreshActiveRoundsList:
+                // Lightweight re-fetch used by the tallying-status poll.
+                // Reuses the same allRoundsLoaded path so we pick up any
+                // status transition (active → tallying → finalized) without
+                // disturbing rootScreen.
+                return .run { [votingAPI] send in
+                    do {
+                        let sessions = try await votingAPI.fetchAllRounds()
+                        await send(.allRoundsLoaded(sessions))
+                    } catch {
+                        LoggerProxy.warn("Tallying poll: rounds re-fetch failed: \(error)")
+                    }
+                }
+
+            case let .retryFetchTallyResults(roundId):
+                // Manual retry from ResultsView when the previous fetch
+                // errored. Clear the error and re-trigger the fetch.
+                if state.roundCache[roundId] != nil {
+                    state.roundCache[roundId]?.tallyError = nil
+                }
+                return .send(.fetchTallyResults(roundId: roundId))
             }
         }
+    }
+
+    /// Returns the topmost path element's round id when it's a
+    /// `.tallying` / `.proposalList` entry whose round status just flipped
+    /// to `.finalized`, otherwise nil. Used by the tallying-status auto-
+    /// poll to redirect the user onto ResultsView.
+    private func finalizedTopOfPath(_ state: State) -> String? {
+        guard let top = state.path.last else { return nil }
+        let candidate: String?
+        switch top {
+        case let .tallying(scoped):
+            candidate = scoped.roundId
+        case let .proposalList(scoped):
+            candidate = scoped.roundId
+        default:
+            candidate = nil
+        }
+        guard let roundId = candidate,
+              let item = state.allRounds.first(where: { $0.id == roundId }),
+              item.session.status == .finalized
+        else { return nil }
+        return roundId
     }
 }

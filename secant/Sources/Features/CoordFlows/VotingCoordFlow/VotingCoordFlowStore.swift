@@ -135,11 +135,16 @@ struct VotingCoordFlow {
         case serviceConfigLoaded(VotingServiceConfig)
         case allRoundsLoaded([VotingSession])
         case roundsLoadFailed
+        case zodlEndorsementsLoaded(Set<String>)
+        case zodlEndorsementsFailed
         case configUnsupported(String)
         case initializeFailed(String)
         case roundTapped(String)
+        case ineligibleForRound(roundId: String)
+        case refreshActiveRoundsList
+        case retryFetchTallyResults(roundId: String)
         case viewMyVotesTapped(roundId: String)
-        case proposalTapped(roundId: String, proposalId: UInt32)
+        case proposalTapped(roundId: String, proposalId: UInt32, mode: ProposalDetail.Mode = .voting)
         case startActiveRoundPipeline(roundId: String)
         case walletNotSynced(roundId: String, scannedHeight: UInt64, snapshotHeight: UInt64)
         case walletSyncProgressUpdated(height: UInt64)
