@@ -91,6 +91,23 @@ final class VotingMetadataStorage: Sendable {
         let metadata = votingMetadataFromMemory()
         let encrypted = try VotingMetadata.encrypt(metadata, account: account)
         try encrypted.write(to: fileURL, options: .atomic)
+        try excludeFromBackup(fileURL: fileURL)
+    }
+
+    /// Voting metadata is intentionally local-only — unlike Address Book and
+    /// User Metadata, it has no iCloud Drive sync path, no merge strategy, and
+    /// no propagation of Reset Zashi to remote copies. Excluding the file from
+    /// iCloud Backup keeps that contract end-to-end so an orphaned encrypted
+    /// blob can't outlive the wallet in the user's Apple backup.
+    ///
+    /// Called after every atomic write because `.atomic` writes to a temp file
+    /// and renames into place, which can drop the resource attribute on some
+    /// iOS versions.
+    private func excludeFromBackup(fileURL: URL) throws {
+        var url = fileURL
+        var values = URLResourceValues()
+        values.isExcludedFromBackup = true
+        try url.setResourceValues(values)
     }
 
     func load(account: Account) throws {

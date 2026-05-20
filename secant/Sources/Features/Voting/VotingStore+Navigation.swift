@@ -166,7 +166,11 @@ extension Voting {
             // sees the cleared activeSession and re-renders the polls list.
             state.screenStack = [.loading]
             // Clean up persisted drafts for the current round
-            Self.clearPersistedDrafts(roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            do {
+                try Self.clearPersistedDrafts(roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
             // Reset per-round state
             state.activeSession = nil
             state.votes = [:]
@@ -457,7 +461,11 @@ extension Voting {
             } else {
                 state.draftVotes[proposalId] = choice
             }
-            Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            do {
+                try Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
             return .none
 
         case .voteSubmissionBundleStarted(let index):
@@ -502,7 +510,11 @@ extension Voting {
                 } else {
                     state.draftVotes.removeValue(forKey: snapshot.proposalId)
                 }
-                Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+                do {
+                try Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
                 state.editingFromReview = nil
             }
             if case .proposalDetail = state.currentScreen {
@@ -573,7 +585,11 @@ extension Voting {
                 }
                 state.draftVotes[proposal.id] = .option(abstainIndex)
             }
-            Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            do {
+                try Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
             state.screenStack.removeLast()
             state.screenStack.append(.confirmSubmission)
             return .none

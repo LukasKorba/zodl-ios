@@ -43,11 +43,24 @@ extension Voting {
 
     // MARK: - Vote records
 
-    static func persistVoteRecord(_ record: VoteRecord, roundId: String, account: Account?) {
+    /// Persist a completed-round vote record. Throws so the caller can
+    /// surface a failure (toast/alert). On failure the in-memory cache is
+    /// rolled back so the next read doesn't lie about what's on disk.
+    static func persistVoteRecord(_ record: VoteRecord, roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.record(roundId)
         votingMetadata.setRecord(record.persisted, roundId)
         if let account {
-            try? votingMetadata.store(account)
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                if let previous {
+                    votingMetadata.setRecord(previous, roundId)
+                } else {
+                    votingMetadata.clearRecord(roundId)
+                }
+                throw error
+            }
         }
     }
 
@@ -56,11 +69,19 @@ extension Voting {
         return votingMetadata.record(roundId).map(VoteRecord.init)
     }
 
-    static func clearPersistedVoteRecord(roundId: String, account: Account?) {
+    static func clearPersistedVoteRecord(roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.record(roundId)
         votingMetadata.clearRecord(roundId)
         if let account {
-            try? votingMetadata.store(account)
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                if let previous {
+                    votingMetadata.setRecord(previous, roundId)
+                }
+                throw error
+            }
         }
     }
 
@@ -69,7 +90,7 @@ extension Voting {
     /// outstanding editable work for the round.
     static func loadCompletedVoteRecord(roundId: String, account: Account?) -> VoteRecord? {
         guard loadDrafts(roundId: roundId).isEmpty else {
-            clearPersistedVoteRecord(roundId: roundId, account: account)
+            try? clearPersistedVoteRecord(roundId: roundId, account: account)
             return nil
         }
         return loadVoteRecord(roundId: roundId)
@@ -77,16 +98,24 @@ extension Voting {
 
     // MARK: - Drafts
 
-    /// Persist draft votes for a round. Updates the in-memory cache and
-    /// flushes the encrypted file when an account is available.
-    static func persistDrafts(_ drafts: [UInt32: VoteChoice], roundId: String, account: Account?) {
+    /// Persist draft votes for a round. Optimistically updates the in-memory
+    /// cache, then flushes to disk. On persist failure the in-memory cache
+    /// is reverted so the UI never displays a draft that didn't actually
+    /// survive — and the caller can decide how to surface the failure.
+    static func persistDrafts(_ drafts: [UInt32: VoteChoice], roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.loadDrafts(roundId)
         let encoded = drafts.reduce(into: [String: UInt32]()) { dict, entry in
             dict[String(entry.key)] = entry.value.index
         }
         votingMetadata.setDrafts(encoded, roundId)
         if let account {
-            try? votingMetadata.store(account)
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                votingMetadata.setDrafts(previous, roundId)
+                throw error
+            }
         }
     }
 
@@ -101,11 +130,31 @@ extension Voting {
     }
 
     /// Remove all persisted drafts for a round.
-    static func clearPersistedDrafts(roundId: String, account: Account?) {
+    static func clearPersistedDrafts(roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.loadDrafts(roundId)
         votingMetadata.clearDrafts(roundId)
         if let account {
-            try? votingMetadata.store(account)
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                votingMetadata.setDrafts(previous, roundId)
+                throw error
+            }
+        }
+    }
+
+    // MARK: - Failure surfacing
+
+    /// Logs the failure and surfaces a toast so the user knows their last
+    /// action didn't fully take. Use after `try Self.persistDrafts(...)` /
+    /// `persistVoteRecord(...)` / `clearPersisted*(...)` in reducer code so
+    /// the in-memory rollback (done inside the helper) is paired with a UI
+    /// signal.
+    static func handlePersistFailure(_ error: Error, state: inout State) {
+        LoggerProxy.error("voting metadata persist failed: \(error.localizedDescription)")
+        state.$toast.withLock {
+            $0 = .top("Your voting changes couldn't be saved. Please try again.")
         }
     }
 
