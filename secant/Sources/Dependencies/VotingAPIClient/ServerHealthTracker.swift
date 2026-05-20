@@ -1,7 +1,4 @@
 import Foundation
-import os
-
-private let healthLogger = Logger(subsystem: "co.zodl.voting", category: "ServerHealthTracker")
 
 // MARK: - Server Health Tracker
 
@@ -93,7 +90,7 @@ actor ServerHealthTracker {
 
         // Graceful degradation: never return empty
         if healthy.isEmpty {
-            healthLogger.info("All servers unhealthy; falling back to full list")
+            LoggerProxy.info("All servers unhealthy; falling back to full list")
             return Array(servers.keys)
         }
         return healthy
@@ -107,7 +104,7 @@ actor ServerHealthTracker {
         servers[url]!.circuit = .closed
         servers[url]!.consecutiveFailures = 0
         if previous != .closed {
-            healthLogger.info("\(url, privacy: .public) recovered; circuit closed")
+            LoggerProxy.info("\(url) recovered; circuit closed")
         }
     }
 
@@ -118,11 +115,11 @@ actor ServerHealthTracker {
 
         if failures >= failureThreshold && servers[url]!.circuit == .closed {
             servers[url]!.circuit = .open(since: Date())
-            healthLogger.warning("\(url, privacy: .public) circuit opened after \(failures) failures")
+            LoggerProxy.warn("\(url) circuit opened after \(failures) failures")
         } else if servers[url]!.circuit == .halfOpen {
             // halfOpen probe failed — re-open
             servers[url]!.circuit = .open(since: Date())
-            healthLogger.warning("\(url, privacy: .public) half-open probe failed; circuit reopened")
+            LoggerProxy.warn("\(url) half-open probe failed; circuit reopened")
         }
     }
 

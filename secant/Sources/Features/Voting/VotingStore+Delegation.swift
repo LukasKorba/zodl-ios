@@ -120,7 +120,7 @@ extension Voting {
                 // Setup bundles (value-aware split into groups of up to 5)
                 let setupResult = try await votingCrypto.setupBundles(roundId, notes)
                 let bundleCount = setupResult.bundleCount
-                votingLogger.info("Setup \(bundleCount) bundle(s) for \(notes.count) notes (eligible weight: \(setupResult.eligibleWeight))")
+                LoggerProxy.info("Setup \(bundleCount) bundle(s) for \(notes.count) notes (eligible weight: \(setupResult.eligibleWeight))")
 
                 // Phase 1: Fetch tree state from lightwalletd
                 let fetchStart = ContinuousClock.now
@@ -129,7 +129,7 @@ extension Voting {
                 let fetchEnd = ContinuousClock.now
                 let fetchMs = UInt64(fetchStart.duration(to: fetchEnd).components.seconds * 1000)
                     + UInt64(fetchStart.duration(to: fetchEnd).components.attoseconds / 1_000_000_000_000_000)
-                votingLogger.debug("Tree state fetch: \(fetchMs)ms")
+                LoggerProxy.debug("Tree state fetch: \(fetchMs)ms")
 
                 // Phase 2: Generate witnesses per-bundle (includes Rust-side verification)
                 let noteChunks = notes.smartBundles().bundles
@@ -144,7 +144,7 @@ extension Voting {
                 let genEnd = ContinuousClock.now
                 let genMs = UInt64(fetchEnd.duration(to: genEnd).components.seconds * 1000)
                     + UInt64(fetchEnd.duration(to: genEnd).components.attoseconds / 1_000_000_000_000_000)
-                votingLogger.debug("Witness generation: \(genMs)ms (\(allWitnesses.count) notes)")
+                LoggerProxy.debug("Witness generation: \(genMs)ms (\(allWitnesses.count) notes)")
 
                 // Phase 3: Verify each witness on Swift side for UI display
                 let sortedNotes = noteChunks.flatMap { $0 }
@@ -153,13 +153,13 @@ extension Voting {
                     let verified = (try? await votingCrypto.verifyWitness(witness)) ?? false
                     let note = sortedNotes[idx]
                     results.append(.init(position: note.position, value: note.value, verified: verified))
-                    votingLogger.debug("Note pos=\(note.position) value=\(note.value) verified=\(verified)")
+                    LoggerProxy.debug("Note pos=\(note.position) value=\(note.value) verified=\(verified)")
                 }
                 let verifyEnd = ContinuousClock.now
                 let verifyMs = UInt64(genEnd.duration(to: verifyEnd).components.seconds * 1000)
                     + UInt64(genEnd.duration(to: verifyEnd).components.attoseconds / 1_000_000_000_000_000)
-                votingLogger.debug("Swift verification: \(verifyMs)ms")
-                votingLogger.info("Total witness pipeline: \(fetchMs + genMs + verifyMs)ms")
+                LoggerProxy.debug("Swift verification: \(verifyMs)ms")
+                LoggerProxy.info("Total witness pipeline: \(fetchMs + genMs + verifyMs)ms")
 
                 let timing = Voting.State.WitnessTiming(
                     treeStateFetchMs: fetchMs,
@@ -168,7 +168,7 @@ extension Voting {
                 )
                 await send(.witnessVerificationCompleted(results, allWitnesses, timing, bundleCount))
             } catch: { error, send in
-                votingLogger.error("Witness verification failed: \(error)")
+                LoggerProxy.error("Witness verification failed: \(error)")
                 await send(.witnessVerificationFailed(error.localizedDescription))
             }
 
@@ -236,7 +236,7 @@ extension Voting {
                         let count = try await votingCrypto.getBundleCount(roundId)
                         await send(.bundleCountRestored(count))
                     } catch: { error, send in
-                        votingLogger.error("Failed to restore bundle count: \(error)")
+                        LoggerProxy.error("Failed to restore bundle count: \(error)")
                         await send(.witnessVerificationFailed(
                             String(localizable: .coinVoteDelegationRestoreVotingStateFailed(error.localizedDescription))
                         ))
@@ -277,7 +277,7 @@ extension Voting {
                 let unsubmitted = votes.filter { !$0.submitted }
                 for vote in unsubmitted {
                     if case .present? = try? await votingCrypto.getVoteTxHash(roundId, vote.bundleIndex, vote.proposalId) {
-                        votingLogger.info("Vote resume: found in-flight vote for proposal \(vote.proposalId), auto-resuming via batch path")
+                        LoggerProxy.info("Vote resume: found in-flight vote for proposal \(vote.proposalId), auto-resuming via batch path")
                         await send(.setDraftVote(proposalId: vote.proposalId, choice: vote.choice))
                         await send(.submitAllDrafts)
                         return
@@ -297,7 +297,7 @@ extension Voting {
                     }
                     for (proposalId, info) in byProposal {
                         if info.submitted > 0, info.total < Int(bundleCount) {
-                            votingLogger.info("Vote resume: proposal \(proposalId) has \(info.total)/\(bundleCount) bundle records, resuming via batch path")
+                            LoggerProxy.info("Vote resume: proposal \(proposalId) has \(info.total)/\(bundleCount) bundle records, resuming via batch path")
                             await send(.setDraftVote(proposalId: proposalId, choice: info.choice))
                             await send(.submitAllDrafts)
                             return
@@ -366,7 +366,7 @@ extension Voting {
                 return .none
             }
             guard let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount) else {
-                votingLogger.debug("Skipping delegation PIR precompute: missing selected-account seed fingerprint")
+                LoggerProxy.debug("Skipping delegation PIR precompute: missing selected-account seed fingerprint")
                 return .none
             }
 
@@ -425,12 +425,12 @@ extension Voting {
                     )
                     totalCached += result.cachedCount
                     totalFetched += result.fetchedCount
-                    votingLogger.info(
+                    LoggerProxy.info(
                         "Delegation PIR precompute bundle \(bundleIndex + 1)/\(bundleCount): cached=\(result.cachedCount) fetched=\(result.fetchedCount)"
                     )
                 }
 
-                votingLogger.info("Delegation PIR precompute complete: cached=\(totalCached) fetched=\(totalFetched)")
+                LoggerProxy.info("Delegation PIR precompute complete: cached=\(totalCached) fetched=\(totalFetched)")
                 await send(.delegationPrecomputeCompleted(roundId: roundId))
             } catch: { error, send in
                 await send(.delegationPrecomputeFailed(roundId: roundId, error: error.localizedDescription))
@@ -521,7 +521,7 @@ extension Voting {
                 !pirEndpoints.isEmpty,
                 let expectedSnapshotHeight = state.activeSession?.snapshotHeight
             else {
-                votingLogger.error("serviceConfig/activeSession unexpectedly nil in startActiveRoundPipeline; aborting")
+                LoggerProxy.error("serviceConfig/activeSession unexpectedly nil in startActiveRoundPipeline; aborting")
                 return .none
             }
             let keystoneBundleIndex = state.currentKeystoneBundleIndex
@@ -561,7 +561,7 @@ extension Voting {
                             let orchardFvk = try votingCrypto.extractOrchardFvkFromUfvk(
                                 bundleNotes[0].ufvkStr, networkId
                             )
-                            votingLogger.info("Keystone: preparing PCZT for bundle \(keystoneBundleIndex + 1)/\(bundleCount)")
+                            LoggerProxy.info("Keystone: preparing PCZT for bundle \(keystoneBundleIndex + 1)/\(bundleCount)")
                             let govPczt = try await votingCrypto.buildVotingPczt(
                                 roundId,
                                 keystoneBundleIndex,
@@ -742,7 +742,7 @@ extension Voting {
                 let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
                 !pirEndpoints.isEmpty
             else {
-                votingLogger.error("serviceConfig unexpectedly nil during delegation proof; aborting")
+                LoggerProxy.error("serviceConfig unexpectedly nil during delegation proof; aborting")
                 return .none
             }
             let storedSignatures = state.keystoneBundleSignatures
@@ -764,7 +764,7 @@ extension Voting {
                             votingCrypto: votingCrypto,
                             votingAPI: votingAPI
                         ) {
-                            votingLogger.debug("Recovered Keystone delegation bundle \(idx) VAN position: \(vanPosition)")
+                            LoggerProxy.debug("Recovered Keystone delegation bundle \(idx) VAN position: \(vanPosition)")
                             completedBundles.insert(idx)
                         }
                     }
@@ -772,13 +772,13 @@ extension Voting {
                     for (bundleIndex, sig) in storedSignatures.enumerated() {
                         let bundleIdx = UInt32(bundleIndex)
                         if completedBundles.contains(bundleIdx) {
-                            votingLogger.debug("Keystone delegation bundle \(bundleIdx) already submitted, skipping")
+                            LoggerProxy.debug("Keystone delegation bundle \(bundleIdx) already submitted, skipping")
                             let overallProgress = Double(bundleIndex + 1) / Double(signedCount)
                             await send(.delegationProofProgress(roundId: roundId, progress: overallProgress))
                             continue
                         }
                         let bundleNotes = noteChunks[bundleIndex]
-                        votingLogger.info("Keystone batch: proving bundle \(bundleIndex + 1)/\(signedCount)")
+                        LoggerProxy.info("Keystone batch: proving bundle \(bundleIndex + 1)/\(signedCount)")
 
                         for try await event in votingCrypto.buildAndProveDelegation(
                             roundId,
@@ -794,10 +794,10 @@ extension Voting {
                             switch event {
                             case .progress(let progress):
                                 let overallProgress = (Double(bundleIndex) + progress) / Double(signedCount)
-                                votingLogger.debug("ZKP #1 bundle \(bundleIdx) progress: \(Int(progress * 100))%")
+                                LoggerProxy.debug("ZKP #1 bundle \(bundleIdx) progress: \(Int(progress * 100))%")
                                 await send(.delegationProofProgress(roundId: roundId, progress: overallProgress))
                             case .completed(let proof):
-                                votingLogger.info("ZKP #1 bundle \(bundleIdx) COMPLETE — proof size: \(proof.count) bytes")
+                                LoggerProxy.info("ZKP #1 bundle \(bundleIdx) COMPLETE — proof size: \(proof.count) bytes")
                             }
                         }
 
@@ -810,7 +810,7 @@ extension Voting {
                             registration.sighash != sig.sighash {
                             throw VotingFlowError.invalidDelegationSignature
                         }
-                        votingLogger.debug(
+                        LoggerProxy.debug(
                             """
                             Keystone delegation tuple \
                             rk=\(Data(registration.rk.prefix(8)).hexString) \
@@ -819,7 +819,7 @@ extension Voting {
                             """
                         )
                         let delegTxResult = try await votingAPI.submitDelegation(registration)
-                        votingLogger.info("Delegation TX \(bundleIdx) submitted: \(delegTxResult.txHash)")
+                        LoggerProxy.info("Delegation TX \(bundleIdx) submitted: \(delegTxResult.txHash)")
 
                         // Persist TX hash for crash recovery
                         try await votingCrypto.storeDelegationTxHash(roundId, bundleIdx, delegTxResult.txHash)
@@ -829,7 +829,7 @@ extension Voting {
                             votingAPI: votingAPI
                         )
                         try await votingCrypto.storeVanPosition(roundId, bundleIdx, vanPosition)
-                        votingLogger.debug("VAN position stored for bundle \(bundleIdx): \(vanPosition)")
+                        LoggerProxy.debug("VAN position stored for bundle \(bundleIdx): \(vanPosition)")
                     }
 
                     await send(.delegationProofCompleted(roundId: roundId))
@@ -964,7 +964,7 @@ extension Voting {
 
         case .delegationProofFailed(let roundId, let error):
             guard state.roundId == roundId else { return .none }
-            votingLogger.error("Delegation proof failed (raw): \(error)")
+            LoggerProxy.error("Delegation proof failed (raw): \(error)")
             state.currentKeystoneBundleIndex = 0
             state.keystoneBundleSignatures = []
             let userMessage: String
@@ -1031,28 +1031,28 @@ extension Voting {
                 confirmationTimeout: delegationConfirmationTimeout,
                 retryDelay: delegationConfirmationRetryDelay
             ) {
-                votingLogger.debug("Recovered delegation bundle \(idx) VAN position: \(vanPosition)")
+                LoggerProxy.debug("Recovered delegation bundle \(idx) VAN position: \(vanPosition)")
                 completedBundles.insert(idx)
             }
         }
 
         for bundleIndex: UInt32 in 0..<bundleCount {
             if completedBundles.contains(bundleIndex) {
-                votingLogger.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) already submitted, skipping")
+                LoggerProxy.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) already submitted, skipping")
                 continue
             }
             let bundleNotes = noteChunks[Int(bundleIndex)]
-            votingLogger.info("Delegation bundle \(bundleIndex + 1)/\(bundleCount) (\(bundleNotes.count) notes)")
+            LoggerProxy.info("Delegation bundle \(bundleIndex + 1)/\(bundleCount) (\(bundleNotes.count) notes)")
 
             let registration: DelegationRegistration
             if let cachedRegistration = try? await votingCrypto.getDelegationSubmission(
                 roundId, bundleIndex, senderSeed, networkId, accountIndex
             ) {
-                votingLogger.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) using cached submission")
+                LoggerProxy.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) using cached submission")
                 registration = cachedRegistration
             } else {
                 if delegationPrepared {
-                    votingLogger.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) using precomputed PIR data")
+                    LoggerProxy.debug("Delegation bundle \(bundleIndex + 1)/\(bundleCount) using precomputed PIR data")
                 } else {
                     let orchardFvk = try seedFingerprint.map { _ in
                         try votingCrypto.extractOrchardFvkFromUfvk(bundleNotes[0].ufvkStr, networkId)
@@ -1072,10 +1072,10 @@ extension Voting {
                     switch event {
                     case .progress(let progress):
                         let overallProgress = (Double(bundleIndex) + progress) / Double(bundleCount)
-                        votingLogger.debug("ZKP #1 bundle \(bundleIndex) progress: \(Int(progress * 100))%")
+                        LoggerProxy.debug("ZKP #1 bundle \(bundleIndex) progress: \(Int(progress * 100))%")
                         await send(.delegationProofProgress(roundId: roundId, progress: overallProgress))
                     case .completed(let proof):
-                        votingLogger.info("ZKP #1 bundle \(bundleIndex) COMPLETE — proof size: \(proof.count) bytes")
+                        LoggerProxy.info("ZKP #1 bundle \(bundleIndex) COMPLETE — proof size: \(proof.count) bytes")
                     }
                 }
 
@@ -1084,7 +1084,7 @@ extension Voting {
                 )
             }
             let delegTxResult = try await votingAPI.submitDelegation(registration)
-            votingLogger.info("Delegation TX \(bundleIndex) submitted: \(delegTxResult.txHash)")
+            LoggerProxy.info("Delegation TX \(bundleIndex) submitted: \(delegTxResult.txHash)")
 
             try await votingCrypto.storeDelegationTxHash(roundId, bundleIndex, delegTxResult.txHash)
 
@@ -1095,7 +1095,7 @@ extension Voting {
                 retryDelay: delegationConfirmationRetryDelay
             )
             try await votingCrypto.storeVanPosition(roundId, bundleIndex, vanPosition)
-            votingLogger.debug("VAN position stored for bundle \(bundleIndex): \(vanPosition)")
+            LoggerProxy.debug("VAN position stored for bundle \(bundleIndex): \(vanPosition)")
         }
 
         await send(.delegationProofCompleted(roundId: roundId))
@@ -1144,13 +1144,13 @@ extension Voting {
             return vanPosition
 
         case let .failed(code, log):
-            votingLogger.warning(
+            LoggerProxy.warn(
                 "Cached delegation TX \(txHash) for bundle \(bundleIndex) is not reusable: code=\(code) log=\(log)"
             )
             return nil
 
         case .notFound:
-            votingLogger.debug("Cached delegation TX \(txHash) for bundle \(bundleIndex) is not confirmed yet")
+            LoggerProxy.debug("Cached delegation TX \(txHash) for bundle \(bundleIndex) is not confirmed yet")
             return nil
         }
     }
@@ -1227,12 +1227,12 @@ extension Voting {
                 return try await votingAPI.delegateShares(payloads, roundId, serverURLs)
             } catch let error as ShareDelegationError where error == .noReachableVoteServers {
                 lastExhaustionError = error
-                votingLogger.warning("delegateShares attempt \(attempt)/3 exhausted vote servers")
+                LoggerProxy.warn("delegateShares attempt \(attempt)/3 exhausted vote servers")
                 if attempt < 3 {
                     try await Task.sleep(for: retryDelay)
                 }
             } catch {
-                votingLogger.warning("delegateShares failed with non-exhaustion error: \(error)")
+                LoggerProxy.warn("delegateShares failed with non-exhaustion error: \(error)")
                 throw error
             }
         }
