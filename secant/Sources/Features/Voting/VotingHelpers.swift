@@ -200,6 +200,7 @@ enum VotingFlowError: LocalizedError {
     case missingPendingUnsignedPczt
     case invalidDelegationSignature
     case missingVoteCommitmentBundle
+    case inconsistentBundleSetup(bundleCount: UInt32, noteChunkCount: Int)
     case delegationTxFailed(code: UInt32, log: String)
     case voteCommitmentTxFailed(code: UInt32, log: String)
 
@@ -217,6 +218,11 @@ enum VotingFlowError: LocalizedError {
             return String(localizable: .coinVoteStoreErrorInvalidDelegationSignature)
         case .missingVoteCommitmentBundle:
             return String(localizable: .coinVoteStoreErrorMissingVoteCommitmentBundle)
+        case let .inconsistentBundleSetup(bundleCount, noteChunkCount):
+            return """
+            Voting bundle setup returned \(bundleCount) bundle(s) for \
+            \(noteChunkCount) local note chunk(s).
+            """
         case .delegationTxFailed(let code, let log):
             let suffix = log.isEmpty ? "" : ": \(log)"
             return String(localizable: .coinVoteStoreErrorDelegationTxFailed(String(code), suffix))

@@ -282,7 +282,9 @@ extension VotingCoordFlow {
                     // Cache check: skip pipeline if hotkey is already
                     // populated for this round. Re-entry within the same
                     // session is instant.
-                    if let cached = state.roundCache[roundId], cached.hotkeyAddress != nil {
+                    if let cached = state.roundCache[roundId],
+                       cached.hotkeyAddress != nil,
+                       cached.bundleCount > 0 {
                         return .none
                     }
                     return .send(.startActiveRoundPipeline(roundId: roundId))
@@ -583,7 +585,7 @@ extension VotingCoordFlow {
                 }
                 state.pendingPipelineRoundId = roundId
 
-                return .run { [votingCrypto, mnemonic, walletStorage, sdkSynchronizer] send in
+                return .run { [votingCrypto, votingAPI, mnemonic, walletStorage, sdkSynchronizer] send in
                     // 1. Wallet sync gate.
                     //
                     // Spend-before-Sync scans both head-first and birthday-
@@ -612,26 +614,98 @@ extension VotingCoordFlow {
                         return
                     }
 
-                    // 2. Notes + eligible voting weight after bundling.
-                    // `smartBundles().eligibleWeight` mirrors the Rust
-                    // chunking: groups of 5 notes, drops any bundle below
-                    // ballotDivisor (0.125 ZEC). An empty / sub-threshold
-                    // wallet must land on IneligibleView instead of
-                    // marching through hotkey generation only to fail
-                    // submission later.
+                    // 2. Notes + local voting DB setup. The Rust backend
+                    // needs a round row, bundle rows, tree state, and
+                    // witnesses before Keystone PCZT prep or inline
+                    // delegation can build authorization inputs.
                     let notes = try await votingCrypto.getWalletNotes(
                         walletDbPath,
                         snapshotHeight,
                         networkId,
                         accountUUID
                     )
-                    let bundleResult = notes.smartBundles()
-                    let eligibleWeight = bundleResult.eligibleWeight
-                    if notes.isEmpty || eligibleWeight == 0 {
+                    if notes.isEmpty {
                         await send(.ineligibleForRound(roundId: roundId))
                         return
                     }
-                    await send(.votingWeightLoaded(roundId: roundId, weight: eligibleWeight, notes: notes))
+
+                    let existingState = try? await votingCrypto.getRoundState(roundId)
+                    let existingBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
+                    if existingState?.proofGenerated == true {
+                        let bundleCount = existingBundleCount
+                        let eligibleWeight = Self.votingWeight(for: notes, bundleCount: bundleCount)
+                        guard bundleCount > 0, eligibleWeight > 0 else {
+                            await send(.ineligibleForRound(roundId: roundId))
+                            return
+                        }
+                        await send(.votingWeightLoaded(
+                            roundId: roundId,
+                            weight: eligibleWeight,
+                            notes: notes,
+                            witnesses: [],
+                            bundleCount: bundleCount,
+                            delegationReady: true
+                        ))
+                    } else if existingBundleCount > 0 {
+                        var recoveredBundleCount: UInt32 = 0
+                        for bundleIndex: UInt32 in 0..<existingBundleCount {
+                            if let vanPosition = try? await Self.recoverDelegationVanPosition(
+                                roundId: roundId,
+                                bundleIndex: bundleIndex,
+                                votingCrypto: votingCrypto,
+                                votingAPI: votingAPI,
+                                confirmationTimeout: 0,
+                                retryDelay: .zero
+                            ) {
+                                LoggerProxy.debug(
+                                    "Recovered delegation bundle \(bundleIndex) VAN position: \(vanPosition)"
+                                )
+                                recoveredBundleCount += 1
+                            }
+                        }
+
+                        if recoveredBundleCount >= existingBundleCount {
+                            try await votingCrypto.clearRecoveryState(roundId)
+                        }
+
+                        if recoveredBundleCount > 0 {
+                            let eligibleWeight = Self.votingWeight(for: notes, bundleCount: existingBundleCount)
+                            guard eligibleWeight > 0 else {
+                                await send(.ineligibleForRound(roundId: roundId))
+                                return
+                            }
+                            await send(.votingWeightLoaded(
+                                roundId: roundId,
+                                weight: eligibleWeight,
+                                notes: notes,
+                                witnesses: [],
+                                bundleCount: existingBundleCount,
+                                delegationReady: recoveredBundleCount >= existingBundleCount
+                            ))
+                        } else {
+                            guard try await Self.prepareFreshRound(
+                                roundId: roundId,
+                                session: session,
+                                snapshotHeight: snapshotHeight,
+                                walletDbPath: walletDbPath,
+                                notes: notes,
+                                votingCrypto: votingCrypto,
+                                sdkSynchronizer: sdkSynchronizer,
+                                send: send
+                            ) else { return }
+                        }
+                    } else {
+                        guard try await Self.prepareFreshRound(
+                            roundId: roundId,
+                            session: session,
+                            snapshotHeight: snapshotHeight,
+                            walletDbPath: walletDbPath,
+                            notes: notes,
+                            votingCrypto: votingCrypto,
+                            sdkSynchronizer: sdkSynchronizer,
+                            send: send
+                        ) else { return }
+                    }
 
                     // 3. Hotkey: load or generate the per-account hotkey
                     // mnemonic, then derive this round's hotkey address.
@@ -692,9 +766,19 @@ extension VotingCoordFlow {
                 }
                 return .none
 
-            case let .votingWeightLoaded(roundId, weight, notes):
+            case let .votingWeightLoaded(roundId, weight, notes, witnesses, bundleCount, delegationReady):
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].votingWeight = weight
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].walletNotes = notes
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].cachedWitnesses = witnesses
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].bundleCount = bundleCount
+                if delegationReady {
+                    state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationProofStatus = .complete
+                } else {
+                    state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationProofStatus = .notStarted
+                    state.roundCache[roundId, default: RoundSession(roundId: roundId)].isDelegationProofInFlight = false
+                    state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationPrecomputeStatus = .notStarted
+                    state.roundCache[roundId, default: RoundSession(roundId: roundId)].isDelegationPrecomputeInFlight = false
+                }
                 return .none
 
             case let .hotkeyLoaded(roundId, address):
@@ -1742,6 +1826,7 @@ extension VotingCoordFlow {
 
     private func canStartSubmission(_ session: RoundSession) -> Bool {
         guard !session.draftVotes.isEmpty else { return false }
+        guard session.bundleCount > 0 else { return false }
         switch session.batchSubmissionStatus {
         case .idle, .authorizationFailed, .submissionFailed:
             return true
@@ -1761,6 +1846,81 @@ extension VotingCoordFlow {
 
     private func isDelegationReady(_ session: RoundSession) -> Bool {
         session.delegationProofStatus == .complete
+    }
+
+    private static func votingWeight(for notes: [NoteInfo], bundleCount: UInt32) -> UInt64 {
+        let allBundles = notes.smartBundles().bundles
+        guard bundleCount > 0, Int(bundleCount) < allBundles.count else {
+            return notes.smartBundles().eligibleWeight
+        }
+
+        return (0..<Int(bundleCount)).reduce(UInt64(0)) { total, index in
+            let raw = allBundles[index].reduce(UInt64(0)) { $0 + $1.value }
+            return total + quantizeWeight(raw)
+        }
+    }
+
+    private static func prepareFreshRound(
+        roundId: String,
+        session: VotingSession,
+        snapshotHeight: UInt64,
+        walletDbPath: String,
+        notes: [NoteInfo],
+        votingCrypto: VotingCryptoClient,
+        sdkSynchronizer: SDKSynchronizerClient,
+        send: Send<Action>
+    ) async throws -> Bool {
+        try? await votingCrypto.clearRound(roundId)
+        try await votingCrypto.clearRecoveryState(roundId)
+
+        let params = VotingRoundParams(
+            voteRoundId: session.voteRoundId,
+            snapshotHeight: snapshotHeight,
+            eaPK: session.eaPK,
+            ncRoot: session.ncRoot,
+            nullifierIMTRoot: session.nullifierIMTRoot
+        )
+        try await votingCrypto.initRound(params, nil)
+
+        let setupResult = try await votingCrypto.setupBundles(roundId, notes)
+        let bundleCount = setupResult.bundleCount
+        let eligibleWeight = setupResult.eligibleWeight
+        guard bundleCount > 0, eligibleWeight > 0 else {
+            await send(.ineligibleForRound(roundId: roundId))
+            return false
+        }
+
+        let treeStateBytes = try await sdkSynchronizer.getTreeState(snapshotHeight)
+        try await votingCrypto.storeTreeState(roundId, treeStateBytes)
+
+        let noteChunks = notes.smartBundles().bundles
+        guard Int(bundleCount) <= noteChunks.count else {
+            throw VotingFlowError.inconsistentBundleSetup(
+                bundleCount: bundleCount,
+                noteChunkCount: noteChunks.count
+            )
+        }
+
+        var allWitnesses: [WitnessData] = []
+        for bundleIndex: UInt32 in 0..<bundleCount {
+            let witnesses = try await votingCrypto.generateNoteWitnesses(
+                roundId,
+                bundleIndex,
+                walletDbPath,
+                noteChunks[Int(bundleIndex)]
+            )
+            allWitnesses.append(contentsOf: witnesses)
+        }
+
+        await send(.votingWeightLoaded(
+            roundId: roundId,
+            weight: eligibleWeight,
+            notes: notes,
+            witnesses: allWitnesses,
+            bundleCount: bundleCount,
+            delegationReady: false
+        ))
+        return true
     }
 
     /// Look up the live `VotingSession` for a round id by scoping into
@@ -2092,4 +2252,3 @@ private enum DelegationTxConfirmationStatus: Sendable {
     case failed(code: UInt32, log: String)
     case notFound
 }
-

@@ -169,7 +169,14 @@ struct VotingCoordFlow {
         case startActiveRoundPipeline(roundId: String)
         case walletNotSynced(roundId: String, scannedHeight: UInt64, snapshotHeight: UInt64)
         case walletSyncProgressUpdated(height: UInt64)
-        case votingWeightLoaded(roundId: String, weight: UInt64, notes: [NoteInfo])
+        case votingWeightLoaded(
+            roundId: String,
+            weight: UInt64,
+            notes: [NoteInfo],
+            witnesses: [WitnessData],
+            bundleCount: UInt32,
+            delegationReady: Bool
+        )
         case hotkeyLoaded(roundId: String, address: String)
         case pipelineFailed(roundId: String, message: String)
         case draftVoteSet(roundId: String, proposalId: UInt32, choice: VoteChoice)
