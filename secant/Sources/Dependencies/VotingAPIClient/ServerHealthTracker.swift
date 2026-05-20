@@ -39,23 +39,27 @@ actor ServerHealthTracker {
 
     // MARK: - State
 
+    typealias ProbeFetcher = @Sendable (URLRequest) async throws -> (Data, URLResponse)
+
     private var servers: [String: ServerState] = [:]
     private var probeTask: Task<Void, Never>?
-
-    /// URLSession with a short timeout for health probes and share POSTs.
-    private let probeSession: URLSession = {
-        let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 5
-        return URLSession(configuration: config)
-    }()
+    /// Caller-supplied fetcher used by `probe`. Set inside
+    /// `initialize(serverURLs:fetcher:)` and only then. Left `nil` to make
+    /// any pre-initialize call to `probeAll()` a no-op rather than fall back
+    /// to a non-Tor `URLSession.shared`; that fallback would leak the
+    /// device's IP to every vote server every 60s if a future refactor ever
+    /// called probeAll before initialize.
+    private var probeFetcher: ProbeFetcher?
 
     // MARK: - Initialization
 
     /// Populate the server map and run an initial parallel probe of all servers.
-    /// Called when the CDN service config is loaded.
-    func initialize(serverURLs: [String]) async {
+    /// Called when the CDN service config is loaded. The `fetcher` is captured
+    /// so the periodic background probe respects the current Tor preference.
+    func initialize(serverURLs: [String], fetcher: @escaping ProbeFetcher) async {
         // Replace server map (preserving nothing from prior config)
         servers = Dictionary(uniqueKeysWithValues: serverURLs.map { ($0, ServerState()) })
+        probeFetcher = fetcher
 
         // Fire parallel probes so we know who's healthy before the first vote
         await probeAll()
@@ -99,41 +103,49 @@ actor ServerHealthTracker {
     // MARK: - State Updates
 
     func recordSuccess(for url: String) {
-        guard servers[url] != nil else { return }
-        let previous = servers[url]!.circuit
-        servers[url]!.circuit = .closed
-        servers[url]!.consecutiveFailures = 0
+        guard var state = servers[url] else { return }
+        let previous = state.circuit
+        state.circuit = .closed
+        state.consecutiveFailures = 0
+        servers[url] = state
         if previous != .closed {
             LoggerProxy.info("\(url) recovered; circuit closed")
         }
     }
 
     func recordFailure(for url: String) {
-        guard servers[url] != nil else { return }
-        servers[url]!.consecutiveFailures += 1
-        let failures = servers[url]!.consecutiveFailures
+        guard var state = servers[url] else { return }
+        state.consecutiveFailures += 1
+        let failures = state.consecutiveFailures
 
-        if failures >= failureThreshold && servers[url]!.circuit == .closed {
-            servers[url]!.circuit = .open(since: Date())
+        if failures >= failureThreshold && state.circuit == .closed {
+            state.circuit = .open(since: Date())
+            servers[url] = state
             LoggerProxy.warn("\(url) circuit opened after \(failures) failures")
-        } else if servers[url]!.circuit == .halfOpen {
+        } else if state.circuit == .halfOpen {
             // halfOpen probe failed — re-open
-            servers[url]!.circuit = .open(since: Date())
+            state.circuit = .open(since: Date())
+            servers[url] = state
             LoggerProxy.warn("\(url) half-open probe failed; circuit reopened")
+        } else {
+            servers[url] = state
         }
     }
 
     // MARK: - Health Probing
 
     /// Probe all servers in parallel with GET /shielded-vote/v1/status.
+    /// No-op until `initialize(serverURLs:fetcher:)` has set the fetcher;
+    /// this is what keeps probes routed through Tor whenever the user has
+    /// it enabled, never the system URLSession.
     func probeAll() async {
         let urls = Array(servers.keys)
-        guard !urls.isEmpty else { return }
+        guard !urls.isEmpty, let fetcher = probeFetcher else { return }
 
         await withTaskGroup(of: (String, Bool).self) { group in
             for url in urls {
-                group.addTask { [probeSession] in
-                    let ok = await Self.probe(url: url, session: probeSession)
+                group.addTask {
+                    let ok = await Self.probe(url: url, fetcher: fetcher)
                     return (url, ok)
                 }
             }
@@ -148,10 +160,10 @@ actor ServerHealthTracker {
     }
 
     /// Single server probe. Returns true if the server responds 200 within the timeout.
-    private static func probe(url: String, session: URLSession) async -> Bool {
+    private static func probe(url: String, fetcher: ProbeFetcher) async -> Bool {
         guard let endpoint = URL(string: "\(url)/shielded-vote/v1/status") else { return false }
         do {
-            let (_, response) = try await session.data(from: endpoint)
+            let (_, response) = try await fetcher(URLRequest(url: endpoint))
             guard let http = response as? HTTPURLResponse else { return false }
             return http.statusCode == 200
         } catch {

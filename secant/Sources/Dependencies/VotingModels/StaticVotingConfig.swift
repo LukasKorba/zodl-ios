@@ -55,9 +55,12 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
     ///
     /// There is no fallback: a transport failure, decode failure, or hash
     /// mismatch blocks voting until the user can fetch a trusted config.
+    /// `fetch` is injected by the caller so the request can be routed through
+    /// Tor (`SDKSynchronizerClient.httpRequestOverTor`) when the user enabled
+    /// Tor in Settings, and through the plain URLSession otherwise.
     static func loadFromNetwork(
         source: PinnedConfigSource,
-        session: URLSession
+        fetch: (URLRequest) async throws -> (Data, URLResponse)
     ) async throws -> StaticVotingConfig {
         let data: Data
         let response: URLResponse
@@ -65,7 +68,7 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
             var request = URLRequest(url: source.url, cachePolicy: .reloadIgnoringLocalCacheData)
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
             request.setValue("no-cache", forHTTPHeaderField: "Pragma")
-            (data, response) = try await session.data(for: request)
+            (data, response) = try await fetch(request)
         } catch {
             throw VotingConfigError.staticConfigFetchFailed(error.localizedDescription)
         }
@@ -116,6 +119,18 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
             guard key.pubkey.count == 32 else {
                 throw VotingConfigError.decodeFailed("trusted_keys[\(key.keyId)].pubkey must decode to 32 bytes")
             }
+        }
+
+        // The dynamic config URL must be HTTPS. iOS App Transport Security
+        // already blocks plaintext HTTP for this app, and the user-pasted
+        // custom-chain path enforces https in `PinnedConfigSource.parse`.
+        // Enforce the same here so a future static-config rotation (the only
+        // place where this URL is decided) can't silently downgrade voting to
+        // an unauthenticated transport.
+        guard dynamicConfigURL.scheme?.lowercased() == "https" else {
+            throw VotingConfigError.decodeFailed(
+                "dynamic_config_url must use https; got \(dynamicConfigURL.scheme ?? "<none>")"
+            )
         }
     }
 }
