@@ -424,6 +424,7 @@ extension VotingCoordFlow {
 
             case let .keystoneSigningFailed(roundId, error):
                 mutateSession(&state, roundId: roundId) {
+                    $0.isDelegationProofInFlight = false
                     $0.keystoneSigningStatus = .failed(VotingErrorMapper.userFriendlyMessage(from: error))
                 }
                 return .none
@@ -477,7 +478,7 @@ extension VotingCoordFlow {
                 return .none
 
             case let .keystoneShowSigningScreen(roundId):
-                if !state.path.contains(where: { (/Path.State.delegationSigning).extract(from: $0) != nil }) {
+                if !hasKeystoneSigningRound(state: state) {
                     state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
                 }
                 return .send(.startDelegationProof(roundId: roundId))
@@ -499,9 +500,10 @@ extension VotingCoordFlow {
                 // Keystone-side state so a fresh attempt starts clean. Drafts
                 // and submitted votes are preserved.
                 mutateSession(&state, roundId: roundId) { roundSession in
-                    roundSession.keystoneSigningStatus = .idle
-                    roundSession.pendingVotingPczt = nil
-                    roundSession.pendingUnsignedDelegationPczt = nil
+                    resetKeystoneSigningLoop(&roundSession)
+                    if case .authorizing = roundSession.batchSubmissionStatus {
+                        roundSession.batchSubmissionStatus = .idle
+                    }
                 }
                 state.pendingBatchSubmission = false
                 if case .delegationSigning = state.path.last {
@@ -916,7 +918,13 @@ extension VotingCoordFlow {
         // all bundles are signed.
         if state.isKeystoneUser && !isDelegationReady(session) {
             state.pendingBatchSubmission = true
-            state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+            mutateSession(&state, roundId: roundId) { roundSession in
+                roundSession.batchSubmissionStatus = .authorizing
+                roundSession.voteSubmissionStep = .authorizingVote
+            }
+            if !hasKeystoneSigningRound(state: state, roundId: roundId) {
+                state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+            }
             return .send(.startDelegationProof(roundId: roundId))
         }
 
@@ -1401,6 +1409,12 @@ extension VotingCoordFlow {
         // hands it off to the QR signing screen.
         guard state.isKeystoneUser else { return .none }
         guard let session = state.roundCache[roundId] else { return .none }
+        guard !session.isDelegationProofInFlight, session.delegationProofStatus != .complete else {
+            return .none
+        }
+        guard case .idle = session.keystoneSigningStatus else {
+            return .none
+        }
         guard let activeSession = state.allRounds.first(where: { $0.id == roundId })?.session else {
             return .none
         }
@@ -1422,10 +1436,6 @@ extension VotingCoordFlow {
             keystoneMetadata = nil
         }
 
-        mutateSession(&state, roundId: roundId) {
-            $0.keystoneSigningStatus = .preparingRequest
-        }
-
         let cachedNotes = session.walletNotes
         let network = zcashSDKEnvironment.network
         let networkId: UInt32 = network.networkType.votingRustNetworkId
@@ -1434,6 +1444,17 @@ extension VotingCoordFlow {
         let roundName = activeSession.title
         let keystoneBundleIndex = session.currentKeystoneBundleIndex
         let bundleCount = session.bundleCount
+        let noteChunks = cachedNotes.smartBundles().bundles
+
+        guard bundleCount > 0,
+              Int(keystoneBundleIndex) < Int(bundleCount),
+              Int(keystoneBundleIndex) < noteChunks.count
+        else {
+            return .send(.delegationProofFailed(
+                roundId: roundId,
+                error: "Keystone signing state is inconsistent."
+            ))
+        }
 
         guard
             let accountId = state.selectedWalletAccount?.id
@@ -1442,20 +1463,16 @@ extension VotingCoordFlow {
             return .none
         }
 
-        return .run {
-            [
-                backgroundTask, sdkSynchronizer, votingCrypto, mnemonic, walletStorage
-            ] send in
+        mutateSession(&state, roundId: roundId) {
+            $0.isDelegationProofInFlight = true
+            $0.keystoneSigningStatus = .preparingRequest
+        }
+
+        return .run { [backgroundTask, sdkSynchronizer, votingCrypto, mnemonic, walletStorage] send in
             let bgTaskId = await backgroundTask.beginTask("Keystone PCZT prep")
             do {
                 let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                 let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
-                guard bundleCount > 0 else {
-                    await backgroundTask.endTask(bgTaskId)
-                    await send(.delegationProofCompleted(roundId: roundId))
-                    return
-                }
-                let noteChunks = cachedNotes.smartBundles().bundles
                 let bundleNotes = noteChunks[Int(keystoneBundleIndex)]
                 let orchardFvk = try votingCrypto.extractOrchardFvkFromUfvk(
                     bundleNotes[0].ufvkStr, networkId
@@ -1497,6 +1514,7 @@ extension VotingCoordFlow {
         mutateSession(&state, roundId: roundId) { roundSession in
             roundSession.pendingVotingPczt = govPczt
             roundSession.pendingUnsignedDelegationPczt = unsignedPczt
+            roundSession.isDelegationProofInFlight = false
             roundSession.keystoneSigningStatus = .awaitingSignature
         }
         return .none
@@ -1587,6 +1605,7 @@ extension VotingCoordFlow {
             mutateSession(&state, roundId: roundId) { roundSession in
                 roundSession.keystoneSigningStatus = .idle
                 roundSession.delegationProofStatus = .generating(progress: 0)
+                roundSession.isDelegationProofInFlight = true
                 roundSession.batchSubmissionStatus = .authorizing
                 roundSession.voteSubmissionStep = .authorizingVote
             }
@@ -1626,16 +1645,24 @@ extension VotingCoordFlow {
         }
         let storedSignatures = session.keystoneBundleSignatures
         let signedCount = storedSignatures.count
+        let noteChunks = cachedNotes.smartBundles().bundles
+        guard signedCount > 0,
+              signedCount <= Int(session.bundleCount),
+              signedCount <= noteChunks.count
+        else {
+            return .send(.delegationProofFailed(
+                roundId: roundId,
+                error: "Keystone signature state is inconsistent."
+            ))
+        }
 
-        return .run {
-            [backgroundTask, votingCrypto, votingAPI, mnemonic, walletStorage] send in
+        return .run { [backgroundTask, votingCrypto, votingAPI, mnemonic, walletStorage] send in
             let bgTaskId = await backgroundTask.beginTask("Keystone delegation proof")
             do {
                 let senderPhrase = try walletStorage.exportWallet().seedPhrase.value()
                 let senderSeed = try mnemonic.toSeed(senderPhrase)
                 let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                 let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
-                let noteChunks = cachedNotes.smartBundles().bundles
                 var completedBundles = Set<UInt32>()
                 for idx: UInt32 in 0..<UInt32(signedCount) {
                     if let vanPosition = try await Self.recoverKeystoneDelegationVanPosition(
@@ -1726,6 +1753,9 @@ extension VotingCoordFlow {
             roundSession.pendingUnsignedDelegationPczt = nil
             roundSession.keystoneSigningStatus = .idle
             roundSession.delegationProofStatus = .generating(progress: 0)
+            roundSession.isDelegationProofInFlight = true
+            roundSession.batchSubmissionStatus = .authorizing
+            roundSession.voteSubmissionStep = .authorizingVote
         }
         if case .delegationSigning = state.path.last {
             _ = state.path.popLast()
@@ -1811,9 +1841,13 @@ extension VotingCoordFlow {
     }
 
     func reduceDelegationProofCompleted(_ state: inout State, roundId: String) -> Effect<Action> {
+        let isKeystoneUser = state.isKeystoneUser
         mutateSession(&state, roundId: roundId) { roundSession in
             roundSession.delegationProofStatus = .complete
             roundSession.isDelegationProofInFlight = false
+            if isKeystoneUser {
+                resetKeystoneSigningLoop(&roundSession)
+            }
         }
         // If the user tapped Submit while delegation was still in flight,
         // resume the batch now that authorization is done.
@@ -1829,12 +1863,23 @@ extension VotingCoordFlow {
         roundId: String,
         error: String
     ) -> Effect<Action> {
+        let isKeystoneUser = state.isKeystoneUser
+        let keystoneSigningFailureStatus: KeystoneSigningStatus = isCurrentKeystoneSigningRound(
+            state: state,
+            roundId: roundId
+        ) ? .failed(error) : .idle
         mutateSession(&state, roundId: roundId) { roundSession in
             roundSession.delegationProofStatus = .failed(error)
             roundSession.isDelegationProofInFlight = false
+            if isKeystoneUser {
+                resetKeystoneSigningLoop(&roundSession, status: keystoneSigningFailureStatus)
+            }
             if case .authorizing = roundSession.batchSubmissionStatus {
                 roundSession.batchSubmissionStatus = .authorizationFailed(error: error)
             }
+        }
+        if isKeystoneUser {
+            state.pendingBatchSubmission = false
         }
         return .none
     }
@@ -1893,6 +1938,36 @@ extension VotingCoordFlow {
 
     private func isDelegationReady(_ session: RoundSession) -> Bool {
         session.delegationProofStatus == .complete
+    }
+
+    private func resetKeystoneSigningLoop(
+        _ session: inout RoundSession,
+        status: KeystoneSigningStatus = .idle
+    ) {
+        session.currentKeystoneBundleIndex = 0
+        session.keystoneBundleSignatures = []
+        session.pendingVotingPczt = nil
+        session.pendingUnsignedDelegationPczt = nil
+        session.keystoneSigningStatus = status
+    }
+
+    private func isCurrentKeystoneSigningRound(state: State, roundId: String) -> Bool {
+        guard case let .delegationSigning(signingState) = state.path.last else {
+            return false
+        }
+        return signingState.roundId == roundId
+    }
+
+    private func hasKeystoneSigningRound(state: State, roundId: String? = nil) -> Bool {
+        state.path.contains {
+            guard case let .delegationSigning(signingState) = $0 else {
+                return false
+            }
+            guard let roundId else {
+                return true
+            }
+            return signingState.roundId == roundId
+        }
     }
 
     private static func votingWeight(for notes: [NoteInfo], bundleCount: UInt32) -> UInt64 {
