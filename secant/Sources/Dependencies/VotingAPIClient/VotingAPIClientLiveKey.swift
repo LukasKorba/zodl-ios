@@ -193,6 +193,16 @@ private let fastHttpSession: URLSession = {
 /// Routes a request through Tor when the user enabled it in Settings
 /// (`swapAPIAccess == .protected`), otherwise through the standard or fast
 /// URLSession. Returning `URLResponse` keeps every call site uniform.
+///
+/// The "fast" policy maps to a 5 s timeout for health probes and share
+/// POSTs. With the standard URLSession that timeout comes from the session
+/// config (`fastHttpSession.timeoutIntervalForRequest = 5`). With Tor we
+/// can't pick a session, so we stamp the same value on
+/// `URLRequest.timeoutInterval` — `httpRequestOverTor` ultimately runs on
+/// URLSession too and honors per-request timeouts, which keeps the fast
+/// failover behaviour identical across Tor on/off.
+private let fastRequestTimeout: TimeInterval = 5
+
 @Sendable
 private func performVotingRequest(
     _ request: URLRequest,
@@ -200,6 +210,11 @@ private func performVotingRequest(
 ) async throws -> (Data, URLResponse) {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Shared(.inMemory(.swapAPIAccess)) var swapAPIAccess: WalletStorage.SwapAPIAccess = .direct
+
+    var request = request
+    if fast {
+        request.timeoutInterval = fastRequestTimeout
+    }
 
     if swapAPIAccess == .protected {
         let (data, response) = try await sdkSynchronizer.httpRequestOverTor(request)
