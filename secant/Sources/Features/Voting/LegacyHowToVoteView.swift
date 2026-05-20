@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct HowToVoteView: View {
+struct LegacyHowToVoteView: View {
     @Environment(\.colorScheme)
     var colorScheme
 

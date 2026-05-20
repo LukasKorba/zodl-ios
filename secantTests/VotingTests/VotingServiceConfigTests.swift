@@ -933,7 +933,7 @@ final class VotingSubmissionPostFallbackTests: XCTestCase {
         )
         var initialState = Self.makeReadySubmissionState(round: round)
         initialState.allRounds = [
-            Voting.State.RoundListItem(roundNumber: 2, session: newSession)
+            RoundListItem(roundNumber: 2, session: newSession)
         ]
         initialState.delegationProofStatus = .complete
         initialState.isDelegationProofInFlight = true

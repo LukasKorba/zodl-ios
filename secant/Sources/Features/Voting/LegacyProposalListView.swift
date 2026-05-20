@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct ProposalListView: View {
+struct LegacyProposalListView: View {
     enum Mode { case voting, review }
 
     @Environment(\.colorScheme)
@@ -370,7 +370,7 @@ struct ProposalListView: View {
 
 // MARK: - Card
 
-extension ProposalListView {
+extension LegacyProposalListView {
     @ViewBuilder
     func proposalCard(_ proposal: VotingProposal) -> some View {
         let choice = store.effectiveChoices[proposal.id]
@@ -429,7 +429,7 @@ extension ProposalListView {
 
 // MARK: - Bottom CTA
 
-extension ProposalListView {
+extension LegacyProposalListView {
     @ViewBuilder
     func bottomCTAOverlay() -> some View {
         if store.voteRecord == nil {

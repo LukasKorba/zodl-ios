@@ -121,44 +121,44 @@ struct VotingView: View {
     ) -> some View {
         switch screen {
         case .howToVote:
-            HowToVoteView(store: store)
+            LegacyHowToVoteView(store: store)
         case .loading:
             ProgressView()
         case .noRounds:
-            NoRoundsView(store: store)
+            LegacyNoRoundsView(store: store)
         case .pollsList:
-            PollsListView(store: store)
+            LegacyPollsListView(store: store)
         case .delegationSigning:
             DelegationSigningView(store: store)
         case .proposalList:
-            ProposalListView(store: store, mode: .voting)
+            LegacyProposalListView(store: store, mode: .voting)
                 .transition(.opacity)
         case .reviewVotes:
-            ProposalListView(store: store, mode: .review)
+            LegacyProposalListView(store: store, mode: .review)
         case .confirmSubmission:
-            ConfirmSubmissionView(store: store)
+            LegacyConfirmSubmissionView(store: store)
         case .proposalDetail:
             if let proposal = store.selectedProposal {
-                ProposalDetailView(store: store, proposal: proposal)
+                LegacyProposalDetailView(store: store, proposal: proposal)
                     .id(proposal.id)
                     .transition(.push(from: .trailing))
             }
         case .ineligible:
-            IneligibleView(store: store)
+            LegacyIneligibleView(store: store)
         case .tallying:
-            TallyingView(store: store)
+            LegacyTallyingView(store: store)
         case .results:
-            ResultsView(store: store)
+            LegacyResultsView(store: store)
         case .error(let message):
-            VotingErrorView(store: store, errorMessage: message)
+            LegacyVotingErrorView(store: store, errorMessage: message)
         case .configError(let message):
-            VotingConfigErrorView(store: store, errorMessage: message)
+            LegacyVotingConfigErrorView(store: store, errorMessage: message)
         case .configSettings:
             if let configSettingsStore = store.scope(state: \.configSettings, action: \.configSettings) {
                 VotingConfigSettingsView(store: configSettingsStore)
             }
         case .walletSyncing:
-            WalletSyncingView(store: store)
+            LegacyWalletSyncingView(store: store)
         }
     }
 }
@@ -183,7 +183,7 @@ struct VotingBlockingBackdrop: View {
 
 // MARK: - No Rounds
 
-struct NoRoundsView: View {
+struct LegacyNoRoundsView: View {
     let store: StoreOf<Voting>
 
     var body: some View {

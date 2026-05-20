@@ -34,9 +34,9 @@ struct SettingsView: View {
                             
                             ActionRow(
                                 icon: Asset.Assets.Icons.checkVerified.image,
-                                title: String(localizable: .settingsCoinholderPolling)
+                                title: "Beta: Coinholder Polling"
                             ) {
-                                store.send(.coinholderPollingTapped)
+                                store.send(.coinholderPollingNewTapped)
                             }
 
                             ActionRow(
@@ -161,6 +161,16 @@ struct SettingsView: View {
             }
             .zashiSheet(isPresented: $store.isResyncHelpSheetPresented) {
                 resyncHelpSheetContent()
+            }
+            .fullScreenCover(
+                item: $store.scope(state: \.votingCoordFlow, action: \.votingCoordFlow)
+            ) { votingStore in
+                // fullScreenCover content is an escaping closure — needs its
+                // own WithPerceptionTracking so reads inside the presented
+                // store register with TCA's observation system.
+                WithPerceptionTracking {
+                    VotingCoordFlowView(store: votingStore)
+                }
             }
         }
     }
