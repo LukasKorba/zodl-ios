@@ -27,7 +27,6 @@ struct Settings {
         case scan(Scan)
         case sendUsFeedback(SendFeedback)
         case torSetup(TorSetup)
-        case voting(Voting)
         case whatsNew(WhatsNew)
     }
     
@@ -80,7 +79,6 @@ struct Settings {
         case checkFundsForAddress(String)
         case closeResyncHelpSheetTapped
         case coinholderPollingTapped
-        case coinholderPollingNewTapped
         case votingCoordFlow(PresentationAction<VotingCoordFlow.Action>)
         case currencyConversionTapped
         case enableEnhanceTransactionMode
@@ -139,16 +137,14 @@ struct Settings {
                     }
                 }
 
-            case .coinholderPollingNewTapped:
+            case .coinholderPollingTapped:
                 // Handled in coordinatorReduce; no-op here so the body's
                 // exhaustive switch over the Action enum still compiles.
                 return .none
             case .votingCoordFlow:
-                // Presentation actions for the new voting flow are routed
+                // Presentation actions for the voting flow are routed
                 // through .ifLet at the body level + the coordinator's
                 // dismiss handler.
-                return .none
-            case .coinholderPollingTapped:
                 return .none
 
             case .currencyConversionTapped:

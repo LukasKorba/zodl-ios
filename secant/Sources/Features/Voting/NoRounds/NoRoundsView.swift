@@ -65,3 +65,39 @@ struct VotingCoordFlowBackdrop: View {
         .zashiBack { store.send(.dismissFlow) }
     }
 }
+
+/// Shimmering placeholder card used while polls are loading and as the
+/// dimmed backdrop behind the "no polls right now" sheet. Same shape and
+/// stroke as a real poll card.
+struct PollsListSkeletonCard: View {
+    @Environment(\.colorScheme)
+    var colorScheme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            shimmerBar(width: 80, height: 12)
+            VStack(alignment: .leading, spacing: 10) {
+                shimmerBar(height: 12)
+                shimmerBar(height: 12)
+                shimmerBar(width: 240, height: 12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            shimmerBar(width: 60, height: 12)
+        }
+        .padding(Design.Spacing._xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Design.Surfaces.bgPrimary.color(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
+        .overlay(
+            RoundedRectangle(cornerRadius: Design.Radius._2xl)
+                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
+        )
+    }
+
+    private func shimmerBar(width: CGFloat? = nil, height: CGFloat) -> some View {
+        Color.gray.opacity(0.25)
+            .frame(width: width, height: height)
+            .shimmer(true)
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+    }
+}
