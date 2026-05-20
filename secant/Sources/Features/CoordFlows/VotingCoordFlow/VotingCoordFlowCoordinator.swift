@@ -312,6 +312,10 @@ extension VotingCoordFlow {
                 return .none
 
             case let .submitTapped(roundId):
+                guard let session = state.roundCache[roundId],
+                      canStartSubmission(session),
+                      hasCompleteBallot(session: session, state: state, roundId: roundId)
+                else { return .none }
                 state.path.append(.confirmSubmission(ConfirmSubmission.State(roundId: roundId)))
                 return .none
 
@@ -320,11 +324,14 @@ extension VotingCoordFlow {
 
             case let .clearDraftVote(roundId, proposalId):
                 let account = state.selectedWalletAccount?.account
-                mutateSession(&state, roundId: roundId) {
-                    $0.draftVotes.removeValue(forKey: proposalId)
-                }
-                if let session = state.roundCache[roundId] {
-                    Voting.persistDrafts(session.draftVotes, roundId: roundId, account: account)
+                guard var session = state.roundCache[roundId] else { return .none }
+                session.draftVotes.removeValue(forKey: proposalId)
+                do {
+                    try Voting.persistDrafts(session.draftVotes, roundId: roundId, account: account)
+                    state.roundCache[roundId] = session
+                } catch {
+                    LoggerProxy.error("Failed to clear persisted voting draft: \(error)")
+                    state.submissionAlert = .votingMetadataPersistenceFailed(error)
                 }
                 return .none
 
@@ -484,13 +491,26 @@ extension VotingCoordFlow {
                 return .send(.startDelegationProof(roundId: roundId))
 
             case let .skipRemainingKeystoneBundles(roundId):
-                // The skip-confirmation alert with locked-in/giving-up amounts
-                // is deferred to a follow-up — for now skip directly so testers
-                // can move past stuck bundles. TODO: surface the confirmation.
-                return .send(.skipRemainingKeystoneBundlesConfirmed(roundId: roundId))
+                guard let session = state.roundCache[roundId],
+                      !session.keystoneBundleSignatures.isEmpty
+                else { return .none }
+                state.skipBundlesAlert = .confirmSkip(
+                    roundId: roundId,
+                    lockedIn: signedBundlesZECString(session),
+                    givingUp: skippedBundlesZECString(session)
+                )
+                return .none
 
             case let .skipRemainingKeystoneBundlesConfirmed(roundId):
                 return reduceSkipRemainingKeystoneBundles(&state, roundId: roundId)
+
+            case let .skipBundlesAlert(.presented(.skipRemainingKeystoneBundlesConfirmed(roundId))):
+                state.skipBundlesAlert = nil
+                return .send(.skipRemainingKeystoneBundlesConfirmed(roundId: roundId))
+
+            case .skipBundlesAlert(.dismiss):
+                state.skipBundlesAlert = nil
+                return .none
 
             case .skipBundlesAlert:
                 return .none
@@ -559,11 +579,16 @@ extension VotingCoordFlow {
                 if state.roundCache[roundId]?.votes[proposalId] != nil {
                     return .none
                 }
-                state.roundCache[roundId, default: RoundSession(roundId: roundId)]
-                    .draftVotes[proposalId] = choice
-                let drafts = state.roundCache[roundId]?.draftVotes ?? [:]
+                var session = state.roundCache[roundId] ?? RoundSession(roundId: roundId)
+                session.draftVotes[proposalId] = choice
                 let account = state.selectedWalletAccount?.account
-                Voting.persistDrafts(drafts, roundId: roundId, account: account)
+                do {
+                    try Voting.persistDrafts(session.draftVotes, roundId: roundId, account: account)
+                    state.roundCache[roundId] = session
+                } catch {
+                    LoggerProxy.error("Failed to persist voting draft: \(error)")
+                    state.submissionAlert = .votingMetadataPersistenceFailed(error)
+                }
                 return .none
 
                 // MARK: - Per-round pipeline
@@ -806,16 +831,25 @@ extension VotingCoordFlow {
             case let .submittedVotesLoaded(roundId, votes):
                 guard !votes.isEmpty else { return .none }
                 let account = state.selectedWalletAccount?.account
-                if state.roundCache[roundId] == nil {
-                    state.roundCache[roundId] = RoundSession(roundId: roundId)
-                }
-                state.roundCache[roundId]?.votes.merge(votes) { current, _ in current }
-                let mergedVotes = state.roundCache[roundId]?.votes ?? [:]
-                let filteredDrafts = (state.roundCache[roundId]?.draftVotes ?? [:])
+                var session = state.roundCache[roundId] ?? RoundSession(roundId: roundId)
+                session.votes.merge(votes) { current, _ in current }
+                let mergedVotes = session.votes
+                let filteredDrafts = session.draftVotes
                     .filter { mergedVotes[$0.key] == nil }
-                state.roundCache[roundId]?.draftVotes = filteredDrafts
-                Voting.persistSubmittedVotes(mergedVotes, roundId: roundId, account: account)
-                Voting.persistDrafts(filteredDrafts, roundId: roundId, account: account)
+                session.draftVotes = filteredDrafts
+                do {
+                    try Voting.persistRoundChoices(
+                        drafts: filteredDrafts,
+                        submittedVotes: mergedVotes,
+                        roundId: roundId,
+                        account: account
+                    )
+                    state.roundCache[roundId] = session
+                } catch {
+                    LoggerProxy.error("Failed to persist submitted voting choices: \(error)")
+                    state.submissionAlert = .votingMetadataPersistenceFailed(error)
+                    state.roundCache[roundId] = session
+                }
                 return .none
 
             case let .ineligibleForRound(roundId):
@@ -877,13 +911,6 @@ extension VotingCoordFlow {
         else { return nil }
         return roundId
     }
-}
-
-import Foundation
-import ComposableArchitecture
-@preconcurrency import ZcashLightClientKit
-
-extension VotingCoordFlow {
     // MARK: - Entry point
 
     /// `.submitAllDraftsTapped` handler. Gates the request, prompts for
@@ -894,6 +921,17 @@ extension VotingCoordFlow {
         guard let session = state.roundCache[roundId] else { return .none }
         guard canStartSubmission(session) else { return .none }
         guard activeSession(in: state, roundId: roundId) != nil else { return .none }
+        guard hasCompleteBallot(session: session, state: state, roundId: roundId) else {
+            let proposalCount = totalProposalsInRound(state: state, roundId: roundId)
+            mutateSession(&state, roundId: roundId) { roundSession in
+                roundSession.batchSubmissionStatus = .submissionFailed(
+                    error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
+                    submittedCount: roundSession.votes.count,
+                    totalCount: proposalCount
+                )
+            }
+            return .none
+        }
 
         if !state.isKeystoneUser && !state.pendingBatchSubmission {
             return .run { [localAuthentication] send in
@@ -912,6 +950,16 @@ extension VotingCoordFlow {
         guard let session = state.roundCache[roundId] else { return .none }
         guard canStartSubmission(session) || isBatchSubmitting(session) else { return .none }
         guard let activeSession = activeSession(in: state, roundId: roundId) else { return .none }
+        guard hasCompleteBallot(session: session, state: state, roundId: roundId) else {
+            mutateSession(&state, roundId: roundId) { roundSession in
+                roundSession.batchSubmissionStatus = .submissionFailed(
+                    error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
+                    submittedCount: roundSession.votes.count,
+                    totalCount: activeSession.proposals.count
+                )
+            }
+            return .none
+        }
 
         // Keystone: route into the per-bundle QR signing screen first.
         // The actual submission resumes via `pendingBatchSubmission` after
@@ -1288,14 +1336,27 @@ extension VotingCoordFlow {
         choice: VoteChoice
     ) -> Effect<Action> {
         let account = state.selectedWalletAccount?.account
-        mutateSession(&state, roundId: roundId) { roundSession in
-            roundSession.votes[proposalId] = choice
-            roundSession.draftVotes.removeValue(forKey: proposalId)
+        guard var session = state.roundCache[roundId] else { return .none }
+        var nextVotes = session.votes
+        var nextDrafts = session.draftVotes
+        nextVotes[proposalId] = choice
+        nextDrafts.removeValue(forKey: proposalId)
+
+        do {
+            try Voting.persistRoundChoices(
+                drafts: nextDrafts,
+                submittedVotes: nextVotes,
+                roundId: roundId,
+                account: account
+            )
+            session.votes = nextVotes
+            session.draftVotes = nextDrafts
+        } catch {
+            LoggerProxy.error("Failed to persist submitted voting choice: \(error)")
+            session.batchVoteErrors[proposalId] = votingMetadataPersistenceMessage(error)
+            state.submissionAlert = .votingMetadataPersistenceFailed(error)
         }
-        if let session = state.roundCache[roundId] {
-            Voting.persistDrafts(session.draftVotes, roundId: roundId, account: account)
-            Voting.persistSubmittedVotes(session.votes, roundId: roundId, account: account)
-        }
+        state.roundCache[roundId] = session
         return .none
     }
 
@@ -1317,40 +1378,65 @@ extension VotingCoordFlow {
     ) -> Effect<Action> {
         let account = state.selectedWalletAccount?.account
         let proposalCount = totalProposalsInRound(state: state, roundId: roundId)
+        guard var session = state.roundCache[roundId] else { return .none }
+        let persistedFailureCount = session.batchVoteErrors.count
 
-        mutateSession(&state, roundId: roundId) { roundSession in
-            roundSession.isSubmittingVote = false
-            roundSession.submittingProposalId = nil
-            roundSession.voteSubmissionStep = nil
-            roundSession.currentVoteBundleIndex = nil
+        session.isSubmittingVote = false
+        session.submittingProposalId = nil
+        session.voteSubmissionStep = nil
+        session.currentVoteBundleIndex = nil
 
-            if failCount > 0 {
-                let error = roundSession.batchVoteErrors.values.first
-                    ?? String(localizable: .coinVoteSubmissionGenericBatchFailure)
-                roundSession.batchSubmissionStatus = .submissionFailed(
-                    error: error,
-                    submittedCount: successCount,
-                    totalCount: successCount + failCount
-                )
-            } else {
-                if roundSession.voteRecord == nil {
-                    let record = Voting.VoteRecord(
-                        votedAt: Date(),
-                        votingWeight: roundSession.votingWeight,
-                        proposalCount: proposalCount
-                    )
-                    roundSession.voteRecord = record
-                    Voting.persistVoteRecord(record, roundId: roundId, account: account)
-                }
-                roundSession.batchSubmissionStatus = .completed(successCount: successCount)
-            }
+        if failCount > 0 || persistedFailureCount > 0 {
+            let error = session.batchVoteErrors.values.first
+                ?? String(localizable: .coinVoteSubmissionGenericBatchFailure)
+            session.batchSubmissionStatus = .submissionFailed(
+                error: error,
+                submittedCount: session.votes.count,
+                totalCount: max(successCount + failCount, session.votes.count + session.draftVotes.count)
+            )
+            state.roundCache[roundId] = session
+            return .none
         }
 
-        if failCount == 0 {
-            if let record = state.roundCache[roundId]?.voteRecord {
-                state.voteRecords[roundId] = record
+        guard hasCompleteSubmittedBallot(session: session, state: state, roundId: roundId) else {
+            session.batchSubmissionStatus = .submissionFailed(
+                error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
+                submittedCount: session.votes.count,
+                totalCount: proposalCount
+            )
+            state.roundCache[roundId] = session
+            return .none
+        }
+
+        if session.voteRecord == nil {
+            let record = Voting.VoteRecord(
+                votedAt: Date(),
+                votingWeight: session.votingWeight,
+                proposalCount: proposalCount
+            )
+            do {
+                try Voting.persistCompletedRound(record, roundId: roundId, account: account)
+                session.voteRecord = record
+            } catch {
+                LoggerProxy.error("Failed to persist voting completion record: \(error)")
+                if session.draftVotes.isEmpty {
+                    session.draftVotes = session.votes
+                }
+                session.batchSubmissionStatus = .submissionFailed(
+                    error: votingMetadataPersistenceMessage(error),
+                    submittedCount: session.votes.count,
+                    totalCount: proposalCount
+                )
+                state.submissionAlert = .votingMetadataPersistenceFailed(error)
+                state.roundCache[roundId] = session
+                return .none
             }
-            Voting.clearPersistedDrafts(roundId: roundId, account: account)
+        }
+        session.batchSubmissionStatus = .completed(successCount: successCount)
+        state.roundCache[roundId] = session
+
+        if let record = session.voteRecord {
+            state.voteRecords[roundId] = record
         }
         return .none
     }
@@ -1902,7 +1988,12 @@ extension VotingCoordFlow {
         state.roundCache[roundId]?.votes = submittedVotes
         state.roundCache[roundId]?.voteRecord = voteRecord
 
-        Voting.persistDrafts(drafts, roundId: roundId, account: account)
+        do {
+            try Voting.persistDrafts(drafts, roundId: roundId, account: account)
+        } catch {
+            LoggerProxy.error("Failed to persist hydrated voting drafts: \(error)")
+            state.submissionAlert = .votingMetadataPersistenceFailed(error)
+        }
     }
 
     private func loadSubmittedVotesFromDb(roundId: String) -> Effect<Action> {
@@ -2057,6 +2148,56 @@ extension VotingCoordFlow {
         activeSession(in: state, roundId: roundId)?.proposals.count ?? 0
     }
 
+    private func hasCompleteBallot(session: RoundSession, state: State, roundId: String) -> Bool {
+        guard let proposals = activeSession(in: state, roundId: roundId)?.proposals,
+              !proposals.isEmpty
+        else { return false }
+
+        return proposals.allSatisfy { proposal in
+            session.draftVotes[proposal.id] != nil || session.votes[proposal.id] != nil
+        }
+    }
+
+    private func hasCompleteSubmittedBallot(session: RoundSession, state: State, roundId: String) -> Bool {
+        guard let proposals = activeSession(in: state, roundId: roundId)?.proposals,
+              !proposals.isEmpty
+        else { return false }
+
+        return proposals.allSatisfy { proposal in
+            session.votes[proposal.id] != nil
+        }
+    }
+
+    private func votingMetadataPersistenceMessage(_ error: Error) -> String {
+        let message = error.localizedDescription.trimmingCharacters(in: .whitespacesAndNewlines)
+        return message.isEmpty
+            ? String(localizable: .coinVoteSubmissionGenericBatchFailure)
+            : message
+    }
+
+    private func signedBundlesZECString(_ session: RoundSession) -> String {
+        let bundles = session.walletNotes.smartBundles().bundles
+        let signedCount = min(session.keystoneBundleSignatures.count, bundles.count)
+        let signedWeight = (0..<signedCount).reduce(UInt64(0)) { total, index in
+            let raw = bundles[index].reduce(UInt64(0)) { $0 + $1.value }
+            return total + quantizeWeight(raw)
+        }
+        return String(format: "%.3f", Double(signedWeight) / 100_000_000.0)
+    }
+
+    private func skippedBundlesZECString(_ session: RoundSession) -> String {
+        let bundles = session.walletNotes.smartBundles().bundles
+        let signedCount = min(session.keystoneBundleSignatures.count, bundles.count)
+        let countedBundleCount = min(Int(session.bundleCount), bundles.count)
+        guard signedCount < countedBundleCount else { return "0.000" }
+
+        let skippedWeight = (signedCount..<countedBundleCount).reduce(UInt64(0)) { total, index in
+            let raw = bundles[index].reduce(UInt64(0)) { $0 + $1.value }
+            return total + quantizeWeight(raw)
+        }
+        return String(format: "%.3f", Double(skippedWeight) / 100_000_000.0)
+    }
+
     /// Mutate the round's cached session in place. No-op if the round
     /// hasn't been entered yet (cache miss).
     func mutateSession(
@@ -2108,9 +2249,13 @@ extension VotingCoordFlow {
         try await votingCrypto.storeVanPosition(roundId, bundleIndex, vanIdx)
 
         guard let savedBundle = try? await votingCrypto.getVoteCommitmentBundle(roundId, bundleIndex, proposalId) else {
-            // VAN position stored but no saved bundle — mark submitted and move on.
-            try await votingCrypto.markVoteSubmitted(roundId, bundleIndex, proposalId)
-            return true
+            LoggerProxy.error(
+                """
+                Recovered on-chain vote \(proposalId) for bundle \(bundleIndex), \
+                but the saved commitment bundle is missing; cannot delegate tally shares.
+                """
+            )
+            throw VotingFlowError.missingVoteCommitmentBundle
         }
 
         try await votingCrypto.storeVoteCommitmentBundle(roundId, bundleIndex, proposalId, savedBundle, vcIdx)
@@ -2351,6 +2496,35 @@ extension VotingCoordFlow {
 
             try await Task.sleep(for: retryDelay)
         } while true
+    }
+}
+
+// MARK: - Alerts
+
+extension AlertState where Action == Never {
+    static func votingMetadataPersistenceFailed(_ error: Error) -> AlertState {
+        AlertState {
+            TextState(String(localizable: .coinVoteErrorTitle))
+        } message: {
+            TextState(error.localizedDescription)
+        }
+    }
+}
+
+extension AlertState where Action == VotingCoordFlow.Action {
+    static func confirmSkip(roundId: String, lockedIn: String, givingUp: String) -> AlertState {
+        AlertState {
+            TextState(String(localizable: .coinVoteDelegationSigningSkipAlertTitle))
+        } actions: {
+            ButtonState(role: .destructive, action: .skipRemainingKeystoneBundlesConfirmed(roundId: roundId)) {
+                TextState(String(localizable: .coinVoteDelegationSigningSkipAlertPrimary))
+            }
+            ButtonState(role: .cancel, action: .skipBundlesAlert(.dismiss)) {
+                TextState(String(localizable: .coinVoteDelegationSigningSkipAlertCancel))
+            }
+        } message: {
+            TextState(String(localizable: .coinVoteDelegationSigningSkipAlertMessage(lockedIn, givingUp)))
+        }
     }
 }
 

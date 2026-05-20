@@ -37,7 +37,14 @@ struct ProposalListView: View {
                 drafts: drafts,
                 submittedVotes: submittedVotes
             )
-            let canSubmit = mode == .voting && !drafts.isEmpty && pipelineReady
+            let canSubmit = mode == .voting
+                && !drafts.isEmpty
+                && pipelineReady
+                && hasCompleteBallot(
+                    proposals: proposals,
+                    drafts: drafts,
+                    submittedVotes: submittedVotes
+                )
 
             ZStack(alignment: .bottom) {
                 ScrollView {
@@ -167,6 +174,17 @@ struct ProposalListView: View {
         var choices = submittedVotes
         choices.merge(drafts) { _, draft in draft }
         return choices
+    }
+
+    private func hasCompleteBallot(
+        proposals: [VotingProposal],
+        drafts: [UInt32: VoteChoice],
+        submittedVotes: [UInt32: VoteChoice]
+    ) -> Bool {
+        guard !proposals.isEmpty else { return false }
+        return proposals.allSatisfy { proposal in
+            drafts[proposal.id] != nil || submittedVotes[proposal.id] != nil
+        }
     }
 
     @ViewBuilder

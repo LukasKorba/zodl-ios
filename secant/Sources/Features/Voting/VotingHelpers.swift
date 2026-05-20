@@ -65,11 +65,15 @@ enum Voting {
 
     // MARK: - Vote-record persistence
 
-    static func persistVoteRecord(_ record: VoteRecord, roundId: String, account: Account?) {
+    static func persistVoteRecord(_ record: VoteRecord, roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previousRecord = votingMetadata.record(roundId)
         votingMetadata.setRecord(record.persisted, roundId)
-        if let account {
-            try? votingMetadata.store(account)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            restoreVoteRecord(previousRecord, roundId: roundId)
+            throw error
         }
     }
 
@@ -78,11 +82,15 @@ enum Voting {
         return votingMetadata.record(roundId).map(VoteRecord.init)
     }
 
-    static func clearPersistedVoteRecord(roundId: String, account: Account?) {
+    static func clearPersistedVoteRecord(roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previousRecord = votingMetadata.record(roundId)
         votingMetadata.clearRecord(roundId)
-        if let account {
-            try? votingMetadata.store(account)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            restoreVoteRecord(previousRecord, roundId: roundId)
+            throw error
         }
     }
 
@@ -91,7 +99,7 @@ enum Voting {
     /// outstanding editable work for the round.
     static func loadCompletedVoteRecord(roundId: String, account: Account?) -> VoteRecord? {
         guard loadDrafts(roundId: roundId).isEmpty else {
-            clearPersistedVoteRecord(roundId: roundId, account: account)
+            try? clearPersistedVoteRecord(roundId: roundId, account: account)
             return nil
         }
         return loadVoteRecord(roundId: roundId)
@@ -99,11 +107,15 @@ enum Voting {
 
     // MARK: - Draft persistence
 
-    static func persistDrafts(_ drafts: [UInt32: VoteChoice], roundId: String, account: Account?) {
+    static func persistDrafts(_ drafts: [UInt32: VoteChoice], roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previousDrafts = votingMetadata.loadDrafts(roundId)
         votingMetadata.setDrafts(encodedChoices(drafts), roundId)
-        if let account {
-            try? votingMetadata.store(account)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            votingMetadata.setDrafts(previousDrafts, roundId)
+            throw error
         }
     }
 
@@ -112,11 +124,15 @@ enum Voting {
         return decodedChoices(votingMetadata.loadDrafts(roundId))
     }
 
-    static func clearPersistedDrafts(roundId: String, account: Account?) {
+    static func clearPersistedDrafts(roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previousDrafts = votingMetadata.loadDrafts(roundId)
         votingMetadata.clearDrafts(roundId)
-        if let account {
-            try? votingMetadata.store(account)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            votingMetadata.setDrafts(previousDrafts, roundId)
+            throw error
         }
     }
 
@@ -126,11 +142,15 @@ enum Voting {
         _ votes: [UInt32: VoteChoice],
         roundId: String,
         account: Account?
-    ) {
+    ) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previousVotes = votingMetadata.loadSubmittedVotes(roundId)
         votingMetadata.setSubmittedVotes(encodedChoices(votes), roundId)
-        if let account {
-            try? votingMetadata.store(account)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            votingMetadata.setSubmittedVotes(previousVotes, roundId)
+            throw error
         }
     }
 
@@ -139,11 +159,72 @@ enum Voting {
         return decodedChoices(votingMetadata.loadSubmittedVotes(roundId))
     }
 
-    static func clearPersistedSubmittedVotes(roundId: String, account: Account?) {
+    static func clearPersistedSubmittedVotes(roundId: String, account: Account?) throws {
         @Dependency(\.votingMetadata) var votingMetadata
+        let previousVotes = votingMetadata.loadSubmittedVotes(roundId)
         votingMetadata.clearSubmittedVotes(roundId)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            votingMetadata.setSubmittedVotes(previousVotes, roundId)
+            throw error
+        }
+    }
+
+    static func persistRoundChoices(
+        drafts: [UInt32: VoteChoice],
+        submittedVotes: [UInt32: VoteChoice],
+        roundId: String,
+        account: Account?
+    ) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
+        let previousDrafts = votingMetadata.loadDrafts(roundId)
+        let previousSubmittedVotes = votingMetadata.loadSubmittedVotes(roundId)
+
+        votingMetadata.setDrafts(encodedChoices(drafts), roundId)
+        votingMetadata.setSubmittedVotes(encodedChoices(submittedVotes), roundId)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            votingMetadata.setDrafts(previousDrafts, roundId)
+            votingMetadata.setSubmittedVotes(previousSubmittedVotes, roundId)
+            throw error
+        }
+    }
+
+    static func persistCompletedRound(
+        _ record: VoteRecord,
+        roundId: String,
+        account: Account?
+    ) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
+        let previousDrafts = votingMetadata.loadDrafts(roundId)
+        let previousRecord = votingMetadata.record(roundId)
+
+        votingMetadata.clearDrafts(roundId)
+        votingMetadata.setRecord(record.persisted, roundId)
+        do {
+            try storeVotingMetadata(account)
+        } catch {
+            votingMetadata.setDrafts(previousDrafts, roundId)
+            restoreVoteRecord(previousRecord, roundId: roundId)
+            throw error
+        }
+    }
+
+    private static func storeVotingMetadata(_ account: Account?) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
         if let account {
-            try? votingMetadata.store(account)
+            try votingMetadata.store(account)
+        }
+    }
+
+    private static func restoreVoteRecord(_ record: PersistedVotingRecord?, roundId: String) {
+        @Dependency(\.votingMetadata) var votingMetadata
+        if let record {
+            votingMetadata.setRecord(record, roundId)
+        } else {
+            votingMetadata.clearRecord(roundId)
         }
     }
 
