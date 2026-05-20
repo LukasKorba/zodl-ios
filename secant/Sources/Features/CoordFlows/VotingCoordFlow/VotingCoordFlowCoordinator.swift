@@ -3528,7 +3528,9 @@ enum UIMockInflator {
             options: proposal.options.enumerated().map { index, option in
                 VoteOption(
                     index: option.index,
-                    label: loremOptionLabel(forIndex: index, original: option.label)
+                    label: shortOptionLabel(forIndex: index, original: option.label),
+                    description: option.description
+                        ?? loremOptionDescription(forIndex: index)
                 )
             },
             zipNumber: proposal.zipNumber,
@@ -3536,15 +3538,27 @@ enum UIMockInflator {
         )
     }
 
-    /// Variable-length lorem ipsum so each option's text doesn't look
-    /// identical and the layout has to handle short + medium + long answers.
-    private static func loremOptionLabel(forIndex index: Int, original: String) -> String {
+    /// Short labels so we can test the title row of the option card without
+    /// the title hogging the layout. Keeps the original label when it's
+    /// already short; otherwise falls back to a Yes / No / Abstain palette.
+    private static func shortOptionLabel(forIndex index: Int, original: String) -> String {
+        let trimmed = original.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmed.isEmpty && trimmed.count <= 24 {
+            return trimmed
+        }
+        let palette = ["Yes", "No", "Abstain", "Maybe", "Other"]
+        return palette[index % palette.count]
+    }
+
+    /// Variable-length lorem so each option's body row has a different
+    /// height — short, medium, long — to flush out wrapping bugs.
+    private static func loremOptionDescription(forIndex index: Int) -> String {
         let palette: [String] = [
-            "Yes — \(original.isEmpty ? "Lorem ipsum dolor sit amet" : original)",
-            "No — sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
-            "Abstain — ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip",
-            "Maybe — duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur",
-            "Other — excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum"
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.",
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit.",
+            "Excepteur sint occaecat cupidatat non proident.",
+            "Sunt in culpa qui officia deserunt mollit anim id est laborum, totam rem aperiam eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae."
         ]
         return palette[index % palette.count]
     }

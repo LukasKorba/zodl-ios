@@ -46,23 +46,32 @@ struct ProposalDetailView: View {
             let isLocked = mode == .review || submittedChoice != nil
 
             ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
                     if let proposal {
-                        Text(proposal.title)
-                            .zFont(.semiBold, size: 24, style: Design.Text.primary)
-                            .tracking(-0.384)
-                            .fixedSize(horizontal: false, vertical: true)
-
-                        if !proposal.description.isEmpty {
-                            Text(proposal.description)
-                                .zFont(.medium, size: 14, style: Design.Text.primary)
-                                .tracking(-0.224)
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text(proposal.title)
+                                .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                                .tracking(-0.384)
                                 .fixedSize(horizontal: false, vertical: true)
+
+                            if !proposal.description.isEmpty {
+                                Text(proposal.description)
+                                    .zFont(.medium, size: 14, style: Design.Text.primary)
+                                    .tracking(-0.224)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 12)
 
                         if !proposal.options.isEmpty {
-                            VStack(spacing: 8) {
-                                ForEach(proposal.options, id: \.index) { option in
+                            VStack(spacing: 0) {
+                                ForEach(Array(proposal.options.enumerated()), id: \.element.index) { offset, option in
+                                    if offset > 0 {
+                                        Divider()
+                                            .frame(height: 1)
+                                    }
                                     optionRow(
                                         option,
                                         selected: selected,
@@ -70,16 +79,16 @@ struct ProposalDetailView: View {
                                     )
                                 }
                             }
-                            .padding(.top, 8)
+                            .padding(.top, 16)
                         }
                     } else {
                         Text("Proposal not found")
                             .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 12)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
                 .padding(.bottom, 24)
             }
             .padding(.vertical, 1)
@@ -105,7 +114,7 @@ struct ProposalDetailView: View {
                 )
             )
         } label: {
-            HStack(spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 ZStack {
                     Circle()
                         .stroke(
@@ -122,23 +131,26 @@ struct ProposalDetailView: View {
                     }
                 }
 
-                Text(option.label)
-                    .zFont(.medium, size: 16, style: Design.Text.primary)
-                    .tracking(-0.256)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(option.label)
+                        .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                        .tracking(-0.256)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let description = option.description?
+                        .trimmingCharacters(in: .whitespacesAndNewlines),
+                       !description.isEmpty {
+                        Text(description)
+                            .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                            .tracking(-0.224)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(Design.Spacing._xl)
-            .background(Design.Surfaces.bgPrimary.color(colorScheme))
-            .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-            .overlay(
-                RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                    .stroke(
-                        isSelected
-                            ? Design.Text.primary.color(colorScheme)
-                            : Design.Surfaces.strokeSecondary.color(colorScheme),
-                        lineWidth: isSelected ? 2 : 1
-                    )
-            )
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(isLocked)
