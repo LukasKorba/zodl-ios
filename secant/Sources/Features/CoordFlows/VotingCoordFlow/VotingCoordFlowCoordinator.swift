@@ -310,20 +310,142 @@ extension VotingCoordFlow {
                 state.path.append(.confirmSubmission(ConfirmSubmission.State(roundId: roundId)))
                 return .none
 
-            case .submitAllDraftsTapped:
-                // TODO Phase 5: real submission pipeline (auth → delegation
-                // proof → per-vote ZKPs → share delegation → success).
-                // Until then, surface an alert so the DEBUG entry doesn't
-                // silently swallow the tap and so testers route to the
-                // legacy Coinholder Polling entry for actual votes.
+            case let .submitAllDraftsTapped(roundId):
+                // Stage 5A: the routing scaffold is in place but the
+                // per-step effects (auth → delegation → vote loop) are
+                // wired in Stage 5B/5C. For now, route through the entry
+                // point so Stage 5B can replace this stub with the real
+                // local-auth + Keystone routing without touching the
+                // call site in `ConfirmSubmissionView`.
+                guard let session = state.roundCache[roundId] else { return .none }
+                guard session.batchSubmissionStatus == .idle
+                    || session.batchSubmissionStatus.isFailureState
+                else {
+                    return .none
+                }
+                state.submissionAlertRoundId = roundId
                 state.submissionAlert = AlertState {
-                    TextState("Submission not wired yet")
+                    TextState("Submission landing in Stage 5B")
                 } message: {
-                    TextState("The new voting flow's submission pipeline lands in Phase 5. To submit votes today, use the legacy 'Coinholder Polling' entry in Settings.")
+                    TextState("The submission pipeline scaffold is in place; the per-step effects (auth, delegation proof, vote commitment, share delegation) wire up in the next stage.")
                 }
                 return .none
 
+            case let .clearDraftVote(roundId, proposalId):
+                guard var session = state.roundCache[roundId] else { return .none }
+                session.draftVotes.removeValue(forKey: proposalId)
+                state.roundCache[roundId] = session
+                // Stage 5B: write through to the encrypted metadata file.
+                return .none
+
             case .submissionAlert:
+                return .none
+
+            // MARK: - Stage 5: submission pipeline (stubs)
+            //
+            // The action surface is declared here so every future stage's
+            // changes show up as filling in `.run` bodies rather than
+            // adding new cases at call sites. The compiler enforces
+            // completeness against the enum, which gives us a clean
+            // diff per stage.
+
+            case .authenticationSucceeded:
+                return .none
+
+            case .startDelegationProof:
+                return .none
+
+            case .delegationProofProgress:
+                return .none
+
+            case .delegationProofCompleted:
+                return .none
+
+            case .delegationProofFailed:
+                return .none
+
+            case .maybeStartDelegationPrecompute:
+                return .none
+
+            case .delegationPrecomputeCompleted:
+                return .none
+
+            case .delegationPrecomputeFailed:
+                return .none
+
+            case .batchSubmissionProgress:
+                return .none
+
+            case .voteSubmissionBundleStarted:
+                return .none
+
+            case .voteSubmissionStepUpdated:
+                return .none
+
+            case .batchVoteSubmitted:
+                return .none
+
+            case .batchVoteFailed:
+                return .none
+
+            case .batchSubmissionCompleted:
+                return .none
+
+            case .batchAuthorizationFailed:
+                return .none
+
+            case .batchSubmissionFailed:
+                return .none
+
+            case .retryBatchSubmission:
+                return .none
+
+            case let .dismissBatchResults(roundId):
+                guard var session = state.roundCache[roundId] else { return .none }
+                session.batchSubmissionStatus = .idle
+                session.batchVoteErrors = [:]
+                state.roundCache[roundId] = session
+                return .none
+
+            // MARK: - Stage 5: Keystone signing loop (stubs)
+
+            case .keystoneSigningPrepared:
+                return .none
+
+            case .keystoneSigningFailed:
+                return .none
+
+            case .openKeystoneSignatureScan:
+                return .none
+
+            case .keystoneScan:
+                return .none
+
+            case .spendAuthSignatureExtracted:
+                return .none
+
+            case .keystoneBundleSignatureStored:
+                return .none
+
+            case .keystoneAllBundlesSigned:
+                return .none
+
+            case .keystoneSignaturesRestored:
+                return .none
+
+            case .keystoneShowSigningScreen:
+                return .none
+
+            case .skipRemainingKeystoneBundles:
+                return .none
+
+            case .skipRemainingKeystoneBundlesConfirmed:
+                return .none
+
+            case .skipBundlesAlert:
+                return .none
+
+            case .delegationRejected:
                 return .none
 
                 // MARK: - Tally results
