@@ -2,7 +2,6 @@ import Combine
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-import os
 
 // MARK: - Delegation (Witness Verification, Round Resume, Delegation Signing, ZKP)
 
@@ -369,6 +368,10 @@ extension Voting {
                 LoggerProxy.debug("Skipping delegation PIR precompute: missing selected-account seed fingerprint")
                 return .none
             }
+            guard let accountId = state.selectedWalletAccount?.id else {
+                LoggerProxy.debug("Skipping delegation PIR precompute: missing selected account")
+                return .none
+            }
 
             state.delegationPrecomputeStatus = .inProgress
             state.isDelegationPrecomputeInFlight = true
@@ -383,7 +386,7 @@ extension Voting {
             let roundName = state.votingRound.title
 
             return .run { [votingCrypto, mnemonic, walletStorage] send in
-                let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
+                let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                 let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
                 let noteChunks = cachedNotes.smartBundles().bundles
                 guard Int(bundleCount) <= noteChunks.count else {
@@ -519,9 +522,10 @@ extension Voting {
             guard
                 let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
                 !pirEndpoints.isEmpty,
-                let expectedSnapshotHeight = state.activeSession?.snapshotHeight
+                let expectedSnapshotHeight = state.activeSession?.snapshotHeight,
+                let accountId = state.selectedWalletAccount?.id
             else {
-                LoggerProxy.error("serviceConfig/activeSession unexpectedly nil in startActiveRoundPipeline; aborting")
+                LoggerProxy.error("serviceConfig/activeSession/selectedAccount unexpectedly nil in startActiveRoundPipeline; aborting")
                 return .none
             }
             let keystoneBundleIndex = state.currentKeystoneBundleIndex
@@ -541,7 +545,7 @@ extension Voting {
                     let bgTaskId = await backgroundTask.beginTask("Delegation proof generation")
                     do {
                         // Reload hotkey from keychain (generated during initialize)
-                        let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
+                        let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                         let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
                         if isKeystoneUser {
                             guard bundleCount > 0 else {
@@ -740,9 +744,10 @@ extension Voting {
             let accountIndex: UInt32 = state.selectedWalletAccount.flatMap(\.zip32AccountIndex).map { UInt32($0.index) } ?? 0
             guard
                 let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
-                !pirEndpoints.isEmpty
+                !pirEndpoints.isEmpty,
+                let accountId = state.selectedWalletAccount?.id
             else {
-                LoggerProxy.error("serviceConfig unexpectedly nil during delegation proof; aborting")
+                LoggerProxy.error("serviceConfig/selectedAccount unexpectedly nil during delegation proof; aborting")
                 return .none
             }
             let storedSignatures = state.keystoneBundleSignatures
@@ -753,7 +758,7 @@ extension Voting {
                 do {
                     let senderPhrase = try walletStorage.exportWallet().seedPhrase.value()
                     let senderSeed = try mnemonic.toSeed(senderPhrase)
-                    let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
+                    let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                     let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
                     let noteChunks = cachedNotes.smartBundles().bundles
                     var completedBundles = Set<UInt32>()
@@ -916,10 +921,6 @@ extension Voting {
             } catch: { error, send in
                 await send(.delegationProofFailed(roundId: roundId, error: error.localizedDescription))
             }
-
-        case .keystoneBundleAdvance:
-            // Legacy — no longer used; signing loop is handled by keystoneBundleSignatureStored.
-            return .none
 
         case .spendAuthSignatureExtractionFailed(let error):
             state.keystoneSigningStatus = .failed(VotingErrorMapper.userFriendlyMessage(from: error))

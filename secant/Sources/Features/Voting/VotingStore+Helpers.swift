@@ -1,18 +1,20 @@
 import Foundation
 import ComposableArchitecture
+@preconcurrency import ZcashLightClientKit
 
-// MARK: - Draft Persistence
+// MARK: - Draft & Vote-Record Persistence
 
 extension Voting {
-    private static let draftPrefix = "voting.draftVotes."
-    private static let voteRecordPrefix = "voting.voteRecord."
-
     /// Persisted record of when a round's vote submission fully completed,
     /// the voting weight at that moment, and how many proposals were included.
     /// Survives app termination so the Results screen can render
     /// "Voted Feb 15 - Voting Power X.XXX ZEC" and the polls list can show
     /// the Voted state days after submission, even though the live session
     /// state is per-session.
+    ///
+    /// At rest, this lives in the per-account encrypted `votingMetadata` file
+    /// alongside drafts. In-memory the date stays a `Date` for the UI; the
+    /// on-disk form (`PersistedVotingRecord`) stores `votedAt` as a Unix timestamp.
     struct VoteRecord: Equatable {
         let votedAt: Date
         let votingWeight: UInt64
@@ -23,80 +25,104 @@ extension Voting {
             self.votingWeight = votingWeight
             self.proposalCount = proposalCount
         }
-    }
 
-    private static func voteRecordKey(walletId: String, roundId: String) -> String {
-        "\(voteRecordPrefix)\(walletId)|\(roundId)"
-    }
-
-    static func persistVoteRecord(_ record: VoteRecord, walletId: String, roundId: String) {
-        let key = voteRecordKey(walletId: walletId, roundId: roundId)
-        UserDefaults.standard.set(
-            [
-                "votedAt": record.votedAt.timeIntervalSince1970,
-                "votingWeight": NSNumber(value: record.votingWeight),
-                "proposalCount": NSNumber(value: record.proposalCount)
-            ],
-            forKey: key
-        )
-    }
-
-    static func loadVoteRecord(walletId: String, roundId: String) -> VoteRecord? {
-        let key = voteRecordKey(walletId: walletId, roundId: roundId)
-        guard let raw = UserDefaults.standard.dictionary(forKey: key),
-              let votedAtUnix = raw["votedAt"] as? Double,
-              let weight = (raw["votingWeight"] as? NSNumber)?.uint64Value else {
-            return nil
+        init(_ persisted: PersistedVotingRecord) {
+            self.votedAt = Date(timeIntervalSince1970: persisted.votedAt)
+            self.votingWeight = persisted.votingWeight
+            self.proposalCount = persisted.proposalCount
         }
-        // proposalCount was added later — older records default to 0 and the
-        // view falls back to the round's full proposal count for display.
-        let count = (raw["proposalCount"] as? NSNumber)?.intValue ?? 0
-        return VoteRecord(
-            votedAt: Date(timeIntervalSince1970: votedAtUnix),
-            votingWeight: weight,
-            proposalCount: count
-        )
+
+        var persisted: PersistedVotingRecord {
+            PersistedVotingRecord(
+                votedAt: votedAt.timeIntervalSince1970,
+                votingWeight: votingWeight,
+                proposalCount: proposalCount
+            )
+        }
     }
 
-    static func clearPersistedVoteRecord(walletId: String, roundId: String) {
-        UserDefaults.standard.removeObject(forKey: voteRecordKey(walletId: walletId, roundId: roundId))
+    // MARK: - Vote records
+
+    /// Persist a completed-round vote record. Throws so the caller can
+    /// surface a failure (toast/alert). On failure the in-memory cache is
+    /// rolled back so the next read doesn't lie about what's on disk.
+    static func persistVoteRecord(_ record: VoteRecord, roundId: String, account: Account?) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.record(roundId)
+        votingMetadata.setRecord(record.persisted, roundId)
+        if let account {
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                if let previous {
+                    votingMetadata.setRecord(previous, roundId)
+                } else {
+                    votingMetadata.clearRecord(roundId)
+                }
+                throw error
+            }
+        }
+    }
+
+    static func loadVoteRecord(roundId: String) -> VoteRecord? {
+        @Dependency(\.votingMetadata) var votingMetadata
+        return votingMetadata.record(roundId).map(VoteRecord.init)
+    }
+
+    static func clearPersistedVoteRecord(roundId: String, account: Account?) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.record(roundId)
+        votingMetadata.clearRecord(roundId)
+        if let account {
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                if let previous {
+                    votingMetadata.setRecord(previous, roundId)
+                }
+                throw error
+            }
+        }
     }
 
     /// A round-level vote record is only valid once all drafts are gone.
     /// Older builds wrote it too early, so clear it if there is still
     /// outstanding editable work for the round.
-    static func loadCompletedVoteRecord(walletId: String, roundId: String) -> VoteRecord? {
-        guard loadDrafts(walletId: walletId, roundId: roundId).isEmpty else {
-            clearPersistedVoteRecord(walletId: walletId, roundId: roundId)
+    static func loadCompletedVoteRecord(roundId: String, account: Account?) -> VoteRecord? {
+        guard loadDrafts(roundId: roundId).isEmpty else {
+            try? clearPersistedVoteRecord(roundId: roundId, account: account)
             return nil
         }
-        return loadVoteRecord(walletId: walletId, roundId: roundId)
+        return loadVoteRecord(roundId: roundId)
     }
 
-    private static func draftKey(walletId: String, roundId: String) -> String {
-        "\(draftPrefix)\(walletId)|\(roundId)"
-    }
+    // MARK: - Drafts
 
-    /// Persist draft votes to UserDefaults so they survive app termination.
-    static func persistDrafts(_ drafts: [UInt32: VoteChoice], walletId: String, roundId: String) {
-        let key = draftKey(walletId: walletId, roundId: roundId)
-        if drafts.isEmpty {
-            UserDefaults.standard.removeObject(forKey: key)
-        } else {
-            let encoded = drafts.reduce(into: [String: UInt32]()) { dict, entry in
-                dict[String(entry.key)] = entry.value.index
+    /// Persist draft votes for a round. Optimistically updates the in-memory
+    /// cache, then flushes to disk. On persist failure the in-memory cache
+    /// is reverted so the UI never displays a draft that didn't actually
+    /// survive — and the caller can decide how to surface the failure.
+    static func persistDrafts(_ drafts: [UInt32: VoteChoice], roundId: String, account: Account?) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.loadDrafts(roundId)
+        let encoded = drafts.reduce(into: [String: UInt32]()) { dict, entry in
+            dict[String(entry.key)] = entry.value.index
+        }
+        votingMetadata.setDrafts(encoded, roundId)
+        if let account {
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                votingMetadata.setDrafts(previous, roundId)
+                throw error
             }
-            UserDefaults.standard.set(encoded, forKey: key)
         }
     }
 
     /// Load persisted draft votes for a round.
-    static func loadDrafts(walletId: String, roundId: String) -> [UInt32: VoteChoice] {
-        let key = draftKey(walletId: walletId, roundId: roundId)
-        guard let raw = UserDefaults.standard.dictionary(forKey: key) as? [String: UInt32] else {
-            return [:]
-        }
-        return raw.reduce(into: [UInt32: VoteChoice]()) { dict, entry in
+    static func loadDrafts(roundId: String) -> [UInt32: VoteChoice] {
+        @Dependency(\.votingMetadata) var votingMetadata
+        return votingMetadata.loadDrafts(roundId).reduce(into: [UInt32: VoteChoice]()) { dict, entry in
             if let proposalId = UInt32(entry.key) {
                 dict[proposalId] = .option(entry.value)
             }
@@ -104,8 +130,47 @@ extension Voting {
     }
 
     /// Remove all persisted drafts for a round.
-    static func clearPersistedDrafts(walletId: String, roundId: String) {
-        UserDefaults.standard.removeObject(forKey: draftKey(walletId: walletId, roundId: roundId))
+    static func clearPersistedDrafts(roundId: String, account: Account?) throws {
+        @Dependency(\.votingMetadata) var votingMetadata
+        let previous = votingMetadata.loadDrafts(roundId)
+        votingMetadata.clearDrafts(roundId)
+        if let account {
+            do {
+                try votingMetadata.store(account)
+            } catch {
+                votingMetadata.setDrafts(previous, roundId)
+                throw error
+            }
+        }
+    }
+
+    // MARK: - Failure surfacing
+
+    /// Logs the failure and surfaces a toast so the user knows their last
+    /// action didn't fully take. Use after `try Self.persistDrafts(...)` /
+    /// `persistVoteRecord(...)` / `clearPersisted*(...)` in reducer code so
+    /// the in-memory rollback (done inside the helper) is paired with a UI
+    /// signal.
+    static func handlePersistFailure(_ error: Error, state: inout State) {
+        LoggerProxy.error("voting metadata persist failed: \(error.localizedDescription)")
+        state.$toast.withLock {
+            $0 = .top("Your voting changes couldn't be saved. Please try again.")
+        }
+    }
+
+    // MARK: - Janitorial
+
+    /// One-time sweep of leftover plaintext keys from the previous
+    /// `UserDefaults.standard` storage. No real users carry these (the feature
+    /// only shipped to internal dev builds before the encrypted file existed),
+    /// but the wipe guarantees no internal test device leaves the old shape
+    /// behind after upgrade. Safe to keep indefinitely; cheap and idempotent.
+    static func sweepLegacyUserDefaultsVotingKeys() {
+        let standardDefaults = UserDefaults.standard
+        for key in standardDefaults.dictionaryRepresentation().keys
+            where key.hasPrefix("voting.voteRecord.") || key.hasPrefix("voting.draftVotes.") {
+            standardDefaults.removeObject(forKey: key)
+        }
     }
 }
 

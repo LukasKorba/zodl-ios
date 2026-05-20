@@ -1,7 +1,6 @@
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-import os
 
 // MARK: - Batch Voting Submission
 
@@ -12,7 +11,11 @@ extension Voting {
         case let .setDraftVote(proposalId, choice):
             guard state.votes[proposalId] == nil else { return .none }
             state.draftVotes[proposalId] = choice
-            Self.persistDrafts(state.draftVotes, walletId: state.walletId, roundId: state.roundId)
+            do {
+                try Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
             // Pop back to the list so the user can continue drafting other proposals
             if case .proposalDetail = state.currentScreen {
                 state.screenStack.removeLast()
@@ -21,7 +24,11 @@ extension Voting {
 
         case let .clearDraftVote(proposalId):
             state.draftVotes.removeValue(forKey: proposalId)
-            Self.persistDrafts(state.draftVotes, walletId: state.walletId, roundId: state.roundId)
+            do {
+                try Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
             return .none
 
         case .submitAllDrafts:
@@ -83,9 +90,10 @@ extension Voting {
                 !voteServerURLs.isEmpty,
                 let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url),
                 !pirEndpoints.isEmpty,
-                let expectedSnapshotHeight = state.activeSession?.snapshotHeight
+                let expectedSnapshotHeight = state.activeSession?.snapshotHeight,
+                let accountId = state.selectedWalletAccount?.id
             else {
-                LoggerProxy.error("serviceConfig/activeSession unexpectedly nil during vote submission; aborting")
+                LoggerProxy.error("serviceConfig/activeSession/selectedAccount unexpectedly nil during vote submission; aborting")
                 return .none
             }
             let bundleCount = state.bundleCount
@@ -105,7 +113,7 @@ extension Voting {
 
             return .run { [backgroundTask, votingAPI, votingCrypto, mnemonic, walletStorage] send in
                 let bgTaskId = await backgroundTask.beginTask("Batch vote submission")
-                let _ = await backgroundTask.beginContinuedProcessing(
+                _ = await backgroundTask.beginContinuedProcessing(
                     "co.zodl.voting.*",
                     String(localizable: .coinVoteSubmissionContinuedProcessingTitle),
                     totalCount == 1
@@ -119,7 +127,7 @@ extension Voting {
                     }
                 }
 
-                let hotkeyPhrase = try walletStorage.exportVotingHotkey("").seedPhrase.value()
+                let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
                 let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
 
                 // --- Delegation (ZKP #1) — run inline if not already done ---
@@ -385,6 +393,7 @@ extension Voting {
                     totalCount: totalCount
                 ))
             }
+            .cancellable(id: cancelSubmissionId, cancelInFlight: true)
 
         case let .batchSubmissionProgress(currentIndex, totalCount, proposalId):
             state.batchSubmissionStatus = .submitting(
@@ -401,7 +410,11 @@ extension Voting {
         case let .batchVoteSubmitted(proposalId, choice):
             state.votes[proposalId] = choice
             state.draftVotes.removeValue(forKey: proposalId)
-            Self.persistDrafts(state.draftVotes, walletId: state.walletId, roundId: state.roundId)
+            do {
+                try Self.persistDrafts(state.draftVotes, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+            } catch {
+                Self.handlePersistFailure(error, state: &state)
+            }
             return .none
 
         case let .batchVoteFailed(proposalId, error):
@@ -435,11 +448,19 @@ extension Voting {
                         proposalCount: state.totalProposals
                     )
                     state.voteRecord = record
-                    Self.persistVoteRecord(record, walletId: state.walletId, roundId: state.roundId)
+                    do {
+                        try Self.persistVoteRecord(record, roundId: state.roundId, account: state.selectedWalletAccount?.account)
+                    } catch {
+                        Self.handlePersistFailure(error, state: &state)
+                    }
                     state.voteRecords[state.roundId] = record
                 }
                 state.batchSubmissionStatus = .completed(successCount: successCount)
-                Self.clearPersistedDrafts(walletId: state.walletId, roundId: state.roundId)
+                do {
+                    try Self.clearPersistedDrafts(roundId: state.roundId, account: state.selectedWalletAccount?.account)
+                } catch {
+                    Self.handlePersistFailure(error, state: &state)
+                }
             }
             return .none
 

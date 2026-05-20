@@ -1,4 +1,3 @@
-import Combine
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
@@ -707,6 +706,11 @@ struct Voting {
     let cancelDelegationPrecomputeId = UUID()
     let cancelNewRoundPollingId = UUID()
     let cancelShareTrackingId = UUID()
+    /// Scopes the long-running `submitAllDrafts` effect — the delegation +
+    /// per-proposal commit + share-delegate pipeline — so leaving the round
+    /// mid-submission cancels the in-flight work instead of letting it keep
+    /// mutating DB rows for a round the user has navigated away from.
+    let cancelSubmissionId = UUID()
 
     enum Action: Equatable {
         // Navigation
@@ -767,7 +771,6 @@ struct Voting {
         case retryKeystoneSigning
         case spendAuthSignatureExtracted(Data, Data)
         case spendAuthSignatureExtractionFailed(String)
-        case keystoneBundleAdvance
         case keystoneBundleSignatureStored(State.KeystoneBundleSignature, bundleIndex: UInt32, bundleCount: UInt32)
         case keystoneAllBundlesSigned
         case keystoneSignaturesRestored([KeystoneBundleSignatureInfo])
@@ -970,7 +973,6 @@ struct Voting {
                 .skipRemainingKeystoneBundles,
                 .skipBundlesAlert,
                 .skipRemainingKeystoneBundlesConfirmed,
-                .keystoneBundleAdvance,
                 .delegationProofProgress,
                 .delegationProofCompleted,
                 .delegationProofFailed:

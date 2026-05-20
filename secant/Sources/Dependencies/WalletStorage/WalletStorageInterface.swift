@@ -104,7 +104,9 @@ struct WalletStorageClient {
     var importTorSetupFlag: @Sendable (Bool) throws -> Void
     var exportTorSetupFlag: @Sendable () -> Bool? = { nil }
 
-    /// Voting hotkey
-    var importVotingHotkey: @Sendable (_ phrase: String, _ accountTag: String) throws -> Void
-    var exportVotingHotkey: @Sendable (_ accountTag: String) throws -> StoredVotingHotkey
+    /// Per-account voting hotkey. Scoped by `AccountUUID` so two accounts on
+    /// the same device get distinct hotkeys (and therefore distinct on-chain
+    /// voter identities), instead of being linkable via a shared hotkey.
+    var importVotingHotkey: @Sendable (_ phrase: String, _ accountId: AccountUUID) throws -> Void
+    var exportVotingHotkey: @Sendable (_ accountId: AccountUUID) throws -> StoredVotingHotkey
 }

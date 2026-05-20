@@ -2,7 +2,6 @@ import Combine
 import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-import os
 
 // MARK: - Session (Initialization, Rounds, Polling, Tally, DB State, Governance Tab)
 
@@ -41,13 +40,14 @@ extension Voting {
                 State.RoundListItem(roundNumber: index + 1, session: session)
             }
 
-            // Populate voteRecords from persisted UserDefaults so the polls
-            // list can render the Voted pill for rounds the user has fully
-            // submitted. Per-round, sync read, fast even for tens of rounds.
-            let walletId = state.walletId
+            // Populate voteRecords from the encrypted per-account voting
+            // metadata file so the polls list can render the Voted pill for
+            // rounds the user has fully submitted. The cache is loaded once at
+            // `.initialize` (see below), so these reads are O(1) per round.
+            let account = state.selectedWalletAccount?.account
             var loadedRecords: [String: VoteRecord] = [:]
             for item in state.allRounds {
-                if let record = Self.loadCompletedVoteRecord(walletId: walletId, roundId: item.id) {
+                if let record = Self.loadCompletedVoteRecord(roundId: item.id, account: account) {
                     loadedRecords[item.id] = record
                 }
             }
@@ -120,6 +120,28 @@ extension Voting {
             guard state.currentScreen != .howToVote else { return .none }
             guard !state.isSubmittingVote else { return .none }
             state.prepareForServiceConfigRefresh()
+
+            // Janitorial: drop any leftover plaintext entries from the
+            // previous UserDefaults-based persistence. No real users have
+            // these (encrypted-file storage replaces a dev-only build), but
+            // the sweep guarantees nothing stays behind on internal devices.
+            Self.sweepLegacyUserDefaultsVotingKeys()
+
+            // Load the encrypted voting metadata cache for the selected
+            // account. Subsequent reads of drafts / vote records are O(1)
+            // against this cache. Sub-millisecond file read + AES-decrypt.
+            //
+            // `load(account)` itself clears the cache before refilling, but
+            // the process-wide `VotingMetadataStorage.live` singleton means
+            // stale data from a previous account could otherwise be visible
+            // for the brief window between `.initialize` firing without a
+            // selected account and the subsequent reads. Defensively reset
+            // first so a nil-account path can't serve another wallet's data.
+            @Dependency(\.votingMetadata) var votingMetadata
+            votingMetadata.reset()
+            if let account = state.selectedWalletAccount?.account {
+                try? votingMetadata.load(account)
+            }
             // Read straight from UserDefaults rather than `state.votingConfigOverrideURL`
             // so this picks up the value `VotingConfigSettings` just wrote, even when
             // its `@Shared(.appStorage(.votingConfigOverrideURL))` change has not yet
@@ -194,7 +216,8 @@ extension Voting {
             let networkId: UInt32 = network.networkType.votingRustNetworkId
             let snapshotHeight = session.snapshotHeight
             let roundId = session.voteRoundId.hexString
-            let accountUUID: [UInt8] = state.selectedWalletAccount?.id.id ?? []
+            let accountId = state.selectedWalletAccount?.id
+            let accountUUID: [UInt8] = accountId?.id ?? []
             return .run { [votingCrypto, mnemonic, walletStorage, sdkSynchronizer] send in
                 // Gate on the contiguous-from-birthday scan progress, not the chain tip.
                 // Spend-before-Sync scans head-first and birthday-first in parallel, so
@@ -227,21 +250,28 @@ extension Voting {
                 LoggerProxy.info("Loaded \(notes.count) notes at height \(snapshotHeight), total weight: \(totalWeight)")
                 await send(.votingWeightLoaded(totalWeight, notes))
 
-                // Load or generate voting hotkey mnemonic, derive address for UI
-                do {
-                    let phrase: String
-                    if let stored = try? walletStorage.exportVotingHotkey("") {
-                        phrase = stored.seedPhrase.value()
-                    } else {
-                        phrase = try mnemonic.randomMnemonic()
-                        try walletStorage.importVotingHotkey(phrase, "")
+                // Load or generate the per-account voting hotkey mnemonic.
+                // Skipping when no account is selected matches the SettingsCoordinator
+                // guard that gates flow entry; the .run is async, so a guard here
+                // protects against the account becoming nil mid-flow.
+                if let accountId {
+                    do {
+                        let phrase: String
+                        if let stored = try? walletStorage.exportVotingHotkey(accountId) {
+                            phrase = stored.seedPhrase.value()
+                        } else {
+                            phrase = try mnemonic.randomMnemonic()
+                            try walletStorage.importVotingHotkey(phrase, accountId)
+                        }
+                        let seed = try mnemonic.toSeed(phrase)
+                        let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
+                        LoggerProxy.debug("Hotkey address: \(hotkey.address)")
+                        await send(.hotkeyLoaded(hotkey.address))
+                    } catch {
+                        LoggerProxy.error("Failed to generate hotkey: \(error)")
                     }
-                    let seed = try mnemonic.toSeed(phrase)
-                    let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
-                    LoggerProxy.debug("Hotkey address: \(hotkey.address)")
-                    await send(.hotkeyLoaded(hotkey.address))
-                } catch {
-                    LoggerProxy.error("Failed to generate hotkey: \(error)")
+                } else {
+                    LoggerProxy.error("No selected account; skipping voting hotkey generation")
                 }
             } catch: { error, send in
                 LoggerProxy.error("Active round pipeline failed: \(error)")
@@ -290,7 +320,7 @@ extension Voting {
             // Don't set delegationProofStatus here — verifyWitnesses will set it
             // only for fresh rounds, avoiding a brief flash for cached rounds.
             // Restore persisted draft votes (survives app termination)
-            let restored = Self.loadDrafts(walletId: state.walletId, roundId: state.roundId)
+            let restored = Self.loadDrafts(roundId: state.roundId)
             // Only keep drafts for proposals that haven't been submitted yet
             state.draftVotes = restored.filter { state.votes[$0.key] == nil }
             if !state.draftVotes.isEmpty {
@@ -604,7 +634,10 @@ extension Voting {
             state.keystoneSigningStatus = .idle
         }
         state.votingRound = sessionBackedRound(from: session, title: item.title, fallback: state.votingRound)
-        state.voteRecord = Self.loadCompletedVoteRecord(walletId: state.walletId, roundId: state.roundId)
+        state.voteRecord = Self.loadCompletedVoteRecord(
+            roundId: state.roundId,
+            account: state.selectedWalletAccount?.account
+        )
         reconcileProposalState(&state)
         let cancelStaleDelegation: Effect<Action> = isSwitchingRounds
             ? .cancel(id: cancelDelegationProofId)
