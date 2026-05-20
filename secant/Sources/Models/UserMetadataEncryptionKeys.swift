@@ -146,8 +146,28 @@ struct UserMetadataKeys: Codable, Equatable, Redactable {
      * Derives the filename that this key is able to decrypt.
      */
     func fileIdentifier(account: Account) -> String? {
-        guard let info = "file_identifier".data(using: .utf8) else {
-            fatalError("Unable to prepare `file_identifier` info")
+        fileIdentifier(account: account, info: "file_identifier", segment: "metadata")
+    }
+
+    /**
+     * Derives the filename for the encrypted voting metadata file.
+     *
+     * Reuses this account's encryption keys but supplies a distinct HKDF
+     * `info` so the derived filename is independent from the user-metadata
+     * filename. Domain-separated under the same key material — both files
+     * can coexist in the same Documents directory without colliding.
+     */
+    func votingFileIdentifier(account: Account) -> String? {
+        fileIdentifier(account: account, info: "voting_file_identifier", segment: "voting")
+    }
+
+    private func fileIdentifier(
+        account: Account,
+        info infoString: String,
+        segment: String
+    ) -> String? {
+        guard let info = infoString.data(using: .utf8) else {
+            fatalError("Unable to prepare `\(infoString)` info")
         }
 
         guard let firstKey = keys.first else {
@@ -156,21 +176,21 @@ struct UserMetadataKeys: Codable, Equatable, Redactable {
 
         // Perform HKDF with SHA-256
         let hkdfKey = HKDF<SHA256>.deriveKey(inputKeyMaterial: firstKey, info: info, outputByteCount: 32)
-        
+
         // Convert the HKDF output to a hex string
         let fileIdentifier = hkdfKey.withUnsafeBytes { rawBytes in
             rawBytes.map { String(format: "%02x", $0) }.joined()
         }
-        
+
         var prefix = "\(account.name?.lowercased() ?? "")"
-        
+
         // Hotfix for the Zashi->Zodl issue
         // The file needs to stay zashi-xxx named for now but account.name provides "zodl"
         if prefix == "zodl" {
             prefix = "zashi"
         }
-        
+
         // Prepend the prefix to the result
-        return "\(prefix)-metadata-\(fileIdentifier)"
+        return "\(prefix)-\(segment)-\(fileIdentifier)"
     }
 }

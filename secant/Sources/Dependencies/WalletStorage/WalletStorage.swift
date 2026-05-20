@@ -32,9 +32,17 @@ struct WalletStorage {
 
         /// Versioning of the stored data
         static let zcashKeychainVersion = 1
-        
+
         static func accountMetadataFilename(account: Account) -> String {
             Constants.zcashStoredUserMetadataEncryptionKeys + "_\(account.name?.lowercased() ?? "")"
+        }
+
+        /// Per-account keychain key for the voting hotkey. The suffix is the
+        /// SDK `AccountUUID` hex so two accounts (e.g. Zashi + Keystone) on the
+        /// same device get distinct hotkeys and therefore distinct on-chain
+        /// voter identities.
+        static func zcashStoredVotingHotkey(accountId: AccountUUID) -> String {
+            "\(Constants.zcashStoredVotingHotkey)_\(accountId.id.map { String(format: "%02x", $0) }.joined())"
         }
     }
     
@@ -182,6 +190,15 @@ struct WalletStorage {
         try? deleteData(forKey: Constants.zcashStoredShieldingAcknowledged)
         try? deleteData(forKey: Constants.zcashStoredTorSetupFlag)
         try? deleteData(forKey: Constants.zcashStoredZodlAnnouncementFlag)
+        // Voting hotkeys are stored per-account under
+        // "<zcashStoredVotingHotkey>_<accountUUIDHex>". Enumerate every such
+        // entry and wipe it, so no per-account mnemonic survives a wallet
+        // reset. Also remove the bare and empty-tagged keys for users
+        // upgrading from earlier builds that stored under those names.
+        for key in keychainKeys(withPrefix: "\(Constants.zcashStoredVotingHotkey)_") {
+            try? deleteData(forKey: key)
+        }
+        try? deleteData(forKey: Constants.zcashStoredVotingHotkey)
     }
     
     func importAddressBookEncryptionKeys(_ keys: AddressBookEncryptionKeys) throws {
@@ -421,9 +438,9 @@ struct WalletStorage {
 
     // MARK: - Voting Hotkey
 
-    func importVotingHotkey(_ phrase: String, accountTag: String) throws {
+    func importVotingHotkey(_ phrase: String, accountId: AccountUUID) throws {
         let hotkey = StoredVotingHotkey(seedPhrase: SeedPhrase(phrase), version: Constants.zcashKeychainVersion)
-        let key = "\(Constants.zcashStoredVotingHotkey)_\(accountTag)"
+        let key = Constants.zcashStoredVotingHotkey(accountId: accountId)
         do {
             guard let data = try encode(object: hotkey) else { throw KeychainError.encoding }
             try setData(data, forKey: key)
@@ -434,8 +451,8 @@ struct WalletStorage {
         }
     }
 
-    func exportVotingHotkey(accountTag: String) throws -> StoredVotingHotkey {
-        let key = "\(Constants.zcashStoredVotingHotkey)_\(accountTag)"
+    func exportVotingHotkey(accountId: AccountUUID) throws -> StoredVotingHotkey {
+        let key = Constants.zcashStoredVotingHotkey(accountId: accountId)
         let reqData: Data?
         do {
             reqData = try data(forKey: key)
@@ -497,8 +514,32 @@ struct WalletStorage {
         query[kSecReturnRef as String] = kCFBooleanFalse
         query[kSecReturnPersistentRef as String] = kCFBooleanFalse
         query[kSecReturnAttributes as String] = kCFBooleanFalse
-        
+
         return query
+    }
+
+    /// Returns every keychain key (with the `zcashStoredWalletPrefix` stripped)
+    /// whose service starts with the given prefix. Used by `resetZashi` to wipe
+    /// per-account items whose suffixes aren't known statically.
+    func keychainKeys(withPrefix keyPrefix: String) -> [String] {
+        let fullPrefix = zcashStoredWalletPrefix + keyPrefix
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecMatchLimit as String: kSecMatchLimitAll,
+            kSecReturnAttributes as String: kCFBooleanTrue as Any
+        ]
+        var result: AnyObject?
+        let status = secItem.copyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let items = result as? [[String: Any]] else {
+            return []
+        }
+        return items.compactMap { attrs in
+            guard let service = attrs[kSecAttrService as String] as? String,
+                  service.hasPrefix(fullPrefix) else {
+                return nil
+            }
+            return String(service.dropFirst(zcashStoredWalletPrefix.count))
+        }
     }
 
     /// Restore data for key

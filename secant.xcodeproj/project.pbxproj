@@ -2547,6 +2547,26 @@
 		9EDDAF6E2BA2D71700A69A07 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */; };
 		9EDDAF6F2BA2D71700A69A07 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */; };
 		9EEB06C62B344F1E00EEE50F /* SyncProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB06C52B344F1E00EEE50F /* SyncProgressTests.swift */; };
+		9EEBF7752FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7762FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7772FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7782FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7792FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7972FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF7982FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF7992FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF79A2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF79B2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF7A22FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A32FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A42FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A52FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A62FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7AD2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7AE2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7AF2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7B02FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7B12FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
 		A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */; };
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
 		AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00112D00000100000002 /* VotingSubmissionTests.swift */; };
@@ -3119,6 +3139,10 @@
 		9ECDD9522CA6B2B400D81CA0 /* zashi-internal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "zashi-internal.entitlements"; sourceTree = "<group>"; };
 		9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9EEB06C52B344F1E00EEE50F /* SyncProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncProgressTests.swift; sourceTree = "<group>"; };
+		9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadata.swift; sourceTree = "<group>"; };
+		9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadataProviderInterface.swift; sourceTree = "<group>"; };
+		9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadataProviderLiveKey.swift; sourceTree = "<group>"; };
+		9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadataStorage.swift; sourceTree = "<group>"; };
 		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
 		A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingServiceConfigTests.swift; sourceTree = "<group>"; };
@@ -3875,6 +3899,7 @@
 				37CEBE992F8E939D002DA90E /* VotingCryptoClient */,
 				37CEBEA02F8E939D002DA90E /* VotingModels */,
 				37CEBEA42F8E939D002DA90E /* VotingStorageClient */,
+				9EEBF78B2FBB058400DD38DB /* VotingMetadataProvider */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -4436,6 +4461,7 @@
 				34AA6D552F85774F00D244E2 /* WalletAccount.swift */,
 				34AA6D562F85774F00D244E2 /* WalletConfig.swift */,
 				9E27153E2F88FB1E00046B74 /* WalletStatus.swift */,
+				9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -5247,6 +5273,16 @@
 				9EEB06C52B344F1E00EEE50F /* SyncProgressTests.swift */,
 			);
 			path = SyncProgressTests;
+			sourceTree = "<group>";
+		};
+		9EEBF78B2FBB058400DD38DB /* VotingMetadataProvider */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */,
+				9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */,
+				9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */,
+			);
+			path = VotingMetadataProvider;
 			sourceTree = "<group>";
 		};
 		9EF8135927ECC25E0075AF48 /* UtilTests */ = {
@@ -6172,6 +6208,7 @@
 				34AA73392F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA733A2F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA733B2F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7AE2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA733C2F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA733D2F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA733E2F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -6268,6 +6305,7 @@
 				34AA73862F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA73872F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA73882F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A52FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA73892F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA738A2F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA738B2F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -6352,6 +6390,7 @@
 				34AA73D82F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA73D92F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA73DB2F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF7992FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA73DC2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA73DD2F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA73DE2F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
@@ -6497,6 +6536,7 @@
 				34AA74662F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA74672F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA74682F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7772FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA74692F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA746A2F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA746B2F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -6626,6 +6666,7 @@
 				34AA6FD52F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA6FD62F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA6FD72F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7B02FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA6FD82F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA6FD92F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA6FDA2F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -6722,6 +6763,7 @@
 				34AA70222F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA70232F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA70242F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A62FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA70252F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA70262F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA70272F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -6806,6 +6848,7 @@
 				34AA70742F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA70752F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA70772F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF7972FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA70782F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA70792F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA707A2F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
@@ -6951,6 +6994,7 @@
 				34AA71022F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA71032F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA71042F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7792FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA71052F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA71062F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA71072F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -7143,6 +7187,7 @@
 				34AA74CF2F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA74D02F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA74D12F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7B12FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA74D22F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA74D32F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA74D42F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -7239,6 +7284,7 @@
 				34AA751C2F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA751D2F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA751E2F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A42FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA751F2F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA75202F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA75212F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -7323,6 +7369,7 @@
 				34AA756E2F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA756F2F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA75712F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF79B2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA75722F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA75732F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA75742F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
@@ -7468,6 +7515,7 @@
 				34AA75FC2F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA75FD2F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA75FE2F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7782FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA75FF2F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA76002F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA76012F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -7597,6 +7645,7 @@
 				34AA716B2F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA716C2F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA716D2F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7AD2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA716E2F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA716F2F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA71702F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -7693,6 +7742,7 @@
 				34AA71B82F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA71B92F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA71BA2F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A22FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA71BB2F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA71BC2F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA71BD2F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -7777,6 +7827,7 @@
 				34AA720A2F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA720B2F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA720D2F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF79A2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA720E2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA720F2F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA72102F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
@@ -7922,6 +7973,7 @@
 				34AA72982F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA72992F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA729A2F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7762FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA729B2F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA729C2F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA729D2F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -8051,6 +8103,7 @@
 				34AA6E072F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA6E082F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA6E092F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7AF2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA6E0A2F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA6E0B2F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA6E0C2F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -8147,6 +8200,7 @@
 				34AA6E542F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA6E552F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA6E562F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A32FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA6E572F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA6E582F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA6E592F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -8231,6 +8285,7 @@
 				34AA6EA62F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA6EA72F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA6EA92F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF7982FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA6EAA2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA6EAB2F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA6EAC2F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
@@ -8376,6 +8431,7 @@
 				34AA6F342F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA6F352F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA6F362F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7752FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA6F372F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA6F382F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA6F392F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -9363,6 +9419,8 @@
 				kind = upToNextMinorVersion;
 				minimumVersion = 1.25.5;
 			};
+			traits = (
+			);
 		};
 		34AA771D2F857DFF00D244E2 /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */ = {
 			isa = XCRemoteSwiftPackageReference;
