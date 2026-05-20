@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct DelegationSigningView: View {
+struct LegacyDelegationSigningView: View {
     @Environment(\.colorScheme)
     var colorScheme
     @Dependency(\.sdkSynchronizer)
@@ -315,7 +315,7 @@ struct DelegationSigningView: View {
 
 // MARK: - Multi-Bundle Progress
 
-extension DelegationSigningView {
+extension LegacyDelegationSigningView {
     @ViewBuilder
     func multiBundleProgressCard() -> some View {
         VStack(alignment: .leading, spacing: 14) {

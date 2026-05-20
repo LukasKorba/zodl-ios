@@ -2316,7 +2316,7 @@
 		37CEBEF32F8E939D002DA90E /* VotingStorageClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEA22F8E939D002DA90E /* VotingStorageClientLiveKey.swift */; };
 		37CEBEF42F8E939D002DA90E /* VotingRound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBE9D2F8E939D002DA90E /* VotingRound.swift */; };
 		37CEBF0F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF102F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
+		37CEBF102F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */; };
 		37CEBF112F8E940A002DA90E /* LegacyResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* LegacyResultsView.swift */; };
 		37CEBF122F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* LegacyProposalDetailView.swift */; };
 		37CEBF132F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
@@ -2335,7 +2335,7 @@
 		37CEBF212F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF222F8E940A002DA90E /* LegacyHowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* LegacyHowToVoteView.swift */; };
 		37CEBF232F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF242F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
+		37CEBF242F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */; };
 		37CEBF252F8E940A002DA90E /* LegacyResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* LegacyResultsView.swift */; };
 		37CEBF262F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* LegacyProposalDetailView.swift */; };
 		37CEBF272F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
@@ -2354,7 +2354,7 @@
 		37CEBF352F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF362F8E940A002DA90E /* LegacyHowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* LegacyHowToVoteView.swift */; };
 		37CEBF372F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF382F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
+		37CEBF382F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */; };
 		37CEBF392F8E940A002DA90E /* LegacyResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* LegacyResultsView.swift */; };
 		37CEBF3A2F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* LegacyProposalDetailView.swift */; };
 		37CEBF3B2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
@@ -2373,7 +2373,7 @@
 		37CEBF492F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF4A2F8E940A002DA90E /* LegacyHowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* LegacyHowToVoteView.swift */; };
 		37CEBF4B2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF4C2F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
+		37CEBF4C2F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */; };
 		37CEBF4D2F8E940A002DA90E /* LegacyResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* LegacyResultsView.swift */; };
 		37CEBF4E2F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* LegacyProposalDetailView.swift */; };
 		37CEBF4F2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
@@ -2392,7 +2392,7 @@
 		37CEBF5D2F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
 		37CEBF5E2F8E940A002DA90E /* LegacyHowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* LegacyHowToVoteView.swift */; };
 		37CEBF5F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF602F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
+		37CEBF602F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */; };
 		37CEBF612F8E940A002DA90E /* LegacyResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* LegacyResultsView.swift */; };
 		37CEBF622F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* LegacyProposalDetailView.swift */; };
 		37CEBF632F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
@@ -3175,7 +3175,7 @@
 		37CEBEA22F8E939D002DA90E /* VotingStorageClientLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientLiveKey.swift; sourceTree = "<group>"; };
 		37CEBEA32F8E939D002DA90E /* VotingStorageClientTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientTestKey.swift; sourceTree = "<group>"; };
 		37CEBEFA2F8E940A002DA90E /* LegacyConfirmSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyConfirmSubmissionView.swift; sourceTree = "<group>"; };
-		37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationSigningView.swift; sourceTree = "<group>"; };
+		37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyDelegationSigningView.swift; sourceTree = "<group>"; };
 		37CEBEFC2F8E940A002DA90E /* LegacyHowToVoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyHowToVoteView.swift; sourceTree = "<group>"; };
 		37CEBEFD2F8E940A002DA90E /* LegacyIneligibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyIneligibleView.swift; sourceTree = "<group>"; };
 		37CEBEFE2F8E940A002DA90E /* LegacyPollsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyPollsListView.swift; sourceTree = "<group>"; };
@@ -5101,7 +5101,7 @@
 			isa = PBXGroup;
 			children = (
 				37CEBEFA2F8E940A002DA90E /* LegacyConfirmSubmissionView.swift */,
-				37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */,
+				37CEBEFB2F8E940A002DA90E /* LegacyDelegationSigningView.swift */,
 				37CEBEFC2F8E940A002DA90E /* LegacyHowToVoteView.swift */,
 				37CEBEFD2F8E940A002DA90E /* LegacyIneligibleView.swift */,
 				37CEBEFE2F8E940A002DA90E /* LegacyPollsListView.swift */,
@@ -6566,7 +6566,7 @@
 				37C0F1002F94000000000005 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000005 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF4B2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF4C2F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
+				37CEBF4C2F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */,
 				37CEBF4D2F8E940A002DA90E /* LegacyResultsView.swift in Sources */,
 				37CEBF4E2F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */,
 				37CEBF4F2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
@@ -7048,7 +7048,7 @@
 				37C0F1002F94000000000003 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000003 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF232F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF242F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
+				37CEBF242F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */,
 				37CEBF252F8E940A002DA90E /* LegacyResultsView.swift in Sources */,
 				37CEBF262F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */,
 				37CEBF272F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
@@ -7593,7 +7593,7 @@
 				37C0F1002F94000000000006 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000006 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF5F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF602F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
+				37CEBF602F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */,
 				37CEBF612F8E940A002DA90E /* LegacyResultsView.swift in Sources */,
 				37CEBF622F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */,
 				37CEBF632F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
@@ -8075,7 +8075,7 @@
 				37C0F1002F94000000000004 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000004 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF372F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF382F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
+				37CEBF382F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */,
 				37CEBF392F8E940A002DA90E /* LegacyResultsView.swift in Sources */,
 				37CEBF3A2F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */,
 				37CEBF3B2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
@@ -8557,7 +8557,7 @@
 				37C0F1002F94000000000002 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000002 /* VotingConfigSettingsView.swift in Sources */,
 				37CEBF0F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF102F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
+				37CEBF102F8E940A002DA90E /* LegacyDelegationSigningView.swift in Sources */,
 				37CEBF112F8E940A002DA90E /* LegacyResultsView.swift in Sources */,
 				37CEBF122F8E940A002DA90E /* LegacyProposalDetailView.swift in Sources */,
 				37CEBF132F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
