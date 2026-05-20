@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct WalletSyncingView: View {
+struct LegacyWalletSyncingView: View {
     let store: StoreOf<Voting>
 
     var body: some View {

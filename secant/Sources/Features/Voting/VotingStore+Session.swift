@@ -37,7 +37,7 @@ extension Voting {
             // Sort by created_at_height ascending for reliable creation order
             let sorted = sessions.sorted { $0.createdAtHeight < $1.createdAtHeight }
             state.allRounds = sorted.enumerated().map { index, session in
-                State.RoundListItem(roundNumber: index + 1, session: session)
+                RoundListItem(roundNumber: index + 1, session: session)
             }
 
             // Populate voteRecords from the encrypted per-account voting
@@ -429,7 +429,7 @@ extension Voting {
 
             // Also update the corresponding entry in allRounds so the list stays consistent
             if let idx = state.allRounds.firstIndex(where: { $0.session.voteRoundId == session.voteRoundId }) {
-                state.allRounds[idx] = State.RoundListItem(
+                state.allRounds[idx] = RoundListItem(
                     roundNumber: state.allRounds[idx].roundNumber,
                     session: updatedSession
                 )
@@ -616,7 +616,7 @@ extension Voting {
         !state.isOnDefaultConfig
     }
 
-    fileprivate func openRound(_ state: inout State, item: State.RoundListItem) -> Effect<Action> {
+    fileprivate func openRound(_ state: inout State, item: RoundListItem) -> Effect<Action> {
         let session = item.session
         let isSwitchingRounds = state.roundId != session.voteRoundId.hexString
         state.activeSession = session

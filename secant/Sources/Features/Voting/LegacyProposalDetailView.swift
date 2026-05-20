@@ -1,7 +1,7 @@
 import SwiftUI
 import ComposableArchitecture
 
-struct ProposalDetailView: View {
+struct LegacyProposalDetailView: View {
     @Environment(\.colorScheme)
     var colorScheme
     @State private var showUnansweredSheet = false
