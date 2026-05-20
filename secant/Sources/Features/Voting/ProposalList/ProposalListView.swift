@@ -24,8 +24,9 @@ struct ProposalListView: View {
         WithPerceptionTracking {
             let item = store.allRounds.first { $0.id == roundId }
             let proposals = item?.session.proposals ?? []
-            let weight = store.roundCache[roundId]?.votingWeight ?? 0
-            let pipelineReady = store.roundCache[roundId]?.hotkeyAddress != nil
+            let session = store.roundCache[roundId]
+            let weight = session?.votingWeight ?? 0
+            let pipelineReady = session?.hotkeyAddress != nil && (session?.bundleCount ?? 0) > 0
             let drafts = store.roundCache[roundId]?.draftVotes ?? [:]
             let canSubmit = mode == .voting && !drafts.isEmpty && pipelineReady
 

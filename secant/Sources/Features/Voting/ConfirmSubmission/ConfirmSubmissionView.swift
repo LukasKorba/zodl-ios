@@ -25,6 +25,7 @@ struct ConfirmSubmissionView: View {
             let weight = session?.votingWeight ?? 0
             let drafts = session?.draftVotes ?? [:]
             let status = session?.batchSubmissionStatus ?? .idle
+            let bundleCount = session?.bundleCount ?? 0
 
             ZStack(alignment: .bottom) {
                 ScrollView {
@@ -55,7 +56,7 @@ struct ConfirmSubmissionView: View {
                 }
                 .padding(.vertical, 1)
 
-                submitCTA(status: status, drafts: drafts)
+                submitCTA(status: status, drafts: drafts, bundleCount: bundleCount)
             }
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
@@ -184,14 +185,14 @@ struct ConfirmSubmissionView: View {
     }
 
     @ViewBuilder
-    private func submitCTA(status: BatchSubmissionStatus, drafts: [UInt32: VoteChoice]) -> some View {
+    private func submitCTA(status: BatchSubmissionStatus, drafts: [UInt32: VoteChoice], bundleCount: UInt32) -> some View {
         VStack(spacing: 0) {
             switch status {
             case .idle, .authorizationFailed, .submissionFailed:
                 ZashiButton("Submit") {
                     store.send(.submitAllDraftsTapped(roundId: roundId))
                 }
-                .disabled(drafts.isEmpty)
+                .disabled(drafts.isEmpty || bundleCount == 0)
             case .authorizing, .submitting:
                 ZashiButton(String(localizable: .coinVoteCommonSubmission)) {}
                     .disabled(true)
