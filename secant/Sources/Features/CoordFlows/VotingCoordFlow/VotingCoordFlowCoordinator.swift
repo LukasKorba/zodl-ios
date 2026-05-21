@@ -526,13 +526,40 @@ extension VotingCoordFlow {
                 return reduceKeystoneAllBundlesSigned(&state, roundId: roundId)
 
             case let .keystoneSignaturesRestored(roundId, signatures):
+                guard let session = state.roundCache[roundId],
+                      let validSignatures = Self.validKeystoneSignatures(
+                        signatures,
+                        bundleCount: session.bundleCount
+                      ),
+                      !validSignatures.isEmpty
+                else {
+                    return .none
+                }
                 mutateSession(&state, roundId: roundId) { roundSession in
-                    roundSession.keystoneBundleSignatures = signatures.map {
+                    roundSession.keystoneBundleSignatures = validSignatures.map {
                         KeystoneBundleSignature(sig: $0.sig, sighash: $0.sighash, rk: $0.rk)
                     }
-                    roundSession.currentKeystoneBundleIndex = UInt32(signatures.count)
+                    roundSession.currentKeystoneBundleIndex = UInt32(validSignatures.count)
+                    roundSession.pendingVotingPczt = nil
+                    roundSession.pendingUnsignedDelegationPczt = nil
+                    roundSession.keystoneSigningStatus = .idle
                 }
-                return .none
+                if UInt32(validSignatures.count) >= session.bundleCount {
+                    mutateSession(&state, roundId: roundId) { roundSession in
+                        roundSession.delegationProofStatus = .generating(progress: 0)
+                        roundSession.isDelegationProofInFlight = true
+                        roundSession.batchSubmissionStatus = .authorizing
+                        roundSession.voteSubmissionStep = .authorizingVote
+                    }
+                    if case .delegationSigning = state.path.last {
+                        _ = state.path.popLast()
+                    }
+                    return .send(.keystoneAllBundlesSigned(roundId: roundId))
+                }
+                if !hasKeystoneSigningRound(state: state, roundId: roundId) {
+                    state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+                }
+                return .send(.startDelegationProof(roundId: roundId))
 
             case let .keystoneShowSigningScreen(roundId):
                 if !hasKeystoneSigningRound(state: state) {
@@ -655,6 +682,7 @@ extension VotingCoordFlow {
                 let networkId: UInt32 = network.networkType.votingRustNetworkId
                 let accountId = state.selectedWalletAccount?.id
                 let accountUUID: [UInt8] = accountId?.id ?? []
+                let isKeystoneUser = state.isKeystoneUser
 
                 // Seed the cache entry so subsequent re-entries see an
                 // in-progress session and don't trigger duplicate pipelines.
@@ -709,8 +737,14 @@ extension VotingCoordFlow {
 
                     let existingState = try? await votingCrypto.getRoundState(roundId)
                     let existingBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
+                    var preClearKeystoneSignatures: [KeystoneBundleSignatureInfo] = []
+                    var resolvedBundleCount: UInt32 = 0
+                    var shouldRestoreKeystoneSignatures = isKeystoneUser
+                    var didPrepareFreshRound = false
                     if existingState?.proofGenerated == true {
                         let bundleCount = existingBundleCount
+                        resolvedBundleCount = bundleCount
+                        shouldRestoreKeystoneSignatures = false
                         let eligibleWeight = Self.votingWeight(for: notes, bundleCount: bundleCount)
                         guard bundleCount > 0, eligibleWeight > 0 else {
                             await send(.ineligibleForRound(roundId: roundId))
@@ -725,6 +759,7 @@ extension VotingCoordFlow {
                             delegationReady: true
                         ))
                     } else if existingBundleCount > 0 {
+                        resolvedBundleCount = existingBundleCount
                         var recoveredBundleCount: UInt32 = 0
                         for bundleIndex: UInt32 in 0..<existingBundleCount {
                             if let vanPosition = try? await Self.recoverDelegationVanPosition(
@@ -761,6 +796,9 @@ extension VotingCoordFlow {
                                 delegationReady: recoveredBundleCount >= existingBundleCount
                             ))
                         } else {
+                            if isKeystoneUser {
+                                preClearKeystoneSignatures = try await votingCrypto.loadKeystoneBundleSignatures(roundId)
+                            }
                             guard try await Self.prepareFreshRound(
                                 roundId: roundId,
                                 session: session,
@@ -771,8 +809,13 @@ extension VotingCoordFlow {
                                 sdkSynchronizer: sdkSynchronizer,
                                 send: send
                             ) else { return }
+                            didPrepareFreshRound = true
+                            resolvedBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
                         }
                     } else {
+                        if isKeystoneUser {
+                            preClearKeystoneSignatures = try await votingCrypto.loadKeystoneBundleSignatures(roundId)
+                        }
                         guard try await Self.prepareFreshRound(
                             roundId: roundId,
                             session: session,
@@ -783,6 +826,8 @@ extension VotingCoordFlow {
                             sdkSynchronizer: sdkSynchronizer,
                             send: send
                         ) else { return }
+                        didPrepareFreshRound = true
+                        resolvedBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
                     }
 
                     // 3. Hotkey: load or generate the per-account hotkey
@@ -801,6 +846,30 @@ extension VotingCoordFlow {
                     let seed = try mnemonic.toSeed(phrase)
                     let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
                     await send(.hotkeyLoaded(roundId: roundId, address: hotkey.address))
+
+                    if shouldRestoreKeystoneSignatures {
+                        let savedSignatures = didPrepareFreshRound
+                            ? preClearKeystoneSignatures
+                            : try await votingCrypto.loadKeystoneBundleSignatures(roundId)
+                        guard let validSignatures = Self.validKeystoneSignatures(
+                            savedSignatures,
+                            bundleCount: resolvedBundleCount
+                        ) else {
+                            LoggerProxy.warn("Ignoring inconsistent Keystone signing recovery state")
+                            return
+                        }
+                        if !validSignatures.isEmpty {
+                            if didPrepareFreshRound {
+                                for signature in validSignatures {
+                                    try await votingCrypto.storeKeystoneBundleSignature(roundId, signature)
+                                }
+                            }
+                            await send(.keystoneSignaturesRestored(
+                                roundId: roundId,
+                                signatures: validSignatures
+                            ))
+                        }
+                    }
                 } catch: { error, send in
                     LoggerProxy.error("Active round pipeline failed: \(error)")
                     await send(.pipelineFailed(roundId: roundId, message: error.localizedDescription))
@@ -2123,6 +2192,20 @@ extension VotingCoordFlow {
             return nil
         }
         return (signingState.roundId, govPczt)
+    }
+
+    private static func validKeystoneSignatures(
+        _ signatures: [KeystoneBundleSignatureInfo],
+        bundleCount: UInt32
+    ) -> [KeystoneBundleSignatureInfo]? {
+        guard bundleCount > 0 else { return [] }
+        let sorted = signatures.sorted { $0.bundleIndex < $1.bundleIndex }
+        guard sorted.count <= Int(bundleCount) else { return nil }
+        for (index, signature) in sorted.enumerated()
+            where signature.bundleIndex != UInt32(index) {
+            return nil
+        }
+        return sorted
     }
 
     /// Crash-recovery lookup for a Keystone delegation TX hash.
