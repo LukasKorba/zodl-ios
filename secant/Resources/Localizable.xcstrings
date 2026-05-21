@@ -2589,6 +2589,28 @@
         }
       }
     },
+    "coinVote.pollsList.insufficientBalanceMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your wallet is not eligible for this voting round because it held %1$@ ZEC at snapshot block height #%2$@. A minimum balance of %3$@ ZEC was required to participate."
+          }
+        }
+      }
+    },
+    "coinVote.pollsList.insufficientBalanceTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insufficient Balance"
+          }
+        }
+      }
+    },
     "coinVote.pollsList.loadErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {
