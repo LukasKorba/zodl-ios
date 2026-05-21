@@ -1,0 +1,69 @@
+name: E2E Smoke Tests
+
+on:
+  pull_request:
+    paths-ignore:
+      - '.github/ISSUE_TEMPLATE/*'
+      - '.github/pull_request_template.md'
+      - 'LICENSE'
+      - 'README.md'
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-ios:
+    runs-on: macos-15
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout app
+        uses: actions/checkout@v4
+
+      - name: Checkout smoke tests
+        uses: actions/checkout@v4
+        with:
+          repository: zodl-inc/zodl-qa
+          path: zodl-qa
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+
+      - name: Resolve packages
+        run: |
+          xcodebuild -project secant.xcodeproj \
+            -scheme secant-testnet \
+            -resolvePackageDependencies
+
+      - name: Build for simulator
+        run: |
+          xcodebuild build \
+            -project secant.xcodeproj \
+            -scheme secant-testnet \
+            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -derivedDataPath build/ \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Boot simulator and install app
+        run: |
+          xcrun simctl boot "iPhone 16 Pro" || true
+          xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/*.app
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      - name: Run smoke tests
+        run: |
+          maestro test zodl-qa/maestro/smoke/ \
+            --include-tags="ios"
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-ios-results
+          path: ~/.maestro/tests/
