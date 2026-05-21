@@ -43,17 +43,36 @@ extension ReducerLogger {
     }
 }
 
+// Bundles the (Action, State, State, ReducerLogger) capture for `.run { }` so that the closure's
+// `@Sendable` requirement is satisfied by a single Sendable value rather than by every TCA
+// macro-generated Action/ObservableState type. Safe because the boxed values are by-value copies
+// local to `reduce`, and the logging closure only reads them via reflection (`customDump`/`diff`).
+struct LogPayloadBox<State, Action>: @unchecked Sendable {
+    @usableFromInline let action: Action
+    @usableFromInline let oldState: State
+    @usableFromInline let newState: State
+    @usableFromInline let logger: ReducerLogger<State, Action>
+
+    @usableFromInline
+    init(action: Action, oldState: State, newState: State, logger: ReducerLogger<State, Action>) {
+        self.action = action
+        self.oldState = oldState
+        self.newState = newState
+        self.logger = logger
+    }
+}
+
 struct LogChangesReducer<Base: Reducer>: Reducer {
     @usableFromInline let base: Base
-    
+
     @usableFromInline let logger: ReducerLogger<Base.State, Base.Action>?
-    
+
     @usableFromInline
     init(base: Base, logger: ReducerLogger<Base.State, Base.Action>?) {
         self.base = base
         self.logger = logger
     }
-    
+
     @inlinable
     func reduce(
         into state: inout Base.State, action: Base.Action
@@ -64,7 +83,20 @@ struct LogChangesReducer<Base: Reducer>: Reducer {
 
         let oldState = state
         let effects = self.base.reduce(into: &state, action: action)
-        logger.logChange(receivedAction: action, oldState: oldState, newState: state)
-        return effects
+        let payload = LogPayloadBox(
+            action: action,
+            oldState: oldState,
+            newState: state,
+            logger: logger
+        )
+        return effects.merge(
+            with: .run { _ in
+                payload.logger.logChange(
+                    receivedAction: payload.action,
+                    oldState: payload.oldState,
+                    newState: payload.newState
+                )
+            }
+        )
     }
 }
