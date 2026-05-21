@@ -57,7 +57,8 @@ extension Root {
                 
                 \(supportData.message)
                 """
-                if MFMailComposeViewController.canSendMail() {
+                // TCA Store is @MainActor; reducer body always runs on main.
+                if MainActor.assumeIsolated({ MFMailComposeViewController.canSendMail() }) {
                     state.supportData = supportData
                 } else {
                     state.messageShareBinding = supportData.message

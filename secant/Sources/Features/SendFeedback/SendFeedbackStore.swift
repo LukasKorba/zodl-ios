@@ -53,7 +53,8 @@ struct SendFeedback {
                 // __LD TESTED
                 state.memoState.text = ""
                 state.selectedRating = 4
-                state.canSendMail = MFMailComposeViewController.canSendMail()
+                // TCA Store is @MainActor; reducer body always runs on main.
+                state.canSendMail = MainActor.assumeIsolated { MFMailComposeViewController.canSendMail() }
                 return .none
 
             case .sendTapped:

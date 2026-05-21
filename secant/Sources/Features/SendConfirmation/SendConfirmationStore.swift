@@ -206,7 +206,8 @@ struct SendConfirmation {
                 state.randomFailureIconIndex = Int.random(in: 1...3)
                 state.randomResubmissionIconIndex = Int.random(in: 1...2)
                 state.isTransparentAddress = derivationTool.isTransparentAddress(state.address, zcashSDKEnvironment.network().networkType)
-                state.canSendMail = MFMailComposeViewController.canSendMail()
+                // TCA Store is @MainActor; reducer body always runs on main.
+                state.canSendMail = MainActor.assumeIsolated { MFMailComposeViewController.canSendMail() }
                 state.alias = nil
                 for contact in state.addressBookContacts.contacts {
                     if contact.address == state.address {

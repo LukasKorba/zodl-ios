@@ -52,7 +52,8 @@ struct ResyncWallet {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                state.canSendMail = MFMailComposeViewController.canSendMail()
+                // TCA Store is @MainActor; reducer body always runs on main.
+                state.canSendMail = MainActor.assumeIsolated { MFMailComposeViewController.canSendMail() }
                 state.birthday = try? walletStorage.exportWallet().birthday?.value()
                 if let birthday = state.birthday, let timeInterval = sdkSynchronizer.estimateTimestamp(birthday) {
                     let date = Date(timeIntervalSince1970: timeInterval)

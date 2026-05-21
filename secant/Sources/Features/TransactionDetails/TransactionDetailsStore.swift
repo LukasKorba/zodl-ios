@@ -254,7 +254,8 @@ struct TransactionDetails {
             switch action {
             case .onAppear:
                 // __LD TESTED
-                state.canSendMail = MFMailComposeViewController.canSendMail()
+                // TCA Store is @MainActor; reducer body always runs on main.
+                state.canSendMail = MainActor.assumeIsolated { MFMailComposeViewController.canSendMail() }
                 state.messageToBeShared = nil
                 state.supportData = nil
                 state.isSwap = userMetadataProvider.isSwapTransaction(state.transaction.zAddress ?? "")
