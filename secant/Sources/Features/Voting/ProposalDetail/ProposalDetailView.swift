@@ -8,8 +8,8 @@ import ComposableArchitecture
 
 /// Proposal detail with vote-choice selection. Tapping an option writes
 /// through to `roundCache[roundId].draftVotes[proposalId]` and persists
-/// to the encrypted voting metadata file. Re-entering the same proposal
-/// surfaces the previously selected choice.
+/// to the encrypted voting metadata file. Submitted choices are read from
+/// `roundCache[roundId].votes[proposalId]` and rendered read-only.
 struct ProposalDetailView: View {
     @Environment(\.colorScheme) var colorScheme
 
@@ -36,7 +36,14 @@ struct ProposalDetailView: View {
                 .first { $0.id == roundId }?
                 .session.proposals
                 .first { $0.id == proposalId }
-            let selected = store.roundCache[roundId]?.draftVotes[proposalId]
+            let session = store.roundCache[roundId]
+            let draftChoice = session?.draftVotes[proposalId]
+            let submittedChoice = session?.votes[proposalId]
+            let selected = selectedChoice(
+                draftChoice: draftChoice,
+                submittedChoice: submittedChoice
+            )
+            let isLocked = mode == .review || submittedChoice != nil
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
@@ -56,7 +63,11 @@ struct ProposalDetailView: View {
                         if !proposal.options.isEmpty {
                             VStack(spacing: 8) {
                                 ForEach(proposal.options, id: \.index) { option in
-                                    optionRow(option, selected: selected)
+                                    optionRow(
+                                        option,
+                                        selected: selected,
+                                        isLocked: isLocked
+                                    )
                                 }
                             }
                             .padding(.top, 8)
@@ -79,15 +90,13 @@ struct ProposalDetailView: View {
     }
 
     @ViewBuilder
-    private func optionRow(_ option: VoteOption, selected: VoteChoice?) -> some View {
+    private func optionRow(_ option: VoteOption, selected: VoteChoice?, isLocked: Bool) -> some View {
         let isSelected = selected == .option(option.index)
-        let isReviewing = mode == .review
         Button {
-            // Suppress option taps in review mode: the round has been
-            // submitted and any draft would invalidate the completed-vote
-            // marker (drafts non-empty → `loadCompletedVoteRecord` returns
-            // nil → "Voted" pill disappears on next entry).
-            guard !isReviewing else { return }
+            // Suppress option taps for submitted proposals: writing a new
+            // draft here would make the review state diverge from what was
+            // already accepted by the voting backend.
+            guard !isLocked else { return }
             store.send(
                 .draftVoteSet(
                     roundId: roundId,
@@ -132,6 +141,13 @@ struct ProposalDetailView: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(isReviewing)
+        .disabled(isLocked)
+    }
+
+    private func selectedChoice(
+        draftChoice: VoteChoice?,
+        submittedChoice: VoteChoice?
+    ) -> VoteChoice? {
+        submittedChoice ?? draftChoice
     }
 }

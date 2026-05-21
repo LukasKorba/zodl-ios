@@ -95,12 +95,33 @@ struct VotingCoordFlow {
         /// round.
         var pendingPipelineRoundId: String?
 
-        /// Alert surfaced when the user taps Submit but the new flow's
-        /// submission pipeline is not yet wired (Phase 5). Production users
-        /// should use the legacy Coinholder Polling entry until Phase 5
-        /// ships; this alert exists so the DEBUG entry doesn't silently
-        /// swallow the Submit tap.
+        // MARK: - Submission flow-wide state (Stage 5)
+
+        /// Signals that batch submission should auto-resume after the
+        /// Keystone delegation signing loop finishes. Set when the user
+        /// taps Submit on a Keystone account before delegation is ready;
+        /// cleared on success, retry, or flow dismiss.
+        var pendingBatchSubmission: Bool = false
+
+        /// Round id whose submission alert is currently surfaced. Drives
+        /// the alert presentation; nil when no alert.
+        var submissionAlertRoundId: String?
+
+        /// Alert state for transient errors during submission setup (e.g.
+        /// the not-yet-wired stub placeholder). Real submission errors are
+        /// surfaced on the Confirm Submission screen via
+        /// `RoundSession.batchSubmissionStatus`.
         @Presents var submissionAlert: AlertState<Never>?
+
+        /// Sheet state for the Keystone QR scan that captures the signed
+        /// PCZT from the device. Lifecycle is bound to the delegation
+        /// signing screen.
+        @Presents var keystoneScan: Scan.State?
+
+        /// Confirmation alert shown when the user taps "Skip remaining
+        /// bundles" mid-Keystone-signing-loop. Shows locked-in vs.
+        /// giving-up amounts so the decision is informed.
+        @Presents var skipBundlesAlert: AlertState<Action>?
 
         @Shared(.inMemory(.selectedWalletAccount))
         var selectedWalletAccount: WalletAccount?
@@ -148,20 +169,97 @@ struct VotingCoordFlow {
         case startActiveRoundPipeline(roundId: String)
         case walletNotSynced(roundId: String, scannedHeight: UInt64, snapshotHeight: UInt64)
         case walletSyncProgressUpdated(height: UInt64)
-        case votingWeightLoaded(roundId: String, weight: UInt64, notes: [NoteInfo])
+        case votingWeightLoaded(
+            roundId: String,
+            weight: UInt64,
+            notes: [NoteInfo],
+            witnesses: [WitnessData],
+            bundleCount: UInt32,
+            delegationReady: Bool
+        )
         case hotkeyLoaded(roundId: String, address: String)
         case pipelineFailed(roundId: String, message: String)
+        case submittedVotesLoaded(roundId: String, votes: [UInt32: VoteChoice])
         case draftVoteSet(roundId: String, proposalId: UInt32, choice: VoteChoice)
         case submitTapped(roundId: String)
-        case submitAllDraftsTapped(roundId: String)
         case fetchTallyResults(roundId: String)
         case tallyResultsLoaded(roundId: String, results: [UInt32: TallyResult])
         case tallyResultsFailed(roundId: String, message: String)
         case submissionAlert(PresentationAction<Never>)
+
+        // MARK: - Stage 5: submission pipeline
+
+        /// User tapped the Submit button on the Confirm Submission screen.
+        /// Routes through local auth (Zashi) or directly into delegation
+        /// signing (Keystone). Stage 5A: no-op stub.
+        case submitAllDraftsTapped(roundId: String)
+
+        /// User explicitly cleared a draft vote (from the Review screen
+        /// edit affordance). Stage 5A: no-op stub; Stage 5B writes through
+        /// to the encrypted metadata file.
+        case clearDraftVote(roundId: String, proposalId: UInt32)
+
+        /// Biometric / passcode auth gate succeeded; submission can proceed.
+        /// For Keystone accounts the auth gate is the device itself, so
+        /// `.submitAllDraftsTapped` dispatches this directly.
+        case authenticationSucceeded(roundId: String)
+
+        /// Delegation (ZKP #1) pipeline kick-off. Zashi-inline for non-
+        /// Keystone users; for Keystone users this starts the per-bundle
+        /// PCZT generation that drives the QR signing screen.
+        case startDelegationProof(roundId: String)
+        case delegationProofProgress(roundId: String, progress: Double)
+        case delegationProofCompleted(roundId: String)
+        case delegationProofFailed(roundId: String, error: String)
+
+        /// Zashi-only PIR precompute optimization. Runs in the background
+        /// while the user is choosing votes so the actual ZKP doesn't
+        /// start from cold.
+        case maybeStartDelegationPrecompute(roundId: String)
+        case delegationPrecomputeCompleted(roundId: String)
+        case delegationPrecomputeFailed(roundId: String, error: String)
+
+        // MARK: - Stage 5: per-proposal vote submission loop
+
+        case batchSubmissionProgress(roundId: String, currentIndex: Int, totalCount: Int, proposalId: UInt32)
+        case voteSubmissionBundleStarted(roundId: String, bundleIndex: UInt32)
+        case voteSubmissionStepUpdated(roundId: String, step: VoteSubmissionStep)
+        case batchVoteSubmitted(roundId: String, proposalId: UInt32, choice: VoteChoice)
+        case batchVoteFailed(roundId: String, proposalId: UInt32, error: String)
+        case batchSubmissionCompleted(roundId: String, successCount: Int, failCount: Int)
+        case batchAuthorizationFailed(roundId: String, error: String)
+        case batchSubmissionFailed(roundId: String, error: String, submittedCount: Int, totalCount: Int)
+        case retryBatchSubmission(roundId: String)
+        case dismissBatchResults(roundId: String)
+
+        // MARK: - Stage 5: Keystone delegation signing loop
+
+        case keystoneSigningPrepared(roundId: String, govPczt: VotingPcztResult, unsignedPczt: Pczt)
+        case keystoneSigningFailed(roundId: String, error: String)
+        case openKeystoneSignatureScan
+        case keystoneScan(PresentationAction<Scan.Action>)
+        case spendAuthSignatureExtracted(roundId: String, sig: Data, signedPczt: Pczt)
+        case keystoneBundleSignatureStored(
+            roundId: String,
+            signature: KeystoneBundleSignature,
+            bundleIndex: UInt32,
+            bundleCount: UInt32
+        )
+        case keystoneAllBundlesSigned(roundId: String)
+        case keystoneSignaturesRestored(roundId: String, signatures: [KeystoneBundleSignatureInfo])
+        case keystoneShowSigningScreen(roundId: String)
+        case skipRemainingKeystoneBundles(roundId: String)
+        case skipRemainingKeystoneBundlesConfirmed(roundId: String)
+        case skipBundlesAlert(PresentationAction<Action>)
+        case delegationRejected(roundId: String)
     }
 
+    @Dependency(\.backgroundTask) var backgroundTask
     @Dependency(\.databaseFiles) var databaseFiles
+    @Dependency(\.keystoneHandler) var keystoneHandler
+    @Dependency(\.localAuthentication) var localAuthentication
     @Dependency(\.mnemonic) var mnemonic
+    @Dependency(\.pasteboard) var pasteboard
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.votingAPI) var votingAPI
     @Dependency(\.votingCrypto) var votingCrypto
@@ -175,9 +273,21 @@ struct VotingCoordFlow {
     /// cancel an in-flight pipeline.
     let cancelPipelineId = UUID()
 
+    /// Cancellation id for the batch submission `.run` effect. `.dismissFlow`,
+    /// account switch, and config change all cancel this so the submission
+    /// loop doesn't outlive the flow.
+    let cancelSubmissionId = UUID()
+
+    /// Cancellation id for the delegation proof (ZKP #1) `.run` effect.
+    let cancelDelegationProofId = UUID()
+
     var body: some Reducer<State, Action> {
         coordinatorReduce()
             .forEach(\.path, action: \.path)
             .ifLet(\.$submissionAlert, action: \.submissionAlert)
+            .ifLet(\.$keystoneScan, action: \.keystoneScan) {
+                Scan()
+            }
+            .ifLet(\.$skipBundlesAlert, action: \.skipBundlesAlert)
     }
 }

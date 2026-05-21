@@ -34,9 +34,9 @@ struct SettingsView: View {
                             
                             ActionRow(
                                 icon: Asset.Assets.Icons.checkVerified.image,
-                                title: "Beta: Coinholder Polling"
+                                title: String(localizable: .settingsCoinholderPolling)
                             ) {
-                                store.send(.coinholderPollingNewTapped)
+                                store.send(.coinholderPollingTapped)
                             }
 
                             ActionRow(
@@ -146,8 +146,6 @@ struct SettingsView: View {
                     SendFeedbackView(store: store)
                 case let .torSetup(store):
                     TorSetupView(store: store)
-                case let .voting(store):
-                    VotingView(store: store)
                 case let .whatsNew(store):
                     WhatsNewView(store: store)
                 }

@@ -10,7 +10,8 @@ import ComposableArchitecture
 ///
 /// Bound to the new `VotingCoordFlow` parent store. The path destination
 /// only carries `roundId`; all data (round metadata, proposals, voting
-/// weight, drafts, etc.) is read from the parent's state and cache.
+/// weight, drafts, submitted votes, etc.) is read from the parent's state
+/// and cache.
 struct ProposalListView: View {
     enum Mode: Equatable { case voting, review }
 
@@ -24,15 +25,35 @@ struct ProposalListView: View {
         WithPerceptionTracking {
             let item = store.allRounds.first { $0.id == roundId }
             let proposals = item?.session.proposals ?? []
-            let weight = store.roundCache[roundId]?.votingWeight ?? 0
-            let pipelineReady = store.roundCache[roundId]?.hotkeyAddress != nil
-            let drafts = store.roundCache[roundId]?.draftVotes ?? [:]
-            let canSubmit = mode == .voting && !drafts.isEmpty && pipelineReady
+            let session = store.roundCache[roundId]
+            let weight = displayWeight(
+                session: session,
+                voteRecord: session?.voteRecord ?? store.voteRecords[roundId]
+            )
+            let pipelineReady = session?.hotkeyAddress != nil && (session?.bundleCount ?? 0) > 0
+            let drafts = session?.draftVotes ?? [:]
+            let submittedVotes = session?.votes ?? [:]
+            let displayedChoices = displayedChoices(
+                drafts: drafts,
+                submittedVotes: submittedVotes
+            )
+            let canSubmit = mode == .voting
+                && !drafts.isEmpty
+                && pipelineReady
+                && hasCompleteBallot(
+                    proposals: proposals,
+                    drafts: drafts,
+                    submittedVotes: submittedVotes
+                )
 
             ZStack(alignment: .bottom) {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
-                        header(title: item?.title ?? "", weight: weight, ready: pipelineReady)
+                        header(
+                            title: item?.title ?? "",
+                            weight: weight,
+                            ready: mode == .review || pipelineReady
+                        )
 
                         if proposals.isEmpty {
                             Text(localizable: .coinVotePollsListEmptyMessage)
@@ -46,7 +67,10 @@ struct ProposalListView: View {
                                         mode: mode == .review ? .review : .voting
                                     ))
                                 } label: {
-                                    proposalCard(proposal, drafted: drafts[proposal.id])
+                                    proposalCard(
+                                        proposal,
+                                        choice: displayedChoices[proposal.id]
+                                    )
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -98,7 +122,7 @@ struct ProposalListView: View {
     }
 
     @ViewBuilder
-    private func proposalCard(_ proposal: VotingProposal, drafted: VoteChoice?) -> some View {
+    private func proposalCard(_ proposal: VotingProposal, choice: VoteChoice?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
                 Text(proposal.title)
@@ -107,7 +131,7 @@ struct ProposalListView: View {
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                if let drafted, let label = label(for: drafted, options: proposal.options) {
+                if let choice, let label = label(for: choice, options: proposal.options) {
                     draftPill(label: label)
                 }
             }
@@ -132,6 +156,35 @@ struct ProposalListView: View {
 
     private func label(for choice: VoteChoice, options: [VoteOption]) -> String? {
         options.first { $0.index == choice.index }?.label
+    }
+
+    private func displayWeight(session: RoundSession?, voteRecord: Voting.VoteRecord?) -> UInt64 {
+        if mode == .review, let voteRecord {
+            return voteRecord.votingWeight
+        }
+        return session?.votingWeight ?? 0
+    }
+
+    private func displayedChoices(
+        drafts: [UInt32: VoteChoice],
+        submittedVotes: [UInt32: VoteChoice]
+    ) -> [UInt32: VoteChoice] {
+        guard mode == .voting else { return submittedVotes }
+
+        var choices = submittedVotes
+        choices.merge(drafts) { _, draft in draft }
+        return choices
+    }
+
+    private func hasCompleteBallot(
+        proposals: [VotingProposal],
+        drafts: [UInt32: VoteChoice],
+        submittedVotes: [UInt32: VoteChoice]
+    ) -> Bool {
+        guard !proposals.isEmpty else { return false }
+        return proposals.allSatisfy { proposal in
+            drafts[proposal.id] != nil || submittedVotes[proposal.id] != nil
+        }
     }
 
     @ViewBuilder

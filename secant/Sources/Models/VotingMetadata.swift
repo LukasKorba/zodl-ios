@@ -7,7 +7,8 @@ import Foundation
 
 /// On-disk shape for per-account encrypted voting state.
 ///
-/// Carries the user's in-flight draft votes and per-round completion records.
+/// Carries the user's in-flight draft votes, submitted choices, and per-round
+/// completion records.
 /// Encrypted at rest using the same per-account keys as the user-metadata
 /// file, but stored in a separate file with a different filename so the two
 /// concerns stay isolated and the cross-platform user-metadata schema doesn't
@@ -21,9 +22,13 @@ struct VotingMetadata: Codable, Equatable, Sendable {
         static let version = 1
     }
 
-    /// `[roundIdHex: [proposalIdString: optionIndex]]`. Mirrors the in-memory
-    /// `draftVotes` dictionary that `Voting.State` already holds.
+    /// `[roundIdHex: [proposalIdString: optionIndex]]`. Mirrors the
+    /// in-memory `draftVotes` dictionary that `VotingCoordFlow.State` holds.
     var drafts: [String: [String: UInt32]]
+
+    /// `[roundIdHex: [proposalIdString: optionIndex]]`. Mirrors submitted
+    /// per-proposal choices after they move out of drafts.
+    var submittedVotes: [String: [String: UInt32]]
 
     /// `[roundIdHex: VoteRecord]`. One record per round the user has fully
     /// submitted.
@@ -34,12 +39,41 @@ struct VotingMetadata: Codable, Equatable, Sendable {
 
     init(
         drafts: [String: [String: UInt32]] = [:],
+        submittedVotes: [String: [String: UInt32]] = [:],
         records: [String: PersistedVotingRecord] = [:],
         schemaVersion: Int = Constants.version
     ) {
         self.drafts = drafts
+        self.submittedVotes = submittedVotes
         self.records = records
         self.schemaVersion = schemaVersion
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case drafts
+        case submittedVotes
+        case records
+        case schemaVersion
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.drafts = try container.decodeIfPresent(
+            [String: [String: UInt32]].self,
+            forKey: .drafts
+        ) ?? [:]
+        self.submittedVotes = try container.decodeIfPresent(
+            [String: [String: UInt32]].self,
+            forKey: .submittedVotes
+        ) ?? [:]
+        self.records = try container.decodeIfPresent(
+            [String: PersistedVotingRecord].self,
+            forKey: .records
+        ) ?? [:]
+        self.schemaVersion = try container.decodeIfPresent(
+            Int.self,
+            forKey: .schemaVersion
+        ) ?? Constants.version
     }
 }
 

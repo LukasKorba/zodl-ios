@@ -9,10 +9,11 @@ import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
 import os
 
-/// Encrypted, per-account, local-only storage for the voting flow's drafts
-/// and per-round vote records. Mirrors `UserMetadataStorage` but writes a
-/// separate file (`<prefix>-voting-<hkdf>`) and skips the remote-storage path
-/// because voting history is intentionally per-device with no iCloud sync.
+/// Encrypted, per-account, local-only storage for the voting flow's drafts,
+/// submitted choices, and per-round vote records. Mirrors `UserMetadataStorage`
+/// but writes a separate file (`<prefix>-voting-<hkdf>`) and skips the
+/// remote-storage path because voting history is intentionally per-device
+/// with no iCloud sync.
 final class VotingMetadataStorage: Sendable {
     enum Constants {
         static let int64Size = MemoryLayout<Int64>.size
@@ -32,6 +33,7 @@ final class VotingMetadataStorage: Sendable {
 
     struct MutableState: Sendable {
         var drafts: [String: [String: UInt32]] = [:]
+        var submittedVotes: [String: [String: UInt32]] = [:]
         var records: [String: PersistedVotingRecord] = [:]
     }
 
@@ -59,6 +61,7 @@ final class VotingMetadataStorage: Sendable {
     func clearMemory() {
         state.withLock { state in
             state.drafts.removeAll()
+            state.submittedVotes.removeAll()
             state.records.removeAll()
         }
     }
@@ -137,13 +140,18 @@ final class VotingMetadataStorage: Sendable {
     private func fillMemoryWith(_ metadata: VotingMetadata) {
         state.withLock { state in
             state.drafts = metadata.drafts
+            state.submittedVotes = metadata.submittedVotes
             state.records = metadata.records
         }
     }
 
     func votingMetadataFromMemory() -> VotingMetadata {
         state.withLock { state in
-            VotingMetadata(drafts: state.drafts, records: state.records)
+            VotingMetadata(
+                drafts: state.drafts,
+                submittedVotes: state.submittedVotes,
+                records: state.records
+            )
         }
     }
 
@@ -165,6 +173,26 @@ final class VotingMetadataStorage: Sendable {
 
     func clearDrafts(roundId: String) {
         state.withLock { _ = $0.drafts.removeValue(forKey: roundId) }
+    }
+
+    // MARK: - Submitted votes
+
+    func loadSubmittedVotes(roundId: String) -> [String: UInt32] {
+        state.withLock { $0.submittedVotes[roundId] ?? [:] }
+    }
+
+    func setSubmittedVotes(_ votes: [String: UInt32], roundId: String) {
+        state.withLock { state in
+            if votes.isEmpty {
+                state.submittedVotes.removeValue(forKey: roundId)
+            } else {
+                state.submittedVotes[roundId] = votes
+            }
+        }
+    }
+
+    func clearSubmittedVotes(roundId: String) {
+        state.withLock { _ = $0.submittedVotes.removeValue(forKey: roundId) }
     }
 
     // MARK: - Records

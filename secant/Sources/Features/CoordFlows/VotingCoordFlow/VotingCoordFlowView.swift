@@ -46,9 +46,8 @@ struct VotingCoordFlowView: View {
                         )
                     case let .confirmSubmission(scoped):
                         ConfirmSubmissionView(store: store, roundId: scoped.roundId)
-                    case .delegationSigning:
-                        // TODO Phase 5.
-                        Text("Delegation signing")
+                    case let .delegationSigning(scoped):
+                        DelegationSigningView(store: store, roundId: scoped.roundId)
                     case let .tallying(scoped):
                         TallyingView(store: store, roundId: scoped.roundId)
                     case let .results(scoped):
@@ -61,6 +60,7 @@ struct VotingCoordFlowView: View {
                 }
             }
             .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
+            .alert($store.scope(state: \.skipBundlesAlert, action: \.skipBundlesAlert))
         }
     }
 
