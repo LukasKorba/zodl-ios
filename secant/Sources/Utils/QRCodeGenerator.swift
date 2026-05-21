@@ -6,7 +6,6 @@
 //
 
 import Foundation
-@preconcurrency import Combine
 import CoreImage.CIFilterBuiltins
 import SwiftUI
 
@@ -14,8 +13,8 @@ enum QRCodeGenerator {
     enum QRCodeError: Error {
         case failedToGenerate
     }
-    
-    enum Vendor: Equatable {
+
+    enum Vendor: Equatable, Sendable {
         case keystone
         case zashi
     }
@@ -26,20 +25,16 @@ enum QRCodeGenerator {
         vendor: Vendor = .zashi,
         color: UIColor = Asset.Colors.primary.systemColor,
         overlayedWithZcashLogo: Bool = true
-    ) -> Future<CGImage?, Never> {
-        Future<CGImage?, Never> { promise in
-            DispatchQueue.global().async {
-                let image = generateCode(
-                    from: string,
-                    maxPrivacy: maxPrivacy,
-                    vendor: vendor,
-                    color: color,
-                    overlayedWithZcashLogo: overlayedWithZcashLogo
-                )
-                
-                return promise(.success(image))
-            }
-        }
+    ) async -> CGImage? {
+        await Task.detached(priority: .userInitiated) {
+            generateCode(
+                from: string,
+                maxPrivacy: maxPrivacy,
+                vendor: vendor,
+                color: color,
+                overlayedWithZcashLogo: overlayedWithZcashLogo
+            )
+        }.value
     }
 
     static func generateCode(
