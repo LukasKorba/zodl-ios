@@ -259,12 +259,12 @@ extension ScanCoordFlow {
                     return .send(.requestZecFailed)
                 }
                 
-                return .run { [state] send in
-                    guard let recipient = state.recipient else {
+                return .run { [recipient = state.recipient, amount = state.amount, memo = state.memo] send in
+                    guard let recipient else {
                         return
                     }
                     do {
-                        let proposal = try await sdkSynchronizer.proposeTransfer(account.id, recipient, state.amount, state.memo)
+                        let proposal = try await sdkSynchronizer.proposeTransfer(account.id, recipient, amount, memo)
                         await send(.proposalResolved(proposal))
                     } catch {
                         await send(.requestZecFailed)
