@@ -47,7 +47,7 @@ final class SplashManager: ObservableObject {
                 authenticate()
             } else {
                 Task {
-                    await self.spinTheWheel()
+                    self.spinTheWheel()
                 }
             }
         }
@@ -57,12 +57,12 @@ final class SplashManager: ObservableObject {
         @Dependency(\.localAuthentication) var localAuthentication
 
         authenticationDidntSucceed = false
-        
+
         Task {
             if await !localAuthentication.authenticate() {
-                await self.authenticationFailed()
+                self.authenticationFailed()
             } else {
-                await self.spinTheWheel()
+                self.spinTheWheel()
             }
         }
     }
