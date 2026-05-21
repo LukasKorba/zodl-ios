@@ -271,6 +271,7 @@ extension VotingCoordFlow {
                 state.pollClosedRoundId = nil
                 state.ineligibleSheet = nil
                 state.checkingEligibilityRoundId = nil
+                state.walletSyncingSheetRoundId = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
                     .cancel(id: cancelSubmissionId),
@@ -739,6 +740,7 @@ extension VotingCoordFlow {
                 }
                 state.pendingPipelineRoundId = roundId
                 state.ineligibleSheet = nil
+                state.walletSyncingSheetRoundId = nil
 
                 return .run { [votingCrypto, votingAPI, mnemonic, walletStorage, sdkSynchronizer] send in
                     // 1. Wallet sync gate.
@@ -928,28 +930,20 @@ extension VotingCoordFlow {
                 }
                 .cancellable(id: cancelPipelineId, cancelInFlight: true)
 
-            case let .walletNotSynced(roundId, scannedHeight, snapshotHeight):
-                // Pop any pushed screens — the user can't proceed into the
-                // round until the wallet catches up. Show the WalletSyncing
-                // root. Once synced, the polling loop restarts the pipeline
-                // and re-pushes the proposal list.
+            case let .walletNotSynced(roundId, scannedHeight, _):
+                // Pop any pushed screens (none expected with deferred-nav,
+                // but defensive) and surface the explanation as a bottom
+                // sheet on the polls list. The user dismisses with "Got it"
+                // and can re-tap Enter Poll later; we deliberately don't
+                // background-poll the SDK sync state from here — the SDK
+                // continues catching up on its own, and the next Enter Poll
+                // tap re-runs the pipeline.
                 state.path.removeAll()
                 state.walletScannedHeight = scannedHeight
-                state.pendingPipelineRoundId = roundId
                 state.checkingEligibilityRoundId = nil
-                state.rootScreen = .walletSyncing
-                return .run { [sdkSynchronizer] send in
-                    while !Task.isCancelled {
-                        try await Task.sleep(for: .seconds(2))
-                        let height = UInt64(sdkSynchronizer.latestState().fullyScannedHeight)
-                        await send(.walletSyncProgressUpdated(height: height))
-                        if height >= snapshotHeight {
-                            await send(.startActiveRoundPipeline(roundId: roundId))
-                            return
-                        }
-                    }
-                } catch: { _, _ in }
-                .cancellable(id: cancelPipelineId, cancelInFlight: true)
+                state.pendingPipelineRoundId = nil
+                state.walletSyncingSheetRoundId = roundId
+                return .cancel(id: cancelPipelineId)
 
             case .walletSyncProgressUpdated(let height):
                 state.walletScannedHeight = height
@@ -1245,6 +1239,10 @@ extension VotingCoordFlow {
 
             case .dismissIneligibleSheet:
                 state.ineligibleSheet = nil
+                return .none
+
+            case .dismissWalletSyncingSheet:
+                state.walletSyncingSheetRoundId = nil
                 return .none
 
             case .refreshActiveRoundsList:

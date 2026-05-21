@@ -81,6 +81,15 @@ struct PollsListView: View {
                 },
                 secondary: nil
             )
+            .votingSheet(
+                isPresented: walletSyncingSheetBinding,
+                title: String(localizable: .coinVoteWalletSyncingTitle),
+                message: String(localizable: .coinVoteWalletSyncingSubtitle),
+                primary: .init(title: String(localizable: .coinVoteCommonGotIt), style: .primary) {
+                    store.send(.dismissWalletSyncingSheet)
+                },
+                secondary: nil
+            )
         }
     }
 
@@ -90,6 +99,17 @@ struct PollsListView: View {
             set: { newValue in
                 if !newValue {
                     store.send(.dismissIneligibleSheet)
+                }
+            }
+        )
+    }
+
+    private var walletSyncingSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.walletSyncingSheetRoundId != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissWalletSyncingSheet)
                 }
             }
         )

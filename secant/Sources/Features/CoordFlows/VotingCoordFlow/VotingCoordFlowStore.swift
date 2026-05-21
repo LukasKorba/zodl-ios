@@ -114,6 +114,13 @@ struct VotingCoordFlow {
         /// to the proposal list when the wallet turns out to be ineligible.
         var checkingEligibilityRoundId: String?
 
+        /// Round id behind the "Wallet Syncing" sheet on the Polls List.
+        /// Set when the active-round pipeline detects the wallet hasn't
+        /// caught up to the round's snapshot height. Replaces the legacy
+        /// full-screen `walletSyncing` root so the user stays on the polls
+        /// list (and can try again later or pick a different round).
+        var walletSyncingSheetRoundId: String?
+
         // MARK: - Submission flow-wide state (Stage 5)
 
         /// Signals that batch submission should auto-resume after the
@@ -193,6 +200,7 @@ struct VotingCoordFlow {
         case ineligibleForRound(roundId: String, heldZatoshi: UInt64)
         case earlyEligibilityConfirmed(roundId: String)
         case dismissIneligibleSheet
+        case dismissWalletSyncingSheet
         case refreshActiveRoundsList
         case startRoundStatusPolling(roundId: String)
         case roundStatusUpdated(roundId: String, status: SessionStatus)
