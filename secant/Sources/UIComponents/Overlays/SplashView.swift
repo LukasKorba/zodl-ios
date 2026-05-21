@@ -74,7 +74,8 @@ final class SplashManager: ObservableObject {
     @MainActor func spinTheWheel() {
         timer?.invalidate()
         timer = Timer.scheduledTimer(withTimeInterval: 1.0 / 60.0, repeats: true) { timer in
-            if self.isOn {
+            // Timer was scheduled from @MainActor spinTheWheel(); fires on main run loop.
+            if MainActor.assumeIsolated({ self.isOn }) {
                 Task { @MainActor in
                     self.tick()
 
