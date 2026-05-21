@@ -3580,9 +3580,20 @@ enum UIMockInflator {
                         ?? loremOptionDescription(forIndex: index)
                 )
             },
-            zipNumber: proposal.zipNumber,
+            zipNumber: proposal.zipNumber ?? mockZipNumber(forId: proposal.id),
             forumURL: proposal.forumURL
         )
+    }
+
+    /// Backend doesn't populate `zip_number` yet in dev environments. This
+    /// fills the field locally so we can exercise the badge layout: single
+    /// ZIP, multi-ZIP, and no-badge states cycle by proposal id.
+    private static func mockZipNumber(forId id: UInt32) -> String? {
+        switch id % 3 {
+        case 0: return "ZIP-123"
+        case 1: return "ZIP 123, ZIP 45"
+        default: return nil
+        }
     }
 
     /// Short labels so we can test the title row of the option card without

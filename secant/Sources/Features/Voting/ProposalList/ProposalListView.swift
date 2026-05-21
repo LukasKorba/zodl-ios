@@ -124,6 +124,11 @@ struct ProposalListView: View {
     @ViewBuilder
     private func proposalCard(_ proposal: VotingProposal, choice: VoteChoice?) -> some View {
         VStack(alignment: .leading, spacing: 8) {
+            if let zip = proposal.zipNumber?.trimmingCharacters(in: .whitespacesAndNewlines),
+               !zip.isEmpty {
+                zipBadge(zip)
+            }
+
             Text(proposal.title)
                 .zFont(.semiBold, size: 16, style: Design.Text.primary)
                 .tracking(-0.256)
@@ -184,6 +189,17 @@ struct ProposalListView: View {
         return proposals.allSatisfy { proposal in
             drafts[proposal.id] != nil || submittedVotes[proposal.id] != nil
         }
+    }
+
+    @ViewBuilder
+    private func zipBadge(_ text: String) -> some View {
+        Text(text)
+            .zFont(.medium, size: 12, color: Design.Surfaces.bgPrimary.color(colorScheme))
+            .tracking(-0.072)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Design.Text.primary.color(colorScheme))
+            .clipShape(Capsule())
     }
 
     @ViewBuilder
