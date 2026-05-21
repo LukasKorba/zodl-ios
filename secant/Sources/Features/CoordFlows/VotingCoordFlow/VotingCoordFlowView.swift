@@ -65,6 +65,9 @@ struct VotingCoordFlowView: View {
             .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
             .alert($store.scope(state: \.skipBundlesAlert, action: \.skipBundlesAlert))
             .alert($store.scope(state: \.pollClosedAlert, action: \.pollClosedAlert))
+            .onChange(of: store.selectedWalletAccount?.id) { _ in
+                store.send(.walletAccountChanged(store.selectedWalletAccount))
+            }
         }
     }
 

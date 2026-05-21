@@ -100,6 +100,9 @@ extension VotingCoordFlow {
                     }
                 }
 
+            case let .walletAccountChanged(account):
+                return reduceWalletAccountChanged(&state, account: account)
+
             case .initialize:
                 // Sweep legacy plaintext keys from a prior internal-build
                 // persistence shape. Idempotent and cheap; safe to keep.
@@ -1216,6 +1219,69 @@ extension VotingCoordFlow {
                 return .send(.fetchTallyResults(roundId: roundId))
             }
         }
+    }
+
+    func reduceWalletAccountChanged(
+        _ state: inout State,
+        account: WalletAccount?
+    ) -> Effect<Action> {
+        let nextWalletId = walletId(for: account)
+        let nextIsKeystoneUser = account?.vendor.isHWWallet() ?? false
+        guard state.walletId != nextWalletId
+            || state.isKeystoneUser != nextIsKeystoneUser
+        else {
+            return .none
+        }
+
+        state.walletId = nextWalletId
+        state.isKeystoneUser = nextIsKeystoneUser
+        resetAccountScopedVotingState(&state)
+        votingMetadata.reset()
+
+        let cancellation: Effect<Action> = .merge(
+            .cancel(id: cancelPipelineId),
+            .cancel(id: cancelSubmissionId),
+            .cancel(id: cancelDelegationProofId),
+            .cancel(id: cancelDelegationPrecomputeId),
+            .cancel(id: cancelStatusPollingId),
+            .cancel(id: cancelNewRoundPollingId),
+            .cancel(id: cancelShareTrackingId)
+        )
+
+        guard account != nil else {
+            state.rootScreen = .loading
+            return cancellation
+        }
+        guard state.hasSeenHowToVoteForCurrentWallet else {
+            state.rootScreen = .howToVote
+            return cancellation
+        }
+
+        state.rootScreen = .loading
+        return .merge(cancellation, .send(.initialize))
+    }
+
+    private func resetAccountScopedVotingState(_ state: inout State) {
+        state.path.removeAll()
+        state.roundCache.removeAll()
+        state.voteRecords.removeAll()
+        state.allRounds.removeAll()
+        state.zodlEndorsedRoundIds.removeAll()
+        state.pendingPipelineRoundId = nil
+        state.pendingBatchSubmission = false
+        state.submissionAlertRoundId = nil
+        state.submissionAlert = nil
+        state.keystoneScan = nil
+        state.skipBundlesAlert = nil
+        state.pollClosedAlert = nil
+        state.pollClosedRoundId = nil
+        state.pollsLoadError = false
+        state.serviceConfig = nil
+        state.walletScannedHeight = 0
+    }
+
+    private func walletId(for account: WalletAccount?) -> String {
+        account?.id.id.map { String(format: "%02x", $0) }.joined() ?? ""
     }
 
     /// Returns the topmost path element's round id when it's a

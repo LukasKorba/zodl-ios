@@ -162,6 +162,7 @@ struct VotingCoordFlow {
         case path(StackActionOf<Path>)
         case onAppear
         case warmProvingCaches
+        case walletAccountChanged(WalletAccount?)
         case dismissFlow
         case howToVoteContinueTapped
         case retryLoadRounds
