@@ -47,8 +47,12 @@ extension VotingCoordFlow {
                 state.serviceConfig = nil
                 state.pollsLoadError = false
                 state.rootScreen = .loading
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
+                    .cancel(id: cancelStatusPollingId),
+                    .cancel(id: cancelNewRoundPollingId),
                     .send(.initialize)
                 )
 
@@ -80,6 +84,19 @@ extension VotingCoordFlow {
                 }
                 state.rootScreen = .loading
                 return .send(.initialize)
+
+            case .warmProvingCaches:
+                guard !state.hasRequestedProvingCacheWarmup else {
+                    return .none
+                }
+                state.hasRequestedProvingCacheWarmup = true
+                return .run { [votingCrypto] _ in
+                    do {
+                        try await votingCrypto.warmProvingCaches()
+                    } catch {
+                        LoggerProxy.warn("Voting proving cache warm-up failed: \(error)")
+                    }
+                }
 
             case .initialize:
                 // Sweep legacy plaintext keys from a prior internal-build
@@ -180,7 +197,8 @@ extension VotingCoordFlow {
                 // TallyingView lands them on the right screen without a
                 // manual back tap. Same for proposal list → results when a
                 // previously-active round finalized out from under them.
-                if let topRoundId = finalizedTopOfPath(state) {
+                let finalizedRoundFromPath = finalizedTopOfPath(state)
+                if let topRoundId = finalizedRoundFromPath {
                     _ = state.path.popLast()
                     state.path.append(.results(Results.State(roundId: topRoundId)))
                 }
@@ -189,7 +207,7 @@ extension VotingCoordFlow {
                 // list lands. PollsListView filters bundled rounds by this
                 // set when `isOnDefaultConfig` is true, so without the
                 // fetch the list would be empty on the default source.
-                return .run { [votingAPI] send in
+                let endorsements: Effect<Action> = .run { [votingAPI] send in
                     do {
                         let ids = try await votingAPI.fetchZodlEndorsedRoundIds()
                         await send(.zodlEndorsementsLoaded(ids))
@@ -198,6 +216,14 @@ extension VotingCoordFlow {
                         await send(.zodlEndorsementsFailed)
                     }
                 }
+                guard let finalizedRoundFromPath else {
+                    return endorsements
+                }
+                return .merge(
+                    endorsements,
+                    .send(.fetchTallyResults(roundId: finalizedRoundFromPath)),
+                    .send(.startNewRoundPolling)
+                )
 
             case let .zodlEndorsementsLoaded(ids):
                 state.zodlEndorsedRoundIds = ids
@@ -232,10 +258,14 @@ extension VotingCoordFlow {
                 state.roundCache.removeAll()
                 state.path.removeAll()
                 state.pendingBatchSubmission = false
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
                     .cancel(id: cancelSubmissionId),
-                    .cancel(id: cancelDelegationProofId)
+                    .cancel(id: cancelDelegationProofId),
+                    .cancel(id: cancelStatusPollingId),
+                    .cancel(id: cancelNewRoundPollingId)
                 )
 
             case .howToVoteContinueTapped:
@@ -270,7 +300,11 @@ extension VotingCoordFlow {
                         // Already submitted — review-mode read-only, no
                         // pipeline needed.
                         state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                        return loadSubmittedVotesFromDb(roundId: roundId)
+                        return .merge(
+                            .cancel(id: cancelNewRoundPollingId),
+                            .send(.startRoundStatusPolling(roundId: roundId)),
+                            loadSubmittedVotesFromDb(roundId: roundId)
+                        )
                     }
                     state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
                     // Cache check: skip pipeline if hotkey is already
@@ -279,9 +313,15 @@ extension VotingCoordFlow {
                     if let cached = state.roundCache[roundId],
                        cached.hotkeyAddress != nil,
                        cached.bundleCount > 0 {
-                        return loadSubmittedVotesFromDb(roundId: roundId)
+                        return .merge(
+                            .cancel(id: cancelNewRoundPollingId),
+                            .send(.startRoundStatusPolling(roundId: roundId)),
+                            loadSubmittedVotesFromDb(roundId: roundId)
+                        )
                     }
                     return .merge(
+                        .cancel(id: cancelNewRoundPollingId),
+                        .send(.startRoundStatusPolling(roundId: roundId)),
                         .send(.startActiveRoundPipeline(roundId: roundId)),
                         loadSubmittedVotesFromDb(roundId: roundId)
                     )
@@ -290,7 +330,11 @@ extension VotingCoordFlow {
                     return .none
                 case .finalized:
                     state.path.append(.results(Results.State(roundId: roundId)))
-                    return .none
+                    return .merge(
+                        .cancel(id: cancelStatusPollingId),
+                        .send(.fetchTallyResults(roundId: roundId)),
+                        .send(.startNewRoundPolling)
+                    )
                 case .unspecified:
                     return .none
                 }
@@ -301,7 +345,13 @@ extension VotingCoordFlow {
                 // status (active or finalized — both have a vote record).
                 hydratePersistedRoundChoices(&state, roundId: roundId)
                 state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                return loadSubmittedVotesFromDb(roundId: roundId)
+                let statusPolling: Effect<Action>
+                if state.allRounds.first(where: { $0.id == roundId })?.session.status == .active {
+                    statusPolling = .send(.startRoundStatusPolling(roundId: roundId))
+                } else {
+                    statusPolling = .none
+                }
+                return .merge(statusPolling, loadSubmittedVotesFromDb(roundId: roundId))
 
             case let .proposalTapped(roundId, proposalId, mode):
                 state.path.append(
@@ -865,6 +915,128 @@ extension VotingCoordFlow {
                 state.path.append(.ineligible(Ineligible.State(roundId: roundId)))
                 return .cancel(id: cancelPipelineId)
 
+            case let .startRoundStatusPolling(roundId):
+                guard let item = state.allRounds.first(where: { $0.id == roundId }),
+                      item.session.status == .active
+                else {
+                    return .none
+                }
+                return .run { [votingAPI] send in
+                    while !Task.isCancelled {
+                        do {
+                            try await Task.sleep(for: .seconds(5))
+                            let updated = try await votingAPI.fetchRoundById(roundId)
+                            await send(
+                                .roundStatusUpdated(
+                                    roundId: roundId,
+                                    status: updated.status
+                                )
+                            )
+                        } catch is CancellationError {
+                            return
+                        } catch {
+                            LoggerProxy.warn("Voting round status polling fetch failed: \(error)")
+                        }
+                    }
+                } catch: { error, _ in
+                    LoggerProxy.warn("Voting round status polling failed: \(error)")
+                }
+                .cancellable(id: cancelStatusPollingId, cancelInFlight: true)
+
+            case let .roundStatusUpdated(roundId, status):
+                guard let index = state.allRounds.firstIndex(where: { $0.id == roundId }) else {
+                    return .none
+                }
+                let current = state.allRounds[index].session.status
+                guard current != status else { return .none }
+
+                let item = state.allRounds[index]
+                state.allRounds[index] = RoundListItem(
+                    roundNumber: item.roundNumber,
+                    session: session(item.session, withStatus: status)
+                )
+
+                switch status {
+                case .tallying:
+                    if activeVotingFlowRoundId(state) == roundId {
+                        state.pollClosedAlert = .pollClosed(status: status)
+                        state.pollClosedRoundId = roundId
+                    } else if topPathRoundId(state) == roundId {
+                        replacePathWithStatusScreen(&state, roundId: roundId, status: status)
+                    }
+                    return .cancel(id: cancelStatusPollingId)
+
+                case .finalized:
+                    if activeVotingFlowRoundId(state) == roundId {
+                        state.pollClosedAlert = .pollClosed(status: status)
+                        state.pollClosedRoundId = roundId
+                    } else if topPathRoundId(state) == roundId {
+                        replacePathWithStatusScreen(&state, roundId: roundId, status: status)
+                    }
+                    return .merge(
+                        .cancel(id: cancelStatusPollingId),
+                        .send(.fetchTallyResults(roundId: roundId)),
+                        .send(.startNewRoundPolling)
+                    )
+
+                case .active, .unspecified:
+                    return .none
+                }
+
+            case .dismissPollClosedAlert:
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
+                state.path.removeAll()
+                return .none
+
+            case .viewPollClosedResults:
+                let roundId = state.pollClosedRoundId ?? activeVotingFlowRoundId(state)
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
+                guard let roundId,
+                      let status = state.allRounds.first(where: { $0.id == roundId })?.session.status
+                else {
+                    state.path.removeAll()
+                    return .none
+                }
+                replacePathWithStatusScreen(&state, roundId: roundId, status: status)
+                if status == .finalized {
+                    return .merge(
+                        .send(.fetchTallyResults(roundId: roundId)),
+                        .send(.startNewRoundPolling)
+                    )
+                }
+                return .none
+
+            case .pollClosedAlert(.presented(.dismissPollClosedAlert)):
+                return .send(.dismissPollClosedAlert)
+
+            case .pollClosedAlert(.presented(.viewPollClosedResults)):
+                return .send(.viewPollClosedResults)
+
+            case .pollClosedAlert(.dismiss):
+                return .send(.dismissPollClosedAlert)
+
+            case .pollClosedAlert:
+                return .none
+
+            case .startNewRoundPolling:
+                return .run { [votingAPI] send in
+                    while !Task.isCancelled {
+                        try await Task.sleep(for: .seconds(30))
+                        let sessions = try await votingAPI.fetchAllRounds()
+                        let hasOpenRound = sessions.contains {
+                            $0.status == .active || $0.status == .tallying
+                        }
+                        if hasOpenRound {
+                            await send(.allRoundsLoaded(sessions))
+                        }
+                    }
+                } catch: { error, _ in
+                    LoggerProxy.warn("Voting new-round polling failed: \(error)")
+                }
+                .cancellable(id: cancelNewRoundPollingId, cancelInFlight: true)
+
             case .refreshActiveRoundsList:
                 // Lightweight re-fetch used by the tallying-status poll.
                 // Reuses the same allRoundsLoaded path so we pick up any
@@ -911,6 +1083,89 @@ extension VotingCoordFlow {
         else { return nil }
         return roundId
     }
+
+    private func topPathRoundId(_ state: State) -> String? {
+        guard let top = state.path.last else { return nil }
+        switch top {
+        case let .proposalList(scoped):
+            return scoped.roundId
+        case let .proposalDetail(scoped):
+            return scoped.roundId
+        case let .reviewVotes(scoped):
+            return scoped.roundId
+        case let .confirmSubmission(scoped):
+            return scoped.roundId
+        case let .delegationSigning(scoped):
+            return scoped.roundId
+        case let .tallying(scoped):
+            return scoped.roundId
+        case let .results(scoped):
+            return scoped.roundId
+        case let .ineligible(scoped):
+            return scoped.roundId
+        case .configSettings:
+            return nil
+        }
+    }
+
+    private func activeVotingFlowRoundId(_ state: State) -> String? {
+        guard let top = state.path.last else { return nil }
+        switch top {
+        case let .proposalList(scoped):
+            return scoped.roundId
+        case let .proposalDetail(scoped):
+            return scoped.roundId
+        case let .reviewVotes(scoped):
+            return scoped.roundId
+        case let .confirmSubmission(scoped):
+            return scoped.roundId
+        case let .delegationSigning(scoped):
+            return scoped.roundId
+        case .tallying, .results, .ineligible, .configSettings:
+            return nil
+        }
+    }
+
+    private func replacePathWithStatusScreen(
+        _ state: inout State,
+        roundId: String,
+        status: SessionStatus
+    ) {
+        state.path.removeAll()
+        switch status {
+        case .tallying:
+            state.path.append(.tallying(Tallying.State(roundId: roundId)))
+        case .finalized:
+            state.path.append(.results(Results.State(roundId: roundId)))
+        case .active, .unspecified:
+            break
+        }
+    }
+
+    private func session(_ session: VotingSession, withStatus status: SessionStatus) -> VotingSession {
+        VotingSession(
+            voteRoundId: session.voteRoundId,
+            snapshotHeight: session.snapshotHeight,
+            snapshotBlockhash: session.snapshotBlockhash,
+            proposalsHash: session.proposalsHash,
+            voteEndTime: session.voteEndTime,
+            ceremonyStart: session.ceremonyStart,
+            eaPK: session.eaPK,
+            vkZkp1: session.vkZkp1,
+            vkZkp2: session.vkZkp2,
+            vkZkp3: session.vkZkp3,
+            ncRoot: session.ncRoot,
+            nullifierIMTRoot: session.nullifierIMTRoot,
+            creator: session.creator,
+            description: session.description,
+            discussionURL: session.discussionURL,
+            proposals: session.proposals,
+            status: status,
+            createdAtHeight: session.createdAtHeight,
+            title: session.title
+        )
+    }
+
     // MARK: - Entry point
 
     /// `.submitAllDraftsTapped` handler. Gates the request, prompts for
@@ -2524,6 +2779,28 @@ extension AlertState where Action == VotingCoordFlow.Action {
             }
         } message: {
             TextState(String(localizable: .coinVoteDelegationSigningSkipAlertMessage(lockedIn, givingUp)))
+        }
+    }
+
+    static func pollClosed(status: SessionStatus) -> AlertState {
+        AlertState {
+            TextState("Voting closed")
+        } actions: {
+            ButtonState(action: .viewPollClosedResults) {
+                TextState(status == .finalized ? "View results" : "View status")
+            }
+            ButtonState(role: .cancel, action: .dismissPollClosedAlert) {
+                TextState("Back to polls")
+            }
+        } message: {
+            switch status {
+            case .finalized:
+                TextState("This round has finalized. You can view the results now.")
+            case .tallying:
+                TextState("This round is tallying. Results will appear once tallying finishes.")
+            case .active, .unspecified:
+                TextState("This round is no longer available for voting.")
+            }
         }
     }
 }

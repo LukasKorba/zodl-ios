@@ -17,7 +17,10 @@ struct VotingCoordFlowView: View {
         WithPerceptionTracking {
             NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
                 rootContent
-                    .onAppear { store.send(.onAppear) }
+                    .onAppear {
+                        store.send(.onAppear)
+                        store.send(.warmProvingCaches)
+                    }
             } destination: { destinationStore in
                 // NavigationStack's destination closure is escaping; it needs
                 // its own WithPerceptionTracking so reads from
@@ -61,6 +64,7 @@ struct VotingCoordFlowView: View {
             }
             .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
             .alert($store.scope(state: \.skipBundlesAlert, action: \.skipBundlesAlert))
+            .alert($store.scope(state: \.pollClosedAlert, action: \.pollClosedAlert))
         }
     }
 

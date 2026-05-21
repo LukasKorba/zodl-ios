@@ -80,6 +80,11 @@ struct VotingCoordFlow {
         /// and any non-endorsed entry surfaces an unverified-poll warning.
         var zodlEndorsedRoundIds: Set<String> = []
 
+        /// Process-lifetime proving caches should be warmed once when the
+        /// flow opens. Failure is non-fatal; this only avoids cold proof
+        /// latency for the first vote/delegation operation.
+        var hasRequestedProvingCacheWarmup = false
+
         /// Whether the user is on the default (Zodl-bundled) voting service
         /// vs a custom override pinned via VotingConfigSettings. Drives the
         /// trust-indicator UI on the polls list cards.
@@ -123,6 +128,14 @@ struct VotingCoordFlow {
         /// giving-up amounts so the decision is informed.
         @Presents var skipBundlesAlert: AlertState<Action>?
 
+        /// Alert shown when an opened active round transitions to tallying
+        /// or finalized while the user is still in voting/review/submission.
+        @Presents var pollClosedAlert: AlertState<Action>?
+
+        /// Round id associated with `pollClosedAlert`; retained so the alert
+        /// actions still know which status screen to route to.
+        var pollClosedRoundId: String?
+
         @Shared(.inMemory(.selectedWalletAccount))
         var selectedWalletAccount: WalletAccount?
 
@@ -148,6 +161,7 @@ struct VotingCoordFlow {
     enum Action {
         case path(StackActionOf<Path>)
         case onAppear
+        case warmProvingCaches
         case dismissFlow
         case howToVoteContinueTapped
         case retryLoadRounds
@@ -163,6 +177,11 @@ struct VotingCoordFlow {
         case roundTapped(String)
         case ineligibleForRound(roundId: String)
         case refreshActiveRoundsList
+        case startRoundStatusPolling(roundId: String)
+        case roundStatusUpdated(roundId: String, status: SessionStatus)
+        case dismissPollClosedAlert
+        case viewPollClosedResults
+        case startNewRoundPolling
         case retryFetchTallyResults(roundId: String)
         case viewMyVotesTapped(roundId: String)
         case proposalTapped(roundId: String, proposalId: UInt32, mode: ProposalDetail.Mode = .voting)
@@ -186,6 +205,7 @@ struct VotingCoordFlow {
         case tallyResultsLoaded(roundId: String, results: [UInt32: TallyResult])
         case tallyResultsFailed(roundId: String, message: String)
         case submissionAlert(PresentationAction<Never>)
+        case pollClosedAlert(PresentationAction<Action>)
 
         // MARK: - Stage 5: submission pipeline
 
@@ -281,6 +301,12 @@ struct VotingCoordFlow {
     /// Cancellation id for the delegation proof (ZKP #1) `.run` effect.
     let cancelDelegationProofId = UUID()
 
+    /// Cancellation id for the opened-round status polling loop.
+    let cancelStatusPollingId = UUID()
+
+    /// Cancellation id for the post-finalization rounds-list polling loop.
+    let cancelNewRoundPollingId = UUID()
+
     var body: some Reducer<State, Action> {
         coordinatorReduce()
             .forEach(\.path, action: \.path)
@@ -289,5 +315,6 @@ struct VotingCoordFlow {
                 Scan()
             }
             .ifLet(\.$skipBundlesAlert, action: \.skipBundlesAlert)
+            .ifLet(\.$pollClosedAlert, action: \.pollClosedAlert)
     }
 }
