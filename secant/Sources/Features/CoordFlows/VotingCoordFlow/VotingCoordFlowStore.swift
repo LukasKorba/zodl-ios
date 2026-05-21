@@ -182,6 +182,10 @@ struct VotingCoordFlow {
         case dismissPollClosedAlert
         case viewPollClosedResults
         case startNewRoundPolling
+        case loadShareDelegations(roundId: String)
+        case shareDelegationsLoaded(roundId: String, delegations: [VotingShareDelegation])
+        case shareDelegationsRefreshed(roundId: String, delegations: [VotingShareDelegation])
+        case pollShareStatus(roundId: String)
         case retryFetchTallyResults(roundId: String)
         case viewMyVotesTapped(roundId: String)
         case proposalTapped(roundId: String, proposalId: UInt32, mode: ProposalDetail.Mode = .voting)
@@ -309,6 +313,9 @@ struct VotingCoordFlow {
 
     /// Cancellation id for the post-finalization rounds-list polling loop.
     let cancelNewRoundPollingId = UUID()
+
+    /// Cancellation id for DB-backed helper share confirmation polling.
+    let cancelShareTrackingId = UUID()
 
     var body: some Reducer<State, Action> {
         coordinatorReduce()

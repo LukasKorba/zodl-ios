@@ -139,6 +139,12 @@ struct RoundSession: Equatable {
     /// proposal count) into the encrypted voting metadata file. The Results
     /// screen uses this to render "Voted MMM d - Voting Power X.XXX ZEC".
     var voteRecord: Voting.VoteRecord?
+
+    /// DB-backed helper-server share confirmation tracking. The UI
+    /// workstream owns presentation; the coordinator keeps this state
+    /// current so My Votes/review surfaces can read it.
+    var shareTrackingStatus: ShareTrackingStatus = .idle
+    var shareDelegations: [VotingShareDelegation] = []
 }
 
 // MARK: - Submission state machine types
@@ -227,4 +233,11 @@ struct KeystoneBundleSignature: Equatable {
     let sig: Data
     let sighash: Data
     let rk: Data // swiftlint:disable:this identifier_name
+}
+
+enum ShareTrackingStatus: Equatable {
+    case idle
+    case loading
+    case tracking
+    case fullyConfirmed
 }
