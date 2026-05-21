@@ -51,6 +51,7 @@ extension VotingCoordFlow {
                 state.pollClosedRoundId = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
+                    .cancel(id: cancelDelegationPrecomputeId),
                     .cancel(id: cancelStatusPollingId),
                     .cancel(id: cancelNewRoundPollingId),
                     .send(.initialize)
@@ -264,6 +265,7 @@ extension VotingCoordFlow {
                     .cancel(id: cancelPipelineId),
                     .cancel(id: cancelSubmissionId),
                     .cancel(id: cancelDelegationProofId),
+                    .cancel(id: cancelDelegationPrecomputeId),
                     .cancel(id: cancelStatusPollingId),
                     .cancel(id: cancelNewRoundPollingId)
                 )
@@ -405,17 +407,36 @@ extension VotingCoordFlow {
             case let .delegationProofFailed(roundId, error):
                 return reduceDelegationProofFailed(&state, roundId: roundId, error: error)
 
-            case .maybeStartDelegationPrecompute:
-                // Zashi optimization (PIR precompute) — Stage 5B+ refinement,
-                // not required for the happy path. Left as a no-op so the
-                // pipeline still runs correctly; precompute just doesn't kick
-                // in early.
+            case let .maybeStartDelegationPrecompute(roundId):
+                return reduceMaybeStartDelegationPrecompute(&state, roundId: roundId)
+
+            case let .delegationPrecomputeCompleted(roundId):
+                mutateSession(&state, roundId: roundId) { roundSession in
+                    roundSession.delegationPrecomputeStatus = .ready
+                    roundSession.isDelegationPrecomputeInFlight = false
+                }
+                if state.pendingBatchSubmission && !state.isKeystoneUser {
+                    state.pendingBatchSubmission = false
+                    mutateSession(&state, roundId: roundId) {
+                        $0.batchSubmissionStatus = .idle
+                    }
+                    return .send(.authenticationSucceeded(roundId: roundId))
+                }
                 return .none
 
-            case .delegationPrecomputeCompleted:
-                return .none
-
-            case .delegationPrecomputeFailed:
+            case let .delegationPrecomputeFailed(roundId, error):
+                let message = VotingErrorMapper.userFriendlyMessage(from: error)
+                mutateSession(&state, roundId: roundId) { roundSession in
+                    roundSession.delegationPrecomputeStatus = .failed(message)
+                    roundSession.isDelegationPrecomputeInFlight = false
+                }
+                if state.pendingBatchSubmission && !state.isKeystoneUser {
+                    state.pendingBatchSubmission = false
+                    mutateSession(&state, roundId: roundId) {
+                        $0.batchSubmissionStatus = .idle
+                    }
+                    return .send(.authenticationSucceeded(roundId: roundId))
+                }
                 return .none
 
             case let .batchSubmissionProgress(roundId, currentIndex, totalCount, proposalId):
@@ -926,6 +947,9 @@ extension VotingCoordFlow {
                     state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationPrecomputeStatus = .notStarted
                     state.roundCache[roundId, default: RoundSession(roundId: roundId)].isDelegationPrecomputeInFlight = false
                 }
+                if state.roundCache[roundId]?.hotkeyAddress != nil {
+                    return .send(.maybeStartDelegationPrecompute(roundId: roundId))
+                }
                 return .none
 
             case let .hotkeyLoaded(roundId, address):
@@ -933,7 +957,7 @@ extension VotingCoordFlow {
                 if state.pendingPipelineRoundId == roundId {
                     state.pendingPipelineRoundId = nil
                 }
-                return .none
+                return .send(.maybeStartDelegationPrecompute(roundId: roundId))
 
             case let .pipelineFailed(roundId, message):
                 // Pop the proposal list back to the polls list and surface
@@ -1610,6 +1634,107 @@ extension VotingCoordFlow {
             ))
         }
         .cancellable(id: cancelSubmissionId, cancelInFlight: true)
+    }
+
+    // MARK: - Delegation precompute
+
+    func reduceMaybeStartDelegationPrecompute(_ state: inout State, roundId: String) -> Effect<Action> {
+        guard !state.isKeystoneUser else { return .none }
+        guard let session = state.roundCache[roundId] else { return .none }
+        guard !isDelegationReady(session) else { return .none }
+        guard !session.isDelegationProofInFlight,
+              !session.isDelegationPrecomputeInFlight
+        else { return .none }
+        guard session.delegationPrecomputeStatus == .notStarted else { return .none }
+        guard session.hotkeyAddress != nil else { return .none }
+        guard session.bundleCount > 0, !session.walletNotes.isEmpty else { return .none }
+        guard let activeSession = activeSession(in: state, roundId: roundId),
+              activeSession.status == .active
+        else { return .none }
+        guard
+            let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url).nonEmpty,
+            let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount),
+            let accountId = state.selectedWalletAccount?.id
+        else {
+            return .none
+        }
+
+        mutateSession(&state, roundId: roundId) { roundSession in
+            roundSession.delegationPrecomputeStatus = .inProgress
+            roundSession.isDelegationPrecomputeInFlight = true
+        }
+
+        let expectedSnapshotHeight = activeSession.snapshotHeight
+        let cachedNotes = session.walletNotes
+        let bundleCount = session.bundleCount
+        let network = zcashSDKEnvironment.network
+        let networkId: UInt32 = network.networkType.votingRustNetworkId
+        let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
+        let roundName = activeSession.title
+
+        return .run { [votingCrypto, mnemonic, walletStorage] send in
+            let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
+            let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
+            let noteChunks = cachedNotes.smartBundles().bundles
+            guard Int(bundleCount) <= noteChunks.count else {
+                throw VotingFlowError.inconsistentBundleSetup(
+                    bundleCount: bundleCount,
+                    noteChunkCount: noteChunks.count
+                )
+            }
+
+            var totalCached: UInt32 = 0
+            var totalFetched: UInt32 = 0
+            for bundleIndex: UInt32 in 0..<bundleCount {
+                try Task.checkCancellation()
+                if case .present? = try? await votingCrypto.getDelegationTxHash(roundId, bundleIndex) {
+                    continue
+                }
+
+                let bundleNotes = noteChunks[Int(bundleIndex)]
+                guard let firstNote = bundleNotes.first else { continue }
+                let orchardFvk = try votingCrypto.extractOrchardFvkFromUfvk(
+                    firstNote.ufvkStr,
+                    networkId
+                )
+
+                _ = try await votingCrypto.buildVotingPczt(
+                    roundId,
+                    bundleIndex,
+                    bundleNotes,
+                    emptySenderSeed,
+                    hotkeySeed,
+                    networkId,
+                    accountIndex,
+                    roundName,
+                    orchardFvk,
+                    seedFingerprint
+                )
+
+                let result = try await votingCrypto.precomputeDelegationPir(
+                    roundId,
+                    bundleIndex,
+                    bundleNotes,
+                    pirEndpoints,
+                    expectedSnapshotHeight,
+                    networkId
+                )
+                totalCached += result.cachedCount
+                totalFetched += result.fetchedCount
+                LoggerProxy.info(
+                    "Delegation PIR precompute bundle \(bundleIndex + 1)/\(bundleCount): " +
+                        "cached=\(result.cachedCount) fetched=\(result.fetchedCount)"
+                )
+            }
+
+            LoggerProxy.info(
+                "Delegation PIR precompute complete: cached=\(totalCached) fetched=\(totalFetched)"
+            )
+            await send(.delegationPrecomputeCompleted(roundId: roundId))
+        } catch: { error, send in
+            await send(.delegationPrecomputeFailed(roundId: roundId, error: error.localizedDescription))
+        }
+        .cancellable(id: cancelDelegationPrecomputeId, cancelInFlight: true)
     }
 
     // MARK: - Per-action state updates

@@ -301,6 +301,9 @@ struct VotingCoordFlow {
     /// Cancellation id for the delegation proof (ZKP #1) `.run` effect.
     let cancelDelegationProofId = UUID()
 
+    /// Cancellation id for Zashi's background delegation PIR precompute.
+    let cancelDelegationPrecomputeId = UUID()
+
     /// Cancellation id for the opened-round status polling loop.
     let cancelStatusPollingId = UUID()
 
