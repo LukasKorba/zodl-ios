@@ -85,4 +85,7 @@ struct PersistedVotingRecord: Codable, Equatable, Sendable {
     let votedAt: Double
     let votingWeight: UInt64
     let proposalCount: Int
+    let eligibleVotingWeight: UInt64?
+    let submittedBundleCount: UInt32?
+    let totalBundleCount: UInt32?
 }

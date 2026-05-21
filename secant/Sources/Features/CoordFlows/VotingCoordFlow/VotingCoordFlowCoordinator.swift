@@ -950,10 +950,15 @@ extension VotingCoordFlow {
                 return .none
 
             case let .votingWeightLoaded(roundId, weight, notes, witnesses, bundleCount, delegationReady):
+                let eligibleTotals = Self.eligibleTotals(for: notes)
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].votingWeight = weight
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].eligibleVotingWeight =
+                    eligibleTotals.weight > 0 ? eligibleTotals.weight : weight
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].walletNotes = notes
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].cachedWitnesses = witnesses
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].bundleCount = bundleCount
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].eligibleBundleCount =
+                    eligibleTotals.bundleCount > 0 ? eligibleTotals.bundleCount : bundleCount
                 if delegationReady {
                     state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationProofStatus = .complete
                 } else {
@@ -2223,7 +2228,14 @@ extension VotingCoordFlow {
             let record = Voting.VoteRecord(
                 votedAt: Date(),
                 votingWeight: session.votingWeight,
-                proposalCount: proposalCount
+                proposalCount: proposalCount,
+                eligibleVotingWeight: state.isKeystoneUser
+                    ? completedEligibleVotingWeight(session)
+                    : nil,
+                submittedBundleCount: state.isKeystoneUser ? session.bundleCount : nil,
+                totalBundleCount: state.isKeystoneUser
+                    ? completedEligibleBundleCount(session)
+                    : nil
             )
             do {
                 try Voting.persistCompletedRound(record, roundId: roundId, account: account)
@@ -2650,6 +2662,12 @@ extension VotingCoordFlow {
         }
 
         mutateSession(&state, roundId: roundId) { roundSession in
+            if roundSession.eligibleBundleCount == 0 {
+                roundSession.eligibleBundleCount = session.bundleCount
+            }
+            if roundSession.eligibleVotingWeight == 0 {
+                roundSession.eligibleVotingWeight = session.votingWeight
+            }
             roundSession.bundleCount = signedCount
             roundSession.votingWeight = signedWeight
             roundSession.pendingVotingPczt = nil
@@ -2892,6 +2910,11 @@ extension VotingCoordFlow {
         }
     }
 
+    private static func eligibleTotals(for notes: [NoteInfo]) -> (weight: UInt64, bundleCount: UInt32) {
+        let bundleResult = notes.smartBundles()
+        return (bundleResult.eligibleWeight, UInt32(bundleResult.bundles.count))
+    }
+
     private static func votingWeight(for notes: [NoteInfo], bundleCount: UInt32) -> UInt64 {
         let allBundles = notes.smartBundles().bundles
         guard bundleCount > 0, Int(bundleCount) < allBundles.count else {
@@ -2997,6 +3020,18 @@ extension VotingCoordFlow {
         return proposals.allSatisfy { proposal in
             session.votes[proposal.id] != nil
         }
+    }
+
+    private func completedEligibleVotingWeight(_ session: RoundSession) -> UInt64 {
+        session.eligibleVotingWeight > 0
+            ? session.eligibleVotingWeight
+            : session.votingWeight
+    }
+
+    private func completedEligibleBundleCount(_ session: RoundSession) -> UInt32 {
+        session.eligibleBundleCount > 0
+            ? session.eligibleBundleCount
+            : session.bundleCount
     }
 
     private func votingMetadataPersistenceMessage(_ error: Error) -> String {

@@ -26,6 +26,12 @@ struct RoundSession: Equatable {
     /// (wallet, round) pair until a new snapshot or wallet rescan.
     var votingWeight: UInt64 = 0
 
+    /// Original eligible power before any Keystone bundle skipping. For
+    /// Zashi and full Keystone submissions this matches `votingWeight`; when
+    /// Keystone users skip unsigned bundles, `votingWeight` is reduced and
+    /// this remains the pre-skip value for persisted transparency metadata.
+    var eligibleVotingWeight: UInt64 = 0
+
     /// Eligible notes at the round's snapshot height. Cached because the
     /// SDK query is non-trivial and the snapshot is immutable.
     var walletNotes: [NoteInfo] = []
@@ -38,6 +44,10 @@ struct RoundSession: Equatable {
     /// bundling step in the active-round pipeline. Drives both the
     /// delegation proof loop and the per-bundle vote submission loop.
     var bundleCount: UInt32 = 0
+
+    /// Original eligible bundle count before any Keystone skip. Kept so a
+    /// completed vote record can explain reduced power later.
+    var eligibleBundleCount: UInt32 = 0
 
     /// Per-round hotkey address derived deterministically from the per-
     /// account hotkey mnemonic (in the Keychain) and the round id. Same
