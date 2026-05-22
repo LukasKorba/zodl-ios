@@ -44,6 +44,7 @@ jobs:
             -scheme secant-testnet \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             -derivedDataPath build/ \
+            -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Boot simulator and install app

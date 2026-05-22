@@ -36,6 +36,7 @@ jobs:
             -scheme secant-testnet \
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
             -resultBundlePath TestResults.xcresult \
+            -skipPackagePluginValidation \
             -only-testing:secantTests \
             CODE_SIGNING_ALLOWED=NO | xcpretty --color
 
