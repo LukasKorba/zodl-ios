@@ -8,9 +8,17 @@ import Foundation
 struct StaticVotingConfig: Codable, Equatable, Sendable {
     static let supportedVersion = 1
     static let algEd25519 = "ed25519"
+    // ⚠️ STAGE OVERRIDE — DO NOT COMMIT TO INTEGRATION.
+    // Pointed at the staging static-voting-config to exercise the polish
+    // branch against the "NU7 Sentiment Polling (staging test)" round.
+    // Restore the prod line (kept commented below) before any real merge.
     static let bundledPinnedSource =
-        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/5ed8d623e4150d383a4dac05dd6bfbdd126a5408/prod/static-voting-config.json" +
-        "?checksum=sha256:5a6bc0dce85a8ee8d6585d2a180e62f145abcfee7768c15b88de47c9a01a5738"
+        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/491e55306aa5c539a0314d30a8b2c51946b88b73/stage/static-voting-config.json" +
+        "?checksum=sha256:80890a6de9acc7293c3e2fabf870bb3e5755dbe0e69de4a59feb8f696134d4dc"
+
+//    static let bundledPinnedSource =
+//        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/5ed8d623e4150d383a4dac05dd6bfbdd126a5408/prod/static-voting-config.json" +
+//        "?checksum=sha256:5a6bc0dce85a8ee8d6585d2a180e62f145abcfee7768c15b88de47c9a01a5738"
 
     let staticConfigVersion: Int
     let dynamicConfigURL: URL

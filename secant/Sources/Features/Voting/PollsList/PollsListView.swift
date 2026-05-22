@@ -163,10 +163,28 @@ struct PollsListView: View {
     }
 
     private var visiblePolls: [RoundListItem] {
-        guard store.isOnDefaultConfig else {
-            return store.allRounds
+        // ⚠️ STAGE DEBUG FILTER — DO NOT COMMIT TO INTEGRATION.
+        // Stage serves 170+ historical test rounds. Restrict the list to the
+        // NU7-flavored rounds (some active, some finalized) so we can polish
+        // against both the empty-fields NU7 round and the populated copies
+        // that carry descriptions + zip numbers. Restore by deleting the
+        // `source` filter block.
+        let nu7Markers = ["NSM issuance", "NU7"]
+        let source = store.allRounds.filter { item in
+            let titleMatches = nu7Markers.contains { marker in
+                item.title.localizedCaseInsensitiveContains(marker)
+            }
+            let proposalMatches = item.session.proposals.contains { proposal in
+                nu7Markers.contains { marker in
+                    proposal.title.localizedCaseInsensitiveContains(marker)
+                }
+            }
+            return titleMatches || proposalMatches
         }
-        return store.allRounds.filter { store.zodlEndorsedRoundIds.contains($0.id) }
+        guard store.isOnDefaultConfig else {
+            return source
+        }
+        return source.filter { store.zodlEndorsedRoundIds.contains($0.id) }
     }
 
     // MARK: - Load Error Sheet

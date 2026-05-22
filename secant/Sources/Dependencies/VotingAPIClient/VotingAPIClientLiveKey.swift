@@ -270,6 +270,14 @@ private func getJSON(_ path: String, baseURL base: String) async throws -> [Stri
         let body = String(data: data, encoding: .utf8) ?? ""
         throw SvAPIError.httpError(statusCode: http.statusCode, message: body)
     }
+    // ⚠️ STAGE DEBUG RAW-RESPONSE LOG — DO NOT COMMIT TO INTEGRATION.
+    // BE team claims proposal description / zip_number are populated;
+    // dump the NU7 round's raw payload only (single-round endpoint) so
+    // we don't drown the console with the 600 KB list response.
+    if path.contains("93a6ecdb90b7d5a5256171298d67ce8ff65e160cc74bc54d2e37a92668272500") {
+        let body = String(data: data, encoding: .utf8) ?? "<non-utf8>"
+        LoggerProxy.warn("⚠️ raw GET \(path) (\(data.count) bytes):\n\(body)")
+    }
     return try SvAPIResponseParser.parseJSONObject(data, response: http, context: "GET \(path)")
 }
 
@@ -701,11 +709,29 @@ private func authenticatedVotingSessions(from rounds: [[String: Any]]) async thr
     var authenticated: [VotingSession] = []
     for round in rounds {
         let session = try parseVotingSession(from: round)
-        do {
-            authenticated.append(try await authenticateVotingSession(session))
-        } catch SvAPIError.noActiveVotingSession {
-            LoggerProxy.error("Skipping unauthenticated round \(hexString(from: session.voteRoundId))")
-        }
+        // ⚠️ STAGE DEBUG BYPASS — DO NOT COMMIT TO INTEGRATION.
+        // The valargroup team hasn't attested the NU7 staging round in
+        // the GitHub-pinned dynamic-voting-config yet, so the regular
+        // signature check would drop it. Skip the check while we polish
+        // the UI; restore the original `authenticateVotingSession` call
+        // (kept commented below) before any real merge.
+        authenticated.append(session)
+        let roundHex = hexString(from: session.voteRoundId)
+        LoggerProxy.warn("⚠️ Signature attestation bypassed for \(roundHex)")
+        // ⚠️ STAGE DEBUG PARSED-STATE LOG — DO NOT COMMIT TO INTEGRATION.
+        // Dump what iOS actually parsed for each proposal so we can
+        // confirm whether description / zipNumber survived the decode.
+        let descSummary = session.proposals.map { p in
+            let desc = p.description.isEmpty ? "<empty>" : "\(p.description.count) chars"
+            let zip = p.zipNumber ?? "<nil>"
+            return "  [#\(p.id)] title=\(p.title.prefix(30))… desc=\(desc) zip=\(zip) options=\(p.options.count)"
+        }.joined(separator: "\n")
+        LoggerProxy.warn("⚠️ parsed round \(roundHex) (\(session.proposals.count) proposals):\n\(descSummary)")
+//        do {
+//            authenticated.append(try await authenticateVotingSession(session))
+//        } catch SvAPIError.noActiveVotingSession {
+//            LoggerProxy.error("Skipping unauthenticated round \(hexString(from: session.voteRoundId))")
+//        }
     }
     return authenticated
 }

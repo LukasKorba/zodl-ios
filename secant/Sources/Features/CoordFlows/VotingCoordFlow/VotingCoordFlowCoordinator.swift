@@ -176,12 +176,16 @@ extension VotingCoordFlow {
                 // Stable creation-order numbering.
                 let sorted = sessions.sorted { $0.createdAtHeight < $1.createdAtHeight }
                 // ⚠️ LOCAL UI MOCK DATA — DO NOT COMMIT.
-                // Inflate titles, descriptions, and option labels so we can
-                // sanity-check the Figma layout against realistic copy.
-                // Remove the `.map(UIMockInflator.inflate)` call before committing.
-                state.allRounds = sorted.map(UIMockInflator.inflate).enumerated().map { index, session in
+                // Re-enable the `.map(UIMockInflator.inflate)` to inflate
+                // titles, descriptions, option labels, and zip numbers when
+                // sanity-checking the Figma layout against realistic copy.
+                // Disabled while testing against stage / production data.
+                state.allRounds = sorted.enumerated().map { index, session in
                     RoundListItem(roundNumber: index + 1, session: session)
                 }
+                // state.allRounds = sorted.map(UIMockInflator.inflate).enumerated().map { index, session in
+                //     RoundListItem(roundNumber: index + 1, session: session)
+                // }
 
                 // Hydrate per-round vote records from the encrypted metadata
                 // file so the polls list can render the Voted state for any
