@@ -41,25 +41,58 @@ enum Voting {
         let votedAt: Date
         let votingWeight: UInt64
         let proposalCount: Int
+        let eligibleVotingWeight: UInt64?
+        let submittedBundleCount: UInt32?
+        let totalBundleCount: UInt32?
 
-        init(votedAt: Date, votingWeight: UInt64, proposalCount: Int) {
+        init(
+            votedAt: Date,
+            votingWeight: UInt64,
+            proposalCount: Int,
+            eligibleVotingWeight: UInt64? = nil,
+            submittedBundleCount: UInt32? = nil,
+            totalBundleCount: UInt32? = nil
+        ) {
             self.votedAt = votedAt
             self.votingWeight = votingWeight
             self.proposalCount = proposalCount
+            self.eligibleVotingWeight = eligibleVotingWeight
+            self.submittedBundleCount = submittedBundleCount
+            self.totalBundleCount = totalBundleCount
         }
 
         init(_ persisted: PersistedVotingRecord) {
             self.votedAt = Date(timeIntervalSince1970: persisted.votedAt)
             self.votingWeight = persisted.votingWeight
             self.proposalCount = persisted.proposalCount
+            self.eligibleVotingWeight = persisted.eligibleVotingWeight
+            self.submittedBundleCount = persisted.submittedBundleCount
+            self.totalBundleCount = persisted.totalBundleCount
         }
 
         var persisted: PersistedVotingRecord {
             PersistedVotingRecord(
                 votedAt: votedAt.timeIntervalSince1970,
                 votingWeight: votingWeight,
-                proposalCount: proposalCount
+                proposalCount: proposalCount,
+                eligibleVotingWeight: eligibleVotingWeight,
+                submittedBundleCount: submittedBundleCount,
+                totalBundleCount: totalBundleCount
             )
+        }
+
+        var skippedKeystoneBundleCount: UInt32? {
+            guard let submittedBundleCount,
+                  let totalBundleCount,
+                  totalBundleCount > submittedBundleCount
+            else {
+                return nil
+            }
+            return totalBundleCount - submittedBundleCount
+        }
+
+        var hasSkippedKeystoneBundles: Bool {
+            skippedKeystoneBundleCount != nil
         }
     }
 

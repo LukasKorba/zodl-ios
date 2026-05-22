@@ -47,8 +47,14 @@ extension VotingCoordFlow {
                 state.serviceConfig = nil
                 state.pollsLoadError = false
                 state.rootScreen = .loading
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
+                    .cancel(id: cancelDelegationPrecomputeId),
+                    .cancel(id: cancelStatusPollingId),
+                    .cancel(id: cancelNewRoundPollingId),
+                    .cancel(id: cancelShareTrackingId),
                     .send(.initialize)
                 )
 
@@ -80,6 +86,22 @@ extension VotingCoordFlow {
                 }
                 state.rootScreen = .loading
                 return .send(.initialize)
+
+            case .warmProvingCaches:
+                guard !state.hasRequestedProvingCacheWarmup else {
+                    return .none
+                }
+                state.hasRequestedProvingCacheWarmup = true
+                return .run { [votingCrypto] _ in
+                    do {
+                        try await votingCrypto.warmProvingCaches()
+                    } catch {
+                        LoggerProxy.warn("Voting proving cache warm-up failed: \(error)")
+                    }
+                }
+
+            case let .walletAccountChanged(account):
+                return reduceWalletAccountChanged(&state, account: account)
 
             case .initialize:
                 // Sweep legacy plaintext keys from a prior internal-build
@@ -180,7 +202,8 @@ extension VotingCoordFlow {
                 // TallyingView lands them on the right screen without a
                 // manual back tap. Same for proposal list → results when a
                 // previously-active round finalized out from under them.
-                if let topRoundId = finalizedTopOfPath(state) {
+                let finalizedRoundFromPath = finalizedTopOfPath(state)
+                if let topRoundId = finalizedRoundFromPath {
                     _ = state.path.popLast()
                     state.path.append(.results(Results.State(roundId: topRoundId)))
                 }
@@ -189,7 +212,7 @@ extension VotingCoordFlow {
                 // list lands. PollsListView filters bundled rounds by this
                 // set when `isOnDefaultConfig` is true, so without the
                 // fetch the list would be empty on the default source.
-                return .run { [votingAPI] send in
+                let endorsements: Effect<Action> = .run { [votingAPI] send in
                     do {
                         let ids = try await votingAPI.fetchZodlEndorsedRoundIds()
                         await send(.zodlEndorsementsLoaded(ids))
@@ -198,6 +221,14 @@ extension VotingCoordFlow {
                         await send(.zodlEndorsementsFailed)
                     }
                 }
+                guard let finalizedRoundFromPath else {
+                    return endorsements
+                }
+                return .merge(
+                    endorsements,
+                    .send(.fetchTallyResults(roundId: finalizedRoundFromPath)),
+                    .send(.startNewRoundPolling)
+                )
 
             case let .zodlEndorsementsLoaded(ids):
                 state.zodlEndorsedRoundIds = ids
@@ -232,10 +263,16 @@ extension VotingCoordFlow {
                 state.roundCache.removeAll()
                 state.path.removeAll()
                 state.pendingBatchSubmission = false
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
                     .cancel(id: cancelSubmissionId),
-                    .cancel(id: cancelDelegationProofId)
+                    .cancel(id: cancelDelegationProofId),
+                    .cancel(id: cancelDelegationPrecomputeId),
+                    .cancel(id: cancelStatusPollingId),
+                    .cancel(id: cancelNewRoundPollingId),
+                    .cancel(id: cancelShareTrackingId)
                 )
 
             case .howToVoteContinueTapped:
@@ -262,6 +299,7 @@ extension VotingCoordFlow {
                 guard let item = state.allRounds.first(where: { $0.id == roundId }) else {
                     return .none
                 }
+                let cancelShareTracking = cancelShareTrackingIfSwitchingRound(state, to: roundId)
                 switch item.session.status {
                 case .active:
                     hydratePersistedRoundChoices(&state, roundId: roundId)
@@ -270,7 +308,12 @@ extension VotingCoordFlow {
                         // Already submitted — review-mode read-only, no
                         // pipeline needed.
                         state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                        return loadSubmittedVotesFromDb(roundId: roundId)
+                        return .merge(
+                            cancelShareTracking,
+                            .cancel(id: cancelNewRoundPollingId),
+                            .send(.startRoundStatusPolling(roundId: roundId)),
+                            loadSubmittedVotesFromDb(roundId: roundId)
+                        )
                     }
                     state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
                     // Cache check: skip pipeline if hotkey is already
@@ -279,18 +322,31 @@ extension VotingCoordFlow {
                     if let cached = state.roundCache[roundId],
                        cached.hotkeyAddress != nil,
                        cached.bundleCount > 0 {
-                        return loadSubmittedVotesFromDb(roundId: roundId)
+                        return .merge(
+                            cancelShareTracking,
+                            .cancel(id: cancelNewRoundPollingId),
+                            .send(.startRoundStatusPolling(roundId: roundId)),
+                            loadSubmittedVotesFromDb(roundId: roundId)
+                        )
                     }
                     return .merge(
+                        cancelShareTracking,
+                        .cancel(id: cancelNewRoundPollingId),
+                        .send(.startRoundStatusPolling(roundId: roundId)),
                         .send(.startActiveRoundPipeline(roundId: roundId)),
                         loadSubmittedVotesFromDb(roundId: roundId)
                     )
                 case .tallying:
                     state.path.append(.tallying(Tallying.State(roundId: roundId)))
-                    return .none
+                    return cancelShareTracking
                 case .finalized:
                     state.path.append(.results(Results.State(roundId: roundId)))
-                    return .none
+                    return .merge(
+                        cancelShareTracking,
+                        .cancel(id: cancelStatusPollingId),
+                        .send(.fetchTallyResults(roundId: roundId)),
+                        .send(.startNewRoundPolling)
+                    )
                 case .unspecified:
                     return .none
                 }
@@ -299,9 +355,20 @@ extension VotingCoordFlow {
                 // Explicit user intent to view submitted votes in read-only
                 // form. Always routes to reviewVotes regardless of round
                 // status (active or finalized — both have a vote record).
+                let cancelShareTracking = cancelShareTrackingIfSwitchingRound(state, to: roundId)
                 hydratePersistedRoundChoices(&state, roundId: roundId)
                 state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
-                return loadSubmittedVotesFromDb(roundId: roundId)
+                let statusPolling: Effect<Action>
+                if state.allRounds.first(where: { $0.id == roundId })?.session.status == .active {
+                    statusPolling = .send(.startRoundStatusPolling(roundId: roundId))
+                } else {
+                    statusPolling = .none
+                }
+                return .merge(
+                    cancelShareTracking,
+                    statusPolling,
+                    loadSubmittedVotesFromDb(roundId: roundId)
+                )
 
             case let .proposalTapped(roundId, proposalId, mode):
                 state.path.append(
@@ -355,17 +422,36 @@ extension VotingCoordFlow {
             case let .delegationProofFailed(roundId, error):
                 return reduceDelegationProofFailed(&state, roundId: roundId, error: error)
 
-            case .maybeStartDelegationPrecompute:
-                // Zashi optimization (PIR precompute) — Stage 5B+ refinement,
-                // not required for the happy path. Left as a no-op so the
-                // pipeline still runs correctly; precompute just doesn't kick
-                // in early.
+            case let .maybeStartDelegationPrecompute(roundId):
+                return reduceMaybeStartDelegationPrecompute(&state, roundId: roundId)
+
+            case let .delegationPrecomputeCompleted(roundId):
+                mutateSession(&state, roundId: roundId) { roundSession in
+                    roundSession.delegationPrecomputeStatus = .ready
+                    roundSession.isDelegationPrecomputeInFlight = false
+                }
+                if state.pendingBatchSubmission && !state.isKeystoneUser {
+                    state.pendingBatchSubmission = false
+                    mutateSession(&state, roundId: roundId) {
+                        $0.batchSubmissionStatus = .idle
+                    }
+                    return .send(.authenticationSucceeded(roundId: roundId))
+                }
                 return .none
 
-            case .delegationPrecomputeCompleted:
-                return .none
-
-            case .delegationPrecomputeFailed:
+            case let .delegationPrecomputeFailed(roundId, error):
+                let message = VotingErrorMapper.userFriendlyMessage(from: error)
+                mutateSession(&state, roundId: roundId) { roundSession in
+                    roundSession.delegationPrecomputeStatus = .failed(message)
+                    roundSession.isDelegationPrecomputeInFlight = false
+                }
+                if state.pendingBatchSubmission && !state.isKeystoneUser {
+                    state.pendingBatchSubmission = false
+                    mutateSession(&state, roundId: roundId) {
+                        $0.batchSubmissionStatus = .idle
+                    }
+                    return .send(.authenticationSucceeded(roundId: roundId))
+                }
                 return .none
 
             case let .batchSubmissionProgress(roundId, currentIndex, totalCount, proposalId):
@@ -476,13 +562,40 @@ extension VotingCoordFlow {
                 return reduceKeystoneAllBundlesSigned(&state, roundId: roundId)
 
             case let .keystoneSignaturesRestored(roundId, signatures):
+                guard let session = state.roundCache[roundId],
+                      let validSignatures = Self.validKeystoneSignatures(
+                        signatures,
+                        bundleCount: session.bundleCount
+                      ),
+                      !validSignatures.isEmpty
+                else {
+                    return .none
+                }
                 mutateSession(&state, roundId: roundId) { roundSession in
-                    roundSession.keystoneBundleSignatures = signatures.map {
+                    roundSession.keystoneBundleSignatures = validSignatures.map {
                         KeystoneBundleSignature(sig: $0.sig, sighash: $0.sighash, rk: $0.rk)
                     }
-                    roundSession.currentKeystoneBundleIndex = UInt32(signatures.count)
+                    roundSession.currentKeystoneBundleIndex = UInt32(validSignatures.count)
+                    roundSession.pendingVotingPczt = nil
+                    roundSession.pendingUnsignedDelegationPczt = nil
+                    roundSession.keystoneSigningStatus = .idle
                 }
-                return .none
+                if UInt32(validSignatures.count) >= session.bundleCount {
+                    mutateSession(&state, roundId: roundId) { roundSession in
+                        roundSession.delegationProofStatus = .generating(progress: 0)
+                        roundSession.isDelegationProofInFlight = true
+                        roundSession.batchSubmissionStatus = .authorizing
+                        roundSession.voteSubmissionStep = .authorizingVote
+                    }
+                    if case .delegationSigning = state.path.last {
+                        _ = state.path.popLast()
+                    }
+                    return .send(.keystoneAllBundlesSigned(roundId: roundId))
+                }
+                if !hasKeystoneSigningRound(state: state, roundId: roundId) {
+                    state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+                }
+                return .send(.startDelegationProof(roundId: roundId))
 
             case let .keystoneShowSigningScreen(roundId):
                 if !hasKeystoneSigningRound(state: state) {
@@ -605,6 +718,7 @@ extension VotingCoordFlow {
                 let networkId: UInt32 = network.networkType.votingRustNetworkId
                 let accountId = state.selectedWalletAccount?.id
                 let accountUUID: [UInt8] = accountId?.id ?? []
+                let isKeystoneUser = state.isKeystoneUser
 
                 // Seed the cache entry so subsequent re-entries see an
                 // in-progress session and don't trigger duplicate pipelines.
@@ -659,8 +773,14 @@ extension VotingCoordFlow {
 
                     let existingState = try? await votingCrypto.getRoundState(roundId)
                     let existingBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
+                    var preClearKeystoneSignatures: [KeystoneBundleSignatureInfo] = []
+                    var resolvedBundleCount: UInt32 = 0
+                    var shouldRestoreKeystoneSignatures = isKeystoneUser
+                    var didPrepareFreshRound = false
                     if existingState?.proofGenerated == true {
                         let bundleCount = existingBundleCount
+                        resolvedBundleCount = bundleCount
+                        shouldRestoreKeystoneSignatures = false
                         let eligibleWeight = Self.votingWeight(for: notes, bundleCount: bundleCount)
                         guard bundleCount > 0, eligibleWeight > 0 else {
                             await send(.ineligibleForRound(roundId: roundId))
@@ -675,6 +795,7 @@ extension VotingCoordFlow {
                             delegationReady: true
                         ))
                     } else if existingBundleCount > 0 {
+                        resolvedBundleCount = existingBundleCount
                         var recoveredBundleCount: UInt32 = 0
                         for bundleIndex: UInt32 in 0..<existingBundleCount {
                             if let vanPosition = try? await Self.recoverDelegationVanPosition(
@@ -711,6 +832,9 @@ extension VotingCoordFlow {
                                 delegationReady: recoveredBundleCount >= existingBundleCount
                             ))
                         } else {
+                            if isKeystoneUser {
+                                preClearKeystoneSignatures = try await votingCrypto.loadKeystoneBundleSignatures(roundId)
+                            }
                             guard try await Self.prepareFreshRound(
                                 roundId: roundId,
                                 session: session,
@@ -721,8 +845,13 @@ extension VotingCoordFlow {
                                 sdkSynchronizer: sdkSynchronizer,
                                 send: send
                             ) else { return }
+                            didPrepareFreshRound = true
+                            resolvedBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
                         }
                     } else {
+                        if isKeystoneUser {
+                            preClearKeystoneSignatures = try await votingCrypto.loadKeystoneBundleSignatures(roundId)
+                        }
                         guard try await Self.prepareFreshRound(
                             roundId: roundId,
                             session: session,
@@ -733,6 +862,8 @@ extension VotingCoordFlow {
                             sdkSynchronizer: sdkSynchronizer,
                             send: send
                         ) else { return }
+                        didPrepareFreshRound = true
+                        resolvedBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
                     }
 
                     // 3. Hotkey: load or generate the per-account hotkey
@@ -751,6 +882,30 @@ extension VotingCoordFlow {
                     let seed = try mnemonic.toSeed(phrase)
                     let hotkey = try await votingCrypto.generateHotkey(roundId, seed)
                     await send(.hotkeyLoaded(roundId: roundId, address: hotkey.address))
+
+                    if shouldRestoreKeystoneSignatures {
+                        let savedSignatures = didPrepareFreshRound
+                            ? preClearKeystoneSignatures
+                            : try await votingCrypto.loadKeystoneBundleSignatures(roundId)
+                        guard let validSignatures = Self.validKeystoneSignatures(
+                            savedSignatures,
+                            bundleCount: resolvedBundleCount
+                        ) else {
+                            LoggerProxy.warn("Ignoring inconsistent Keystone signing recovery state")
+                            return
+                        }
+                        if !validSignatures.isEmpty {
+                            if didPrepareFreshRound {
+                                for signature in validSignatures {
+                                    try await votingCrypto.storeKeystoneBundleSignature(roundId, signature)
+                                }
+                            }
+                            await send(.keystoneSignaturesRestored(
+                                roundId: roundId,
+                                signatures: validSignatures
+                            ))
+                        }
+                    }
                 } catch: { error, send in
                     LoggerProxy.error("Active round pipeline failed: \(error)")
                     await send(.pipelineFailed(roundId: roundId, message: error.localizedDescription))
@@ -795,10 +950,15 @@ extension VotingCoordFlow {
                 return .none
 
             case let .votingWeightLoaded(roundId, weight, notes, witnesses, bundleCount, delegationReady):
+                let eligibleTotals = Self.eligibleTotals(for: notes)
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].votingWeight = weight
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].eligibleVotingWeight =
+                    eligibleTotals.weight > 0 ? eligibleTotals.weight : weight
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].walletNotes = notes
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].cachedWitnesses = witnesses
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].bundleCount = bundleCount
+                state.roundCache[roundId, default: RoundSession(roundId: roundId)].eligibleBundleCount =
+                    eligibleTotals.bundleCount > 0 ? eligibleTotals.bundleCount : bundleCount
                 if delegationReady {
                     state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationProofStatus = .complete
                 } else {
@@ -807,6 +967,9 @@ extension VotingCoordFlow {
                     state.roundCache[roundId, default: RoundSession(roundId: roundId)].delegationPrecomputeStatus = .notStarted
                     state.roundCache[roundId, default: RoundSession(roundId: roundId)].isDelegationPrecomputeInFlight = false
                 }
+                if state.roundCache[roundId]?.hotkeyAddress != nil {
+                    return .send(.maybeStartDelegationPrecompute(roundId: roundId))
+                }
                 return .none
 
             case let .hotkeyLoaded(roundId, address):
@@ -814,7 +977,7 @@ extension VotingCoordFlow {
                 if state.pendingPipelineRoundId == roundId {
                     state.pendingPipelineRoundId = nil
                 }
-                return .none
+                return .send(.maybeStartDelegationPrecompute(roundId: roundId))
 
             case let .pipelineFailed(roundId, message):
                 // Pop the proposal list back to the polls list and surface
@@ -837,6 +1000,12 @@ extension VotingCoordFlow {
                 let filteredDrafts = session.draftVotes
                     .filter { mergedVotes[$0.key] == nil }
                 session.draftVotes = filteredDrafts
+                let shouldStartShareTracking = !mergedVotes.isEmpty
+                    && session.shareTrackingStatus == .idle
+                    && !session.isSubmittingVote
+                if shouldStartShareTracking {
+                    session.shareTrackingStatus = .loading
+                }
                 do {
                     try Voting.persistRoundChoices(
                         drafts: filteredDrafts,
@@ -849,6 +1018,9 @@ extension VotingCoordFlow {
                     LoggerProxy.error("Failed to persist submitted voting choices: \(error)")
                     state.submissionAlert = .votingMetadataPersistenceFailed(error)
                     state.roundCache[roundId] = session
+                }
+                if shouldStartShareTracking {
+                    return .send(.loadShareDelegations(roundId: roundId))
                 }
                 return .none
 
@@ -864,6 +1036,170 @@ extension VotingCoordFlow {
                 }
                 state.path.append(.ineligible(Ineligible.State(roundId: roundId)))
                 return .cancel(id: cancelPipelineId)
+
+            case let .startRoundStatusPolling(roundId):
+                guard let item = state.allRounds.first(where: { $0.id == roundId }),
+                      item.session.status == .active
+                else {
+                    return .none
+                }
+                return .run { [votingAPI] send in
+                    while !Task.isCancelled {
+                        do {
+                            try await Task.sleep(for: .seconds(5))
+                            let updated = try await votingAPI.fetchRoundById(roundId)
+                            await send(
+                                .roundStatusUpdated(
+                                    roundId: roundId,
+                                    status: updated.status
+                                )
+                            )
+                        } catch is CancellationError {
+                            return
+                        } catch {
+                            LoggerProxy.warn("Voting round status polling fetch failed: \(error)")
+                        }
+                    }
+                } catch: { error, _ in
+                    LoggerProxy.warn("Voting round status polling failed: \(error)")
+                }
+                .cancellable(id: cancelStatusPollingId, cancelInFlight: true)
+
+            case let .roundStatusUpdated(roundId, status):
+                guard let index = state.allRounds.firstIndex(where: { $0.id == roundId }) else {
+                    return .none
+                }
+                let current = state.allRounds[index].session.status
+                guard current != status else { return .none }
+
+                let item = state.allRounds[index]
+                state.allRounds[index] = RoundListItem(
+                    roundNumber: item.roundNumber,
+                    session: session(item.session, withStatus: status)
+                )
+
+                switch status {
+                case .tallying:
+                    let isCurrentRound = topPathRoundId(state) == roundId
+                    if activeVotingFlowRoundId(state) == roundId {
+                        state.pollClosedAlert = .pollClosed(status: status)
+                        state.pollClosedRoundId = roundId
+                    } else if isCurrentRound {
+                        replacePathWithStatusScreen(&state, roundId: roundId, status: status)
+                    }
+                    return isCurrentRound
+                        ? .merge(
+                            .cancel(id: cancelStatusPollingId),
+                            .cancel(id: cancelShareTrackingId)
+                        )
+                        : .none
+
+                case .finalized:
+                    let isCurrentRound = topPathRoundId(state) == roundId
+                    if activeVotingFlowRoundId(state) == roundId {
+                        state.pollClosedAlert = .pollClosed(status: status)
+                        state.pollClosedRoundId = roundId
+                    } else if isCurrentRound {
+                        replacePathWithStatusScreen(&state, roundId: roundId, status: status)
+                    }
+                    return isCurrentRound
+                        ? .merge(
+                            .cancel(id: cancelStatusPollingId),
+                            .cancel(id: cancelShareTrackingId),
+                            .send(.fetchTallyResults(roundId: roundId)),
+                            .send(.startNewRoundPolling)
+                        )
+                        : .none
+
+                case .active, .unspecified:
+                    return .none
+                }
+
+            case .dismissPollClosedAlert:
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
+                state.path.removeAll()
+                return .none
+
+            case .viewPollClosedResults:
+                let roundId = state.pollClosedRoundId ?? activeVotingFlowRoundId(state)
+                state.pollClosedAlert = nil
+                state.pollClosedRoundId = nil
+                guard let roundId,
+                      let status = state.allRounds.first(where: { $0.id == roundId })?.session.status
+                else {
+                    state.path.removeAll()
+                    return .none
+                }
+                replacePathWithStatusScreen(&state, roundId: roundId, status: status)
+                if status == .finalized {
+                    return .merge(
+                        .send(.fetchTallyResults(roundId: roundId)),
+                        .send(.startNewRoundPolling)
+                    )
+                }
+                return .none
+
+            case .pollClosedAlert(.presented(.dismissPollClosedAlert)):
+                return .send(.dismissPollClosedAlert)
+
+            case .pollClosedAlert(.presented(.viewPollClosedResults)):
+                return .send(.viewPollClosedResults)
+
+            case .pollClosedAlert(.dismiss):
+                return .send(.dismissPollClosedAlert)
+
+            case .pollClosedAlert:
+                return .none
+
+            case .startNewRoundPolling:
+                return .run { [votingAPI] send in
+                    while !Task.isCancelled {
+                        try await Task.sleep(for: .seconds(30))
+                        let sessions = try await votingAPI.fetchAllRounds()
+                        let hasOpenRound = sessions.contains {
+                            $0.status == .active || $0.status == .tallying
+                        }
+                        if hasOpenRound {
+                            await send(.allRoundsLoaded(sessions))
+                        }
+                    }
+                } catch: { error, _ in
+                    LoggerProxy.warn("Voting new-round polling failed: \(error)")
+                }
+                .cancellable(id: cancelNewRoundPollingId, cancelInFlight: true)
+
+            case let .loadShareDelegations(roundId):
+                mutateSession(&state, roundId: roundId) {
+                    $0.shareTrackingStatus = .loading
+                }
+                return .run { [votingCrypto] send in
+                    let delegations = try await votingCrypto.getShareDelegations(roundId)
+                    await send(.shareDelegationsLoaded(
+                        roundId: roundId,
+                        delegations: delegations
+                    ))
+                } catch: { error, _ in
+                    LoggerProxy.warn("Failed to load share delegations: \(error)")
+                }
+
+            case let .shareDelegationsLoaded(roundId, delegations):
+                updateShareTrackingState(&state, roundId: roundId, delegations: delegations)
+                guard state.roundCache[roundId]?.shareTrackingStatus == .tracking else {
+                    return .none
+                }
+                return .run { send in
+                    try await Task.sleep(for: .seconds(1))
+                    await send(.pollShareStatus(roundId: roundId))
+                }
+                .cancellable(id: cancelShareTrackingId, cancelInFlight: true)
+
+            case let .shareDelegationsRefreshed(roundId, delegations):
+                updateShareTrackingState(&state, roundId: roundId, delegations: delegations)
+                return .none
+
+            case let .pollShareStatus(roundId):
+                return reducePollShareStatus(&state, roundId: roundId)
 
             case .refreshActiveRoundsList:
                 // Lightweight re-fetch used by the tallying-status poll.
@@ -890,6 +1226,69 @@ extension VotingCoordFlow {
         }
     }
 
+    func reduceWalletAccountChanged(
+        _ state: inout State,
+        account: WalletAccount?
+    ) -> Effect<Action> {
+        let nextWalletId = walletId(for: account)
+        let nextIsKeystoneUser = account?.vendor.isHWWallet() ?? false
+        guard state.walletId != nextWalletId
+            || state.isKeystoneUser != nextIsKeystoneUser
+        else {
+            return .none
+        }
+
+        state.walletId = nextWalletId
+        state.isKeystoneUser = nextIsKeystoneUser
+        resetAccountScopedVotingState(&state)
+        votingMetadata.reset()
+
+        let cancellation: Effect<Action> = .merge(
+            .cancel(id: cancelPipelineId),
+            .cancel(id: cancelSubmissionId),
+            .cancel(id: cancelDelegationProofId),
+            .cancel(id: cancelDelegationPrecomputeId),
+            .cancel(id: cancelStatusPollingId),
+            .cancel(id: cancelNewRoundPollingId),
+            .cancel(id: cancelShareTrackingId)
+        )
+
+        guard account != nil else {
+            state.rootScreen = .loading
+            return cancellation
+        }
+        guard state.hasSeenHowToVoteForCurrentWallet else {
+            state.rootScreen = .howToVote
+            return cancellation
+        }
+
+        state.rootScreen = .loading
+        return .merge(cancellation, .send(.initialize))
+    }
+
+    private func resetAccountScopedVotingState(_ state: inout State) {
+        state.path.removeAll()
+        state.roundCache.removeAll()
+        state.voteRecords.removeAll()
+        state.allRounds.removeAll()
+        state.zodlEndorsedRoundIds.removeAll()
+        state.pendingPipelineRoundId = nil
+        state.pendingBatchSubmission = false
+        state.submissionAlertRoundId = nil
+        state.submissionAlert = nil
+        state.keystoneScan = nil
+        state.skipBundlesAlert = nil
+        state.pollClosedAlert = nil
+        state.pollClosedRoundId = nil
+        state.pollsLoadError = false
+        state.serviceConfig = nil
+        state.walletScannedHeight = 0
+    }
+
+    private func walletId(for account: WalletAccount?) -> String {
+        account?.id.id.map { String(format: "%02x", $0) }.joined() ?? ""
+    }
+
     /// Returns the topmost path element's round id when it's a
     /// `.tallying` / `.proposalList` entry whose round status just flipped
     /// to `.finalized`, otherwise nil. Used by the tallying-status auto-
@@ -911,6 +1310,98 @@ extension VotingCoordFlow {
         else { return nil }
         return roundId
     }
+
+    private func topPathRoundId(_ state: State) -> String? {
+        guard let top = state.path.last else { return nil }
+        switch top {
+        case let .proposalList(scoped):
+            return scoped.roundId
+        case let .proposalDetail(scoped):
+            return scoped.roundId
+        case let .reviewVotes(scoped):
+            return scoped.roundId
+        case let .confirmSubmission(scoped):
+            return scoped.roundId
+        case let .delegationSigning(scoped):
+            return scoped.roundId
+        case let .tallying(scoped):
+            return scoped.roundId
+        case let .results(scoped):
+            return scoped.roundId
+        case let .ineligible(scoped):
+            return scoped.roundId
+        case .configSettings:
+            return nil
+        }
+    }
+
+    private func cancelShareTrackingIfSwitchingRound(
+        _ state: State,
+        to roundId: String
+    ) -> Effect<Action> {
+        topPathRoundId(state).map { $0 != roundId } == true
+            ? .cancel(id: cancelShareTrackingId)
+            : .none
+    }
+
+    private func activeVotingFlowRoundId(_ state: State) -> String? {
+        guard let top = state.path.last else { return nil }
+        switch top {
+        case let .proposalList(scoped):
+            return scoped.roundId
+        case let .proposalDetail(scoped):
+            return scoped.roundId
+        case let .reviewVotes(scoped):
+            return scoped.roundId
+        case let .confirmSubmission(scoped):
+            return scoped.roundId
+        case let .delegationSigning(scoped):
+            return scoped.roundId
+        case .tallying, .results, .ineligible, .configSettings:
+            return nil
+        }
+    }
+
+    private func replacePathWithStatusScreen(
+        _ state: inout State,
+        roundId: String,
+        status: SessionStatus
+    ) {
+        state.path.removeAll()
+        switch status {
+        case .tallying:
+            state.path.append(.tallying(Tallying.State(roundId: roundId)))
+        case .finalized:
+            state.path.append(.results(Results.State(roundId: roundId)))
+        case .active, .unspecified:
+            break
+        }
+    }
+
+    private func session(_ session: VotingSession, withStatus status: SessionStatus) -> VotingSession {
+        VotingSession(
+            voteRoundId: session.voteRoundId,
+            snapshotHeight: session.snapshotHeight,
+            snapshotBlockhash: session.snapshotBlockhash,
+            proposalsHash: session.proposalsHash,
+            voteEndTime: session.voteEndTime,
+            ceremonyStart: session.ceremonyStart,
+            eaPK: session.eaPK,
+            vkZkp1: session.vkZkp1,
+            vkZkp2: session.vkZkp2,
+            vkZkp3: session.vkZkp3,
+            ncRoot: session.ncRoot,
+            nullifierIMTRoot: session.nullifierIMTRoot,
+            creator: session.creator,
+            description: session.description,
+            discussionURL: session.discussionURL,
+            proposals: session.proposals,
+            status: status,
+            createdAtHeight: session.createdAtHeight,
+            title: session.title
+        )
+    }
+
     // MARK: - Entry point
 
     /// `.submitAllDraftsTapped` handler. Gates the request, prompts for
@@ -1288,6 +1779,331 @@ extension VotingCoordFlow {
         .cancellable(id: cancelSubmissionId, cancelInFlight: true)
     }
 
+    // MARK: - Delegation precompute
+
+    func reduceMaybeStartDelegationPrecompute(_ state: inout State, roundId: String) -> Effect<Action> {
+        guard !state.isKeystoneUser else { return .none }
+        guard let session = state.roundCache[roundId] else { return .none }
+        guard !isDelegationReady(session) else { return .none }
+        guard !session.isDelegationProofInFlight,
+              !session.isDelegationPrecomputeInFlight
+        else { return .none }
+        guard session.delegationPrecomputeStatus == .notStarted else { return .none }
+        guard session.hotkeyAddress != nil else { return .none }
+        guard session.bundleCount > 0, !session.walletNotes.isEmpty else { return .none }
+        guard let activeSession = activeSession(in: state, roundId: roundId),
+              activeSession.status == .active
+        else { return .none }
+        guard
+            let pirEndpoints = state.serviceConfig?.pirEndpoints.map(\.url).nonEmpty,
+            let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount),
+            let accountId = state.selectedWalletAccount?.id
+        else {
+            return .none
+        }
+
+        mutateSession(&state, roundId: roundId) { roundSession in
+            roundSession.delegationPrecomputeStatus = .inProgress
+            roundSession.isDelegationPrecomputeInFlight = true
+        }
+
+        let expectedSnapshotHeight = activeSession.snapshotHeight
+        let cachedNotes = session.walletNotes
+        let bundleCount = session.bundleCount
+        let network = zcashSDKEnvironment.network
+        let networkId: UInt32 = network.networkType.votingRustNetworkId
+        let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
+        let roundName = activeSession.title
+
+        return .run { [votingCrypto, mnemonic, walletStorage] send in
+            let hotkeyPhrase = try walletStorage.exportVotingHotkey(accountId).seedPhrase.value()
+            let hotkeySeed = try mnemonic.toSeed(hotkeyPhrase)
+            let noteChunks = cachedNotes.smartBundles().bundles
+            guard Int(bundleCount) <= noteChunks.count else {
+                throw VotingFlowError.inconsistentBundleSetup(
+                    bundleCount: bundleCount,
+                    noteChunkCount: noteChunks.count
+                )
+            }
+
+            var totalCached: UInt32 = 0
+            var totalFetched: UInt32 = 0
+            for bundleIndex: UInt32 in 0..<bundleCount {
+                try Task.checkCancellation()
+                if case .present? = try? await votingCrypto.getDelegationTxHash(roundId, bundleIndex) {
+                    continue
+                }
+
+                let bundleNotes = noteChunks[Int(bundleIndex)]
+                guard let firstNote = bundleNotes.first else { continue }
+                let orchardFvk = try votingCrypto.extractOrchardFvkFromUfvk(
+                    firstNote.ufvkStr,
+                    networkId
+                )
+
+                _ = try await votingCrypto.buildVotingPczt(
+                    roundId,
+                    bundleIndex,
+                    bundleNotes,
+                    emptySenderSeed,
+                    hotkeySeed,
+                    networkId,
+                    accountIndex,
+                    roundName,
+                    orchardFvk,
+                    seedFingerprint
+                )
+
+                let result = try await votingCrypto.precomputeDelegationPir(
+                    roundId,
+                    bundleIndex,
+                    bundleNotes,
+                    pirEndpoints,
+                    expectedSnapshotHeight,
+                    networkId
+                )
+                totalCached += result.cachedCount
+                totalFetched += result.fetchedCount
+                LoggerProxy.info(
+                    "Delegation PIR precompute bundle \(bundleIndex + 1)/\(bundleCount): " +
+                        "cached=\(result.cachedCount) fetched=\(result.fetchedCount)"
+                )
+            }
+
+            LoggerProxy.info(
+                "Delegation PIR precompute complete: cached=\(totalCached) fetched=\(totalFetched)"
+            )
+            await send(.delegationPrecomputeCompleted(roundId: roundId))
+        } catch: { error, send in
+            await send(.delegationPrecomputeFailed(roundId: roundId, error: error.localizedDescription))
+        }
+        .cancellable(id: cancelDelegationPrecomputeId, cancelInFlight: true)
+    }
+
+    // MARK: - Share tracking
+
+    func reducePollShareStatus(_ state: inout State, roundId: String) -> Effect<Action> {
+        guard let session = state.roundCache[roundId],
+              session.shareTrackingStatus == .tracking,
+              let activeSession = activeSession(in: state, roundId: roundId)
+        else {
+            return .none
+        }
+
+        let votes = session.votes
+        let proposals = activeSession.proposals
+        let singleShare = activeSession.isLastMoment
+        let voteEndTime = UInt64(activeSession.voteEndTime.timeIntervalSince1970)
+
+        return .run { [votingAPI, votingCrypto] send in
+            let freshDelegations = (try? await votingCrypto.getShareDelegations(roundId)) ?? []
+            let unconfirmed = freshDelegations.filter { !$0.confirmed }
+            let now = UInt64(Date().timeIntervalSince1970)
+
+            let readyShares = unconfirmed.filter {
+                Self.isShareReadyForStatusCheck($0, now: now)
+            }
+            let pollResult = await Self.pollShareStatusesForRecovery(
+                readyShares: readyShares,
+                roundId: roundId,
+                now: now,
+                voteEndTime: voteEndTime,
+                fetchShareStatus: votingAPI.fetchShareStatus
+            )
+
+            for key in pollResult.confirmedShares {
+                do {
+                    try await votingCrypto.markShareConfirmed(
+                        roundId,
+                        key.bundleIndex,
+                        key.proposalId,
+                        key.shareIndex
+                    )
+                } catch {
+                    LoggerProxy.warn("Failed to mark share confirmed: \(error)")
+                }
+            }
+
+            let grouped = Dictionary(grouping: pollResult.resubmissionShares) {
+                "\($0.bundleIndex):\($0.proposalId)"
+            }
+            for (_, shares) in grouped {
+                guard let first = shares.first else { continue }
+                let bundleIndex = first.bundleIndex
+                let proposalId = first.proposalId
+                guard
+                    let result = try? await votingCrypto.getVoteCommitmentBundleWithPosition(
+                        roundId,
+                        bundleIndex,
+                        proposalId
+                    ),
+                    let choice = votes[proposalId]
+                else {
+                    continue
+                }
+
+                let numOptions = UInt32(proposals.first { $0.id == proposalId }?.options.count ?? 3)
+                do {
+                    var payloads = try await votingCrypto.buildSharePayloads(
+                        result.bundle.encShares,
+                        result.bundle,
+                        choice,
+                        numOptions,
+                        result.vcTreePosition,
+                        singleShare
+                    )
+                    for index in payloads.indices {
+                        payloads[index].submitAt = 0
+                    }
+
+                    for share in shares {
+                        guard let payload = payloads.first(where: {
+                            $0.encShare.shareIndex == share.shareIndex
+                        }) else {
+                            continue
+                        }
+                        let acceptedServers = try await votingAPI.resubmitShare(
+                            payload,
+                            roundId,
+                            share.sentToURLs
+                        )
+                        let newServers = acceptedServers.filter {
+                            !share.sentToURLs.contains($0)
+                        }
+                        if !newServers.isEmpty {
+                            try await votingCrypto.addSentServers(
+                                roundId,
+                                bundleIndex,
+                                proposalId,
+                                share.shareIndex,
+                                newServers
+                            )
+                        }
+                    }
+                } catch {
+                    LoggerProxy.warn("Share resubmission failed: \(error)")
+                }
+            }
+
+            let updatedDelegations = (try? await votingCrypto.getShareDelegations(roundId))
+                ?? freshDelegations
+            await send(.shareDelegationsRefreshed(
+                roundId: roundId,
+                delegations: updatedDelegations
+            ))
+
+            let refreshedNow = UInt64(Date().timeIntervalSince1970)
+            let stillUnconfirmed = updatedDelegations.filter { !$0.confirmed }
+            guard !stillUnconfirmed.isEmpty else { return }
+
+            let futureCheckTimes = stillUnconfirmed.compactMap { share -> UInt64? in
+                let readyAt = Self.shareRecoveryBaseTime(share) + Self.shareCheckGrace
+                return readyAt > refreshedNow ? readyAt : nil
+            }
+            let sleepSeconds: UInt64
+            if let soonest = futureCheckTimes.min() {
+                sleepSeconds = min(soonest - refreshedNow, 30)
+            } else {
+                sleepSeconds = 15
+            }
+            try await Task.sleep(for: .seconds(max(sleepSeconds, 3)))
+            await send(.pollShareStatus(roundId: roundId))
+        } catch: { error, _ in
+            LoggerProxy.warn("Share tracking poll failed: \(error)")
+        }
+        .cancellable(id: cancelShareTrackingId, cancelInFlight: true)
+    }
+
+    private func updateShareTrackingState(
+        _ state: inout State,
+        roundId: String,
+        delegations: [VotingShareDelegation]
+    ) {
+        mutateSession(&state, roundId: roundId) { roundSession in
+            roundSession.shareDelegations = delegations
+            let allConfirmed = !delegations.isEmpty && delegations.allSatisfy(\.confirmed)
+            if delegations.isEmpty {
+                roundSession.shareTrackingStatus = .idle
+            } else if allConfirmed {
+                roundSession.shareTrackingStatus = .fullyConfirmed
+            } else {
+                roundSession.shareTrackingStatus = .tracking
+            }
+        }
+    }
+
+    private static let shareCheckGrace: UInt64 = 10
+
+    private static func shareRecoveryBaseTime(_ share: VotingShareDelegation) -> UInt64 {
+        share.submitAt > 0 ? share.submitAt : share.createdAt
+    }
+
+    private static func isShareReadyForStatusCheck(
+        _ share: VotingShareDelegation,
+        now: UInt64
+    ) -> Bool {
+        now >= shareRecoveryBaseTime(share) + shareCheckGrace
+    }
+
+    private static func shouldResubmitShare(
+        _ share: VotingShareDelegation,
+        now: UInt64,
+        voteEndTime: UInt64
+    ) -> Bool {
+        let baseTime = shareRecoveryBaseTime(share)
+        let remainingWindow = voteEndTime > baseTime ? voteEndTime - baseTime : 0
+        let overdueThreshold: UInt64 = max(30, min(3_600, remainingWindow / 4))
+
+        return now >= baseTime + overdueThreshold && voteEndTime > now + 10
+    }
+
+    private static func pollShareStatusesForRecovery(
+        readyShares: [VotingShareDelegation],
+        roundId: String,
+        now: UInt64,
+        voteEndTime: UInt64,
+        fetchShareStatus: @escaping @Sendable (
+            _ helperBaseURL: String,
+            _ roundIdHex: String,
+            _ nullifierHex: String
+        ) async throws -> ShareConfirmationResult
+    ) async -> ShareRecoveryPollResult {
+        var confirmedShares: [ShareDelegationKey] = []
+        var resubmissionShares: [VotingShareDelegation] = []
+        var queriedCount = 0
+
+        for share in readyShares {
+            var confirmed = false
+            for helperURL in share.sentToURLs {
+                queriedCount += 1
+                do {
+                    let result = try await fetchShareStatus(helperURL, roundId, share.nullifier)
+                    if result == .confirmed {
+                        confirmedShares.append(ShareDelegationKey(
+                            bundleIndex: share.bundleIndex,
+                            proposalId: share.proposalId,
+                            shareIndex: share.shareIndex
+                        ))
+                        confirmed = true
+                        break
+                    }
+                } catch {
+                    LoggerProxy.warn("Share status check failed: \(error)")
+                }
+            }
+
+            if !confirmed && shouldResubmitShare(share, now: now, voteEndTime: voteEndTime) {
+                resubmissionShares.append(share)
+            }
+        }
+
+        return ShareRecoveryPollResult(
+            confirmedShares: confirmedShares,
+            resubmissionShares: resubmissionShares,
+            queriedCount: queriedCount
+        )
+    }
+
     // MARK: - Per-action state updates
 
     func reduceBatchSubmissionProgress(
@@ -1412,7 +2228,14 @@ extension VotingCoordFlow {
             let record = Voting.VoteRecord(
                 votedAt: Date(),
                 votingWeight: session.votingWeight,
-                proposalCount: proposalCount
+                proposalCount: proposalCount,
+                eligibleVotingWeight: state.isKeystoneUser
+                    ? completedEligibleVotingWeight(session)
+                    : nil,
+                submittedBundleCount: state.isKeystoneUser ? session.bundleCount : nil,
+                totalBundleCount: state.isKeystoneUser
+                    ? completedEligibleBundleCount(session)
+                    : nil
             )
             do {
                 try Voting.persistCompletedRound(record, roundId: roundId, account: account)
@@ -1437,6 +2260,12 @@ extension VotingCoordFlow {
 
         if let record = session.voteRecord {
             state.voteRecords[roundId] = record
+        }
+        if session.shareTrackingStatus == .idle {
+            mutateSession(&state, roundId: roundId) {
+                $0.shareTrackingStatus = .loading
+            }
+            return .send(.loadShareDelegations(roundId: roundId))
         }
         return .none
     }
@@ -1833,6 +2662,12 @@ extension VotingCoordFlow {
         }
 
         mutateSession(&state, roundId: roundId) { roundSession in
+            if roundSession.eligibleBundleCount == 0 {
+                roundSession.eligibleBundleCount = session.bundleCount
+            }
+            if roundSession.eligibleVotingWeight == 0 {
+                roundSession.eligibleVotingWeight = session.votingWeight
+            }
             roundSession.bundleCount = signedCount
             roundSession.votingWeight = signedWeight
             roundSession.pendingVotingPczt = nil
@@ -1868,6 +2703,20 @@ extension VotingCoordFlow {
             return nil
         }
         return (signingState.roundId, govPczt)
+    }
+
+    private static func validKeystoneSignatures(
+        _ signatures: [KeystoneBundleSignatureInfo],
+        bundleCount: UInt32
+    ) -> [KeystoneBundleSignatureInfo]? {
+        guard bundleCount > 0 else { return [] }
+        let sorted = signatures.sorted { $0.bundleIndex < $1.bundleIndex }
+        guard sorted.count <= Int(bundleCount) else { return nil }
+        for (index, signature) in sorted.enumerated()
+            where signature.bundleIndex != UInt32(index) {
+            return nil
+        }
+        return sorted
     }
 
     /// Crash-recovery lookup for a Keystone delegation TX hash.
@@ -2061,6 +2910,11 @@ extension VotingCoordFlow {
         }
     }
 
+    private static func eligibleTotals(for notes: [NoteInfo]) -> (weight: UInt64, bundleCount: UInt32) {
+        let bundleResult = notes.smartBundles()
+        return (bundleResult.eligibleWeight, UInt32(bundleResult.bundles.count))
+    }
+
     private static func votingWeight(for notes: [NoteInfo], bundleCount: UInt32) -> UInt64 {
         let allBundles = notes.smartBundles().bundles
         guard bundleCount > 0, Int(bundleCount) < allBundles.count else {
@@ -2166,6 +3020,18 @@ extension VotingCoordFlow {
         return proposals.allSatisfy { proposal in
             session.votes[proposal.id] != nil
         }
+    }
+
+    private func completedEligibleVotingWeight(_ session: RoundSession) -> UInt64 {
+        session.eligibleVotingWeight > 0
+            ? session.eligibleVotingWeight
+            : session.votingWeight
+    }
+
+    private func completedEligibleBundleCount(_ session: RoundSession) -> UInt32 {
+        session.eligibleBundleCount > 0
+            ? session.eligibleBundleCount
+            : session.bundleCount
     }
 
     private func votingMetadataPersistenceMessage(_ error: Error) -> String {
@@ -2499,6 +3365,20 @@ extension VotingCoordFlow {
     }
 }
 
+// MARK: - Share delegation recovery
+
+private struct ShareDelegationKey: Equatable, Sendable {
+    let bundleIndex: UInt32
+    let proposalId: UInt32
+    let shareIndex: UInt32
+}
+
+private struct ShareRecoveryPollResult: Equatable, Sendable {
+    let confirmedShares: [ShareDelegationKey]
+    let resubmissionShares: [VotingShareDelegation]
+    let queriedCount: Int
+}
+
 // MARK: - Alerts
 
 extension AlertState where Action == Never {
@@ -2524,6 +3404,28 @@ extension AlertState where Action == VotingCoordFlow.Action {
             }
         } message: {
             TextState(String(localizable: .coinVoteDelegationSigningSkipAlertMessage(lockedIn, givingUp)))
+        }
+    }
+
+    static func pollClosed(status: SessionStatus) -> AlertState {
+        AlertState {
+            TextState("Voting closed")
+        } actions: {
+            ButtonState(action: .viewPollClosedResults) {
+                TextState(status == .finalized ? "View results" : "View status")
+            }
+            ButtonState(role: .cancel, action: .dismissPollClosedAlert) {
+                TextState("Back to polls")
+            }
+        } message: {
+            switch status {
+            case .finalized:
+                TextState("This round has finalized. You can view the results now.")
+            case .tallying:
+                TextState("This round is tallying. Results will appear once tallying finishes.")
+            case .active, .unspecified:
+                TextState("This round is no longer available for voting.")
+            }
         }
     }
 }
