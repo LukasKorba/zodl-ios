@@ -32,7 +32,7 @@ struct WalletSyncingView: View {
                         .progressViewStyle(.linear)
                         .padding(.horizontal, 24)
 
-                    Text("Catching up to round snapshot")
+                    Text(localizable: .coinVoteWalletSyncingCatchingUp)
                         .zFont(.semiBold, size: 18, style: Design.Text.primary)
                     Text("\(scanned) / \(snapshot)")
                         .zFont(.medium, size: 14, style: Design.Text.tertiary)

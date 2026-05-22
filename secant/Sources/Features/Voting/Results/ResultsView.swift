@@ -35,7 +35,7 @@ struct ResultsView: View {
 
                     if let tallyError {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Couldn't load results")
+                            Text(localizable: .coinVoteResultsLoadErrorTitle)
                                 .zFont(.semiBold, size: 16, style: Design.Text.primary)
                                 .tracking(-0.256)
 
@@ -54,12 +54,12 @@ struct ResultsView: View {
                     } else if !loaded {
                         HStack(spacing: 8) {
                             ProgressView().scaleEffect(0.75)
-                            Text("Loading results…")
+                            Text(localizable: .coinVoteResultsLoading)
                                 .zFont(.medium, size: 14, style: Design.Text.tertiary)
                         }
                         .padding(.top, 8)
                     } else if proposals.isEmpty {
-                        Text("No proposals in this round")
+                        Text(localizable: .coinVoteResultsNoProposalsInRound)
                             .zFont(.medium, size: 14, style: Design.Text.tertiary)
                     } else {
                         ForEach(proposals) { proposal in
@@ -101,7 +101,7 @@ struct ResultsView: View {
                     )
                 }
             } else {
-                Text("No votes recorded")
+                Text(localizable: .coinVoteResultsNoVotesRecorded)
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
             }
         }
@@ -121,7 +121,7 @@ struct ResultsView: View {
             Text(label)
                 .zFont(winning ? .semiBold : .medium, size: 14, style: Design.Text.primary)
             Spacer()
-            Text("\(Int(pct * 100))%")
+            Text(localizable: .coinVoteResultsPercentValue(String(Int(pct * 100))))
                 .zFont(.medium, size: 14, style: Design.Text.tertiary)
         }
         .padding(.vertical, 4)

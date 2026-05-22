@@ -134,7 +134,7 @@ struct DelegationSigningView: View {
     @ViewBuilder
     private func multiBundleProgressCard(current: UInt32, total: UInt32) -> some View {
         HStack {
-            Text("Bundle \(current + 1) of \(total)")
+            Text(localizable: .coinVoteDelegationSigningCurrentBundleProgress(String(current + 1), String(total)))
                 .zFont(.semiBold, size: 14, style: Design.Text.primary)
             Spacer()
         }
@@ -157,7 +157,7 @@ struct DelegationSigningView: View {
             VStack {
                 ProgressView()
                     .padding(.bottom, 8)
-                Text("Preparing signing request...")
+                Text(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
                     .zFont(.medium, size: 13, style: Design.Text.tertiary)
                     .multilineTextAlignment(.center)
             }
@@ -193,7 +193,7 @@ struct DelegationSigningView: View {
         case .parsingSignature:
             VStack {
                 ProgressView()
-                Text("Parsing signature...")
+                Text(localizable: .coinVoteDelegationSigningParsingSignatureEllipsis)
                     .zFont(.medium, size: 13, style: Design.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
@@ -236,7 +236,7 @@ struct DelegationSigningView: View {
     private func instructionText(status: KeystoneSigningStatus) -> some View {
         switch status {
         case .awaitingSignature:
-            Text("Open your Keystone device and scan the signed PCZT back to continue.")
+            Text(localizable: .coinVoteDelegationSigningScanSignedPCZTInstruction)
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -252,13 +252,13 @@ struct DelegationSigningView: View {
         switch status {
         case .awaitingSignature:
             VStack(spacing: 12) {
-                ZashiButton("Scan signed PCZT") {
+                ZashiButton(String(localizable: .coinVoteDelegationSigningScanSignedPCZTCTA)) {
                     store.send(.openKeystoneSignatureScan)
                 }
                 if (store.roundCache[roundId]?.bundleCount ?? 0) > 1
                     && !(store.roundCache[roundId]?.keystoneBundleSignatures.isEmpty ?? true) {
                     ZashiButton(
-                        "Skip remaining bundles",
+                        String(localizable: .coinVoteDelegationSigningSkipRemainingBundlesCTA),
                         type: .tertiary
                     ) {
                         store.send(.skipRemainingKeystoneBundles(roundId: roundId))
