@@ -340,7 +340,7 @@ struct ConfirmSubmissionView: View {
 
         case .completed:
             ZashiButton(String(localizable: .coinVoteCommonDone)) {
-                store.send(.dismissFlow)
+                store.send(.submissionDoneTapped(roundId: roundId))
             }
         }
     }

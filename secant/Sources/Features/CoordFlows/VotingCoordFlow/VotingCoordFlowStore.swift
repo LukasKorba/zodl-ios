@@ -14,6 +14,7 @@ struct VotingCoordFlow {
         case proposalList(ProposalList)
         case proposalDetail(ProposalDetail)
         case reviewVotes(ReviewVotes)
+        case reviewDrafts(ReviewDrafts)
         case confirmSubmission(ConfirmSubmission)
         case delegationSigning(DelegationSigning)
         case tallying(Tallying)
@@ -100,6 +101,35 @@ struct VotingCoordFlow {
         /// round.
         var pendingPipelineRoundId: String?
 
+        /// Active "Insufficient Balance" sheet on the Polls List. Set when
+        /// the active-round pipeline determines the wallet can't participate
+        /// (no notes at snapshot, or all bundles dropped below ballotDivisor).
+        /// Replaces the legacy full-screen IneligibleView so the user stays
+        /// on the polls list and can pick a different round.
+        var ineligibleSheet: IneligibleSheetData?
+
+        /// Round id whose eligibility check is currently in flight, set when
+        /// the user taps Enter Poll on an uncached active round. Drives the
+        /// in-button spinner on the Polls List so navigation only happens
+        /// after the pipeline confirms eligibility — avoiding a brief flash
+        /// to the proposal list when the wallet turns out to be ineligible.
+        var checkingEligibilityRoundId: String?
+
+        /// Round id behind the "Wallet Syncing" sheet on the Polls List.
+        /// Set when the active-round pipeline detects the wallet hasn't
+        /// caught up to the round's snapshot height. Replaces the legacy
+        /// full-screen `walletSyncing` root so the user stays on the polls
+        /// list (and can try again later or pick a different round).
+        var walletSyncingSheetRoundId: String?
+
+        /// "Unanswered Questions" confirmation sheet shown when the user
+        /// taps Next on the last proposal detail but some questions
+        /// remain unanswered. The user can either confirm to proceed to
+        /// the Review screen with those questions left blank, or go back
+        /// to the Proposal List to fill them in. We never auto-select a
+        /// choice on the user's behalf.
+        var skippedQuestionsSheet: SkippedQuestionsSheetData?
+
         // MARK: - Submission flow-wide state (Stage 5)
 
         /// Signals that batch submission should auto-resume after the
@@ -164,6 +194,11 @@ struct VotingCoordFlow {
         case warmProvingCaches
         case walletAccountChanged(WalletAccount?)
         case dismissFlow
+        /// Done CTA on the success screen — lands the user on the just-
+        /// submitted round's read-only ProposalList instead of tearing the
+        /// flow down completely. Share-recovery polling is intentionally
+        /// kept running.
+        case submissionDoneTapped(roundId: String)
         case howToVoteContinueTapped
         case retryLoadRounds
         case openConfigSettings
@@ -176,7 +211,19 @@ struct VotingCoordFlow {
         case configUnsupported(String)
         case initializeFailed(String)
         case roundTapped(String)
-        case ineligibleForRound(roundId: String)
+        case ineligibleForRound(roundId: String, heldZatoshi: UInt64)
+        case earlyEligibilityConfirmed(roundId: String)
+        case dismissIneligibleSheet
+        case dismissWalletSyncingSheet
+        case dismissProposalDetailStack
+        case openReviewDraftsScreen(roundId: String)
+        case proposalDetailNextTapped(roundId: String, currentProposalId: UInt32)
+        case dismissSkippedQuestionsSheet
+        /// "Go back" CTA on the unanswered-questions sheet — terminates the
+        /// proposal-detail walk and returns the user to the active-voting
+        /// ProposalList so the skipped questions are visible at a glance.
+        case skippedQuestionsGoBackTapped
+        case confirmSkippedQuestionsAndReview(roundId: String)
         case refreshActiveRoundsList
         case startRoundStatusPolling(roundId: String)
         case roundStatusUpdated(roundId: String, status: SessionStatus)
@@ -328,4 +375,31 @@ struct VotingCoordFlow {
             .ifLet(\.$skipBundlesAlert, action: \.skipBundlesAlert)
             .ifLet(\.$pollClosedAlert, action: \.pollClosedAlert)
     }
+}
+
+/// Data backing the Polls List "Insufficient Balance" sheet. Captured at
+/// the moment the pipeline determines the wallet can't participate so the
+/// sheet copy doesn't drift if state evolves while the sheet is up.
+struct IneligibleSheetData: Equatable {
+    /// Shielded balance the wallet held at the round's snapshot, in zatoshi.
+    /// Zero when the wallet had no notes; non-zero when notes existed but
+    /// every bundle dropped below `ballotDivisor`.
+    let heldZatoshi: UInt64
+
+    /// Snapshot block height for the round, used by the sheet body to
+    /// explain when the eligibility cutoff was taken.
+    let snapshotHeight: UInt64
+
+    /// Minimum balance required to participate (one `ballotDivisor` unit).
+    let minimumZatoshi: UInt64
+}
+
+/// Backing data for the "Unanswered Questions" confirmation sheet shown
+/// from the last Proposal Detail's Next CTA. Captures the round id (so
+/// the confirm action knows which round to route into the Review
+/// screen) and the 1-indexed positions of the unanswered proposals
+/// (already humanized for display).
+struct SkippedQuestionsSheetData: Equatable {
+    let roundId: String
+    let skippedDisplayIndices: [Int]
 }

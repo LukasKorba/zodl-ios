@@ -12,11 +12,19 @@ import ComposableArchitecture
 /// `roundCache[roundId].votes[proposalId]` and rendered read-only.
 struct ProposalDetailView: View {
     @Environment(\.colorScheme) var colorScheme
+    @State private var forumURLToOpen: ForumURL?
 
     let store: StoreOf<VotingCoordFlow>
     let roundId: String
     let proposalId: UInt32
     let mode: ProposalDetail.Mode
+
+    /// Identifiable wrapper so the in-app browser sheet can bind to the URL
+    /// itself — avoids a parallel bool + url pair.
+    private struct ForumURL: Identifiable {
+        let id = UUID()
+        let url: URL
+    }
 
     init(
         store: StoreOf<VotingCoordFlow>,
@@ -32,61 +40,220 @@ struct ProposalDetailView: View {
 
     var body: some View {
         WithPerceptionTracking {
-            let proposal = store.allRounds
-                .first { $0.id == roundId }?
-                .session.proposals
-                .first { $0.id == proposalId }
+            let proposals = store.allRounds.first { $0.id == roundId }?.session.proposals ?? []
+            let info = proposalInfo(in: proposals)
             let session = store.roundCache[roundId]
-            let draftChoice = session?.draftVotes[proposalId]
-            let submittedChoice = session?.votes[proposalId]
             let selected = selectedChoice(
-                draftChoice: draftChoice,
-                submittedChoice: submittedChoice
+                draftChoice: session?.draftVotes[proposalId],
+                submittedChoice: session?.votes[proposalId]
             )
-            let isLocked = mode == .review || submittedChoice != nil
+            let isLocked = mode == .review || session?.votes[proposalId] != nil
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    if let proposal {
-                        Text(proposal.title)
-                            .zFont(.semiBold, size: 24, style: Design.Text.primary)
-                            .tracking(-0.384)
-                            .fixedSize(horizontal: false, vertical: true)
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        if let proposal = info.proposal {
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text(proposal.title)
+                                    .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                                    .tracking(-0.384)
+                                    .fixedSize(horizontal: false, vertical: true)
 
-                        if !proposal.description.isEmpty {
-                            Text(proposal.description)
-                                .zFont(.medium, size: 14, style: Design.Text.primary)
-                                .tracking(-0.224)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-
-                        if !proposal.options.isEmpty {
-                            VStack(spacing: 8) {
-                                ForEach(proposal.options, id: \.index) { option in
-                                    optionRow(
-                                        option,
-                                        selected: selected,
-                                        isLocked: isLocked
-                                    )
+                                if !proposal.description.isEmpty {
+                                    Text(proposal.description)
+                                        .zFont(.medium, size: 14, style: Design.Text.primary)
+                                        .tracking(-0.224)
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
-                            .padding(.top, 8)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 24)
+                            .padding(.top, 12)
+
+                            if !proposal.options.isEmpty {
+                                VStack(spacing: 0) {
+                                    ForEach(Array(proposal.options.enumerated()), id: \.element.index) { offset, option in
+                                        if offset > 0 {
+                                            Divider()
+                                                .frame(height: 1)
+                                        }
+                                        optionRow(
+                                            option,
+                                            selected: selected,
+                                            isLocked: isLocked
+                                        )
+                                    }
+                                }
+                                .padding(.top, 16)
+                            }
+                        } else {
+                            Text(localizable: .coinVoteProposalDetailNotFound)
+                                .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                                .padding(.horizontal, 24)
+                                .padding(.top, 12)
                         }
-                    } else {
-                        Text("Proposal not found")
-                            .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.bottom, 96)
+                }
+                .padding(.vertical, 1)
+
+                bottomBar(forumURL: info.proposal?.forumURL)
+            }
+            .applyScreenBackground()
+            .screenTitle(info.screenTitle)
+            .zashiBackV2(customDismiss: {
+                store.send(.dismissProposalDetailStack)
+            })
+            .sheet(item: $forumURLToOpen) { wrapper in
+                InAppBrowserView(url: wrapper.url)
+            }
+            .votingSheet(
+                isPresented: skippedQuestionsSheetBinding,
+                title: String(localizable: .coinVoteProposalDetailUnansweredTitle),
+                message: skippedQuestionsSheetMessage,
+                primary: .init(
+                    title: String(localizable: .coinVoteCommonGoBack),
+                    style: .primary
+                ) {
+                    store.send(.skippedQuestionsGoBackTapped)
+                },
+                secondary: .init(
+                    title: String(localizable: .coinVoteCommonConfirm),
+                    style: .secondary
+                ) {
+                    store.send(.confirmSkippedQuestionsAndReview(roundId: roundId))
+                }
+            )
+        }
+    }
+
+    /// True only while the coordinator-owned sheet matches this round.
+    /// Scoping by `roundId` means stray ProposalDetail screens from
+    /// other rounds (e.g. after a path swap) don't accidentally render
+    /// the sheet over themselves.
+    private var skippedQuestionsSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.skippedQuestionsSheet?.roundId == roundId },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissSkippedQuestionsSheet)
+                }
+            }
+        )
+    }
+
+    /// Localized sheet body listing the 1-indexed positions of the
+    /// proposals the user hasn't answered yet. Empty fallback so the
+    /// `.votingSheet` modifier doesn't crash during its dismiss
+    /// animation when the state has just been cleared.
+    private var skippedQuestionsSheetMessage: String {
+        guard let sheet = store.skippedQuestionsSheet else { return "" }
+        let joined = sheet.skippedDisplayIndices
+            .map(String.init)
+            .joined(separator: ", ")
+        return String(localizable: .coinVoteProposalDetailSkippedMessage(joined))
+    }
+
+    /// Bundles the current proposal and its 1-indexed screen title.
+    /// Packing them into one helper keeps the body builder under the
+    /// SwiftUI inference budget so the view type stays resolvable.
+    /// The Next CTA's destination is decided by the coordinator now —
+    /// the view just dispatches an action with the current proposal id.
+    private struct ProposalInfo {
+        let proposal: VotingProposal?
+        let screenTitle: String
+    }
+
+    private func proposalInfo(in proposals: [VotingProposal]) -> ProposalInfo {
+        guard let position = proposals.firstIndex(where: { $0.id == proposalId }) else {
+            return ProposalInfo(
+                proposal: nil,
+                screenTitle: String(localizable: .coinVoteCommonScreenTitle)
+            )
+        }
+        let title = String(
+            localizable: .coinVoteProposalDetailPosition(
+                String(position + 1),
+                String(proposals.count)
+            )
+        )
+        return ProposalInfo(
+            proposal: proposals[position],
+            screenTitle: title
+        )
+    }
+
+    /// Sticky bottom region. Hosts the optional "View Forum Discussion" row
+    /// (when the proposal carries a `forumURL`) above the Next CTA. The Next
+    /// CTA is hidden in `.reviewDrafts` mode — the user opens detail from
+    /// the Review screen one proposal at a time and exits with X. The
+    /// forum row stays visible in every mode so users can always read the
+    /// upstream discussion before deciding (or while reviewing).
+    @ViewBuilder
+    private func bottomBar(forumURL: URL?) -> some View {
+        let showNext = mode != .reviewDrafts
+        if forumURL != nil || showNext {
+            VStack(spacing: 12) {
+                if let forumURL {
+                    forumDiscussionRow(url: forumURL)
+                }
+                if showNext {
+                    ZashiButton(String(localizable: .coinVoteCommonNext)) {
+                        store.send(
+                            .proposalDetailNextTapped(
+                                roundId: roundId,
+                                currentProposalId: proposalId
+                            )
+                        )
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 12)
-                .padding(.bottom, 24)
             }
-            .padding(.vertical, 1)
-            .applyScreenBackground()
-            .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
-            .zashiBack()
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+            .padding(.top, 8)
+            .background(
+                LinearGradient(
+                    colors: [
+                        Design.Surfaces.bgPrimary.color(colorScheme).opacity(0),
+                        Design.Surfaces.bgPrimary.color(colorScheme).opacity(0.95)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
         }
+    }
+
+    /// Tap target for the in-app browser launch. Icon-bubble + label +
+    /// chevron, matching the Figma cell. Whole row is one button so the
+    /// hit-test area is comfortable on a phone.
+    private func forumDiscussionRow(url: URL) -> some View {
+        Button {
+            forumURLToOpen = ForumURL(url: url)
+        } label: {
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(Design.Surfaces.bgTertiary.color(colorScheme))
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "bubble.left")
+                        .font(.system(size: 18, weight: .regular))
+                        .foregroundStyle(Design.Text.primary.color(colorScheme))
+                }
+
+                Text(localizable: .coinVoteProposalDetailViewForumDiscussion)
+                    .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                    .tracking(-0.256)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Design.Text.tertiary.color(colorScheme))
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder
@@ -97,15 +264,24 @@ struct ProposalDetailView: View {
             // draft here would make the review state diverge from what was
             // already accepted by the voting backend.
             guard !isLocked else { return }
-            store.send(
-                .draftVoteSet(
-                    roundId: roundId,
-                    proposalId: proposalId,
-                    choice: .option(option.index)
+            if isSelected {
+                // Tap-to-toggle: re-tapping the active choice wipes the
+                // draft so the user can leave a question unanswered without
+                // having to settle on a different option.
+                store.send(
+                    .clearDraftVote(roundId: roundId, proposalId: proposalId)
                 )
-            )
+            } else {
+                store.send(
+                    .draftVoteSet(
+                        roundId: roundId,
+                        proposalId: proposalId,
+                        choice: .option(option.index)
+                    )
+                )
+            }
         } label: {
-            HStack(spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 ZStack {
                     Circle()
                         .stroke(
@@ -122,23 +298,26 @@ struct ProposalDetailView: View {
                     }
                 }
 
-                Text(option.label)
-                    .zFont(.medium, size: 16, style: Design.Text.primary)
-                    .tracking(-0.256)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(option.label)
+                        .zFont(.semiBold, size: 16, style: Design.Text.primary)
+                        .tracking(-0.256)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let description = option.description?
+                        .trimmingCharacters(in: .whitespacesAndNewlines),
+                       !description.isEmpty {
+                        Text(description)
+                            .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                            .tracking(-0.224)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(Design.Spacing._xl)
-            .background(Design.Surfaces.bgPrimary.color(colorScheme))
-            .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-            .overlay(
-                RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                    .stroke(
-                        isSelected
-                            ? Design.Text.primary.color(colorScheme)
-                            : Design.Surfaces.strokeSecondary.color(colorScheme),
-                        lineWidth: isSelected ? 2 : 1
-                    )
-            )
+            .padding(.horizontal, 24)
+            .padding(.vertical, 16)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .disabled(isLocked)
