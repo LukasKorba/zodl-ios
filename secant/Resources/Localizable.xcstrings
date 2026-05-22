@@ -4,11 +4,24 @@
     " %@" : {
 
     },
+    "#%@" : {
+
+    },
     "%" : {
 
     },
     "%@" : {
 
+    },
+    "%@ · %@ ZEC" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · %2$@ ZEC"
+          }
+        }
+      }
     },
     "%@ / %@" : {
       "localizations" : {
@@ -1241,6 +1254,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Try again"
+          }
+        }
+      }
+    },
+    "coinVote.common.viewLess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View less"
+          }
+        }
+      }
+    },
+    "coinVote.common.viewMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View more"
           }
         }
       }
@@ -2773,6 +2808,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start Voting"
+          }
+        }
+      }
+    },
+    "coinVote.proposalList.headerEndsAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends %@"
           }
         }
       }

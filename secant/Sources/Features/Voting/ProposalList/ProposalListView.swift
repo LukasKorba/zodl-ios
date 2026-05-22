@@ -5,6 +5,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+@preconcurrency import ZcashLightClientKit
 
 /// Proposal list for a single voting round.
 ///
@@ -51,6 +52,9 @@ struct ProposalListView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         header(
                             title: item?.title ?? "",
+                            description: item?.session.description ?? "",
+                            snapshotHeight: item?.session.snapshotHeight ?? 0,
+                            voteEndTime: item?.session.voteEndTime ?? Date(),
                             weight: weight,
                             ready: mode == .review || pipelineReady
                         )
@@ -93,16 +97,47 @@ struct ProposalListView: View {
     }
 
     @ViewBuilder
-    private func header(title: String, weight: UInt64, ready: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .zFont(.semiBold, size: 24, style: Design.Text.primary)
-                .tracking(-0.384)
-                .fixedSize(horizontal: false, vertical: true)
+    private func header(
+        title: String,
+        description: String,
+        snapshotHeight: UInt64,
+        voteEndTime: Date,
+        weight: UInt64,
+        ready: Bool
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Row 1: poll title (left) + snapshot block number (right)
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                Text(title)
+                    .zFont(.semiBold, size: 20, style: Design.Text.primary)
+                    .tracking(-0.384)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
+                Text("#\(snapshotHeight)")
+                    .zFont(.medium, size: 20, style: Design.Text.primary)
+                    .tracking(-0.224)
+            }
+
+            // Row 2: end date + voting power + days left.
+            // While the pipeline is still preparing, show the spinner row
+            // instead so the user knows their voting power is being computed.
             if ready {
-                Text(localizable: .coinVoteProposalListVotingPower(String(weight)))
-                    .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(
+                        "\(String(localizable: .coinVoteProposalListHeaderEndsAt(formattedEndDate(voteEndTime)))) · \(String(localizable: .coinVoteProposalListVotingPower(formattedZec(zatoshi: weight)))) ZEC"
+                    )
+                    .zFont(.medium, size: 12, style: Design.Text.tertiary)
+                    .tracking(-0.224)
+                    .minimumScaleFactor(0.75)
+                    .fixedSize(horizontal: false, vertical: false)
+
+                    Spacer(minLength: 8)
+
+                    Text(daysLeftLabel(until: voteEndTime))
+                        .zFont(.medium, size: 12, style: Design.Text.tertiary)
+                        .tracking(-0.224)
+                }
             } else {
                 HStack(spacing: 8) {
                     ProgressView()
@@ -112,6 +147,14 @@ struct ProposalListView: View {
                 }
             }
 
+            // Row 3: poll description (only when non-empty). Starts collapsed
+            // to 2 lines with a "View more" affordance; expands with an
+            // animation. Toggle is only rendered when the text actually
+            // overflows the collapsed limit.
+            if !description.isEmpty {
+                ExpandableText(text: description, collapsedLineLimit: 2)
+            }
+
             if mode == .review {
                 Text(localizable: .coinVoteProposalListReviewSubmitted)
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
@@ -119,6 +162,36 @@ struct ProposalListView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 8)
+    }
+
+    /// "Apr 1, 2026"-style date string for the header end-date cell.
+    private func formattedEndDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d, yyyy"
+        return formatter.string(from: date)
+    }
+
+    /// Voting power is stored as UInt64 zatoshi; the header copy shows ZEC.
+    /// Uses the standard wallet formatter so values like 12_500_000 zatoshi
+    /// render as `0.125`, matching the ineligible sheet's number style.
+    private func formattedZec(zatoshi: UInt64) -> String {
+        Zatoshi(Int64(zatoshi)).decimalZashiFormatted()
+    }
+
+    /// Localized "X day(s) left" / "Ended" label off `voteEndTime`. Singular
+    /// vs plural branches by Swift to match the catalog's `timeLeftDay` /
+    /// `timeLeftDays` keys.
+    private func daysLeftLabel(until endDate: Date) -> String {
+        let now = Date()
+        if endDate <= now {
+            return String(localizable: .coinVoteProposalListTimeLeftEnded)
+        }
+        let seconds = endDate.timeIntervalSince(now)
+        let days = max(1, Int(ceil(seconds / 86_400)))
+        if days == 1 {
+            return String(localizable: .coinVoteProposalListTimeLeftDay(String(days)))
+        }
+        return String(localizable: .coinVoteProposalListTimeLeftDays(String(days)))
     }
 
     @ViewBuilder
@@ -132,7 +205,7 @@ struct ProposalListView: View {
             Text(proposal.title)
                 .zFont(.semiBold, size: 16, style: Design.Text.primary)
                 .tracking(-0.256)
-                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(1)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
             if !proposal.description.isEmpty {
@@ -306,3 +379,116 @@ struct ProposalListView: View {
         )
     }
 }
+
+/// Long-form text that starts collapsed at `collapsedLineLimit` lines and
+/// reveals the rest with a "View more" / "View less" toggle. The toggle
+/// only appears when the text actually overflows the collapsed limit —
+/// computed from intrinsic (off-screen) heights so the verdict doesn't
+/// flip when the visible text expands. Animates between states on tap.
+private struct ExpandableText: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let text: String
+    let collapsedLineLimit: Int
+
+    @State private var isExpanded: Bool = false
+    @State private var fullIntrinsicHeight: CGFloat = 0
+    @State private var collapsedIntrinsicHeight: CGFloat = 0
+
+    /// True when the un-truncated text is taller than the same text rendered
+    /// at the collapsed line limit — i.e. there's something to expand. Both
+    /// heights are measured invisibly so the verdict is independent of the
+    /// current `isExpanded` state.
+    private var isTruncated: Bool {
+        fullIntrinsicHeight > collapsedIntrinsicHeight + 0.5
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(text)
+                .zFont(.medium, size: 14, style: Design.Text.primary)
+                .tracking(-0.224)
+                .lineLimit(isExpanded ? nil : collapsedLineLimit)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(truncationProbe)
+                .animation(.easeInOut(duration: 0.25), value: isExpanded)
+
+            // Two-way affordance: "View more ▼" when collapsed,
+            // "View less ▲" when expanded. Toggle is rendered only when
+            // the text actually overflows the collapsed line limit.
+            if isTruncated {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(isExpanded
+                             ? String(localizable: .coinVoteCommonViewLess)
+                             : String(localizable: .coinVoteCommonViewMore))
+                            .zFont(.semiBold, size: 14, style: Design.Text.primary)
+                            .tracking(-0.224)
+                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Design.Text.primary.color(colorScheme))
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    /// Two hidden text probes layered behind the visible label: one rendered
+    /// at full intrinsic height (no line limit) and one clamped to the
+    /// collapsed line limit. Reporting via preference keys keeps the values
+    /// stable across expand / collapse toggles.
+    private var truncationProbe: some View {
+        ZStack(alignment: .topLeading) {
+            Text(text)
+                .zFont(.medium, size: 14, style: Design.Text.primary)
+                .tracking(-0.224)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: ExpandableTextFullHeightKey.self,
+                            value: geo.size.height
+                        )
+                    }
+                )
+
+            Text(text)
+                .zFont(.medium, size: 14, style: Design.Text.primary)
+                .tracking(-0.224)
+                .lineLimit(collapsedLineLimit)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: ExpandableTextCollapsedHeightKey.self,
+                            value: geo.size.height
+                        )
+                    }
+                )
+        }
+        .hidden()
+        .onPreferenceChange(ExpandableTextFullHeightKey.self) { fullIntrinsicHeight = $0 }
+        .onPreferenceChange(ExpandableTextCollapsedHeightKey.self) { collapsedIntrinsicHeight = $0 }
+    }
+}
+
+private struct ExpandableTextFullHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct ExpandableTextCollapsedHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
