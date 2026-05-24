@@ -235,6 +235,7 @@ enum KeystoneSigningStatus: Equatable {
     case preparingRequest
     case awaitingSignature
     case parsingSignature
+    case finalizingAuthorization
     case failed(String)
 }
 

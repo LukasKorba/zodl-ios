@@ -47,6 +47,12 @@ struct VotingCoordFlowView: View {
                             roundId: scoped.roundId,
                             mode: .review
                         )
+                    case let .reviewDrafts(scoped):
+                        ProposalListView(
+                            store: store,
+                            roundId: scoped.roundId,
+                            mode: .reviewDrafts
+                        )
                     case let .confirmSubmission(scoped):
                         ConfirmSubmissionView(store: store, roundId: scoped.roundId)
                     case let .delegationSigning(scoped):
@@ -89,14 +95,18 @@ struct VotingCoordFlowView: View {
         case let .error(message):
             VotingErrorView(
                 store: store,
-                title: "Something went wrong",
+                title: String(localizable: .coinVoteErrorTitle),
                 message: message
             )
         case let .configError(message):
             VotingErrorView(
                 store: store,
-                title: "Voting unavailable",
-                message: message
+                title: String(localizable: .coinVoteErrorConfigUnavailableTitle),
+                message: message,
+                recoveryAction: .init(
+                    title: String(localizable: .coinVoteErrorChangeDataSource),
+                    action: .openConfigSettings
+                )
             )
         }
     }

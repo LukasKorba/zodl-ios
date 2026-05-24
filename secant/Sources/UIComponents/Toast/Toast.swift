@@ -37,22 +37,7 @@ struct Toast: ViewModifier {
                         Spacer()
                     }
                     
-                    if #available(iOS 26.0, *) {
-                        Text(message)
-                            .zFont(size: 14, style: Design.Btns.Primary.bg)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .glassEffect()
-                    } else {
-                        Text(message)
-                            .zFont(size: 14, style: Design.Btns.Primary.fg)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
-                            .background {
-                                RoundedRectangle(cornerRadius: Design.Radius._xl)
-                                    .fill(Design.Btns.Primary.bg.color(colorScheme))
-                            }
-                    }
+                    toastLabel(message)
                     
                     if top {
                         Spacer()
@@ -104,6 +89,34 @@ struct Toast: ViewModifier {
             case .none: break
             }
         }
+    }
+
+    @ViewBuilder
+    private func toastLabel(_ message: String) -> some View {
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            Text(message)
+                .zFont(size: 14, style: Design.Btns.Primary.bg)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .glassEffect()
+        } else {
+            fallbackToastLabel(message)
+        }
+        #else
+        fallbackToastLabel(message)
+        #endif
+    }
+
+    private func fallbackToastLabel(_ message: String) -> some View {
+        Text(message)
+            .zFont(size: 14, style: Design.Btns.Primary.fg)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background {
+                RoundedRectangle(cornerRadius: Design.Radius._xl)
+                    .fill(Design.Btns.Primary.bg.color(colorScheme))
+            }
     }
 }
 

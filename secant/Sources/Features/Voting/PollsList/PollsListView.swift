@@ -5,6 +5,7 @@
 
 import SwiftUI
 import ComposableArchitecture
+@preconcurrency import ZcashLightClientKit
 
 /// Renders the list of voting rounds returned by the voting service.
 ///
@@ -71,7 +72,77 @@ struct PollsListView: View {
                     store.send(.dismissFlow)
                 }
             )
+            .votingSheet(
+                isPresented: ineligibleSheetBinding,
+                title: String(localizable: .coinVotePollsListInsufficientBalanceTitle),
+                message: ineligibleSheetMessage,
+                primary: .init(title: String(localizable: .coinVoteCommonGotIt), style: .primary) {
+                    store.send(.dismissIneligibleSheet)
+                },
+                secondary: nil
+            )
+            .votingSheet(
+                isPresented: walletSyncingSheetBinding,
+                title: String(localizable: .coinVoteWalletSyncingTitle),
+                message: String(localizable: .coinVoteWalletSyncingSubtitle),
+                primary: .init(title: String(localizable: .coinVoteCommonGotIt), style: .primary) {
+                    store.send(.dismissWalletSyncingSheet)
+                },
+                secondary: nil
+            )
         }
+    }
+
+    private var ineligibleSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.ineligibleSheet != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissIneligibleSheet)
+                }
+            }
+        )
+    }
+
+    private var walletSyncingSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.walletSyncingSheetRoundId != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissWalletSyncingSheet)
+                }
+            }
+        )
+    }
+
+    /// Renders the body copy with the held balance, snapshot height, and
+    /// minimum required balance for the active sheet. Falls back to an
+    /// empty string when the sheet isn't presented so the modifier doesn't
+    /// crash during the dismiss animation.
+    private var ineligibleSheetMessage: String {
+        guard let data = store.ineligibleSheet else { return "" }
+        let formatHeight: (UInt64) -> String = { height in
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.usesGroupingSeparator = true
+            return formatter.string(from: NSNumber(value: height)) ?? String(height)
+        }
+        let formatZec: (UInt64) -> String = { zatoshi in
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.minimumFractionDigits = 3
+            formatter.maximumFractionDigits = 3
+            formatter.usesGroupingSeparator = true
+            let value = Zatoshi(Int64(zatoshi)).decimalValue.roundedZec
+            return formatter.string(from: value) ?? "0.000"
+        }
+        return String(
+            localizable: .coinVotePollsListInsufficientBalanceMessage(
+                formatZec(data.heldZatoshi),
+                formatHeight(data.snapshotHeight),
+                formatZec(data.minimumZatoshi)
+            )
+        )
     }
 
     @ViewBuilder
@@ -162,16 +233,10 @@ struct PollsListView: View {
             }
 
             if !item.session.description.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(localizable: .coinVoteCommonPollDescription)
-                        .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                        .tracking(-0.224)
-
-                    Text(item.session.description)
-                        .zFont(.medium, size: 14, style: Design.Text.primary)
-                        .tracking(-0.224)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                Text(item.session.description)
+                    .zFont(.medium, size: 14, style: Design.Text.primary)
+                    .tracking(-0.224)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             HStack(alignment: .center, spacing: 12) {
@@ -190,6 +255,11 @@ struct PollsListView: View {
                 ) {
                     tapPollCard(for: item, state: state)
                 }
+                // Suppress the button while the in-flight eligibility check
+                // resolves so a rapid double-tap doesn't kick off a second
+                // pipeline. The check is local and fast, so no spinner is
+                // needed — visually the button just briefly can't be tapped.
+                .disabled(state == .active && store.checkingEligibilityRoundId == item.id)
             }
             .frame(maxWidth: .infinity)
         }

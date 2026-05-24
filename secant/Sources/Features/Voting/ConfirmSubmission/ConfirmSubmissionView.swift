@@ -32,6 +32,7 @@ struct ConfirmSubmissionView: View {
             let submittedVotes = session?.votes ?? [:]
             let bundleCount = session?.bundleCount ?? 0
             let delegationStatus = session?.delegationProofStatus ?? .notStarted
+            let isKeystoneUser = store.isKeystoneUser
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -40,7 +41,8 @@ struct ConfirmSubmissionView: View {
                         detailsCard(
                             status: status,
                             pollTitle: pollTitle,
-                            weightString: weightString
+                            weightString: weightString,
+                            isKeystoneUser: isKeystoneUser
                         )
                         .padding(.top, 24)
                     }
@@ -153,7 +155,8 @@ struct ConfirmSubmissionView: View {
     private func detailsCard(
         status: BatchSubmissionStatus,
         pollTitle: String,
-        weightString: String
+        weightString: String,
+        isKeystoneUser: Bool
     ) -> some View {
         let isIdle: Bool = {
             if case .idle = status { return true }
@@ -168,7 +171,7 @@ struct ConfirmSubmissionView: View {
 
             detailsDivider()
 
-            if isIdle {
+            if isIdle && !isKeystoneUser {
                 memoRow(pollTitle: pollTitle, weightString: weightString)
             } else {
                 detailRow(
@@ -340,7 +343,7 @@ struct ConfirmSubmissionView: View {
 
         case .completed:
             ZashiButton(String(localizable: .coinVoteCommonDone)) {
-                store.send(.dismissFlow)
+                store.send(.submissionDoneTapped(roundId: roundId))
             }
         }
     }

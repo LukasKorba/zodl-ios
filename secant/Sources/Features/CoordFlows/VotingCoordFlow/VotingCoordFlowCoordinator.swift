@@ -194,7 +194,7 @@ extension VotingCoordFlow {
                 }
                 state.voteRecords = records
 
-                state.rootScreen = state.allRounds.isEmpty ? .noRounds : .pollsList
+                state.rootScreen = visibleRoundCount(state: state) == 0 ? .noRounds : .pollsList
 
                 // If the user is currently on TallyingView for a round whose
                 // status just flipped to .finalized, swap the topmost path
@@ -232,6 +232,16 @@ extension VotingCoordFlow {
 
             case let .zodlEndorsementsLoaded(ids):
                 state.zodlEndorsedRoundIds = ids
+                // Re-evaluate the empty state — when the endorsements set
+                // arrives after `.allRoundsLoaded` and its intersection
+                // with `allRounds` is empty (no endorsed rounds at all on
+                // prod, for example), the polls list would otherwise stay
+                // on the loading skeleton forever because
+                // `PollsListView.visiblePolls` becomes empty.
+                if state.rootScreen == .pollsList,
+                   visibleRoundCount(state: state) == 0 {
+                    state.rootScreen = .noRounds
+                }
                 return .none
 
             case .zodlEndorsementsFailed:
@@ -265,6 +275,10 @@ extension VotingCoordFlow {
                 state.pendingBatchSubmission = false
                 state.pollClosedAlert = nil
                 state.pollClosedRoundId = nil
+                state.ineligibleSheet = nil
+                state.checkingEligibilityRoundId = nil
+                state.walletSyncingSheetRoundId = nil
+                state.skippedQuestionsSheet = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
                     .cancel(id: cancelSubmissionId),
@@ -274,6 +288,17 @@ extension VotingCoordFlow {
                     .cancel(id: cancelNewRoundPollingId),
                     .cancel(id: cancelShareTrackingId)
                 )
+
+            case let .submissionDoneTapped(roundId):
+                // Pop the ConfirmSubmission/Review stack and land the user
+                // on the round's read-only ProposalList. Mirrors the agency
+                // `.doneTapped` behavior — round cache and share-tracking
+                // poll stay alive so unconfirmed shares keep recovering.
+                state.path.removeAll()
+                state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
+                state.pendingBatchSubmission = false
+                state.skippedQuestionsSheet = nil
+                return .none
 
             case .howToVoteContinueTapped:
                 if state.isKeystoneUser {
@@ -315,13 +340,13 @@ extension VotingCoordFlow {
                             loadSubmittedVotesFromDb(roundId: roundId)
                         )
                     }
-                    state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
-                    // Cache check: skip pipeline if hotkey is already
-                    // populated for this round. Re-entry within the same
-                    // session is instant.
+                    // Cache hit (hotkey + bundles ready): eligibility is
+                    // already proven for this session, push the proposal
+                    // list immediately — no spinner needed.
                     if let cached = state.roundCache[roundId],
                        cached.hotkeyAddress != nil,
                        cached.bundleCount > 0 {
+                        state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
                         return .merge(
                             cancelShareTracking,
                             .cancel(id: cancelNewRoundPollingId),
@@ -329,6 +354,12 @@ extension VotingCoordFlow {
                             loadSubmittedVotesFromDb(roundId: roundId)
                         )
                     }
+                    // No cache: keep the user on the polls list with an
+                    // in-button spinner on this row while the pipeline
+                    // resolves eligibility. The push to `.proposalList`
+                    // happens in `.votingWeightLoaded`; ineligibility opens
+                    // the sheet via `.ineligibleForRound`.
+                    state.checkingEligibilityRoundId = roundId
                     return .merge(
                         cancelShareTracking,
                         .cancel(id: cancelNewRoundPollingId),
@@ -340,12 +371,20 @@ extension VotingCoordFlow {
                     state.path.append(.tallying(Tallying.State(roundId: roundId)))
                     return cancelShareTracking
                 case .finalized:
+                    // Hydrate the user's persisted per-proposal choices so
+                    // ResultsView can render the "Voted: <option>" footer
+                    // on each card — same pattern as the active-and-voted
+                    // branch above. Without this, `RoundSession.votes` is
+                    // empty for rounds the user voted in on a previous
+                    // session.
+                    hydratePersistedRoundChoices(&state, roundId: roundId)
                     state.path.append(.results(Results.State(roundId: roundId)))
                     return .merge(
                         cancelShareTracking,
                         .cancel(id: cancelStatusPollingId),
                         .send(.fetchTallyResults(roundId: roundId)),
-                        .send(.startNewRoundPolling)
+                        .send(.startNewRoundPolling),
+                        loadSubmittedVotesFromDb(roundId: roundId)
                     )
                 case .unspecified:
                     return .none
@@ -379,9 +418,12 @@ extension VotingCoordFlow {
                 return .none
 
             case let .submitTapped(roundId):
+                // Partial ballots are allowed: the user has acknowledged any
+                // skipped questions via the ProposalDetail skipped-questions
+                // sheet. Only require a non-empty drafts set and a ready
+                // submission pipeline.
                 guard let session = state.roundCache[roundId],
-                      canStartSubmission(session),
-                      hasCompleteBallot(session: session, state: state, roundId: roundId)
+                      canStartSubmission(session)
                 else { return .none }
                 state.path.append(.confirmSubmission(ConfirmSubmission.State(roundId: roundId)))
                 return .none
@@ -571,6 +613,7 @@ extension VotingCoordFlow {
                 else {
                     return .none
                 }
+                let restoredAllBundles = UInt32(validSignatures.count) >= session.bundleCount
                 mutateSession(&state, roundId: roundId) { roundSession in
                     roundSession.keystoneBundleSignatures = validSignatures.map {
                         KeystoneBundleSignature(sig: $0.sig, sighash: $0.sighash, rk: $0.rk)
@@ -578,9 +621,11 @@ extension VotingCoordFlow {
                     roundSession.currentKeystoneBundleIndex = UInt32(validSignatures.count)
                     roundSession.pendingVotingPczt = nil
                     roundSession.pendingUnsignedDelegationPczt = nil
-                    roundSession.keystoneSigningStatus = .idle
+                    roundSession.keystoneSigningStatus = restoredAllBundles
+                        ? .finalizingAuthorization
+                        : .idle
                 }
-                if UInt32(validSignatures.count) >= session.bundleCount {
+                if restoredAllBundles {
                     mutateSession(&state, roundId: roundId) { roundSession in
                         roundSession.delegationProofStatus = .generating(progress: 0)
                         roundSession.isDelegationProofInFlight = true
@@ -726,6 +771,8 @@ extension VotingCoordFlow {
                     state.roundCache[roundId] = RoundSession(roundId: roundId)
                 }
                 state.pendingPipelineRoundId = roundId
+                state.ineligibleSheet = nil
+                state.walletSyncingSheetRoundId = nil
 
                 return .run { [votingCrypto, votingAPI, mnemonic, walletStorage, sdkSynchronizer] send in
                     // 1. Wallet sync gate.
@@ -767,10 +814,11 @@ extension VotingCoordFlow {
                         accountUUID
                     )
                     if notes.isEmpty {
-                        await send(.ineligibleForRound(roundId: roundId))
+                        await send(.ineligibleForRound(roundId: roundId, heldZatoshi: 0))
                         return
                     }
 
+                    let heldZatoshi = notes.reduce(UInt64(0)) { $0 + $1.value }
                     let existingState = try? await votingCrypto.getRoundState(roundId)
                     let existingBundleCount = (try? await votingCrypto.getBundleCount(roundId)) ?? 0
                     var preClearKeystoneSignatures: [KeystoneBundleSignatureInfo] = []
@@ -783,9 +831,10 @@ extension VotingCoordFlow {
                         shouldRestoreKeystoneSignatures = false
                         let eligibleWeight = Self.votingWeight(for: notes, bundleCount: bundleCount)
                         guard bundleCount > 0, eligibleWeight > 0 else {
-                            await send(.ineligibleForRound(roundId: roundId))
+                            await send(.ineligibleForRound(roundId: roundId, heldZatoshi: heldZatoshi))
                             return
                         }
+                        await send(.earlyEligibilityConfirmed(roundId: roundId))
                         await send(.votingWeightLoaded(
                             roundId: roundId,
                             weight: eligibleWeight,
@@ -820,9 +869,10 @@ extension VotingCoordFlow {
                         if recoveredBundleCount > 0 {
                             let eligibleWeight = Self.votingWeight(for: notes, bundleCount: existingBundleCount)
                             guard eligibleWeight > 0 else {
-                                await send(.ineligibleForRound(roundId: roundId))
+                                await send(.ineligibleForRound(roundId: roundId, heldZatoshi: heldZatoshi))
                                 return
                             }
+                            await send(.earlyEligibilityConfirmed(roundId: roundId))
                             await send(.votingWeightLoaded(
                                 roundId: roundId,
                                 weight: eligibleWeight,
@@ -912,27 +962,20 @@ extension VotingCoordFlow {
                 }
                 .cancellable(id: cancelPipelineId, cancelInFlight: true)
 
-            case let .walletNotSynced(roundId, scannedHeight, snapshotHeight):
-                // Pop any pushed screens — the user can't proceed into the
-                // round until the wallet catches up. Show the WalletSyncing
-                // root. Once synced, the polling loop restarts the pipeline
-                // and re-pushes the proposal list.
+            case let .walletNotSynced(roundId, scannedHeight, _):
+                // Pop any pushed screens (none expected with deferred-nav,
+                // but defensive) and surface the explanation as a bottom
+                // sheet on the polls list. The user dismisses with "Got it"
+                // and can re-tap Enter Poll later; we deliberately don't
+                // background-poll the SDK sync state from here — the SDK
+                // continues catching up on its own, and the next Enter Poll
+                // tap re-runs the pipeline.
                 state.path.removeAll()
                 state.walletScannedHeight = scannedHeight
-                state.pendingPipelineRoundId = roundId
-                state.rootScreen = .walletSyncing
-                return .run { [sdkSynchronizer] send in
-                    while !Task.isCancelled {
-                        try await Task.sleep(for: .seconds(2))
-                        let height = UInt64(sdkSynchronizer.latestState().fullyScannedHeight)
-                        await send(.walletSyncProgressUpdated(height: height))
-                        if height >= snapshotHeight {
-                            await send(.startActiveRoundPipeline(roundId: roundId))
-                            return
-                        }
-                    }
-                } catch: { _, _ in }
-                .cancellable(id: cancelPipelineId, cancelInFlight: true)
+                state.checkingEligibilityRoundId = nil
+                state.pendingPipelineRoundId = nil
+                state.walletSyncingSheetRoundId = roundId
+                return .cancel(id: cancelPipelineId)
 
             case .walletSyncProgressUpdated(let height):
                 state.walletScannedHeight = height
@@ -972,6 +1015,20 @@ extension VotingCoordFlow {
                 }
                 return .none
 
+            case let .earlyEligibilityConfirmed(roundId):
+                // Fast-path handoff: the pipeline has just confirmed the
+                // wallet has at least one viable bundle for this round. Push
+                // the proposal list now (its own "Preparing your voting
+                // power…" indicator covers the remaining 30–120 s witness
+                // / tree-state work). No spinner on the polls list button is
+                // needed because reaching this point is a local DB + Rust
+                // bundling decision — sub-second under normal conditions.
+                if state.checkingEligibilityRoundId == roundId {
+                    state.checkingEligibilityRoundId = nil
+                    state.path.append(.proposalList(ProposalList.State(roundId: roundId)))
+                }
+                return .none
+
             case let .hotkeyLoaded(roundId, address):
                 state.roundCache[roundId, default: RoundSession(roundId: roundId)].hotkeyAddress = address
                 if state.pendingPipelineRoundId == roundId {
@@ -986,6 +1043,9 @@ extension VotingCoordFlow {
                 // by tapping the round again.
                 if state.pendingPipelineRoundId == roundId {
                     state.pendingPipelineRoundId = nil
+                }
+                if state.checkingEligibilityRoundId == roundId {
+                    state.checkingEligibilityRoundId = nil
                 }
                 state.path.removeAll()
                 state.rootScreen = .error(message)
@@ -1024,17 +1084,25 @@ extension VotingCoordFlow {
                 }
                 return .none
 
-            case let .ineligibleForRound(roundId):
+            case let .ineligibleForRound(roundId, heldZatoshi):
                 // No eligible notes at the snapshot height (no notes at all,
-                // or every bundle dropped below ballotDivisor). Swap the
-                // proposal list at the top of the path for IneligibleView
-                // so the user sees the terminal explanation instead of
-                // sitting in the "Preparing your voting power…" header
-                // forever.
+                // or every bundle dropped below ballotDivisor). With the
+                // deferred-navigation flow we typically never pushed the
+                // proposal list — but pop defensively in case the pipeline
+                // landed here from the wallet-sync resume path which does
+                // push proactively.
+                state.checkingEligibilityRoundId = nil
                 if case .proposalList = state.path.last {
                     _ = state.path.popLast()
                 }
-                state.path.append(.ineligible(Ineligible.State(roundId: roundId)))
+                let snapshotHeight = state.allRounds
+                    .first { $0.id == roundId }?
+                    .session.snapshotHeight ?? 0
+                state.ineligibleSheet = IneligibleSheetData(
+                    heldZatoshi: heldZatoshi,
+                    snapshotHeight: snapshotHeight,
+                    minimumZatoshi: ballotDivisor
+                )
                 return .cancel(id: cancelPipelineId)
 
             case let .startRoundStatusPolling(roundId):
@@ -1201,6 +1269,112 @@ extension VotingCoordFlow {
             case let .pollShareStatus(roundId):
                 return reducePollShareStatus(&state, roundId: roundId)
 
+            case .dismissIneligibleSheet:
+                state.ineligibleSheet = nil
+                return .none
+
+            case .dismissWalletSyncingSheet:
+                state.walletSyncingSheetRoundId = nil
+                return .none
+
+            case .dismissProposalDetailStack:
+                // Pops every `.proposalDetail` entry off the top of the
+                // navigation stack so the X close button on
+                // ProposalDetailView returns the user to the Proposal List
+                // (or ReviewVotes) in one tap regardless of how deep the
+                // chain of details they walked through with Next is.
+                while case .proposalDetail = state.path.last {
+                    _ = state.path.popLast()
+                }
+                return .none
+
+            case let .openReviewDraftsScreen(roundId):
+                state.path.append(.reviewDrafts(ReviewDrafts.State(roundId: roundId)))
+                return .none
+
+            case let .proposalDetailNextTapped(roundId, currentProposalId):
+                // Drives the sticky Next CTA on ProposalDetailView:
+                //   - if there's a next proposal → push it
+                //   - else if every proposal has an answer → route to the
+                //     "Review and submit vote" screen
+                //   - else → surface the unanswered-questions sheet so the
+                //     user can choose to continue without those answers or
+                //     go back to fill them in. We never auto-select a
+                //     choice on their behalf.
+                guard let proposals = state.allRounds
+                    .first(where: { $0.id == roundId })?
+                    .session.proposals,
+                    let currentIndex = proposals.firstIndex(where: { $0.id == currentProposalId })
+                else {
+                    return .none
+                }
+                let nextIndex = currentIndex + 1
+                if nextIndex < proposals.count {
+                    let detailMode: ProposalDetail.Mode
+                    if case .proposalDetail(let scoped) = state.path.last {
+                        detailMode = scoped.mode
+                    } else {
+                        detailMode = .voting
+                    }
+                    state.path.append(
+                        .proposalDetail(
+                            ProposalDetail.State(
+                                roundId: roundId,
+                                proposalId: proposals[nextIndex].id,
+                                mode: detailMode
+                            )
+                        )
+                    )
+                    return .none
+                }
+                let session = state.roundCache[roundId]
+                let drafts = session?.draftVotes ?? [:]
+                let submitted = session?.votes ?? [:]
+                let answered: (UInt32) -> Bool = { proposalId in
+                    drafts[proposalId] != nil || submitted[proposalId] != nil
+                }
+                let unansweredPositions = proposals.enumerated().compactMap { offset, proposal in
+                    answered(proposal.id) ? nil : offset + 1
+                }
+                if unansweredPositions.isEmpty {
+                    state.path.append(.reviewDrafts(ReviewDrafts.State(roundId: roundId)))
+                } else {
+                    state.skippedQuestionsSheet = SkippedQuestionsSheetData(
+                        roundId: roundId,
+                        skippedDisplayIndices: unansweredPositions
+                    )
+                }
+                return .none
+
+            case .dismissSkippedQuestionsSheet:
+                state.skippedQuestionsSheet = nil
+                return .none
+
+            case .skippedQuestionsGoBackTapped:
+                // "Go back" on the unanswered-questions sheet terminates the
+                // proposal-detail walk and returns the user to the active-
+                // voting ProposalList so they can see at a glance which
+                // questions are still unanswered. Plain sheet dismissal is
+                // handled by `.dismissSkippedQuestionsSheet` (drag-dismiss).
+                state.skippedQuestionsSheet = nil
+                while case .proposalDetail = state.path.last {
+                    _ = state.path.popLast()
+                }
+                return .none
+
+            case let .confirmSkippedQuestionsAndReview(roundId):
+                guard state.roundCache[roundId]?.draftVotes.isEmpty == false else {
+                    state.skippedQuestionsSheet = nil
+                    return .none
+                }
+                // Push the Review screen on top of the current detail stack
+                // rather than popping the details first — popping made the
+                // transition look like a "back" animation followed by a
+                // push, which read as an accidental rewind to the user.
+                state.skippedQuestionsSheet = nil
+                state.path.append(.reviewDrafts(ReviewDrafts.State(roundId: roundId)))
+                return .none
+
             case .refreshActiveRoundsList:
                 // Lightweight re-fetch used by the tallying-status poll.
                 // Reuses the same allRoundsLoaded path so we pick up any
@@ -1283,6 +1457,10 @@ extension VotingCoordFlow {
         state.pollsLoadError = false
         state.serviceConfig = nil
         state.walletScannedHeight = 0
+        state.ineligibleSheet = nil
+        state.checkingEligibilityRoundId = nil
+        state.walletSyncingSheetRoundId = nil
+        state.skippedQuestionsSheet = nil
     }
 
     private func walletId(for account: WalletAccount?) -> String {
@@ -1320,6 +1498,8 @@ extension VotingCoordFlow {
             return scoped.roundId
         case let .reviewVotes(scoped):
             return scoped.roundId
+        case let .reviewDrafts(scoped):
+            return scoped.roundId
         case let .confirmSubmission(scoped):
             return scoped.roundId
         case let .delegationSigning(scoped):
@@ -1352,6 +1532,8 @@ extension VotingCoordFlow {
         case let .proposalDetail(scoped):
             return scoped.roundId
         case let .reviewVotes(scoped):
+            return scoped.roundId
+        case let .reviewDrafts(scoped):
             return scoped.roundId
         case let .confirmSubmission(scoped):
             return scoped.roundId
@@ -1412,17 +1594,12 @@ extension VotingCoordFlow {
         guard let session = state.roundCache[roundId] else { return .none }
         guard canStartSubmission(session) else { return .none }
         guard activeSession(in: state, roundId: roundId) != nil else { return .none }
-        guard hasCompleteBallot(session: session, state: state, roundId: roundId) else {
-            let proposalCount = totalProposalsInRound(state: state, roundId: roundId)
-            mutateSession(&state, roundId: roundId) { roundSession in
-                roundSession.batchSubmissionStatus = .submissionFailed(
-                    error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
-                    submittedCount: roundSession.votes.count,
-                    totalCount: proposalCount
-                )
-            }
-            return .none
-        }
+        // Partial ballots are explicitly allowed: the user has already
+        // acknowledged any skipped questions via the ProposalDetail
+        // skipped-questions sheet. We submit only what they drafted —
+        // skipped proposals have no entry in `session.draftVotes` and are
+        // therefore never iterated by the submission loop, never marked as
+        // abstain, never auto-filled.
 
         if !state.isKeystoneUser && !state.pendingBatchSubmission {
             return .run { [localAuthentication] send in
@@ -1441,16 +1618,7 @@ extension VotingCoordFlow {
         guard let session = state.roundCache[roundId] else { return .none }
         guard canStartSubmission(session) || isBatchSubmitting(session) else { return .none }
         guard let activeSession = activeSession(in: state, roundId: roundId) else { return .none }
-        guard hasCompleteBallot(session: session, state: state, roundId: roundId) else {
-            mutateSession(&state, roundId: roundId) { roundSession in
-                roundSession.batchSubmissionStatus = .submissionFailed(
-                    error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
-                    submittedCount: roundSession.votes.count,
-                    totalCount: activeSession.proposals.count
-                )
-            }
-            return .none
-        }
+        // Partial ballots are intentional — see `reduceSubmitAllDraftsTapped`.
 
         // Keystone: route into the per-bundle QR signing screen first.
         // The actual submission resumes via `pendingBatchSubmission` after
@@ -2032,20 +2200,20 @@ extension VotingCoordFlow {
         }
     }
 
-    private static let shareCheckGrace: UInt64 = 10
+    static let shareCheckGrace: UInt64 = 10
 
-    private static func shareRecoveryBaseTime(_ share: VotingShareDelegation) -> UInt64 {
+    static func shareRecoveryBaseTime(_ share: VotingShareDelegation) -> UInt64 {
         share.submitAt > 0 ? share.submitAt : share.createdAt
     }
 
-    private static func isShareReadyForStatusCheck(
+    static func isShareReadyForStatusCheck(
         _ share: VotingShareDelegation,
         now: UInt64
     ) -> Bool {
         now >= shareRecoveryBaseTime(share) + shareCheckGrace
     }
 
-    private static func shouldResubmitShare(
+    static func shouldResubmitShare(
         _ share: VotingShareDelegation,
         now: UInt64,
         voteEndTime: UInt64
@@ -2057,7 +2225,7 @@ extension VotingCoordFlow {
         return now >= baseTime + overdueThreshold && voteEndTime > now + 10
     }
 
-    private static func pollShareStatusesForRecovery(
+    static func pollShareStatusesForRecovery(
         readyShares: [VotingShareDelegation],
         roundId: String,
         now: UInt64,
@@ -2193,9 +2361,11 @@ extension VotingCoordFlow {
         failCount: Int
     ) -> Effect<Action> {
         let account = state.selectedWalletAccount?.account
-        let proposalCount = totalProposalsInRound(state: state, roundId: roundId)
         guard var session = state.roundCache[roundId] else { return .none }
         let persistedFailureCount = session.batchVoteErrors.count
+        let submittedVoteCount = session.votes.count
+        let outstandingDraftCount = session.draftVotes.count
+        let submittedOrOutstandingCount = submittedVoteCount + outstandingDraftCount
 
         session.isSubmittingVote = false
         session.submittingProposalId = nil
@@ -2207,18 +2377,21 @@ extension VotingCoordFlow {
                 ?? String(localizable: .coinVoteSubmissionGenericBatchFailure)
             session.batchSubmissionStatus = .submissionFailed(
                 error: error,
-                submittedCount: session.votes.count,
-                totalCount: max(successCount + failCount, session.votes.count + session.draftVotes.count)
+                submittedCount: submittedVoteCount,
+                totalCount: max(successCount + failCount, submittedOrOutstandingCount)
             )
             state.roundCache[roundId] = session
             return .none
         }
 
-        guard hasCompleteSubmittedBallot(session: session, state: state, roundId: roundId) else {
+        // Partial ballots are valid. Completion means every draft the user
+        // chose to submit was accepted and moved out of `draftVotes`; skipped
+        // proposals intentionally never receive entries in `session.votes`.
+        guard outstandingDraftCount == 0, submittedVoteCount > 0 else {
             session.batchSubmissionStatus = .submissionFailed(
                 error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
-                submittedCount: session.votes.count,
-                totalCount: proposalCount
+                submittedCount: submittedVoteCount,
+                totalCount: submittedOrOutstandingCount
             )
             state.roundCache[roundId] = session
             return .none
@@ -2228,7 +2401,7 @@ extension VotingCoordFlow {
             let record = Voting.VoteRecord(
                 votedAt: Date(),
                 votingWeight: session.votingWeight,
-                proposalCount: proposalCount,
+                proposalCount: submittedVoteCount,
                 eligibleVotingWeight: state.isKeystoneUser
                     ? completedEligibleVotingWeight(session)
                     : nil,
@@ -2247,15 +2420,15 @@ extension VotingCoordFlow {
                 }
                 session.batchSubmissionStatus = .submissionFailed(
                     error: votingMetadataPersistenceMessage(error),
-                    submittedCount: session.votes.count,
-                    totalCount: proposalCount
+                    submittedCount: submittedVoteCount,
+                    totalCount: max(submittedVoteCount, session.draftVotes.count)
                 )
                 state.submissionAlert = .votingMetadataPersistenceFailed(error)
                 state.roundCache[roundId] = session
                 return .none
             }
         }
-        session.batchSubmissionStatus = .completed(successCount: successCount)
+        session.batchSubmissionStatus = .completed(successCount: submittedVoteCount)
         state.roundCache[roundId] = session
 
         if let record = session.voteRecord {
@@ -2518,7 +2691,7 @@ extension VotingCoordFlow {
             return .merge(persistEffect, .send(.startDelegationProof(roundId: roundId)))
         } else {
             mutateSession(&state, roundId: roundId) { roundSession in
-                roundSession.keystoneSigningStatus = .idle
+                roundSession.keystoneSigningStatus = .finalizingAuthorization
                 roundSession.delegationProofStatus = .generating(progress: 0)
                 roundSession.isDelegationProofInFlight = true
                 roundSession.batchSubmissionStatus = .authorizing
@@ -2672,7 +2845,7 @@ extension VotingCoordFlow {
             roundSession.votingWeight = signedWeight
             roundSession.pendingVotingPczt = nil
             roundSession.pendingUnsignedDelegationPczt = nil
-            roundSession.keystoneSigningStatus = .idle
+            roundSession.keystoneSigningStatus = .finalizingAuthorization
             roundSession.delegationProofStatus = .generating(progress: 0)
             roundSession.isDelegationProofInFlight = true
             roundSession.batchSubmissionStatus = .authorizing
@@ -2810,6 +2983,10 @@ extension VotingCoordFlow {
                 resetKeystoneSigningLoop(&roundSession, status: keystoneSigningFailureStatus)
             }
             if case .authorizing = roundSession.batchSubmissionStatus {
+                roundSession.isSubmittingVote = false
+                roundSession.submittingProposalId = nil
+                roundSession.voteSubmissionStep = nil
+                roundSession.currentVoteBundleIndex = nil
                 roundSession.batchSubmissionStatus = .authorizationFailed(error: error)
             }
         }
@@ -2953,9 +3130,16 @@ extension VotingCoordFlow {
         let bundleCount = setupResult.bundleCount
         let eligibleWeight = setupResult.eligibleWeight
         guard bundleCount > 0, eligibleWeight > 0 else {
-            await send(.ineligibleForRound(roundId: roundId))
+            let heldZatoshi = notes.reduce(UInt64(0)) { $0 + $1.value }
+            await send(.ineligibleForRound(roundId: roundId, heldZatoshi: heldZatoshi))
             return false
         }
+
+        // Early-eligibility signal: setupBundles passed, the wallet qualifies.
+        // Hand navigation off to the proposal list now so the user isn't
+        // staring at a frozen polls list while the witness / tree-state work
+        // (the slow part of the pipeline) completes.
+        await send(.earlyEligibilityConfirmed(roundId: roundId))
 
         let treeStateBytes = try await sdkSynchronizer.getTreeState(snapshotHeight)
         try await votingCrypto.storeTreeState(roundId, treeStateBytes)
@@ -2998,28 +3182,15 @@ extension VotingCoordFlow {
         state.allRounds.first { $0.id == roundId }?.session
     }
 
-    private func totalProposalsInRound(state: State, roundId: String) -> Int {
-        activeSession(in: state, roundId: roundId)?.proposals.count ?? 0
-    }
-
-    private func hasCompleteBallot(session: RoundSession, state: State, roundId: String) -> Bool {
-        guard let proposals = activeSession(in: state, roundId: roundId)?.proposals,
-              !proposals.isEmpty
-        else { return false }
-
-        return proposals.allSatisfy { proposal in
-            session.draftVotes[proposal.id] != nil || session.votes[proposal.id] != nil
-        }
-    }
-
-    private func hasCompleteSubmittedBallot(session: RoundSession, state: State, roundId: String) -> Bool {
-        guard let proposals = activeSession(in: state, roundId: roundId)?.proposals,
-              !proposals.isEmpty
-        else { return false }
-
-        return proposals.allSatisfy { proposal in
-            session.votes[proposal.id] != nil
-        }
+    /// Mirror of `PollsListView.visiblePolls` so the coordinator can route
+    /// to `.noRounds` when the user-visible list is empty — not just when
+    /// the raw `allRounds` array is. On the default config we surface only
+    /// Zodl-endorsed rounds; a chain returning rounds with zero
+    /// endorsements would otherwise leave the polls list stuck on the
+    /// loading skeleton forever.
+    private func visibleRoundCount(state: State) -> Int {
+        guard state.isOnDefaultConfig else { return state.allRounds.count }
+        return state.allRounds.filter { state.zodlEndorsedRoundIds.contains($0.id) }.count
     }
 
     private func completedEligibleVotingWeight(_ session: RoundSession) -> UInt64 {
@@ -3367,13 +3538,13 @@ extension VotingCoordFlow {
 
 // MARK: - Share delegation recovery
 
-private struct ShareDelegationKey: Equatable, Sendable {
+struct ShareDelegationKey: Equatable, Sendable {
     let bundleIndex: UInt32
     let proposalId: UInt32
     let shareIndex: UInt32
 }
 
-private struct ShareRecoveryPollResult: Equatable, Sendable {
+struct ShareRecoveryPollResult: Equatable, Sendable {
     let confirmedShares: [ShareDelegationKey]
     let resubmissionShares: [VotingShareDelegation]
     let queriedCount: Int

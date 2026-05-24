@@ -41,6 +41,12 @@ struct DelegationSigningView: View {
             let status = session?.keystoneSigningStatus ?? .idle
             let bundleCount = session?.bundleCount ?? 0
             let currentBundle = session?.currentKeystoneBundleIndex ?? 0
+            let pollTitle = store.allRounds.first { $0.id == roundId }?.title ?? ""
+            let currentBundleMemo = Self.currentBundleMemo(
+                session: session,
+                pollTitle: pollTitle
+            )
+            let isSigningRouteActive = Self.isSigningRouteActive(store.path, roundId: roundId)
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -53,20 +59,29 @@ struct DelegationSigningView: View {
                                 .padding(.top, 24)
                         }
 
-                        qrCodeSection(status: status)
-                            .padding(.top, bundleCount > 1 ? 24 : 32)
+                        if let currentBundleMemo {
+                            memoCard(memo: currentBundleMemo)
+                                .padding(.top, 16)
+                        }
 
-                        instructionText(status: status)
-                            .padding(.top, 32)
+                        if isSigningRouteActive {
+                            qrCodeSection(status: status)
+                                .padding(.top, bundleCount > 1 || currentBundleMemo != nil ? 24 : 32)
+
+                            instructionText(status: status)
+                                .padding(.top, 32)
+                        }
                     }
                     .padding(.horizontal, 24)
                 }
 
                 Spacer()
 
-                actionButtons(status: status)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
+                if isSigningRouteActive {
+                    actionButtons(status: status)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                }
             }
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonConfirmation))
@@ -148,6 +163,26 @@ struct DelegationSigningView: View {
         )
     }
 
+    @ViewBuilder
+    private func memoCard(memo: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localizable: .coinVoteDelegationSigningMemo)
+                .zFont(size: 14, style: Design.Text.tertiary)
+
+            Text(memo)
+                .zFont(.medium, size: 13, style: Design.Text.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(Design.Spacing._xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Design.Surfaces.bgPrimary.color(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
+        .overlay(
+            RoundedRectangle(cornerRadius: Design.Radius._2xl)
+                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
+        )
+    }
+
     // MARK: - QR
 
     @ViewBuilder
@@ -157,9 +192,11 @@ struct DelegationSigningView: View {
             VStack {
                 ProgressView()
                     .padding(.bottom, 8)
-                Text(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
-                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                    .multilineTextAlignment(.center)
+                if case .preparingRequest = status {
+                    Text(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
+                        .zFont(.medium, size: 13, style: Design.Text.tertiary)
+                        .multilineTextAlignment(.center)
+                }
             }
             .frame(width: 216, height: 216)
             .padding(24)
@@ -209,6 +246,25 @@ struct DelegationSigningView: View {
                     }
             }
 
+        case .finalizingAuthorization:
+            VStack {
+                ProgressView()
+                Text(localizable: .coinVoteDelegationSigningFinalizingAuthorizationEllipsis)
+                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
+            .frame(width: 216, height: 216)
+            .padding(24)
+            .background {
+                RoundedRectangle(cornerRadius: Design.Radius._xl)
+                    .fill(Asset.Colors.ZDesign.Base.bone.color)
+                    .background {
+                        RoundedRectangle(cornerRadius: Design.Radius._xl)
+                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
+                    }
+            }
+
         case .failed(let message):
             VStack {
                 Image(systemName: "exclamationmark.circle")
@@ -242,6 +298,38 @@ struct DelegationSigningView: View {
                 .fixedSize(horizontal: false, vertical: true)
         default:
             EmptyView()
+        }
+    }
+
+    // MARK: - Memo
+
+    private static func currentBundleMemo(session: RoundSession?, pollTitle: String) -> String? {
+        guard
+            let session,
+            session.bundleCount > 0
+        else {
+            return nil
+        }
+
+        let bundles = session.walletNotes.smartBundles().bundles
+        let bundleIndex = Int(session.currentKeystoneBundleIndex)
+        guard bundleIndex < Int(session.bundleCount), bundleIndex < bundles.count else {
+            return nil
+        }
+
+        let bundleTotal = bundles[bundleIndex].reduce(UInt64(0)) { $0 + $1.value }
+        return votingAuthorizationMemo(pollTitle: pollTitle, rawWeight: bundleTotal)
+    }
+
+    private static func isSigningRouteActive(
+        _ path: StackState<VotingCoordFlow.Path.State>,
+        roundId: String
+    ) -> Bool {
+        path.contains {
+            guard case let .delegationSigning(signingState) = $0 else {
+                return false
+            }
+            return signingState.roundId == roundId
         }
     }
 
