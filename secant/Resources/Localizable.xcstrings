@@ -4,15 +4,6 @@
     " %@" : {
 
     },
-    "—" : {
-
-    },
-    "·" : {
-
-    },
-    "#%@" : {
-
-    },
     "%" : {
 
     },
@@ -989,9 +980,6 @@
         }
       }
     },
-    "Catching up to round snapshot" : {
-
-    },
     "coinVote.common.abstain" : {
       "comment" : "MARK: - Coin Vote",
       "extractionState" : "manual",
@@ -1253,6 +1241,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Try again"
+          }
+        }
+      }
+    },
+    "coinVote.common.viewLess" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View less"
+          }
+        }
+      }
+    },
+    "coinVote.common.viewMore" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View more"
           }
         }
       }
@@ -1598,6 +1608,17 @@
         }
       }
     },
+    "coinVote.confirmSubmission.bundleProgress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bundle %@ of %@"
+          }
+        }
+      }
+    },
     "coinVote.confirmSubmission.confirmWithKeystone" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1704,6 +1725,50 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ ZEC"
+          }
+        }
+      }
+    },
+    "coinVote.confirmSubmission.headerSubmittedCountMultiple" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitted %@ votes with voting power %@."
+          }
+        }
+      }
+    },
+    "coinVote.confirmSubmission.headerSubmittedCountSingle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitted %@ vote with voting power %@."
+          }
+        }
+      }
+    },
+    "coinVote.confirmSubmission.headerSubmittingCountMultiple" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting %@ votes with voting power %@."
+          }
+        }
+      }
+    },
+    "coinVote.confirmSubmission.headerSubmittingCountSingle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting %@ vote with voting power %@."
           }
         }
       }
@@ -1862,6 +1927,28 @@
         }
       }
     },
+    "coinVote.confirmSubmission.submitCTA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit"
+          }
+        }
+      }
+    },
+    "coinVote.confirmSubmission.voteProgress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote %@ of %@"
+          }
+        }
+      }
+    },
     "coinVote.delegation.insufficientSnapshotBalance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1961,6 +2048,17 @@
         }
       }
     },
+    "coinVote.delegationSigning.parsingSignatureEllipsis" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parsing signature…"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.preparingNextBundle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1968,6 +2066,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Bundle %@ signed. Preparing bundle %@ of %@..."
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.preparingRequestEllipsis" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing signing request…"
           }
         }
       }
@@ -2034,6 +2143,28 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan Signed Bundle %@"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.scanSignedPCZTCTA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan signed PCZT"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.scanSignedPCZTInstruction" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open your Keystone device and scan the signed PCZT back to continue."
           }
         }
       }
@@ -2126,6 +2257,17 @@
         }
       }
     },
+    "coinVote.delegationSigning.skipRemainingBundlesCTA" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip remaining bundles"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.useSignedBundlesOnly" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2144,6 +2286,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continue without the remaining %@ ZEC."
+          }
+        }
+      }
+    },
+    "coinVote.error.configUnavailableTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting unavailable"
           }
         }
       }
@@ -2198,7 +2351,7 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Vote Support, Oppose, or Abstain on each question. You can skip questions and change your vote before submitting."
+            "value" : "Vote on each question by selecting an answer. You can skip questions and update your choices anytime before submitting."
           }
         }
       }
@@ -2346,6 +2499,17 @@
         }
       }
     },
+    "coinVote.ineligible.snapshotBody" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting power is derived from your shielded ZEC at the round's snapshot height. This wallet had no eligible notes at that moment."
+          }
+        }
+      }
+    },
     "coinVote.ineligible.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2353,6 +2517,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not Eligible for This Round"
+          }
+        }
+      }
+    },
+    "coinVote.ineligible.titleNoVote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can't vote in this round"
           }
         }
       }
@@ -2436,6 +2611,28 @@
         }
       }
     },
+    "coinVote.pollsList.insufficientBalanceMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your wallet is not eligible for this voting round because it held %1$@ ZEC at snapshot block height #%2$@. A minimum balance of %3$@ ZEC was required to participate."
+          }
+        }
+      }
+    },
+    "coinVote.pollsList.insufficientBalanceTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insufficient Balance"
+          }
+        }
+      }
+    },
     "coinVote.pollsList.loadErrorMessage" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2503,6 +2700,17 @@
         }
       }
     },
+    "coinVote.proposalDetail.notFound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proposal not found"
+          }
+        }
+      }
+    },
     "coinVote.proposalDetail.position" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2510,6 +2718,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ OF %@"
+          }
+        }
+      }
+    },
+    "coinVote.proposalDetail.skippedMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven't answered question(s) %@. Continue to the review screen without them, or go back to respond."
           }
         }
       }
@@ -2580,6 +2799,17 @@
         }
       }
     },
+    "coinVote.proposalList.ctaReviewAnswers" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review Answers"
+          }
+        }
+      }
+    },
     "coinVote.proposalList.ctaStartVoting" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2587,6 +2817,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Start Voting"
+          }
+        }
+      }
+    },
+    "coinVote.proposalList.headerEndsAt" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends %@"
           }
         }
       }
@@ -2613,6 +2854,28 @@
         }
       }
     },
+    "coinVote.proposalList.preparingVotingPower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing your voting power…"
+          }
+        }
+      }
+    },
+    "coinVote.proposalList.reviewSubmitted" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review your submitted votes"
+          }
+        }
+      }
+    },
     "coinVote.proposalList.reviewSubtitle" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2631,6 +2894,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Review and submit vote"
+          }
+        }
+      }
+    },
+    "coinVote.proposalList.submitVotesCount" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit votes (%@)"
           }
         }
       }
@@ -2712,6 +2986,28 @@
         }
       }
     },
+    "coinVote.proposalList.votingPower" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting power: %@"
+          }
+        }
+      }
+    },
+    "coinVote.proposalList.yourVote" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your vote:"
+          }
+        }
+      }
+    },
     "coinVote.results.approvedByZodl" : {
       "comment" : "Accessibility label for the Zodl badge on the results header indicating an approved poll.",
       "extractionState" : "manual",
@@ -2768,6 +3064,17 @@
         }
       }
     },
+    "coinVote.results.noProposalsInRound" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No proposals in this round"
+          }
+        }
+      }
+    },
     "coinVote.results.noVotesRecorded" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2786,6 +3093,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Option %@"
+          }
+        }
+      }
+    },
+    "coinVote.results.percentValue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%%"
           }
         }
       }
@@ -3230,6 +3548,17 @@
         }
       }
     },
+    "coinVote.tallying.bodyInProgress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting has closed. Final results will appear here once the helpers finish tallying."
+          }
+        }
+      }
+    },
     "coinVote.tallying.detailEnded" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3292,6 +3621,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Votes Closed"
+          }
+        }
+      }
+    },
+    "coinVote.tallying.titleInProgress" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallying in progress"
           }
         }
       }
@@ -3372,6 +3712,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unverified Poll"
+          }
+        }
+      }
+    },
+    "coinVote.walletSyncing.catchingUp" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catching up to round snapshot"
           }
         }
       }
@@ -4029,10 +4380,6 @@
     },
     "Default" : {
       "comment" : "The name of the default polling configuration option.",
-      "isCommentAutoGenerated" : true
-    },
-    "Delegation signing" : {
-      "comment" : "A label for a screen that asks the user to sign a delegation transaction.",
       "isCommentAutoGenerated" : true
     },
     "Delete" : {
@@ -5889,10 +6236,6 @@
         }
       }
     },
-    "How Coinholder Polling works" : {
-      "comment" : "The title of the section that explains how Coinholder",
-      "isCommentAutoGenerated" : true
-    },
     "importWallet.birthday.title" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -6796,10 +7139,6 @@
         }
       }
     },
-    "Loading results…" : {
-      "comment" : "A placeholder text shown while fetching tally results.",
-      "isCommentAutoGenerated" : true
-    },
     "localAuthentication.reason" : {
       "comment" : "MARK: - Local authentication",
       "extractionState" : "manual",
@@ -6869,14 +7208,6 @@
           }
         }
       }
-    },
-    "No proposals in this round" : {
-      "comment" : "A message displayed when a round has no proposals.",
-      "isCommentAutoGenerated" : true
-    },
-    "No votes recorded" : {
-      "comment" : "A message indicating that no votes have been cast for a particular proposal.",
-      "isCommentAutoGenerated" : true
     },
     "notEnoughFreeSpace.dataAvailable" : {
       "extractionState" : "manual",
@@ -7107,7 +7438,7 @@
       "isCommentAutoGenerated" : true
     },
     "Preparing your voting power…" : {
-      "comment" : "A text shown while waiting for the user's voting power to be calculated.",
+      "comment" : "A message displayed while calculating the user's voting power.",
       "isCommentAutoGenerated" : true
     },
     "privateDataConsent.confirmation" : {
@@ -7231,7 +7562,7 @@
       }
     },
     "Proposal not found" : {
-      "comment" : "A message displayed when a proposal ID does not match any in the store.",
+      "comment" : "A message displayed when a proposal ID does not match any in the current round.",
       "isCommentAutoGenerated" : true
     },
     "proposalPartial.mailSubject" : {
@@ -8751,9 +9082,6 @@
           }
         }
       }
-    },
-    "Review and submit" : {
-
     },
     "Review your submitted votes" : {
 
@@ -12104,16 +12432,6 @@
         }
       }
     },
-    "Submitting %@ vote%@ with voting power %@." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Submitting %1$@ vote%2$@ with voting power %3$@."
-          }
-        }
-      }
-    },
     "supportData.appVersionItem.bundleIdentifier" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -14855,10 +15173,6 @@
         }
       }
     },
-    "Tallying in progress" : {
-      "comment" : "A message displayed while a tally is being computed.",
-      "isCommentAutoGenerated" : true
-    },
     "taxExport.desc" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -16043,14 +16357,6 @@
       "comment" : "A label for the custom poll source URL field.",
       "isCommentAutoGenerated" : true
     },
-    "Voting has closed. Final results will appear here once the helpers finish tallying." : {
-      "comment" : "A description of what will happen when voting in a round has closed.",
-      "isCommentAutoGenerated" : true
-    },
-    "Voting power is derived from your shielded ZEC at the round's snapshot height. This wallet had no eligible notes at that moment." : {
-      "comment" : "A description of why a user can't vote in a round when their wallet has no shielded notes at that round's snapshot height.",
-      "isCommentAutoGenerated" : true
-    },
     "Voting power: %@" : {
 
     },
@@ -16158,14 +16464,6 @@
         }
       }
     },
-    "You can't vote in this round" : {
-      "comment" : "A description of why a user can't vote in a particular round.",
-      "isCommentAutoGenerated" : true
-    },
-    "Your voting power is derived from your shielded ZEC at the round's snapshot height. Vote choices are private; results are tallied by helper servers using zero-knowledge proofs." : {
-      "comment" : "A description of how Coinholder Polling works.",
-      "isCommentAutoGenerated" : true
-    },
     "Zcash" : {
       "localizations" : {
         "es" : {
@@ -16193,9 +16491,6 @@
           }
         }
       }
-    },
-    "Zodl" : {
-      "comment" : "The name of the organization shown next to the Zodl logo when a poll is endorsed."
     }
   },
   "version" : "1.1"

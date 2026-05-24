@@ -627,7 +627,8 @@ func parseVotingSession(from round: [String: Any]) throws -> VotingSession {
         let options = optionsJSON.map { o in
             VoteOption(
                 index: parseUInt32(o["index"]),
-                label: o["label"] as? String ?? "Option \(parseUInt32(o["index"]))"
+                label: o["label"] as? String ?? "Option \(parseUInt32(o["index"]))",
+                description: o["description"] as? String
             )
         }
         let forumURLString = p["forum_url"] as? String

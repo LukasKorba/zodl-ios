@@ -5,11 +5,16 @@
 
 import SwiftUI
 import ComposableArchitecture
+import ZcashLightClientKit
 
-/// Final review screen before vote submission. Displays each drafted vote
-/// (proposal title + chosen option label) and the voting power that will
-/// be applied. Renders progress, success, and error states once submission
-/// is in flight via `RoundSession.batchSubmissionStatus`.
+/// Final review screen before vote submission. Renders four visual states from
+/// the same body, driven by `RoundSession.batchSubmissionStatus`:
+///   • `.idle` — Poll/Memo card + Confirm CTA
+///   • `.authorizing` / `.submitting` — Poll/VotingPower card + monotonic
+///     progress bar + disabled CTA reflecting the current sub-step
+///   • `.completed` — Poll/VotingPower card + green-check icon + Done CTA
+/// `.authorizationFailed` / `.submissionFailed` keep the in-progress chrome
+/// underneath while a `votingSheet` drives retry/cancel.
 struct ConfirmSubmissionView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) private var dismiss
@@ -19,247 +24,330 @@ struct ConfirmSubmissionView: View {
 
     var body: some View {
         WithPerceptionTracking {
-            let item = store.allRounds.first { $0.id == roundId }
-            let proposals = item?.session.proposals ?? []
             let session = store.roundCache[roundId]
-            let weight = session?.votingWeight ?? 0
+            let status = session?.batchSubmissionStatus ?? .idle
+            let pollTitle = store.allRounds.first { $0.id == roundId }?.title ?? ""
+            let weightString = Self.formatZec(session?.votingWeight ?? 0)
             let drafts = session?.draftVotes ?? [:]
             let submittedVotes = session?.votes ?? [:]
-            let status = session?.batchSubmissionStatus ?? .idle
             let bundleCount = session?.bundleCount ?? 0
-            let summaryVotes = submissionSummaryVotes(
-                status: status,
-                drafts: drafts,
-                submittedVotes: submittedVotes
-            )
-            let headerCount = submissionCount(
-                status: status,
-                draftCount: drafts.count,
-                submittedCount: submittedVotes.count
-            )
+            let delegationStatus = session?.delegationProofStatus ?? .notStarted
 
-            ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        header(weight: weight, count: headerCount, status: status)
-
-                        if let step = session?.voteSubmissionStep, status.isInFlight {
-                            progressCard(
-                                step: step,
-                                bundleIndex: session?.currentVoteBundleIndex,
-                                bundleCount: session?.bundleCount ?? 0,
-                                status: status
-                            )
-                        }
-
-                        VStack(spacing: 8) {
-                            ForEach(proposals) { proposal in
-                                if let choice = summaryVotes[proposal.id],
-                                   let label = proposal.options.first(where: { $0.index == choice.index })?.label {
-                                    summaryRow(title: proposal.title, choice: label)
-                                }
-                            }
-                        }
+                    VStack(alignment: .leading, spacing: 0) {
+                        headerSection(status: status)
+                        detailsCard(
+                            status: status,
+                            pollTitle: pollTitle,
+                            weightString: weightString
+                        )
+                        .padding(.top, 24)
                     }
                     .padding(.horizontal, 24)
-                    .padding(.top, 12)
-                    .padding(.bottom, 120)
+                    .padding(.bottom, 24)
                 }
-                .padding(.vertical, 1)
 
-                submitCTA(status: status, drafts: drafts, bundleCount: bundleCount)
+                Spacer(minLength: 0)
+
+                bottomSection(
+                    status: status,
+                    delegationStatus: delegationStatus,
+                    drafts: drafts,
+                    submittedVotes: submittedVotes,
+                    bundleCount: bundleCount
+                )
+                .padding(.horizontal, 24)
+                .padding(.bottom, 16)
             }
             .applyScreenBackground()
-            .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
+            .screenTitle(navTitle(status: status))
             .zashiBack {
                 guard !status.isInFlight else { return }
                 dismiss()
             }
-            .alert(
-                String(localizable: .coinVoteConfirmSubmissionAuthorizationFailedTitle),
-                isPresented: authorizationErrorBinding(status: status)
-            ) {
-                Button(String(localizable: .coinVoteCommonTryAgain), role: nil) {
+            .votingSheet(
+                isPresented: authorizationFailedBinding(status: status),
+                title: String(localizable: .coinVoteConfirmSubmissionAuthorizationFailedTitle),
+                message: String(localizable: .coinVoteConfirmSubmissionAuthorizationFailedMessage),
+                primary: .init(title: String(localizable: .coinVoteCommonTryAgain), style: .primary) {
                     store.send(.retryBatchSubmission(roundId: roundId))
-                }
-                Button(String(localizable: .coinVoteCommonCancel), role: .cancel) {
+                },
+                secondary: .init(title: String(localizable: .coinVoteCommonCancel), style: .secondary) {
                     store.send(.dismissBatchResults(roundId: roundId))
-                }
-            } message: {
-                if case let .authorizationFailed(error) = status {
-                    Text(error)
-                }
-            }
-            .alert(
-                String(localizable: .coinVoteConfirmSubmissionSubmissionFailedTitle),
-                isPresented: submissionErrorBinding(status: status)
-            ) {
-                Button(String(localizable: .coinVoteCommonTryAgain), role: nil) {
-                    store.send(.retryBatchSubmission(roundId: roundId))
-                }
-                Button(String(localizable: .coinVoteCommonCancel), role: .cancel) {
-                    store.send(.dismissBatchResults(roundId: roundId))
-                }
-            } message: {
-                if case let .submissionFailed(error, _, _) = status {
-                    Text(error)
-                }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func header(weight: UInt64, count: Int, status: BatchSubmissionStatus) -> some View {
-        let title: String = {
-            switch status {
-            case .completed:
-                return String(localizable: .coinVoteCommonSubmission)
-            case .authorizing, .submitting:
-                return String(localizable: .coinVoteCommonSubmission)
-            default:
-                return String(localizable: .coinVoteCommonConfirmation)
-            }
-        }()
-        let verb = status.isCompleted ? "Submitted" : "Submitting"
-        let subtitle = "\(verb) \(count) vote\(count == 1 ? "" : "s") with voting power \(weight)."
-
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title)
-                .zFont(.semiBold, size: 24, style: Design.Text.primary)
-                .tracking(-0.384)
-
-            Text(subtitle)
-                .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                .tracking(-0.224)
-                .fixedSize(horizontal: false, vertical: true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.bottom, 8)
-    }
-
-    private func submissionSummaryVotes(
-        status: BatchSubmissionStatus,
-        drafts: [UInt32: VoteChoice],
-        submittedVotes: [UInt32: VoteChoice]
-    ) -> [UInt32: VoteChoice] {
-        if case .completed = status {
-            return submittedVotes.isEmpty ? drafts : submittedVotes
-        }
-        return drafts
-    }
-
-    private func submissionCount(
-        status: BatchSubmissionStatus,
-        draftCount: Int,
-        submittedCount: Int
-    ) -> Int {
-        switch status {
-        case let .submitting(_, totalCount, _):
-            return totalCount
-        case let .completed(successCount):
-            return max(successCount, submittedCount)
-        case let .submissionFailed(_, submittedCount, totalCount):
-            return max(submittedCount, totalCount)
-        default:
-            return draftCount
-        }
-    }
-
-    @ViewBuilder
-    private func progressCard(
-        step: VoteSubmissionStep,
-        bundleIndex: UInt32?,
-        bundleCount: UInt32,
-        status: BatchSubmissionStatus
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                ProgressView()
-                    .scaleEffect(0.9)
-                Text(step.label)
-                    .zFont(.medium, size: 14, style: Design.Text.primary)
-                    .tracking(-0.224)
-            }
-
-            if bundleCount > 1, let bundleIndex {
-                Text("Bundle \(bundleIndex + 1) of \(bundleCount)")
-                    .zFont(.medium, size: 12, style: Design.Text.tertiary)
-                    .tracking(-0.144)
-            }
-
-            if case let .submitting(currentIndex, totalCount, _) = status, totalCount > 1 {
-                Text("Vote \(currentIndex + 1) of \(totalCount)")
-                    .zFont(.medium, size: 12, style: Design.Text.tertiary)
-                    .tracking(-0.144)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Design.Spacing._xl)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
-        )
-    }
-
-    @ViewBuilder
-    private func summaryRow(title: String, choice: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                .tracking(-0.256)
-                .fixedSize(horizontal: false, vertical: true)
-
-            Text(choice)
-                .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                .tracking(-0.224)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Design.Spacing._xl)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
-        )
-    }
-
-    @ViewBuilder
-    private func submitCTA(status: BatchSubmissionStatus, drafts: [UInt32: VoteChoice], bundleCount: UInt32) -> some View {
-        VStack(spacing: 0) {
-            switch status {
-            case .idle, .authorizationFailed, .submissionFailed:
-                ZashiButton("Submit") {
-                    store.send(.submitAllDraftsTapped(roundId: roundId))
-                }
-                .disabled(drafts.isEmpty || bundleCount == 0)
-            case .authorizing, .submitting:
-                ZashiButton(String(localizable: .coinVoteCommonSubmission)) {}
-                    .disabled(true)
-            case .completed:
-                ZashiButton(String(localizable: .coinVoteCommonDone)) {
-                    store.send(.dismissFlow)
-                }
-            }
-        }
-        .padding(.horizontal, 24)
-        .padding(.bottom, 24)
-        .background(
-            LinearGradient(
-                colors: [
-                    Design.Surfaces.bgPrimary.color(colorScheme).opacity(0),
-                    Design.Surfaces.bgPrimary.color(colorScheme).opacity(0.95)
-                ],
-                startPoint: .top,
-                endPoint: .bottom
+                },
+                visualStyle: .unverifiedWarning
             )
-        )
+            .votingSheet(
+                isPresented: submissionFailedBinding(status: status),
+                title: String(localizable: .coinVoteConfirmSubmissionSubmissionFailedTitle),
+                message: String(localizable: .coinVoteConfirmSubmissionSubmissionFailedMessage),
+                primary: .init(title: String(localizable: .coinVoteCommonTryAgain), style: .primary) {
+                    store.send(.retryBatchSubmission(roundId: roundId))
+                },
+                secondary: .init(title: String(localizable: .coinVoteCommonCancel), style: .secondary) {
+                    store.send(.dismissBatchResults(roundId: roundId))
+                },
+                visualStyle: .unverifiedWarning
+            )
+        }
     }
 
-    // MARK: - Alert bindings
+    // MARK: - Header
 
-    private func authorizationErrorBinding(status: BatchSubmissionStatus) -> Binding<Bool> {
+    @ViewBuilder
+    private func headerSection(status: BatchSubmissionStatus) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VotingHeaderIcons(
+                isKeystone: store.isKeystoneUser,
+                showCheckmark: status.isCompleted
+            )
+            .padding(.top, 12)
+            .padding(.bottom, 24)
+
+            Text(headerTitle(status: status))
+                .zFont(.semiBold, size: 24, style: Design.Text.primary)
+                .fixedSize(horizontal: false, vertical: true)
+
+            Text(headerSubtitle(status: status))
+                .zFont(size: 14, style: Design.Text.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private func navTitle(status: BatchSubmissionStatus) -> String {
+        if case .idle = status {
+            return String(localizable: .coinVoteCommonConfirmation)
+        }
+        return String(localizable: .coinVoteCommonSubmission)
+    }
+
+    private func headerTitle(status: BatchSubmissionStatus) -> String {
+        switch status {
+        case .idle:
+            return String(localizable: .coinVoteConfirmSubmissionHeaderTitleIdle)
+        case .authorizing, .submitting, .authorizationFailed, .submissionFailed:
+            return String(localizable: .coinVoteConfirmSubmissionHeaderTitleSubmitting)
+        case .completed:
+            return String(localizable: .coinVoteConfirmSubmissionHeaderTitleCompleted)
+        }
+    }
+
+    private func headerSubtitle(status: BatchSubmissionStatus) -> String {
+        switch status {
+        case .idle:
+            if store.isKeystoneUser {
+                return String(localizable: .coinVoteConfirmSubmissionHeaderSubtitleIdleKeystone)
+            }
+            return String(localizable: .coinVoteConfirmSubmissionHeaderSubtitleIdle)
+        case .authorizing, .submitting, .authorizationFailed, .submissionFailed:
+            return String(localizable: .coinVoteConfirmSubmissionHeaderSubtitleSubmitting)
+        case .completed:
+            return String(localizable: .coinVoteConfirmSubmissionHeaderSubtitleCompleted)
+        }
+    }
+
+    // MARK: - Details Card
+
+    @ViewBuilder
+    private func detailsCard(
+        status: BatchSubmissionStatus,
+        pollTitle: String,
+        weightString: String
+    ) -> some View {
+        let isIdle: Bool = {
+            if case .idle = status { return true }
+            return false
+        }()
+
+        VStack(spacing: 0) {
+            detailRow(
+                label: String(localizable: .coinVoteConfirmSubmissionDetailPoll),
+                value: pollTitle
+            )
+
+            detailsDivider()
+
+            if isIdle {
+                memoRow(pollTitle: pollTitle, weightString: weightString)
+            } else {
+                detailRow(
+                    label: String(localizable: .coinVoteConfirmSubmissionDetailVotingPower),
+                    value: String(localizable: .coinVoteConfirmSubmissionDetailVotingPowerValue(weightString))
+                )
+            }
+        }
+        .background(Design.Surfaces.bgSecondary.color(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
+    }
+
+    @ViewBuilder
+    private func detailRow(label: String, value: String) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text(label)
+                .zFont(size: 14, style: Design.Text.tertiary)
+                .tracking(-0.224)
+                .lineLimit(1)
+
+            Spacer(minLength: 8)
+
+            Text(value)
+                .zFont(.medium, size: 14, style: Design.Text.primary)
+                .tracking(-0.224)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .multilineTextAlignment(.trailing)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+
+    @ViewBuilder
+    private func memoRow(pollTitle: String, weightString: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(localizable: .coinVoteConfirmSubmissionDetailMemo)
+                .zFont(size: 14, style: Design.Text.tertiary)
+                .tracking(-0.224)
+
+            Text(localizable: .coinVoteConfirmSubmissionMemoMessage(pollTitle, weightString))
+                .zFont(.medium, size: 12, style: Design.Text.primary)
+                .tracking(-0.072)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+    }
+
+    private func detailsDivider() -> some View {
+        Design.Surfaces.bgPrimary.color(colorScheme)
+            .frame(height: 1)
+    }
+
+    // MARK: - Progress
+
+    /// Authorization gets its own label until it finishes; submission then
+    /// drives the bar from the (currentIndex, totalCount) pair. The 30%
+    /// reservation for the delegation phase keeps the bar monotonic when
+    /// the screen flips from authorizing to submitting mid-flight.
+    private func submissionProgress(
+        status: BatchSubmissionStatus,
+        delegationStatus: ProofStatus
+    ) -> (progress: Double, title: String) {
+        let delegationWeight = 0.3
+
+        switch status {
+        case .authorizing:
+            let proof: Double
+            switch delegationStatus {
+            case .generating(let value): proof = value
+            case .complete: proof = 1.0
+            default: proof = 0
+            }
+            return (
+                proof * delegationWeight,
+                String(localizable: .coinVoteStoreSubmissionAuthorizingVote)
+            )
+
+        case let .submitting(currentIndex, totalCount, _):
+            let offset = delegationStatus == .complete ? delegationWeight : 0.0
+            let fraction = Double(currentIndex + 1) / Double(max(totalCount, 1))
+            let overall = min(1.0, offset + fraction * (1.0 - offset))
+            return (
+                overall,
+                String(
+                    localizable: .coinVoteConfirmSubmissionProgressSubmittingVoteCount(
+                        String(currentIndex + 1),
+                        String(totalCount)
+                    )
+                )
+            )
+
+        case .authorizationFailed:
+            return (0, String(localizable: .coinVoteStoreSubmissionAuthorizingVote))
+
+        case let .submissionFailed(_, submittedCount, totalCount):
+            let fraction = Double(submittedCount) / Double(max(totalCount, 1))
+            let overall = min(1.0, delegationWeight + fraction * (1.0 - delegationWeight))
+            return (
+                overall,
+                String(
+                    localizable: .coinVoteConfirmSubmissionProgressSubmittingVoteCount(
+                        String(submittedCount),
+                        String(totalCount)
+                    )
+                )
+            )
+
+        default:
+            return (0, "")
+        }
+    }
+
+    // MARK: - Bottom Section
+
+    @ViewBuilder
+    private func bottomSection(
+        status: BatchSubmissionStatus,
+        delegationStatus: ProofStatus,
+        drafts: [UInt32: VoteChoice],
+        submittedVotes: [UInt32: VoteChoice],
+        bundleCount: UInt32
+    ) -> some View {
+        switch status {
+        case .idle:
+            ZashiButton(
+                store.isKeystoneUser
+                    ? String(localizable: .coinVoteConfirmSubmissionConfirmWithKeystone)
+                    : String(localizable: .coinVoteCommonConfirm)
+            ) {
+                store.send(.submitAllDraftsTapped(roundId: roundId))
+            }
+            .disabled(drafts.isEmpty || bundleCount == 0)
+
+        case .authorizing, .submitting, .authorizationFailed, .submissionFailed:
+            // Progress card stays on screen while the error sheets (driven
+            // by the `authorizationFailed` / `submissionFailed` bindings)
+            // own retry / cancel.
+            let progressInfo = submissionProgress(
+                status: status,
+                delegationStatus: delegationStatus
+            )
+            VStack(spacing: Design.Spacing._lg) {
+                VStack(alignment: .leading, spacing: Design.Spacing._lg) {
+                    Text(progressInfo.title)
+                        .zFont(.semiBold, size: 15, style: Design.Text.primary)
+
+                    GeometryReader { geo in
+                        ZStack(alignment: .leading) {
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Design.Surfaces.bgTertiary.color(colorScheme))
+                            RoundedRectangle(cornerRadius: 4)
+                                .fill(Design.Text.primary.color(colorScheme))
+                                .frame(width: geo.size.width * progressInfo.progress)
+                                .animation(.easeInOut(duration: 0.3), value: progressInfo.progress)
+                        }
+                    }
+                    .frame(height: 8)
+                }
+                .padding(Design.Spacing._2xl)
+                .background(Design.Surfaces.bgSecondary.color(colorScheme))
+                .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
+
+                ZashiButton(progressInfo.title) {}
+                    .disabled(true)
+            }
+
+        case .completed:
+            ZashiButton(String(localizable: .coinVoteCommonDone)) {
+                store.send(.dismissFlow)
+            }
+        }
+    }
+
+    // MARK: - Sheet bindings
+
+    private func authorizationFailedBinding(status: BatchSubmissionStatus) -> Binding<Bool> {
         Binding(
             get: {
                 if case .authorizationFailed = status { return true }
@@ -273,7 +361,7 @@ struct ConfirmSubmissionView: View {
         )
     }
 
-    private func submissionErrorBinding(status: BatchSubmissionStatus) -> Binding<Bool> {
+    private func submissionFailedBinding(status: BatchSubmissionStatus) -> Binding<Bool> {
         Binding(
             get: {
                 if case .submissionFailed = status { return true }
@@ -285,6 +373,72 @@ struct ConfirmSubmissionView: View {
                 }
             }
         )
+    }
+
+    // MARK: - Helpers
+
+    /// Zatoshi → "X.XXX" ZEC string. Three fractional digits matches the
+    /// Polls list copy so the in-app voting-power values stay consistent.
+    private static func formatZec(_ zatoshi: UInt64) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 3
+        formatter.usesGroupingSeparator = true
+        let value = Zatoshi(Int64(zatoshi)).decimalValue.roundedZec
+        return formatter.string(from: value) ?? "0.000"
+    }
+}
+
+// MARK: - Header Icons
+
+/// Restored from the agency build (deleted in `MOB-1105 Phase 5D`). Renders
+/// the white Zashi disc + thumbs-up bubble, swapping the thumbs-up for a
+/// green checkmark seal once submission succeeds. The Keystone variant uses
+/// the brandmark disc instead of the white Zashi mark.
+private struct VotingHeaderIcons: View {
+    @Environment(\.colorScheme) var colorScheme
+    var isKeystone: Bool = false
+    var showCheckmark: Bool = false
+
+    var body: some View {
+        HStack(spacing: -4) {
+            if isKeystone {
+                Asset.Assets.Brandmarks.brandmarkKeystone.image
+                    .resizable()
+                    .frame(width: 48, height: 48)
+                    .clipShape(Circle())
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(Design.Text.primary.color(colorScheme))
+                        .frame(width: 48, height: 48)
+                    Asset.Assets.zashiLogo.image
+                        .zImage(size: 22, color: Design.Surfaces.bgPrimary.color(colorScheme))
+                }
+            }
+
+            if showCheckmark {
+                ZStack {
+                    Circle()
+                        .fill(Design.Utility.SuccessGreen._500.color(colorScheme).opacity(0.15))
+                        .frame(width: 48, height: 48)
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 24))
+                        .foregroundStyle(Design.Utility.SuccessGreen._500.color(colorScheme))
+                }
+                .zIndex(1)
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(Design.Surfaces.bgTertiary.color(colorScheme))
+                        .frame(width: 48, height: 48)
+                    Image(systemName: "hand.thumbsup")
+                        .font(.system(size: 22, weight: .regular))
+                        .foregroundStyle(Design.Text.primary.color(colorScheme))
+                }
+            }
+        }
     }
 }
 

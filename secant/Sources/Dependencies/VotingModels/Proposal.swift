@@ -2,13 +2,19 @@ import Foundation
 
 /// A single vote option within a proposal (e.g. "Support", "Oppose").
 /// Maps to VoteOption message (zvote/v1/types.proto).
+///
+/// `description` is optional richer copy that policy-heavy polls (NU7, NSM,
+/// etc.) use to explain the consequences of choosing the option. UI renders
+/// it as a second line below `label` when present.
 struct VoteOption: Equatable, Sendable {
     let index: UInt32
     let label: String
+    let description: String?
 
-    init(index: UInt32, label: String) {
+    init(index: UInt32, label: String, description: String? = nil) {
         self.index = index
         self.label = label
+        self.description = description
     }
 }
 

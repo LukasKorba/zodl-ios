@@ -175,7 +175,7 @@ extension VotingCryptoClient: DependencyKey {
                 )
                 return try VotingRustBackend.verifyWitness(sdkWitness)
             },
-            generateHotkey: { _, seed in
+            generateHotkey: { roundId, seed in
                 let backend = try await dbActor.backend()
                 let hotkey = try backend.generateHotkey(seed: seed)
                 return VotingHotkey(

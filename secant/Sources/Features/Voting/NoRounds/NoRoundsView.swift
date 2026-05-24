@@ -8,18 +8,20 @@ import ComposableArchitecture
 
 /// Empty-state shown when the voting service returns zero rounds. Renders the
 /// shimmering polls-list backdrop with a dimmed "No polls right now" sheet on
-/// top, matching the same pattern used while the polls list is loading.
+/// top. "Got it" hides the sheet but keeps the user inside the voting flow
+/// so they can tap the toolbar cog and try a different data source.
 struct NoRoundsView: View {
     let store: StoreOf<VotingCoordFlow>
+
+    @State private var sheetPresented = true
 
     var body: some View {
         WithPerceptionTracking {
             VotingCoordFlowBackdrop(store: store)
-                .votingBlockingSheet(
-                    isActive: { store.rootScreen == .noRounds },
-                    visualStyle: .unverifiedWarning,
-                    onExit: { store.send(.dismissFlow) }
-                ) { dismiss in
+                .zashiSheet(
+                    isPresented: $sheetPresented,
+                    horizontalPadding: VotingSheetContent.VisualStyle.unverifiedWarning.horizontalPadding
+                ) {
                     VotingSheetContent(
                         iconSystemName: "exclamationmark.circle",
                         iconStyle: Design.Utility.ErrorRed._500,
@@ -29,7 +31,10 @@ struct NoRoundsView: View {
                             title: String(localizable: .coinVoteCommonGotIt),
                             style: .primary
                         ) {
-                            dismiss()
+                            // Just hide the sheet — keep the user on the
+                            // backdrop so they can open Voting Settings via
+                            // the toolbar cog.
+                            sheetPresented = false
                         },
                         secondary: .init(
                             title: String(localizable: .coinVoteCommonRefresh),
@@ -46,8 +51,12 @@ struct NoRoundsView: View {
 
 /// Shared shimmering backdrop used by the `.loading` and `.noRounds` root
 /// screens. Renders the screen title + a single outlined skeleton card so the
-/// chrome stays consistent across loading, empty, and error states.
+/// chrome stays consistent across loading, empty, and error states. The
+/// toolbar cog is always available so the user can change the data source
+/// without first reaching the polls list.
 struct VotingCoordFlowBackdrop: View {
+    @Environment(\.colorScheme) var colorScheme
+
     let store: StoreOf<VotingCoordFlow>
 
     var body: some View {
@@ -63,6 +72,34 @@ struct VotingCoordFlowBackdrop: View {
         .applyScreenBackground()
         .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
         .zashiBack { store.send(.dismissFlow) }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    store.send(.openConfigSettings)
+                } label: {
+                    settingsButtonIcon()
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localizable: .coinVotePollsListChainConfigAccessibility))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func settingsButtonIcon() -> some View {
+        let icon = Asset.Assets.Icons.settings2.image
+            .zImage(size: 20, style: Design.Btns.Ghost.fg)
+
+        if #available(iOS 26.0, *) {
+            icon
+        } else {
+            icon
+                .padding(8)
+                .background {
+                    RoundedRectangle(cornerRadius: Design.Radius._md)
+                        .fill(Design.Btns.Ghost.bg.color(colorScheme))
+                }
+        }
     }
 }
 
