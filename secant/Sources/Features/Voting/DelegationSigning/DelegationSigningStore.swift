@@ -41,6 +41,11 @@ struct DelegationSigningView: View {
             let status = session?.keystoneSigningStatus ?? .idle
             let bundleCount = session?.bundleCount ?? 0
             let currentBundle = session?.currentKeystoneBundleIndex ?? 0
+            let pollTitle = store.allRounds.first { $0.id == roundId }?.title ?? ""
+            let currentBundleMemo = Self.currentBundleMemo(
+                session: session,
+                pollTitle: pollTitle
+            )
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -53,8 +58,13 @@ struct DelegationSigningView: View {
                                 .padding(.top, 24)
                         }
 
+                        if let currentBundleMemo {
+                            memoCard(memo: currentBundleMemo)
+                                .padding(.top, 16)
+                        }
+
                         qrCodeSection(status: status)
-                            .padding(.top, bundleCount > 1 ? 24 : 32)
+                            .padding(.top, bundleCount > 1 || currentBundleMemo != nil ? 24 : 32)
 
                         instructionText(status: status)
                             .padding(.top, 32)
@@ -140,6 +150,26 @@ struct DelegationSigningView: View {
         }
         .padding(Design.Spacing._xl)
         .frame(maxWidth: .infinity)
+        .background(Design.Surfaces.bgPrimary.color(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
+        .overlay(
+            RoundedRectangle(cornerRadius: Design.Radius._2xl)
+                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
+        )
+    }
+
+    @ViewBuilder
+    private func memoCard(memo: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(localizable: .coinVoteDelegationSigningMemo)
+                .zFont(size: 14, style: Design.Text.tertiary)
+
+            Text(memo)
+                .zFont(.medium, size: 13, style: Design.Text.primary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(Design.Spacing._xl)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Design.Surfaces.bgPrimary.color(colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
         .overlay(
@@ -264,6 +294,38 @@ struct DelegationSigningView: View {
         default:
             EmptyView()
         }
+    }
+
+    // MARK: - Memo
+
+    private static func currentBundleMemo(session: RoundSession?, pollTitle: String) -> String? {
+        guard
+            let session,
+            session.bundleCount > 0
+        else {
+            return nil
+        }
+
+        let bundles = session.walletNotes.smartBundles().bundles
+        let bundleIndex = Int(session.currentKeystoneBundleIndex)
+        guard bundleIndex < Int(session.bundleCount), bundleIndex < bundles.count else {
+            return nil
+        }
+
+        let bundleTotal = bundles[bundleIndex].reduce(UInt64(0)) { $0 + $1.value }
+        return String(
+            localizable: .coinVoteDelegationSigningMemoMessage(
+                pollTitle,
+                rawZecString(bundleTotal)
+            )
+        )
+    }
+
+    private static func rawZecString(_ zatoshi: UInt64) -> String {
+        let whole = zatoshi / 100_000_000
+        let fractional = String(zatoshi % 100_000_000)
+        let paddedFractional = String(repeating: "0", count: max(0, 8 - fractional.count)) + fractional
+        return "\(whole).\(paddedFractional)"
     }
 
     // MARK: - Action buttons

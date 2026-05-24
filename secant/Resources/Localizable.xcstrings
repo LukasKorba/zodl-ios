@@ -2039,6 +2039,28 @@
         }
       }
     },
+    "coinVote.delegationSigning.memo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memo"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.memoMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I am authorizing this hotkey managed by my wallet to vote on %@ with %@ ZEC."
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.finalizingAuthorizationEllipsis" : {
       "extractionState" : "manual",
       "localizations" : {
