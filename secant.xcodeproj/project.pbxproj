@@ -2600,6 +2600,7 @@
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
 		AD0D00202D00000100000001 /* VotingAPIResponseParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */; };
 		AD0D00212D00000100000001 /* VotingHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00212D00000100000002 /* VotingHelpersTests.swift */; };
+		AD0D00222D00000100000001 /* VotingCoordFlowCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3184,6 +3185,7 @@
 		AD0D00102D00000100000002 /* VotingSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingSessionTests.swift; sourceTree = "<group>"; };
 		AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingAPIResponseParserTests.swift; sourceTree = "<group>"; };
 		AD0D00212D00000100000002 /* VotingHelpersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingHelpersTests.swift; sourceTree = "<group>"; };
+		AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowCoordinatorTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -5457,6 +5459,7 @@
 			children = (
 				AD0D00102D00000100000002 /* VotingSessionTests.swift */,
 				AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */,
+				AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */,
 				AD0D00212D00000100000002 /* VotingHelpersTests.swift */,
 			);
 			path = VotingTests;
@@ -7226,6 +7229,7 @@
 			files = (
 				AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */,
 				AD0D00202D00000100000001 /* VotingAPIResponseParserTests.swift in Sources */,
+				AD0D00222D00000100000001 /* VotingCoordFlowCoordinatorTests.swift in Sources */,
 				AD0D00212D00000100000001 /* VotingHelpersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
