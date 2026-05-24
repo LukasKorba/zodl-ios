@@ -211,10 +211,6 @@ struct ResultsView: View {
                 .tracking(-0.288)
                 .fixedSize(horizontal: false, vertical: true)
 
-            if !proposal.description.isEmpty {
-                ExpandableText(text: proposal.description, collapsedLineLimit: 2)
-            }
-
             VStack(spacing: 12) {
                 ForEach(entries, id: \.decision) { entry in
                     let isWinner = entry.decision == winningEntry?.decision
