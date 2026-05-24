@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: ${{ env.SOURCE_PACKAGES_PATH }}
-          key: ${{ runner.os }}-${{ runner.arch }}-xcode-spm-${{ steps.xcode-cache-key.outputs.hash }}-${{ hashFiles('secant.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode-spm-${{ steps.xcode-cache-key.outputs.hash }}-${{ hashFiles('secant.xcodeproj/project.pbxproj', 'secant.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-${{ runner.arch }}-xcode-spm-${{ steps.xcode-cache-key.outputs.hash }}-
             ${{ runner.os }}-${{ runner.arch }}-xcode-spm-
@@ -50,8 +50,7 @@ jobs:
             -scheme zashi-internal \
             -resolvePackageDependencies \
             -derivedDataPath "$DERIVED_DATA_PATH" \
-            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH"
 
       - name: Save Swift package cache
         if: ${{ steps.spm-cache.outputs.cache-hit != 'true' }}
@@ -71,7 +70,6 @@ jobs:
             -resultBundlePath TestResults.xcresult \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
-            -disableAutomaticPackageResolution \
             -only-testing:secantTests \
             -skipPackagePluginValidation \
             -skipMacroValidation \
