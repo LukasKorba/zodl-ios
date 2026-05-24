@@ -146,8 +146,6 @@ struct SettingsView: View {
                     SendFeedbackView(store: store)
                 case let .torSetup(store):
                     TorSetupView(store: store)
-                case let .voting(store):
-                    VotingView(store: store)
                 case let .whatsNew(store):
                     WhatsNewView(store: store)
                 }
@@ -161,6 +159,16 @@ struct SettingsView: View {
             }
             .zashiSheet(isPresented: $store.isResyncHelpSheetPresented) {
                 resyncHelpSheetContent()
+            }
+            .fullScreenCover(
+                item: $store.scope(state: \.votingCoordFlow, action: \.votingCoordFlow)
+            ) { votingStore in
+                // fullScreenCover content is an escaping closure — needs its
+                // own WithPerceptionTracking so reads inside the presented
+                // store register with TCA's observation system.
+                WithPerceptionTracking {
+                    VotingCoordFlowView(store: votingStore)
+                }
             }
         }
     }

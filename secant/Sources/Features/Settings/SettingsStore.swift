@@ -27,7 +27,6 @@ struct Settings {
         case scan(Scan)
         case sendUsFeedback(SendFeedback)
         case torSetup(TorSetup)
-        case voting(Voting)
         case whatsNew(WhatsNew)
     }
     
@@ -43,6 +42,11 @@ struct Settings {
         var isResyncHelpSheetPresented = false
         var isTorOn = false
         var path = StackState<Path.State>()
+        /// fullScreenCover for the new voting CoordFlow. Isolating its
+        /// NavigationStack via fullScreenCover avoids SwiftUI's
+        /// `AnyNavigationPath.Error.comparisonTypeMismatch` that fires when
+        /// two NavigationStacks are nested.
+        @Presents var votingCoordFlow: VotingCoordFlow.State?
         var resyncBirthday: BlockHeight? = nil
         @Shared(.inMemory(.selectedWalletAccount)) var selectedWalletAccount: WalletAccount? = nil
         var txidToEnhance = ""
@@ -75,6 +79,7 @@ struct Settings {
         case checkFundsForAddress(String)
         case closeResyncHelpSheetTapped
         case coinholderPollingTapped
+        case votingCoordFlow(PresentationAction<VotingCoordFlow.Action>)
         case currencyConversionTapped
         case enableEnhanceTransactionMode
         case enableRecoverFundsMode
@@ -133,6 +138,13 @@ struct Settings {
                 }
 
             case .coinholderPollingTapped:
+                // Handled in coordinatorReduce; no-op here so the body's
+                // exhaustive switch over the Action enum still compiles.
+                return .none
+            case .votingCoordFlow:
+                // Presentation actions for the voting flow are routed
+                // through .ifLet at the body level + the coordinator's
+                // dismiss handler.
                 return .none
 
             case .currencyConversionTapped:
@@ -181,5 +193,8 @@ struct Settings {
             }
         }
         .forEach(\.path, action: \.path)
+        .ifLet(\.$votingCoordFlow, action: \.votingCoordFlow) {
+            VotingCoordFlow()
+        }
     }
 }

@@ -1,13 +1,25 @@
+//
+//  PollsListView.swift
+//  Zashi
+//
+
 import SwiftUI
 import ComposableArchitecture
+@preconcurrency import ZcashLightClientKit
 
+/// Renders the list of voting rounds returned by the voting service.
+///
+/// Bound to the new `VotingCoordFlow` parent reducer. Card layout mirrors
+/// the legacy view (`LegacyPollsListView`) one-to-one; the difference is
+/// the data binding flows from `VotingCoordFlow.State` rather than the old
+/// monolithic `Voting.State`.
 struct PollsListView: View {
     @Environment(\.colorScheme)
     var colorScheme
     @State private var loadErrorSheetPresented = true
     @State private var dismissFlowAfterLoadErrorSheetDismiss = false
 
-    let store: StoreOf<Voting>
+    let store: StoreOf<VotingCoordFlow>
 
     var body: some View {
         WithPerceptionTracking {
@@ -17,9 +29,9 @@ struct PollsListView: View {
                     if store.pollsLoadError || visiblePolls.isEmpty {
                         PollsListSkeletonCard()
                     } else {
-                        // Newest polls first. allRounds is stored ascending so the
-                        // assigned round numbers stay sane (round 1 = oldest), but
-                        // the list shows the latest at the top.
+                        // Newest polls first. `allRounds` is stored ascending
+                        // so assigned round numbers stay sane (round 1 =
+                        // oldest), but the list shows the latest at the top.
                         ForEach(Array(visiblePolls.reversed()), id: \.id) { item in
                             pollCard(for: item)
                         }
@@ -28,6 +40,7 @@ struct PollsListView: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
             }
+            .padding(.vertical, 1)
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonScreenTitle))
             .zashiBack { store.send(.dismissFlow) }
@@ -39,7 +52,7 @@ struct PollsListView: View {
                         settingsButtonIcon()
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Voting chain config")
+                    .accessibilityLabel(String(localizable: .coinVotePollsListChainConfigAccessibility))
                 }
             }
             .votingSheet(
@@ -59,7 +72,77 @@ struct PollsListView: View {
                     store.send(.dismissFlow)
                 }
             )
+            .votingSheet(
+                isPresented: ineligibleSheetBinding,
+                title: String(localizable: .coinVotePollsListInsufficientBalanceTitle),
+                message: ineligibleSheetMessage,
+                primary: .init(title: String(localizable: .coinVoteCommonGotIt), style: .primary) {
+                    store.send(.dismissIneligibleSheet)
+                },
+                secondary: nil
+            )
+            .votingSheet(
+                isPresented: walletSyncingSheetBinding,
+                title: String(localizable: .coinVoteWalletSyncingTitle),
+                message: String(localizable: .coinVoteWalletSyncingSubtitle),
+                primary: .init(title: String(localizable: .coinVoteCommonGotIt), style: .primary) {
+                    store.send(.dismissWalletSyncingSheet)
+                },
+                secondary: nil
+            )
         }
+    }
+
+    private var ineligibleSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.ineligibleSheet != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissIneligibleSheet)
+                }
+            }
+        )
+    }
+
+    private var walletSyncingSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.walletSyncingSheetRoundId != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissWalletSyncingSheet)
+                }
+            }
+        )
+    }
+
+    /// Renders the body copy with the held balance, snapshot height, and
+    /// minimum required balance for the active sheet. Falls back to an
+    /// empty string when the sheet isn't presented so the modifier doesn't
+    /// crash during the dismiss animation.
+    private var ineligibleSheetMessage: String {
+        guard let data = store.ineligibleSheet else { return "" }
+        let formatHeight: (UInt64) -> String = { height in
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.usesGroupingSeparator = true
+            return formatter.string(from: NSNumber(value: height)) ?? String(height)
+        }
+        let formatZec: (UInt64) -> String = { zatoshi in
+            let formatter = NumberFormatter()
+            formatter.numberStyle = .decimal
+            formatter.minimumFractionDigits = 3
+            formatter.maximumFractionDigits = 3
+            formatter.usesGroupingSeparator = true
+            let value = Zatoshi(Int64(zatoshi)).decimalValue.roundedZec
+            return formatter.string(from: value) ?? "0.000"
+        }
+        return String(
+            localizable: .coinVotePollsListInsufficientBalanceMessage(
+                formatZec(data.heldZatoshi),
+                formatHeight(data.snapshotHeight),
+                formatZec(data.minimumZatoshi)
+            )
+        )
     }
 
     @ViewBuilder
@@ -79,7 +162,7 @@ struct PollsListView: View {
         }
     }
 
-    private var visiblePolls: [Voting.State.RoundListItem] {
+    private var visiblePolls: [RoundListItem] {
         guard store.isOnDefaultConfig else {
             return store.allRounds
         }
@@ -112,7 +195,7 @@ struct PollsListView: View {
         case closed     // round is finalized or tallying — read-only results
     }
 
-    private func cardState(for item: Voting.State.RoundListItem) -> CardState {
+    private func cardState(for item: RoundListItem) -> CardState {
         switch item.session.status {
         case .active:
             return store.voteRecords[item.id] != nil ? .voted : .active
@@ -122,7 +205,14 @@ struct PollsListView: View {
     }
 
     @ViewBuilder
-    private func pollCard(for item: Voting.State.RoundListItem) -> some View {
+    private func pollCard(for item: RoundListItem) -> some View {
+        WithPerceptionTracking {
+            pollCardBody(for: item)
+        }
+    }
+
+    @ViewBuilder
+    private func pollCardBody(for item: RoundListItem) -> some View {
         let state = cardState(for: item)
 
         VStack(alignment: .leading, spacing: 16) {
@@ -132,28 +222,21 @@ struct PollsListView: View {
                 Spacer()
                 Text(dateLabel(for: state, item: item))
                     .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                    .tracking(-0.224) // -1.6% × 14pt
+                    .tracking(-0.224)
             }
 
             VStack(alignment: .leading, spacing: 8) {
                 Text(item.title)
                     .zFont(.semiBold, size: 16, style: Design.Text.primary)
-                    .tracking(-0.256) // -1.6% × 16pt
+                    .tracking(-0.256)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // "Poll Description" label + description
             if !item.session.description.isEmpty {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(localizable: .coinVoteCommonPollDescription)
-                        .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                        .tracking(-0.224)
-
-                    Text(item.session.description)
-                        .zFont(.medium, size: 14, style: Design.Text.primary)
-                        .tracking(-0.224)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
+                Text(item.session.description)
+                    .zFont(.medium, size: 14, style: Design.Text.primary)
+                    .tracking(-0.224)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             HStack(alignment: .center, spacing: 12) {
@@ -172,6 +255,11 @@ struct PollsListView: View {
                 ) {
                     tapPollCard(for: item, state: state)
                 }
+                // Suppress the button while the in-flight eligibility check
+                // resolves so a rapid double-tap doesn't kick off a second
+                // pipeline. The check is local and fast, so no spinner is
+                // needed — visually the button just briefly can't be tapped.
+                .disabled(state == .active && store.checkingEligibilityRoundId == item.id)
             }
             .frame(maxWidth: .infinity)
         }
@@ -205,7 +293,7 @@ struct PollsListView: View {
     private static let shadowSm = Color(red: 35.0 / 255.0, green: 31.0 / 255.0, blue: 32.0 / 255.0).opacity(0.04)
 
     @ViewBuilder
-    private func issuerTrustIndicator(for item: Voting.State.RoundListItem) -> some View {
+    private func issuerTrustIndicator(for item: RoundListItem) -> some View {
         if store.isOnDefaultConfig, store.zodlEndorsedRoundIds.contains(item.id) {
             zodlTrustIndicator()
         } else if !store.isOnDefaultConfig {
@@ -224,13 +312,13 @@ struct PollsListView: View {
                     .zImage(size: 16, color: Design.Surfaces.bgPrimary.color(colorScheme))
             }
 
-            Text("Approved by Zodl")
+            Text(localizable: .coinVotePollsListApprovedByZodl)
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .tracking(-0.224)
                 .lineLimit(1)
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("Approved by Zodl"))
+        .accessibilityLabel(Text(localizable: .coinVotePollsListApprovedByZodl))
     }
 
     private func unverifiedIssuerIndicator() -> some View {
@@ -241,14 +329,14 @@ struct PollsListView: View {
                 .font(.system(size: 20, weight: .regular))
                 .frame(width: 20, height: 20)
 
-            Text("Unverified Poll")
+            Text(localizable: .coinVoteVotingViewUnverifiedPollTitle)
                 .zFont(.medium, size: 14, color: foregroundColor)
                 .tracking(-0.224)
                 .lineLimit(1)
         }
         .foregroundStyle(foregroundColor)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel(Text("Unverified Poll"))
+        .accessibilityLabel(Text(localizable: .coinVoteVotingViewUnverifiedPollTitle))
     }
 
     // MARK: - Status Pill
@@ -306,7 +394,7 @@ struct PollsListView: View {
 
     // MARK: - Date Label
 
-    private func dateLabel(for state: CardState, item: Voting.State.RoundListItem) -> String {
+    private func dateLabel(for state: CardState, item: RoundListItem) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMM d"
         let session = item.session
@@ -327,9 +415,9 @@ struct PollsListView: View {
         case .active:
             return String(localizable: .coinVotePollsListEnterPoll)
         case .voted:
-            return String(localized: "Review")
+            return String(localizable: .coinVotePollsListReview)
         case .closed:
-            return String(localized: "View Results")
+            return String(localizable: .coinVoteCommonViewResults)
         }
     }
 
@@ -342,7 +430,7 @@ struct PollsListView: View {
         }
     }
 
-    private func tapPollCard(for item: Voting.State.RoundListItem, state: CardState) {
+    private func tapPollCard(for item: RoundListItem, state: CardState) {
         switch state {
         case .active:
             store.send(.roundTapped(item.id))
@@ -354,7 +442,7 @@ struct PollsListView: View {
     }
 
     private func pollCardAccessibilityLabel(
-        for item: Voting.State.RoundListItem,
+        for item: RoundListItem,
         state: CardState
     ) -> String {
         let status = pollStatusPillStyle(for: state).label
@@ -364,31 +452,6 @@ struct PollsListView: View {
 
     private func pollCardAccessibilityHint(for state: CardState) -> String {
         cardActionTitle(for: state)
-    }
-}
-
-struct PollsListSkeletonCard: View {
-    @Environment(\.colorScheme)
-    var colorScheme
-
-    var body: some View {
-        let barFill = Design.Surfaces.bgTertiary.color(colorScheme)
-        return VStack(alignment: .leading, spacing: 14) {
-            RoundedRectangle(cornerRadius: 4).fill(barFill).frame(width: 80, height: 12)
-            VStack(alignment: .leading, spacing: 10) {
-                RoundedRectangle(cornerRadius: 4).fill(barFill).frame(height: 12)
-                RoundedRectangle(cornerRadius: 4).fill(barFill).frame(height: 12)
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(barFill)
-                    .frame(width: 240, height: 12)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            RoundedRectangle(cornerRadius: 4).fill(barFill).frame(width: 60, height: 12)
-        }
-        .padding(Design.Spacing._xl)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
     }
 }
 

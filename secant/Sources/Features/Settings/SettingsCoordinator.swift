@@ -236,17 +236,14 @@ extension Settings {
 
             case .coinholderPollingTapped:
                 guard let account = state.selectedWalletAccount else { return .none }
-                var votingState = Voting.State()
+                var votingState = VotingCoordFlow.State()
                 votingState.isKeystoneUser = state.isKeystoneAccount
                 votingState.walletId = account.id.id.map { String(format: "%02x", $0) }.joined()
-                if votingState.hasSeenHowToVoteForCurrentWallet {
-                    votingState.screenStack = [.loading]
-                }
-                state.path.append(.voting(votingState))
+                state.votingCoordFlow = votingState
                 return .none
 
-            case .path(.element(id: _, action: .voting(.dismissFlow))):
-                let _ = state.path.popLast()
+            case .votingCoordFlow(.presented(.dismissFlow)):
+                state.votingCoordFlow = nil
                 return .none
 
             case .whatsNewTapped:
