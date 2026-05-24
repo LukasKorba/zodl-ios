@@ -27,6 +27,10 @@ final class VotingHelpersTests: XCTestCase {
             88_068_000,
             13_000_000
         ])
+        XCTAssertEqual(result.bundles.map { quantizeWeight(Self.total($0)) }, [
+            87_500_000,
+            12_500_000
+        ])
         XCTAssertEqual(result.eligibleWeight, 100_000_000)
         XCTAssertEqual(result.droppedCount, 0)
     }
@@ -54,6 +58,84 @@ final class VotingHelpersTests: XCTestCase {
             votingAuthorizationMemo(pollTitle: "Shielded Poll", rawWeight: 31_568_000),
             "I am authorizing this hotkey managed by my wallet to vote on Shielded Poll with 0.31568000 ZEC."
         )
+    }
+
+    func testSubmittedVotesByProposalRequiresEveryExpectedBundle() {
+        let records = [
+            VoteRecord(proposalId: 1, bundleIndex: 0, choice: .option(0), submitted: true),
+            VoteRecord(proposalId: 1, bundleIndex: 1, choice: .option(0), submitted: true),
+            VoteRecord(proposalId: 2, bundleIndex: 0, choice: .option(1), submitted: true),
+            VoteRecord(proposalId: 3, bundleIndex: 0, choice: .option(1), submitted: false),
+            VoteRecord(proposalId: 3, bundleIndex: 1, choice: .option(1), submitted: true)
+        ]
+
+        XCTAssertEqual(
+            submittedVotesByProposal(records, bundleCount: 2),
+            [1: .option(0)]
+        )
+    }
+
+    func testSubmittedVotesByProposalAllowsLegacyUnknownBundleCount() {
+        let records = [
+            VoteRecord(proposalId: 1, bundleIndex: 0, choice: .option(0), submitted: true),
+            VoteRecord(proposalId: 2, bundleIndex: 0, choice: .option(1), submitted: false)
+        ]
+
+        XCTAssertEqual(
+            submittedVotesByProposal(records, bundleCount: 0),
+            [1: .option(0)]
+        )
+    }
+
+    func testSyntheticAbstainOnlyMatchesUiGeneratedChoice() {
+        let proposal = VotingProposal(
+            id: 1,
+            title: "ZIP Poll",
+            description: "",
+            options: [
+                VoteOption(index: 0, label: "Support"),
+                VoteOption(index: 1, label: "Oppose")
+            ]
+        )
+        let proposalWithNativeAbstain = VotingProposal(
+            id: 2,
+            title: "ZIP Poll",
+            description: "",
+            options: [
+                VoteOption(index: 0, label: "Support"),
+                VoteOption(index: 1, label: "Oppose"),
+                VoteOption(index: 2, label: "Abstain")
+            ]
+        )
+
+        XCTAssertTrue(Voting.isSyntheticAbstain(choice: .option(2), proposal: proposal))
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(1), proposal: proposal))
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(3), proposal: proposalWithNativeAbstain))
+        XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(2), proposal: nil))
+    }
+
+    func testVoteRecordReportsSkippedKeystoneBundles() {
+        let skippedRecord = Voting.VoteRecord(
+            votedAt: Date(timeIntervalSince1970: 1_000),
+            votingWeight: 25_000_000,
+            proposalCount: 2,
+            eligibleVotingWeight: 100_000_000,
+            submittedBundleCount: 1,
+            totalBundleCount: 4
+        )
+        let completeRecord = Voting.VoteRecord(
+            votedAt: Date(timeIntervalSince1970: 1_000),
+            votingWeight: 100_000_000,
+            proposalCount: 2,
+            eligibleVotingWeight: 100_000_000,
+            submittedBundleCount: 4,
+            totalBundleCount: 4
+        )
+
+        XCTAssertEqual(skippedRecord.skippedKeystoneBundleCount, 3)
+        XCTAssertTrue(skippedRecord.hasSkippedKeystoneBundles)
+        XCTAssertNil(completeRecord.skippedKeystoneBundleCount)
+        XCTAssertFalse(completeRecord.hasSkippedKeystoneBundles)
     }
 
     private static func total(_ notes: [NoteInfo]) -> UInt64 {
