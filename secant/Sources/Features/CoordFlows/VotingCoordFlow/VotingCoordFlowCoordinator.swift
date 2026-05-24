@@ -1436,6 +1436,10 @@ extension VotingCoordFlow {
         state.pollsLoadError = false
         state.serviceConfig = nil
         state.walletScannedHeight = 0
+        state.ineligibleSheet = nil
+        state.checkingEligibilityRoundId = nil
+        state.walletSyncingSheetRoundId = nil
+        state.skippedQuestionsSheet = nil
     }
 
     private func walletId(for account: WalletAccount?) -> String {
