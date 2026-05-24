@@ -102,7 +102,11 @@ struct VotingCoordFlowView: View {
             VotingErrorView(
                 store: store,
                 title: String(localizable: .coinVoteErrorConfigUnavailableTitle),
-                message: message
+                message: message,
+                recoveryAction: .init(
+                    title: String(localizable: .coinVoteErrorChangeDataSource),
+                    action: .openConfigSettings
+                )
             )
         }
     }

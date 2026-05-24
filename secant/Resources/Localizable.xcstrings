@@ -2299,6 +2299,17 @@
         }
       }
     },
+    "coinVote.error.changeDataSource" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change data source"
+          }
+        }
+      }
+    },
     "coinVote.error.configUnavailableTitle" : {
       "extractionState" : "manual",
       "localizations" : {

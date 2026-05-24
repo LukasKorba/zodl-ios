@@ -8,13 +8,32 @@ import ComposableArchitecture
 
 /// Blocking error screen — used for both `.error` (generic init failure)
 /// and `.configError` (voting service config unavailable/decode failed)
-/// root states. Offers a single Got-it that dismisses the flow.
+/// root states. Config errors can optionally offer an in-flow recovery
+/// action before falling back to dismiss.
 struct VotingErrorView: View {
+    struct RecoveryAction {
+        let title: String
+        let action: VotingCoordFlow.Action
+    }
+
     @Environment(\.colorScheme) var colorScheme
 
     let store: StoreOf<VotingCoordFlow>
     let title: String
     let message: String
+    let recoveryAction: RecoveryAction?
+
+    init(
+        store: StoreOf<VotingCoordFlow>,
+        title: String,
+        message: String,
+        recoveryAction: RecoveryAction? = nil
+    ) {
+        self.store = store
+        self.title = title
+        self.message = message
+        self.recoveryAction = recoveryAction
+    }
 
     var body: some View {
         WithPerceptionTracking {
@@ -40,8 +59,20 @@ struct VotingErrorView: View {
 
                 Spacer()
 
-                ZashiButton(String(localizable: .coinVoteCommonGotIt)) {
-                    store.send(.dismissFlow)
+                VStack(spacing: 12) {
+                    if let recoveryAction {
+                        ZashiButton(recoveryAction.title, minHeight: 48) {
+                            store.send(recoveryAction.action)
+                        }
+                    }
+
+                    ZashiButton(
+                        String(localizable: .coinVoteCommonGotIt),
+                        type: recoveryAction == nil ? .primary : .secondary,
+                        minHeight: 48
+                    ) {
+                        store.send(.dismissFlow)
+                    }
                 }
                 .padding(.horizontal, 24)
                 .padding(.bottom, 24)
