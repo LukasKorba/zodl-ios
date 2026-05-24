@@ -758,7 +758,7 @@ extension VotingCoordFlow {
                 }
                 let session = item.session
                 let snapshotHeight = session.snapshotHeight
-                let network = zcashSDKEnvironment.network
+                let network = zcashSDKEnvironment.network()
                 let walletDbPath = databaseFiles.dataDbURLFor(network).path
                 let networkId: UInt32 = network.networkType.votingRustNetworkId
                 let accountId = state.selectedWalletAccount?.id
@@ -1666,7 +1666,7 @@ extension VotingCoordFlow {
             roundSession.batchVoteErrors = [:]
         }
 
-        let network = zcashSDKEnvironment.network
+        let network = zcashSDKEnvironment.network()
         let networkId: UInt32 = network.networkType.votingRustNetworkId
         let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
         let seedFingerprint = votingSeedFingerprint(for: state.selectedWalletAccount)
@@ -1978,7 +1978,7 @@ extension VotingCoordFlow {
         let expectedSnapshotHeight = activeSession.snapshotHeight
         let cachedNotes = session.walletNotes
         let bundleCount = session.bundleCount
-        let network = zcashSDKEnvironment.network
+        let network = zcashSDKEnvironment.network()
         let networkId: UInt32 = network.networkType.votingRustNetworkId
         let accountIndex = votingAccountIndex(for: state.selectedWalletAccount)
         let roundName = activeSession.title
@@ -2525,7 +2525,7 @@ extension VotingCoordFlow {
         }
 
         let cachedNotes = session.walletNotes
-        let network = zcashSDKEnvironment.network
+        let network = zcashSDKEnvironment.network()
         let networkId: UInt32 = network.networkType.votingRustNetworkId
         let accountIndex: UInt32 = keystoneMetadata?.accountIndex ?? 0
         let keystoneSeedFingerprint = keystoneMetadata?.seedFingerprint
@@ -2718,7 +2718,7 @@ extension VotingCoordFlow {
 
         let expectedSnapshotHeight = activeSession.snapshotHeight
         let cachedNotes = session.walletNotes
-        let network = zcashSDKEnvironment.network
+        let network = zcashSDKEnvironment.network()
         let networkId: UInt32 = network.networkType.votingRustNetworkId
         let accountIndex: UInt32 = state.selectedWalletAccount
             .flatMap(\.zip32AccountIndex)
