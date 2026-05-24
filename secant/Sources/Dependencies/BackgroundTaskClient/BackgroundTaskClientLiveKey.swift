@@ -9,6 +9,7 @@ import UIKit
 import os
 
 /// Tracks the active continued processing task (iOS 26+) so endContinuedProcessing can find it.
+#if compiler(>=6.2)
 @available(iOS 26.0, *)
 private final class ContinuedProcessingState: Sendable {
     private let storage = OSAllocatedUnfairLock<BGContinuedProcessingTask?>(initialState: nil)
@@ -25,14 +26,17 @@ private final class ContinuedProcessingState: Sendable {
         }
     }
 }
+#endif
 
 extension BackgroundTaskClient: DependencyKey {
     static let liveValue: Self = {
+#if compiler(>=6.2)
         // iOS 26 continued processing state (lazy, only allocated on iOS 26+)
         let cpState: Any? = {
             if #available(iOS 26.0, *) { return ContinuedProcessingState() }
             return nil
         }()
+#endif
 
         return Self(
             beginTask: { name in
@@ -56,6 +60,7 @@ extension BackgroundTaskClient: DependencyKey {
                 }
             },
             beginContinuedProcessing: { identifier, title, subtitle in
+#if compiler(>=6.2)
                 guard #available(iOS 26.0, *), let state = cpState as? ContinuedProcessingState else {
                     return false
                 }
@@ -85,8 +90,12 @@ extension BackgroundTaskClient: DependencyKey {
                     LoggerProxy.warn("Continued processing submission failed: \(error)")
                     return false
                 }
+#else
+                return false
+#endif
             },
             endContinuedProcessing: {
+#if compiler(>=6.2)
                 guard #available(iOS 26.0, *), let state = cpState as? ContinuedProcessingState else {
                     return
                 }
@@ -94,6 +103,7 @@ extension BackgroundTaskClient: DependencyKey {
                     task.setTaskCompleted(success: true)
                     LoggerProxy.info("Continued processing task completed")
                 }
+#endif
             }
         )
     }()
