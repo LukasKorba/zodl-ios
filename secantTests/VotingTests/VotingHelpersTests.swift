@@ -1,8 +1,25 @@
+import ComposableArchitecture
 import Foundation
 import XCTest
 @testable import zashi_internal
 
 final class VotingHelpersTests: XCTestCase {
+    func testVotingErrorMapperMapsPirProofRootMismatchToSnapshotMismatch() {
+        let message = VotingErrorMapper.userFriendlyMessage(
+            from: "Internal error: PIR proof root mismatch: expected aa, got bb"
+        )
+
+        XCTAssertEqual(message, String(localizable: .coinVoteStoreUserErrorPirSnapshotMismatch))
+    }
+
+    func testVotingErrorMapperMapsPirProofVerificationFailureBeforeFetchFailure() {
+        let message = VotingErrorMapper.userFriendlyMessage(
+            from: "PIR parallel fetch failed: PIR proof verification failed: bad path"
+        )
+
+        XCTAssertEqual(message, String(localizable: .coinVoteStoreUserErrorPirInvalidProofData))
+    }
+
     func testSmartBundlesUsesRustOrderingAndPerBundleQuantization() {
         let notes = [
             note(value: 31_568_000, position: 0),
@@ -114,6 +131,29 @@ final class VotingHelpersTests: XCTestCase {
         XCTAssertFalse(Voting.isSyntheticAbstain(choice: .option(2), proposal: nil))
     }
 
+    func testLoadCompletedVoteRecordClearsStaleRecordWhenDraftsRemain() {
+        let roundId = "round-1"
+        let metadata = VotingHelpersMetadataBox()
+        metadata.records[roundId] = PersistedVotingRecord(
+            votedAt: 1_700_000_000,
+            votingWeight: ballotDivisor,
+            proposalCount: 1,
+            eligibleVotingWeight: nil,
+            submittedBundleCount: nil,
+            totalBundleCount: nil
+        )
+        metadata.drafts[roundId] = ["1": 0]
+
+        withDependencies {
+            $0.votingMetadata = votingMetadataClient(metadata)
+        } operation: {
+            XCTAssertNil(Voting.loadCompletedVoteRecord(roundId: roundId, account: nil))
+        }
+
+        XCTAssertNil(metadata.records[roundId])
+        XCTAssertEqual(metadata.drafts[roundId], ["1": 0])
+    }
+
     func testVoteRecordReportsSkippedKeystoneBundles() {
         let skippedRecord = Voting.VoteRecord(
             votedAt: Date(timeIntervalSince1970: 1_000),
@@ -156,4 +196,33 @@ final class VotingHelpersTests: XCTestCase {
             ufvkStr: "ufvk-\(position)"
         )
     }
+
+    private func votingMetadataClient(
+        _ box: VotingHelpersMetadataBox
+    ) -> VotingMetadataProviderClient {
+        var client = VotingMetadataProviderClient()
+        client.load = { _ in }
+        client.store = { _ in }
+        client.resetAccount = { _ in }
+        client.reset = {}
+        client.loadDrafts = { box.drafts[$0] ?? [:] }
+        client.setDrafts = { drafts, roundId in box.drafts[roundId] = drafts }
+        client.clearDrafts = { roundId in box.drafts[roundId] = [:] }
+        client.loadSubmittedVotes = { box.submittedVotes[$0] ?? [:] }
+        client.setSubmittedVotes = { votes, roundId in
+            box.submittedVotes[roundId] = votes
+        }
+        client.clearSubmittedVotes = { roundId in box.submittedVotes[roundId] = [:] }
+        client.record = { box.records[$0] }
+        client.allRecords = { box.records }
+        client.setRecord = { record, roundId in box.records[roundId] = record }
+        client.clearRecord = { roundId in box.records.removeValue(forKey: roundId) }
+        return client
+    }
+}
+
+private final class VotingHelpersMetadataBox: @unchecked Sendable {
+    var drafts: [String: [String: UInt32]] = [:]
+    var submittedVotes: [String: [String: UInt32]] = [:]
+    var records: [String: PersistedVotingRecord] = [:]
 }

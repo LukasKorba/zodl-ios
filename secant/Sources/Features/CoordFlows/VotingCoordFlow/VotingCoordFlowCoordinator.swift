@@ -2190,20 +2190,20 @@ extension VotingCoordFlow {
         }
     }
 
-    private static let shareCheckGrace: UInt64 = 10
+    static let shareCheckGrace: UInt64 = 10
 
-    private static func shareRecoveryBaseTime(_ share: VotingShareDelegation) -> UInt64 {
+    static func shareRecoveryBaseTime(_ share: VotingShareDelegation) -> UInt64 {
         share.submitAt > 0 ? share.submitAt : share.createdAt
     }
 
-    private static func isShareReadyForStatusCheck(
+    static func isShareReadyForStatusCheck(
         _ share: VotingShareDelegation,
         now: UInt64
     ) -> Bool {
         now >= shareRecoveryBaseTime(share) + shareCheckGrace
     }
 
-    private static func shouldResubmitShare(
+    static func shouldResubmitShare(
         _ share: VotingShareDelegation,
         now: UInt64,
         voteEndTime: UInt64
@@ -2215,7 +2215,7 @@ extension VotingCoordFlow {
         return now >= baseTime + overdueThreshold && voteEndTime > now + 10
     }
 
-    private static func pollShareStatusesForRecovery(
+    static func pollShareStatusesForRecovery(
         readyShares: [VotingShareDelegation],
         roundId: String,
         now: UInt64,
@@ -2973,6 +2973,10 @@ extension VotingCoordFlow {
                 resetKeystoneSigningLoop(&roundSession, status: keystoneSigningFailureStatus)
             }
             if case .authorizing = roundSession.batchSubmissionStatus {
+                roundSession.isSubmittingVote = false
+                roundSession.submittingProposalId = nil
+                roundSession.voteSubmissionStep = nil
+                roundSession.currentVoteBundleIndex = nil
                 roundSession.batchSubmissionStatus = .authorizationFailed(error: error)
             }
         }
@@ -3513,13 +3517,13 @@ extension VotingCoordFlow {
 
 // MARK: - Share delegation recovery
 
-private struct ShareDelegationKey: Equatable, Sendable {
+struct ShareDelegationKey: Equatable, Sendable {
     let bundleIndex: UInt32
     let proposalId: UInt32
     let shareIndex: UInt32
 }
 
-private struct ShareRecoveryPollResult: Equatable, Sendable {
+struct ShareRecoveryPollResult: Equatable, Sendable {
     let confirmedShares: [ShareDelegationKey]
     let resubmissionShares: [VotingShareDelegation]
     let queriedCount: Int

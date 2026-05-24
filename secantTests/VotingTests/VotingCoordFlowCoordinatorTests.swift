@@ -113,6 +113,81 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         XCTAssertNil(updated.voteRecord)
     }
 
+    func testBatchSubmissionProgressClearsPreviousSubmissionStep() {
+        var session = roundSession()
+        session.voteSubmissionStep = .sendingShares
+        session.currentVoteBundleIndex = 0
+        var state = VotingCoordFlow.State()
+        state.roundCache[roundId] = session
+
+        _ = VotingCoordFlow().reduceBatchSubmissionProgress(
+            &state,
+            roundId: roundId,
+            currentIndex: 0,
+            totalCount: 1,
+            proposalId: 1
+        )
+
+        let updated = tryUnwrap(state.roundCache[roundId])
+        XCTAssertEqual(updated.batchSubmissionStatus, .submitting(currentIndex: 0, totalCount: 1, currentProposalId: 1))
+        XCTAssertEqual(updated.submittingProposalId, 1)
+        XCTAssertTrue(updated.isSubmittingVote)
+        XCTAssertNil(updated.voteSubmissionStep)
+        XCTAssertNil(updated.currentVoteBundleIndex)
+    }
+
+    func testAuthenticationSucceededStartsSoftwareDelegationAtSubmitTime() {
+        var session = RoundSession(roundId: activeRoundId)
+        session.bundleCount = 1
+        session.draftVotes = [1: .option(0)]
+        var state = VotingCoordFlow.State()
+        state.roundCache[activeRoundId] = session
+        state.allRounds = [RoundListItem(roundNumber: 1, session: votingSession())]
+
+        _ = VotingCoordFlow().reduceAuthenticationSucceeded(&state, roundId: activeRoundId)
+
+        let updated = tryUnwrap(state.roundCache[activeRoundId])
+        XCTAssertFalse(state.pendingBatchSubmission)
+        XCTAssertEqual(updated.batchSubmissionStatus, .authorizing)
+        XCTAssertEqual(updated.voteSubmissionStep, .authorizingVote)
+        XCTAssertEqual(updated.delegationProofStatus, .generating(progress: 0))
+    }
+
+    func testDelegationFailureDuringBatchAuthorizationShowsAuthorizationFailure() {
+        var session = roundSession()
+        session.bundleCount = 2
+        session.currentKeystoneBundleIndex = 1
+        session.keystoneBundleSignatures = [signature(byte: 1)]
+        session.keystoneSigningStatus = .awaitingSignature
+        session.delegationProofStatus = .generating(progress: 0.5)
+        session.isDelegationProofInFlight = true
+        session.batchSubmissionStatus = .authorizing
+        session.voteSubmissionStep = .authorizingVote
+        session.currentVoteBundleIndex = 0
+        var state = VotingCoordFlow.State()
+        state.isKeystoneUser = true
+        state.pendingBatchSubmission = true
+        state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+        state.roundCache[roundId] = session
+
+        _ = VotingCoordFlow().reduceDelegationProofFailed(
+            &state,
+            roundId: roundId,
+            error: "nullifier already spent"
+        )
+
+        let updated = tryUnwrap(state.roundCache[roundId])
+        XCTAssertEqual(updated.delegationProofStatus, .failed("nullifier already spent"))
+        XCTAssertFalse(updated.isDelegationProofInFlight)
+        XCTAssertFalse(state.pendingBatchSubmission)
+        XCTAssertEqual(updated.batchSubmissionStatus, .authorizationFailed(error: "nullifier already spent"))
+        XCTAssertNil(updated.voteSubmissionStep)
+        XCTAssertNil(updated.currentVoteBundleIndex)
+        XCTAssertEqual(updated.currentKeystoneBundleIndex, 0)
+        XCTAssertTrue(updated.keystoneBundleSignatures.isEmpty)
+        XCTAssertEqual(updated.keystoneSigningStatus, .failed("nullifier already spent"))
+    }
+
     func testIntermediateKeystoneSignatureAdvancesToNextBundle() {
         var session = roundSession()
         session.bundleCount = 2
@@ -231,7 +306,106 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         XCTAssertFalse(isDelegationSigningTop(state))
     }
 
+    func testDelegationPipelineRecoversConfirmedCachedTxBeforeSkippingBundle() async throws {
+        let recorder = RecoveryOrderRecorder()
+        var votingCrypto = VotingCryptoClient()
+        votingCrypto.getDelegationTxHash = { _, _ in .present("cached-tx") }
+        votingCrypto.storeVanPosition = { _, bundleIndex, position in
+            await recorder.record("van:\(bundleIndex):\(position)")
+        }
+
+        var votingAPI = VotingAPIClient()
+        votingAPI.fetchTxConfirmation = { txHash in
+            await recorder.record("fetch:\(txHash)")
+            return Self.makeDelegationConfirmation(position: 42)
+        }
+        votingAPI.submitDelegation = { _ in
+            await recorder.record("submit")
+            return TxResult(txHash: "new-tx", code: 0)
+        }
+
+        try await VotingCoordFlow.runDelegationPipeline(
+            roundId: "aabb",
+            cachedNotes: [note(value: ballotDivisor, position: 0)],
+            senderSeed: [],
+            hotkeySeed: [],
+            networkId: 1,
+            accountIndex: 0,
+            roundName: "Round",
+            pirEndpoints: ["https://pir.example.com"],
+            expectedSnapshotHeight: 1,
+            votingCrypto: votingCrypto,
+            votingAPI: votingAPI,
+            send: Send<VotingCoordFlow.Action>(send: { _ in }),
+            delegationConfirmationTimeout: 0,
+            delegationConfirmationRetryDelay: .zero
+        )
+
+        let events = await recorder.events()
+        XCTAssertEqual(events, ["fetch:cached-tx", "van:0:42"])
+    }
+
+    func testDelegationPipelineDoesNotSkipCachedTxWithoutConfirmedVanPosition() async throws {
+        let recorder = RecoveryOrderRecorder()
+        var votingCrypto = VotingCryptoClient()
+        votingCrypto.getDelegationTxHash = { _, _ in .present("cached-tx") }
+        votingCrypto.buildVotingPczt = { _, _, _, _, _, _, _, _, _, _ in
+            Self.makeVotingPcztResult()
+        }
+        votingCrypto.getDelegationSubmission = { _, _, _, _, _ in
+            await recorder.record("registration")
+            return Self.makeDelegationRegistration()
+        }
+        votingCrypto.storeDelegationTxHash = { _, _, txHash in
+            await recorder.record("store-tx:\(txHash)")
+        }
+        votingCrypto.storeVanPosition = { _, bundleIndex, position in
+            await recorder.record("van:\(bundleIndex):\(position)")
+        }
+
+        var votingAPI = VotingAPIClient()
+        votingAPI.fetchTxConfirmation = { txHash in
+            await recorder.record("fetch:\(txHash)")
+            if txHash == "cached-tx" {
+                return nil
+            }
+            return Self.makeDelegationConfirmation(position: 9)
+        }
+        votingAPI.submitDelegation = { _ in
+            await recorder.record("submit")
+            return TxResult(txHash: "new-tx", code: 0)
+        }
+
+        try await VotingCoordFlow.runDelegationPipeline(
+            roundId: "aabb",
+            cachedNotes: [note(value: ballotDivisor, position: 0)],
+            senderSeed: [],
+            hotkeySeed: [],
+            networkId: 1,
+            accountIndex: 0,
+            roundName: "Round",
+            pirEndpoints: ["https://pir.example.com"],
+            expectedSnapshotHeight: 1,
+            votingCrypto: votingCrypto,
+            votingAPI: votingAPI,
+            send: Send<VotingCoordFlow.Action>(send: { _ in }),
+            delegationConfirmationTimeout: 0,
+            delegationConfirmationRetryDelay: .zero
+        )
+
+        let events = await recorder.events()
+        XCTAssertEqual(events, [
+            "fetch:cached-tx",
+            "registration",
+            "submit",
+            "store-tx:new-tx",
+            "fetch:new-tx",
+            "van:0:9"
+        ])
+    }
+
     private let roundId = "round-1"
+    private let activeRoundId = String(repeating: "aa", count: 32)
 
     private func roundSession(
         votingWeight: UInt64 = 0,
@@ -245,6 +419,39 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         session.votes = votes
         session.walletNotes = notes
         return session
+    }
+
+    private func votingSession() -> VotingSession {
+        VotingSession(
+            voteRoundId: Data(repeating: 0xAA, count: 32),
+            snapshotHeight: 123,
+            snapshotBlockhash: Data(repeating: 0x01, count: 32),
+            proposalsHash: Data(repeating: 0x02, count: 32),
+            voteEndTime: .now.addingTimeInterval(60),
+            ceremonyStart: .now.addingTimeInterval(-60),
+            eaPK: Data(repeating: 0x03, count: 32),
+            vkZkp1: Data(repeating: 0x04, count: 32),
+            vkZkp2: Data(repeating: 0x05, count: 32),
+            vkZkp3: Data(repeating: 0x06, count: 32),
+            ncRoot: Data(repeating: 0x07, count: 32),
+            nullifierIMTRoot: Data(repeating: 0x08, count: 32),
+            creator: "creator",
+            description: "Round description",
+            proposals: [
+                VotingProposal(
+                    id: 1,
+                    title: "Proposal 1",
+                    description: "Description 1",
+                    options: [
+                        VoteOption(index: 0, label: "Support"),
+                        VoteOption(index: 1, label: "Oppose")
+                    ]
+                )
+            ],
+            status: .active,
+            createdAtHeight: 123,
+            title: "Round"
+        )
     }
 
     private func signature(byte: UInt8) -> KeystoneBundleSignature {
@@ -267,6 +474,53 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
             rseed: Data(repeating: byte, count: 32),
             scope: 0,
             ufvkStr: "ufvk-\(position)"
+        )
+    }
+
+    private static func makeVotingPcztResult() -> VotingPcztResult {
+        VotingPcztResult(
+            pcztBytes: Data([0x01]),
+            rk: Data(repeating: 0x01, count: 32),
+            alpha: Data(repeating: 0x02, count: 32),
+            nfSigned: Data(repeating: 0x03, count: 32),
+            cmxNew: Data(repeating: 0x04, count: 32),
+            govNullifiers: [Data(repeating: 0x05, count: 32)],
+            van: Data(repeating: 0x06, count: 32),
+            vanCommRand: Data(repeating: 0x07, count: 32),
+            dummyNullifiers: [],
+            rhoSigned: Data(repeating: 0x08, count: 32),
+            paddedCmx: [],
+            rseedSigned: Data(repeating: 0x09, count: 32),
+            rseedOutput: Data(repeating: 0x0A, count: 32),
+            actionBytes: Data([0x0B]),
+            actionIndex: 0
+        )
+    }
+
+    private static func makeDelegationRegistration() -> DelegationRegistration {
+        DelegationRegistration(
+            rk: Data(repeating: 0x01, count: 32),
+            spendAuthSig: Data(repeating: 0x02, count: 64),
+            signedNoteNullifier: Data(repeating: 0x03, count: 32),
+            cmxNew: Data(repeating: 0x04, count: 32),
+            vanCmx: Data(repeating: 0x05, count: 32),
+            govNullifiers: [Data(repeating: 0x06, count: 32)],
+            proof: Data(repeating: 0x07, count: 32),
+            voteRoundId: Data([0xAA, 0xBB]),
+            sighash: Data(repeating: 0x08, count: 32)
+        )
+    }
+
+    private static func makeDelegationConfirmation(position: UInt32) -> TxConfirmation {
+        TxConfirmation(
+            height: 1,
+            code: 0,
+            events: [
+                TxEvent(
+                    type: "delegate_vote",
+                    attributes: [.init(key: "leaf_index", value: "\(position)")]
+                )
+            ]
         )
     }
 
@@ -317,4 +571,16 @@ private final class VotingMetadataBox: @unchecked Sendable {
     var drafts: [String: [String: UInt32]] = [:]
     var submittedVotes: [String: [String: UInt32]] = [:]
     var records: [String: PersistedVotingRecord] = [:]
+}
+
+private actor RecoveryOrderRecorder {
+    private var recordedEvents: [String] = []
+
+    func record(_ event: String) {
+        recordedEvents.append(event)
+    }
+
+    func events() -> [String] {
+        recordedEvents
+    }
 }
