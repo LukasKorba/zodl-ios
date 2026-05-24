@@ -194,7 +194,7 @@ extension VotingCoordFlow {
                 }
                 state.voteRecords = records
 
-                state.rootScreen = state.allRounds.isEmpty ? .noRounds : .pollsList
+                state.rootScreen = visibleRoundCount(state: state) == 0 ? .noRounds : .pollsList
 
                 // If the user is currently on TallyingView for a round whose
                 // status just flipped to .finalized, swap the topmost path
@@ -232,6 +232,16 @@ extension VotingCoordFlow {
 
             case let .zodlEndorsementsLoaded(ids):
                 state.zodlEndorsedRoundIds = ids
+                // Re-evaluate the empty state — when the endorsements set
+                // arrives after `.allRoundsLoaded` and its intersection
+                // with `allRounds` is empty (no endorsed rounds at all on
+                // prod, for example), the polls list would otherwise stay
+                // on the loading skeleton forever because
+                // `PollsListView.visiblePolls` becomes empty.
+                if state.rootScreen == .pollsList,
+                   visibleRoundCount(state: state) == 0 {
+                    state.rootScreen = .noRounds
+                }
                 return .none
 
             case .zodlEndorsementsFailed:
@@ -3170,6 +3180,17 @@ extension VotingCoordFlow {
     /// truth (the rounds list) and look it up at use sites.
     private func activeSession(in state: State, roundId: String) -> VotingSession? {
         state.allRounds.first { $0.id == roundId }?.session
+    }
+
+    /// Mirror of `PollsListView.visiblePolls` so the coordinator can route
+    /// to `.noRounds` when the user-visible list is empty — not just when
+    /// the raw `allRounds` array is. On the default config we surface only
+    /// Zodl-endorsed rounds; a chain returning rounds with zero
+    /// endorsements would otherwise leave the polls list stuck on the
+    /// loading skeleton forever.
+    private func visibleRoundCount(state: State) -> Int {
+        guard state.isOnDefaultConfig else { return state.allRounds.count }
+        return state.allRounds.filter { state.zodlEndorsedRoundIds.contains($0.id) }.count
     }
 
     private func completedEligibleVotingWeight(_ session: RoundSession) -> UInt64 {
