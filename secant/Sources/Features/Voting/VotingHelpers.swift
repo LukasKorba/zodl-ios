@@ -469,6 +469,22 @@ enum VotingErrorMapper {
 
 // MARK: - Note bundling (Swift mirror of zcash_voting::chunk_notes)
 
+func votingRawZecString(_ zatoshi: UInt64) -> String {
+    let whole = zatoshi / 100_000_000
+    let fractional = String(zatoshi % 100_000_000)
+    let paddedFractional = String(repeating: "0", count: max(0, 8 - fractional.count)) + fractional
+    return "\(whole).\(paddedFractional)"
+}
+
+func votingAuthorizationMemo(pollTitle: String, rawWeight: UInt64) -> String {
+    String(
+        localizable: .coinVoteDelegationSigningMemoMessage(
+            pollTitle,
+            votingRawZecString(rawWeight)
+        )
+    )
+}
+
 struct BundleResult {
     let bundles: [[NoteInfo]]
     let eligibleWeight: UInt64
