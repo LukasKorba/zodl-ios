@@ -98,7 +98,7 @@ struct ProposalDetailView: View {
                 }
                 .padding(.vertical, 1)
 
-                bottomBar(forumURL: info.proposal?.forumURL)
+                bottomBar(forumURL: browserSafeForumURL(info.proposal?.forumURL))
             }
             .applyScreenBackground()
             .screenTitle(info.screenTitle)
@@ -118,13 +118,20 @@ struct ProposalDetailView: View {
                 ) {
                     store.send(.skippedQuestionsGoBackTapped)
                 },
-                secondary: .init(
-                    title: String(localizable: .coinVoteCommonConfirm),
-                    style: .secondary
-                ) {
-                    store.send(.confirmSkippedQuestionsAndReview(roundId: roundId))
-                }
+                secondary: skippedQuestionsConfirmAction
             )
+        }
+    }
+
+    private var skippedQuestionsConfirmAction: VotingSheetContent.ButtonConfig? {
+        guard store.roundCache[roundId]?.draftVotes.isEmpty == false else {
+            return nil
+        }
+        return .init(
+            title: String(localizable: .coinVoteCommonConfirm),
+            style: .secondary
+        ) {
+            store.send(.confirmSkippedQuestionsAndReview(roundId: roundId))
         }
     }
 
@@ -184,15 +191,25 @@ struct ProposalDetailView: View {
         )
     }
 
+    private func browserSafeForumURL(_ url: URL?) -> URL? {
+        guard let url,
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https"
+        else {
+            return nil
+        }
+        return url
+    }
+
     /// Sticky bottom region. Hosts the optional "View Forum Discussion" row
-    /// (when the proposal carries a `forumURL`) above the Next CTA. The Next
-    /// CTA is hidden in `.reviewDrafts` mode — the user opens detail from
-    /// the Review screen one proposal at a time and exits with X. The
-    /// forum row stays visible in every mode so users can always read the
+    /// (when the proposal carries a browser-safe `forumURL`) above the Next CTA.
+    /// The Next CTA is only shown in active voting; review screens open detail
+    /// one proposal at a time and exit with X. The forum row stays visible in
+    /// every mode so users can always read the
     /// upstream discussion before deciding (or while reviewing).
     @ViewBuilder
     private func bottomBar(forumURL: URL?) -> some View {
-        let showNext = mode != .reviewDrafts
+        let showNext = mode == .voting
         if forumURL != nil || showNext {
             VStack(spacing: 12) {
                 if let forumURL {

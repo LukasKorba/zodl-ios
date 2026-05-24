@@ -1342,6 +1342,10 @@ extension VotingCoordFlow {
                 return .none
 
             case let .confirmSkippedQuestionsAndReview(roundId):
+                guard state.roundCache[roundId]?.draftVotes.isEmpty == false else {
+                    state.skippedQuestionsSheet = nil
+                    return .none
+                }
                 // Push the Review screen on top of the current detail stack
                 // rather than popping the details first — popping made the
                 // transition look like a "back" animation followed by a
@@ -3596,4 +3600,3 @@ private enum DelegationTxConfirmationStatus: Sendable {
     case failed(code: UInt32, log: String)
     case notFound
 }
-
