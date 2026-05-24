@@ -46,6 +46,7 @@ struct DelegationSigningView: View {
                 session: session,
                 pollTitle: pollTitle
             )
+            let isSigningRouteActive = Self.isSigningRouteActive(store.path, roundId: roundId)
 
             VStack(spacing: 0) {
                 ScrollView {
@@ -63,20 +64,24 @@ struct DelegationSigningView: View {
                                 .padding(.top, 16)
                         }
 
-                        qrCodeSection(status: status)
-                            .padding(.top, bundleCount > 1 || currentBundleMemo != nil ? 24 : 32)
+                        if isSigningRouteActive {
+                            qrCodeSection(status: status)
+                                .padding(.top, bundleCount > 1 || currentBundleMemo != nil ? 24 : 32)
 
-                        instructionText(status: status)
-                            .padding(.top, 32)
+                            instructionText(status: status)
+                                .padding(.top, 32)
+                        }
                     }
                     .padding(.horizontal, 24)
                 }
 
                 Spacer()
 
-                actionButtons(status: status)
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 24)
+                if isSigningRouteActive {
+                    actionButtons(status: status)
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 24)
+                }
             }
             .applyScreenBackground()
             .screenTitle(String(localizable: .coinVoteCommonConfirmation))
@@ -314,6 +319,18 @@ struct DelegationSigningView: View {
 
         let bundleTotal = bundles[bundleIndex].reduce(UInt64(0)) { $0 + $1.value }
         return votingAuthorizationMemo(pollTitle: pollTitle, rawWeight: bundleTotal)
+    }
+
+    private static func isSigningRouteActive(
+        _ path: StackState<VotingCoordFlow.Path.State>,
+        roundId: String
+    ) -> Bool {
+        path.contains {
+            guard case let .delegationSigning(signingState) = $0 else {
+                return false
+            }
+            return signingState.roundId == roundId
+        }
     }
 
     // MARK: - Action buttons
