@@ -361,12 +361,20 @@ extension VotingCoordFlow {
                     state.path.append(.tallying(Tallying.State(roundId: roundId)))
                     return cancelShareTracking
                 case .finalized:
+                    // Hydrate the user's persisted per-proposal choices so
+                    // ResultsView can render the "Voted: <option>" footer
+                    // on each card — same pattern as the active-and-voted
+                    // branch above. Without this, `RoundSession.votes` is
+                    // empty for rounds the user voted in on a previous
+                    // session.
+                    hydratePersistedRoundChoices(&state, roundId: roundId)
                     state.path.append(.results(Results.State(roundId: roundId)))
                     return .merge(
                         cancelShareTracking,
                         .cancel(id: cancelStatusPollingId),
                         .send(.fetchTallyResults(roundId: roundId)),
-                        .send(.startNewRoundPolling)
+                        .send(.startNewRoundPolling),
+                        loadSubmittedVotesFromDb(roundId: roundId)
                     )
                 case .unspecified:
                     return .none

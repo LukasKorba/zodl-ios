@@ -28,6 +28,7 @@ struct ResultsView: View {
             let loaded = cached?.tallyFetched ?? false
             let tallyError = cached?.tallyError
             let voteRecord = store.voteRecords[roundId]
+            let submittedVotes = cached?.votes ?? [:]
             let isZodlEndorsed = store.isOnDefaultConfig
                 && store.zodlEndorsedRoundIds.contains(roundId)
 
@@ -60,7 +61,8 @@ struct ResultsView: View {
                                 ForEach(proposals) { proposal in
                                     proposalResultCard(
                                         proposal: proposal,
-                                        tally: tallyResults[proposal.id]
+                                        tally: tallyResults[proposal.id],
+                                        userChoice: submittedVotes[proposal.id]
                                     )
                                 }
                             }
@@ -173,7 +175,8 @@ struct ResultsView: View {
     @ViewBuilder
     private func proposalResultCard(
         proposal: VotingProposal,
-        tally: TallyResult?
+        tally: TallyResult?,
+        userChoice: VoteChoice?
     ) -> some View {
         let rawEntries = tally?.entries ?? []
         // Backfill missing options so they always display (even with 0 votes).
@@ -249,33 +252,65 @@ struct ResultsView: View {
                     .zFont(.medium, size: 13, style: Design.Text.tertiary)
             }
 
-            footer(totalAmount: totalAmount)
+            footer(
+                totalAmount: totalAmount,
+                userChoice: userChoice,
+                proposal: proposal
+            )
         }
         .padding(16)
         .background(Design.Surfaces.bgSecondary.color(colorScheme))
         .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
     }
 
-    // MARK: - Footer (Total: X ZEC)
+    // MARK: - Footer (Voted: <option> · Total: X ZEC)
 
+    /// Per-card footer. Renders the user's voted option label (when we
+    /// have it — populated for finalized rounds via the coordinator's
+    /// `loadSubmittedVotesFromDb` call on `.roundTapped`) on the left, and
+    /// the round-wide Total on the right. Either side may be absent: if
+    /// the tally has no recorded votes the Total drops; if the user
+    /// didn't submit a choice for this proposal (skipped) the Voted line
+    /// drops. If both are absent, the whole footer collapses.
     @ViewBuilder
-    private func footer(totalAmount: UInt64) -> some View {
-        if totalAmount > 0 {
-            let totalString = String(
-                localizable: .coinVoteCommonZecValue(Self.tallyToZECNumber(totalAmount))
+    private func footer(
+        totalAmount: UInt64,
+        userChoice: VoteChoice?,
+        proposal: VotingProposal
+    ) -> some View {
+        let votedLabel: String? = userChoice
+            .map { optionLabel(for: $0.index, proposal: proposal) }
+
+        if votedLabel != nil || totalAmount > 0 {
+            HStack(alignment: .center, spacing: 8) {
+                if let votedLabel {
+                    Text(localizable: .coinVoteResultsVotedLine(votedLabel))
+                        .zFont(.medium, size: 12, style: Design.Text.tertiary)
+                        .tracking(-0.144)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                if totalAmount > 0 {
+                    let totalString = String(
+                        localizable: .coinVoteCommonZecValue(Self.tallyToZECNumber(totalAmount))
+                    )
+                    Text(localizable: .coinVoteResultsTotal(totalString))
+                        .zFont(.medium, size: 12, style: Design.Text.tertiary)
+                        .tracking(-0.144)
+                        .lineLimit(1)
+                        .frame(maxWidth: votedLabel == nil ? .infinity : nil, alignment: .trailing)
+                }
+            }
+            .padding(.top, 8)
+            .overlay(
+                Rectangle()
+                    .fill(Design.Surfaces.strokeSecondary.color(colorScheme))
+                    .frame(height: 1)
+                    .frame(maxWidth: .infinity, alignment: .top),
+                alignment: .top
             )
-            Text(localizable: .coinVoteResultsTotal(totalString))
-                .zFont(.medium, size: 12, style: Design.Text.tertiary)
-                .tracking(-0.144)
-                .padding(.top, 8)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .overlay(
-                    Rectangle()
-                        .fill(Design.Surfaces.strokeSecondary.color(colorScheme))
-                        .frame(height: 1)
-                        .frame(maxWidth: .infinity, alignment: .top),
-                    alignment: .top
-                )
         }
     }
 
