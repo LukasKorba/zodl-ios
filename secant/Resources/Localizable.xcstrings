@@ -2035,6 +2035,17 @@
         }
       }
     },
+    "coinVote.delegationSigning.finalizingAuthorizationEllipsis" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finalizing voting authorization…"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.instruction" : {
       "extractionState" : "manual",
       "localizations" : {

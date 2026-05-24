@@ -595,6 +595,7 @@ extension VotingCoordFlow {
                 else {
                     return .none
                 }
+                let restoredAllBundles = UInt32(validSignatures.count) >= session.bundleCount
                 mutateSession(&state, roundId: roundId) { roundSession in
                     roundSession.keystoneBundleSignatures = validSignatures.map {
                         KeystoneBundleSignature(sig: $0.sig, sighash: $0.sighash, rk: $0.rk)
@@ -602,9 +603,11 @@ extension VotingCoordFlow {
                     roundSession.currentKeystoneBundleIndex = UInt32(validSignatures.count)
                     roundSession.pendingVotingPczt = nil
                     roundSession.pendingUnsignedDelegationPczt = nil
-                    roundSession.keystoneSigningStatus = .idle
+                    roundSession.keystoneSigningStatus = restoredAllBundles
+                        ? .finalizingAuthorization
+                        : .idle
                 }
-                if UInt32(validSignatures.count) >= session.bundleCount {
+                if restoredAllBundles {
                     mutateSession(&state, roundId: roundId) { roundSession in
                         roundSession.delegationProofStatus = .generating(progress: 0)
                         roundSession.isDelegationProofInFlight = true
@@ -2670,7 +2673,7 @@ extension VotingCoordFlow {
             return .merge(persistEffect, .send(.startDelegationProof(roundId: roundId)))
         } else {
             mutateSession(&state, roundId: roundId) { roundSession in
-                roundSession.keystoneSigningStatus = .idle
+                roundSession.keystoneSigningStatus = .finalizingAuthorization
                 roundSession.delegationProofStatus = .generating(progress: 0)
                 roundSession.isDelegationProofInFlight = true
                 roundSession.batchSubmissionStatus = .authorizing
@@ -2824,7 +2827,7 @@ extension VotingCoordFlow {
             roundSession.votingWeight = signedWeight
             roundSession.pendingVotingPczt = nil
             roundSession.pendingUnsignedDelegationPczt = nil
-            roundSession.keystoneSigningStatus = .idle
+            roundSession.keystoneSigningStatus = .finalizingAuthorization
             roundSession.delegationProofStatus = .generating(progress: 0)
             roundSession.isDelegationProofInFlight = true
             roundSession.batchSubmissionStatus = .authorizing

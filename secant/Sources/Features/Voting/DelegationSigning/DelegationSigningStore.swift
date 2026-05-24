@@ -157,9 +157,11 @@ struct DelegationSigningView: View {
             VStack {
                 ProgressView()
                     .padding(.bottom, 8)
-                Text(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
-                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                    .multilineTextAlignment(.center)
+                if case .preparingRequest = status {
+                    Text(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
+                        .zFont(.medium, size: 13, style: Design.Text.tertiary)
+                        .multilineTextAlignment(.center)
+                }
             }
             .frame(width: 216, height: 216)
             .padding(24)
@@ -194,6 +196,25 @@ struct DelegationSigningView: View {
             VStack {
                 ProgressView()
                 Text(localizable: .coinVoteDelegationSigningParsingSignatureEllipsis)
+                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 8)
+            }
+            .frame(width: 216, height: 216)
+            .padding(24)
+            .background {
+                RoundedRectangle(cornerRadius: Design.Radius._xl)
+                    .fill(Asset.Colors.ZDesign.Base.bone.color)
+                    .background {
+                        RoundedRectangle(cornerRadius: Design.Radius._xl)
+                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
+                    }
+            }
+
+        case .finalizingAuthorization:
+            VStack {
+                ProgressView()
+                Text(localizable: .coinVoteDelegationSigningFinalizingAuthorizationEllipsis)
                     .zFont(.medium, size: 13, style: Design.Text.tertiary)
                     .multilineTextAlignment(.center)
                     .padding(.top, 8)
