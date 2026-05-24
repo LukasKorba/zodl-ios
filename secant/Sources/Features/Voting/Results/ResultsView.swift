@@ -109,10 +109,7 @@ struct ResultsView: View {
             }
 
             if !description.isEmpty {
-                Text(description)
-                    .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                    .tracking(-0.224)
-                    .fixedSize(horizontal: false, vertical: true)
+                ExpandableText(text: description, collapsedLineLimit: 2)
             }
         }
     }
@@ -200,18 +197,13 @@ struct ResultsView: View {
             : nil
 
         VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 0) {
-                if let zip = proposal.zipNumber?
-                    .trimmingCharacters(in: .whitespacesAndNewlines),
-                   !zip.isEmpty {
+            if let zip = proposal.zipNumber?
+                .trimmingCharacters(in: .whitespacesAndNewlines),
+               !zip.isEmpty {
+                HStack(spacing: 0) {
                     zipBadge(zip)
+                    Spacer()
                 }
-                Spacer()
-                winnerBadge(
-                    winningEntry: winningEntry,
-                    isTie: isTie,
-                    proposal: proposal
-                )
             }
 
             Text(proposal.title)
@@ -220,12 +212,7 @@ struct ResultsView: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             if !proposal.description.isEmpty {
-                Text(proposal.description)
-                    .zFont(.medium, size: 14, style: Design.Text.tertiary)
-                    .tracking(-0.224)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
-                    .fixedSize(horizontal: false, vertical: true)
+                ExpandableText(text: proposal.description, collapsedLineLimit: 2)
             }
 
             VStack(spacing: 12) {
@@ -311,45 +298,6 @@ struct ResultsView: View {
                     .frame(maxWidth: .infinity, alignment: .top),
                 alignment: .top
             )
-        }
-    }
-
-    // MARK: - Winner Badge
-
-    @ViewBuilder
-    private func winnerBadge(
-        winningEntry: TallyResult.Entry?,
-        isTie: Bool,
-        proposal: VotingProposal
-    ) -> some View {
-        HStack(spacing: 6) {
-            if !isTie, winningEntry != nil {
-                Image(systemName: "checkmark.seal")
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundStyle(Design.Text.primary.color(colorScheme))
-            }
-
-            HStack(spacing: 4) {
-                Text(localizable: .coinVoteResultsWinnerLabel)
-                    .zFont(.medium, size: 13, style: Design.Text.primary)
-
-                if isTie {
-                    Text(localizable: .coinVoteResultsTie)
-                        .zFont(.semiBold, size: 13, style: Design.Text.primary)
-                } else if let winner = winningEntry {
-                    let label = optionLabel(for: winner.decision, proposal: proposal)
-                    let color = tallyEntryColor(
-                        decision: winner.decision,
-                        proposal: proposal,
-                        fallbackLabel: label
-                    )
-                    Text(label)
-                        .zFont(.semiBold, size: 13, color: color)
-                } else {
-                    Text("—")
-                        .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                }
-            }
         }
     }
 
@@ -487,5 +435,107 @@ struct ResultsView: View {
     static func formatWeightZEC(_ weight: UInt64) -> String {
         let zec = Double(weight) / 100_000_000.0
         return String(format: "%.3f", zec)
+    }
+}
+
+// MARK: - ExpandableText
+
+/// Local copy of the `ExpandableText` already used by `ProposalListView`.
+/// Kept private to this file to avoid a cross-file rename / visibility
+/// change; the source pattern is identical so a future consolidation can
+/// move both into `UIComponents/`.
+private struct ExpandableText: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    let text: String
+    let collapsedLineLimit: Int
+
+    @State private var isExpanded: Bool = false
+    @State private var fullIntrinsicHeight: CGFloat = 0
+    @State private var collapsedIntrinsicHeight: CGFloat = 0
+
+    private var isTruncated: Bool {
+        fullIntrinsicHeight > collapsedIntrinsicHeight + 0.5
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(text)
+                .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                .tracking(-0.224)
+                .lineLimit(isExpanded ? nil : collapsedLineLimit)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(truncationProbe)
+                .animation(.easeInOut(duration: 0.25), value: isExpanded)
+
+            if isTruncated {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.25)) {
+                        isExpanded.toggle()
+                    }
+                } label: {
+                    HStack(spacing: 4) {
+                        Text(isExpanded
+                             ? String(localizable: .coinVoteCommonViewLess)
+                             : String(localizable: .coinVoteCommonViewMore))
+                            .zFont(.semiBold, size: 14, style: Design.Text.primary)
+                            .tracking(-0.224)
+                        Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Design.Text.primary.color(colorScheme))
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var truncationProbe: some View {
+        ZStack(alignment: .topLeading) {
+            Text(text)
+                .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                .tracking(-0.224)
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: ResultsExpandableTextFullHeightKey.self,
+                            value: geo.size.height
+                        )
+                    }
+                )
+
+            Text(text)
+                .zFont(.medium, size: 14, style: Design.Text.tertiary)
+                .tracking(-0.224)
+                .lineLimit(collapsedLineLimit)
+                .fixedSize(horizontal: false, vertical: true)
+                .background(
+                    GeometryReader { geo in
+                        Color.clear.preference(
+                            key: ResultsExpandableTextCollapsedHeightKey.self,
+                            value: geo.size.height
+                        )
+                    }
+                )
+        }
+        .hidden()
+        .onPreferenceChange(ResultsExpandableTextFullHeightKey.self) { fullIntrinsicHeight = $0 }
+        .onPreferenceChange(ResultsExpandableTextCollapsedHeightKey.self) { collapsedIntrinsicHeight = $0 }
+    }
+}
+
+private struct ResultsExpandableTextFullHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
+private struct ResultsExpandableTextCollapsedHeightKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
     }
 }
