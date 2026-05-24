@@ -2918,61 +2918,6 @@
         }
       }
     },
-    "coinVote.proposalList.timeLeftDay" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ day left"
-          }
-        }
-      }
-    },
-    "coinVote.proposalList.timeLeftDays" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ days left"
-          }
-        }
-      }
-    },
-    "coinVote.proposalList.timeLeftEnded" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ended"
-          }
-        }
-      }
-    },
-    "coinVote.proposalList.timeLeftHours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@h left"
-          }
-        }
-      }
-    },
-    "coinVote.proposalList.timeLeftMinutes" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@m left"
-          }
-        }
-      }
-    },
     "coinVote.proposalList.viewForumDiscussions" : {
       "extractionState" : "manual",
       "localizations" : {

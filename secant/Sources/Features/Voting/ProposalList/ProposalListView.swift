@@ -122,7 +122,7 @@ struct ProposalListView: View {
     /// Pre-submission review header per the Figma — just the two text
     /// blocks ("Review and submit vote" + the "Tap to edit / Confirm &
     /// Submit" subtitle). The active-voting header's title + #block +
-    /// ends/power/days row is intentionally omitted on this screen since
+    /// ends/power row is intentionally omitted on this screen since
     /// the user is no longer setting up the round, they're confirming
     /// answers.
     @ViewBuilder
@@ -165,7 +165,7 @@ struct ProposalListView: View {
                     .tracking(-0.224)
             }
 
-            // Row 2: end date + voting power + days left.
+            // Row 2: end date + voting power.
             // While the pipeline is still preparing, show the spinner row
             // instead so the user knows their voting power is being computed.
             if ready {
@@ -205,10 +205,10 @@ struct ProposalListView: View {
         .padding(.bottom, 8)
     }
 
-    /// "Apr 1, 2026"-style date string for the header end-date cell.
+    /// Localized date string for the header end-date cell.
     private func formattedEndDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d, yyyy"
+        formatter.setLocalizedDateFormatFromTemplate("MMMdyyyy")
         return formatter.string(from: date)
     }
 
@@ -217,22 +217,6 @@ struct ProposalListView: View {
     /// render as `0.125`, matching the ineligible sheet's number style.
     private func formattedZec(zatoshi: UInt64) -> String {
         Zatoshi(Int64(zatoshi)).decimalZashiFormatted()
-    }
-
-    /// Localized "X day(s) left" / "Ended" label off `voteEndTime`. Singular
-    /// vs plural branches by Swift to match the catalog's `timeLeftDay` /
-    /// `timeLeftDays` keys.
-    private func daysLeftLabel(until endDate: Date) -> String {
-        let now = Date()
-        if endDate <= now {
-            return String(localizable: .coinVoteProposalListTimeLeftEnded)
-        }
-        let seconds = endDate.timeIntervalSince(now)
-        let days = max(1, Int(ceil(seconds / 86_400)))
-        if days == 1 {
-            return String(localizable: .coinVoteProposalListTimeLeftDay(String(days)))
-        }
-        return String(localizable: .coinVoteProposalListTimeLeftDays(String(days)))
     }
 
     @ViewBuilder
@@ -292,17 +276,6 @@ struct ProposalListView: View {
         var choices = submittedVotes
         choices.merge(drafts) { _, draft in draft }
         return choices
-    }
-
-    private func hasCompleteBallot(
-        proposals: [VotingProposal],
-        drafts: [UInt32: VoteChoice],
-        submittedVotes: [UInt32: VoteChoice]
-    ) -> Bool {
-        guard !proposals.isEmpty else { return false }
-        return proposals.allSatisfy { proposal in
-            drafts[proposal.id] != nil || submittedVotes[proposal.id] != nil
-        }
     }
 
     @ViewBuilder
@@ -365,6 +338,8 @@ struct ProposalListView: View {
     /// (Yes/No/Abstain) where label + value fit on one line; false for the
     /// long free-form answers that need a stacked layout.
     private func pillTone(for label: String) -> PillTone {
+        // TODO: Replace English label matching with backend-provided option
+        // semantics once the voting metadata exposes them.
         switch label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
         case "yes", "support":
             return PillTone(
@@ -575,4 +550,3 @@ private struct ExpandableTextCollapsedHeightKey: PreferenceKey {
         value = max(value, nextValue())
     }
 }
-
