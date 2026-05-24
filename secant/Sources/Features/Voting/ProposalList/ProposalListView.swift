@@ -305,12 +305,14 @@ struct ProposalListView: View {
                     Text(localizable: .coinVoteProposalListYourVote)
                         .zFont(.medium, size: 12, color: tone.label.color(colorScheme))
                         .tracking(-0.072)
-                        
+
+                    Spacer(minLength: 8)
 
                     Text(label)
                         .zFont(.semiBold, size: 14, color: tone.text.color(colorScheme))
                         .tracking(-0.224)
                 }
+                .frame(maxWidth: .infinity)
             } else {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(localizable: .coinVoteProposalListYourVote)
