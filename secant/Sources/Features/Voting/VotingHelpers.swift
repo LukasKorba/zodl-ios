@@ -35,8 +35,8 @@ func votingAccountIndex(for account: WalletAccount?) -> UInt32 {
 enum Voting {
     // MARK: - Vote record
 
-    /// Persisted record of when a round's vote submission fully completed,
-    /// the voting weight at that moment, and how many proposals were included.
+    /// Persisted record of when a round's selected votes completed submission,
+    /// the voting weight at that moment, and how many proposals were submitted.
     struct VoteRecord: Equatable {
         let votedAt: Date
         let votingWeight: UInt64

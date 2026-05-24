@@ -2340,9 +2340,11 @@ extension VotingCoordFlow {
         failCount: Int
     ) -> Effect<Action> {
         let account = state.selectedWalletAccount?.account
-        let proposalCount = totalProposalsInRound(state: state, roundId: roundId)
         guard var session = state.roundCache[roundId] else { return .none }
         let persistedFailureCount = session.batchVoteErrors.count
+        let submittedVoteCount = session.votes.count
+        let outstandingDraftCount = session.draftVotes.count
+        let submittedOrOutstandingCount = submittedVoteCount + outstandingDraftCount
 
         session.isSubmittingVote = false
         session.submittingProposalId = nil
@@ -2354,18 +2356,21 @@ extension VotingCoordFlow {
                 ?? String(localizable: .coinVoteSubmissionGenericBatchFailure)
             session.batchSubmissionStatus = .submissionFailed(
                 error: error,
-                submittedCount: session.votes.count,
-                totalCount: max(successCount + failCount, session.votes.count + session.draftVotes.count)
+                submittedCount: submittedVoteCount,
+                totalCount: max(successCount + failCount, submittedOrOutstandingCount)
             )
             state.roundCache[roundId] = session
             return .none
         }
 
-        guard hasCompleteSubmittedBallot(session: session, state: state, roundId: roundId) else {
+        // Partial ballots are valid. Completion means every draft the user
+        // chose to submit was accepted and moved out of `draftVotes`; skipped
+        // proposals intentionally never receive entries in `session.votes`.
+        guard outstandingDraftCount == 0, submittedVoteCount > 0 else {
             session.batchSubmissionStatus = .submissionFailed(
                 error: String(localizable: .coinVoteSubmissionGenericBatchFailure),
-                submittedCount: session.votes.count,
-                totalCount: proposalCount
+                submittedCount: submittedVoteCount,
+                totalCount: submittedOrOutstandingCount
             )
             state.roundCache[roundId] = session
             return .none
@@ -2375,7 +2380,7 @@ extension VotingCoordFlow {
             let record = Voting.VoteRecord(
                 votedAt: Date(),
                 votingWeight: session.votingWeight,
-                proposalCount: proposalCount,
+                proposalCount: submittedVoteCount,
                 eligibleVotingWeight: state.isKeystoneUser
                     ? completedEligibleVotingWeight(session)
                     : nil,
@@ -2394,15 +2399,15 @@ extension VotingCoordFlow {
                 }
                 session.batchSubmissionStatus = .submissionFailed(
                     error: votingMetadataPersistenceMessage(error),
-                    submittedCount: session.votes.count,
-                    totalCount: proposalCount
+                    submittedCount: submittedVoteCount,
+                    totalCount: max(submittedVoteCount, session.draftVotes.count)
                 )
                 state.submissionAlert = .votingMetadataPersistenceFailed(error)
                 state.roundCache[roundId] = session
                 return .none
             }
         }
-        session.batchSubmissionStatus = .completed(successCount: successCount)
+        session.batchSubmissionStatus = .completed(successCount: submittedVoteCount)
         state.roundCache[roundId] = session
 
         if let record = session.voteRecord {
@@ -3150,30 +3155,6 @@ extension VotingCoordFlow {
     /// truth (the rounds list) and look it up at use sites.
     private func activeSession(in state: State, roundId: String) -> VotingSession? {
         state.allRounds.first { $0.id == roundId }?.session
-    }
-
-    private func totalProposalsInRound(state: State, roundId: String) -> Int {
-        activeSession(in: state, roundId: roundId)?.proposals.count ?? 0
-    }
-
-    private func hasCompleteBallot(session: RoundSession, state: State, roundId: String) -> Bool {
-        guard let proposals = activeSession(in: state, roundId: roundId)?.proposals,
-              !proposals.isEmpty
-        else { return false }
-
-        return proposals.allSatisfy { proposal in
-            session.draftVotes[proposal.id] != nil || session.votes[proposal.id] != nil
-        }
-    }
-
-    private func hasCompleteSubmittedBallot(session: RoundSession, state: State, roundId: String) -> Bool {
-        guard let proposals = activeSession(in: state, roundId: roundId)?.proposals,
-              !proposals.isEmpty
-        else { return false }
-
-        return proposals.allSatisfy { proposal in
-            session.votes[proposal.id] != nil
-        }
     }
 
     private func completedEligibleVotingWeight(_ session: RoundSession) -> UInt64 {
