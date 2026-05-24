@@ -888,7 +888,7 @@ private func makeShareDelegation(
         "proposal_id": proposalId,
         "share_index": shareIndex,
         "sent_to_urls": sentToURLs,
-        "nullifier": nullifier,
+        "nullifier": nullifier.map { String(format: "%02x", $0) }.joined(),
         "confirmed": confirmed,
         "submit_at": submitAt,
         "created_at": createdAt
