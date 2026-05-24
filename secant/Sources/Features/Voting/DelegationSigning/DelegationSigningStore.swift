@@ -313,19 +313,7 @@ struct DelegationSigningView: View {
         }
 
         let bundleTotal = bundles[bundleIndex].reduce(UInt64(0)) { $0 + $1.value }
-        return String(
-            localizable: .coinVoteDelegationSigningMemoMessage(
-                pollTitle,
-                rawZecString(bundleTotal)
-            )
-        )
-    }
-
-    private static func rawZecString(_ zatoshi: UInt64) -> String {
-        let whole = zatoshi / 100_000_000
-        let fractional = String(zatoshi % 100_000_000)
-        let paddedFractional = String(repeating: "0", count: max(0, 8 - fractional.count)) + fractional
-        return "\(whole).\(paddedFractional)"
+        return votingAuthorizationMemo(pollTitle: pollTitle, rawWeight: bundleTotal)
     }
 
     // MARK: - Action buttons
