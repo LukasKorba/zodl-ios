@@ -998,6 +998,12 @@
             "state" : "translated",
             "value" : "Abstain"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abstain"
+          }
         }
       }
     },
@@ -1005,6 +1011,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Back"
@@ -1020,6 +1032,12 @@
             "state" : "translated",
             "value" : "Block #%@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block #%@"
+          }
         }
       }
     },
@@ -1027,6 +1045,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancel"
@@ -1042,6 +1066,12 @@
             "state" : "translated",
             "value" : "Close"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
         }
       }
     },
@@ -1049,6 +1079,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Confirm"
@@ -1064,6 +1100,12 @@
             "state" : "translated",
             "value" : "Confirmation"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmation"
+          }
         }
       }
     },
@@ -1071,6 +1113,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continue"
@@ -1086,6 +1134,12 @@
             "state" : "translated",
             "value" : "Dismiss"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dismiss"
+          }
         }
       }
     },
@@ -1093,6 +1147,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Done"
@@ -1108,6 +1168,12 @@
             "state" : "translated",
             "value" : "Ends %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends %@"
+          }
         }
       }
     },
@@ -1115,6 +1181,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go back"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Go back"
@@ -1130,6 +1202,12 @@
             "state" : "translated",
             "value" : "Got it"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got it"
+          }
         }
       }
     },
@@ -1137,6 +1215,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Governance"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Governance"
@@ -1152,6 +1236,12 @@
             "state" : "translated",
             "value" : "Next"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next"
+          }
         }
       }
     },
@@ -1159,6 +1249,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oppose"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Oppose"
@@ -1174,6 +1270,12 @@
             "state" : "translated",
             "value" : "Poll Description"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poll Description"
+          }
         }
       }
     },
@@ -1181,6 +1283,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Refresh"
@@ -1196,6 +1304,12 @@
             "state" : "translated",
             "value" : "Retry"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
         }
       }
     },
@@ -1203,6 +1317,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save"
@@ -1218,6 +1338,12 @@
             "state" : "translated",
             "value" : "Coinholder Polling"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coinholder Polling"
+          }
         }
       }
     },
@@ -1225,6 +1351,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submission"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submission"
@@ -1240,6 +1372,12 @@
             "state" : "translated",
             "value" : "Support"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Support"
+          }
         }
       }
     },
@@ -1247,6 +1385,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Try again"
@@ -1262,6 +1406,12 @@
             "state" : "translated",
             "value" : "View less"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View less"
+          }
         }
       }
     },
@@ -1269,6 +1419,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View more"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "View more"
@@ -1284,6 +1440,12 @@
             "state" : "translated",
             "value" : "View results"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View results"
+          }
         }
       }
     },
@@ -1291,6 +1453,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voted"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voted"
@@ -1306,6 +1474,12 @@
             "state" : "translated",
             "value" : "Voted %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voted %@"
+          }
         }
       }
     },
@@ -1313,6 +1487,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting Power %@ ZEC"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voting Power %@ ZEC"
@@ -1328,6 +1508,12 @@
             "state" : "translated",
             "value" : "%@ ZEC"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC"
+          }
         }
       }
     },
@@ -1335,6 +1521,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ZIP-TBD"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "ZIP-TBD"
@@ -1350,6 +1542,12 @@
             "state" : "translated",
             "value" : "commitment: %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "commitment: %@"
+          }
         }
       }
     },
@@ -1357,6 +1555,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expected by %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Expected by %@"
@@ -1372,6 +1576,12 @@
             "state" : "translated",
             "value" : "Finishing up…"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finishing up…"
+          }
         }
       }
     },
@@ -1379,6 +1589,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not voted"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Not voted"
@@ -1394,6 +1610,12 @@
             "state" : "translated",
             "value" : "Preparing note witnesses..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing note witnesses..."
+          }
         }
       }
     },
@@ -1401,6 +1623,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing voting authorization... %@%%"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Preparing voting authorization... %@%%"
@@ -1416,6 +1644,12 @@
             "state" : "translated",
             "value" : "Each share is sent at different times across various servers throughout the vote period to further protect your privacy. Each value is encrypted, and only the total amount across all voters will be revealed at the end of the vote period."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Each share is sent at different times across various servers throughout the vote period to further protect your privacy. Each value is encrypted, and only the total amount across all voters will be revealed at the end of the vote period."
+          }
         }
       }
     },
@@ -1423,6 +1657,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prototype — some features are mocked"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Prototype — some features are mocked"
@@ -1438,6 +1678,12 @@
             "state" : "translated",
             "value" : "Prototype VC Stub"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prototype VC Stub"
+          }
         }
       }
     },
@@ -1445,6 +1691,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready to vote"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ready to vote"
@@ -1460,6 +1712,12 @@
             "state" : "translated",
             "value" : "All shares have been confirmed on-chain."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All shares have been confirmed on-chain."
+          }
         }
       }
     },
@@ -1467,6 +1725,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your vote is being submitted in multiple shares to protect your privacy."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your vote is being submitted in multiple shares to protect your privacy."
@@ -1482,6 +1746,12 @@
             "state" : "translated",
             "value" : "Vote Confirmed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote Confirmed"
+          }
         }
       }
     },
@@ -1489,6 +1759,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting Vote"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submitting Vote"
@@ -1504,6 +1780,12 @@
             "state" : "translated",
             "value" : "Submitting vote"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting vote"
+          }
         }
       }
     },
@@ -1511,6 +1793,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tx: %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "tx: %@"
@@ -1526,6 +1814,12 @@
             "state" : "translated",
             "value" : "van nullifier: %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "van nullifier: %@"
+          }
         }
       }
     },
@@ -1533,6 +1827,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote confirmed"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vote confirmed"
@@ -1548,6 +1848,12 @@
             "state" : "translated",
             "value" : "Voting config decode failed: %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting config decode failed: %@"
+          }
         }
       }
     },
@@ -1555,6 +1861,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting config is invalid."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voting config is invalid."
@@ -1570,6 +1882,12 @@
             "state" : "translated",
             "value" : "Voting config proposals don't match the active round. Please update the wallet."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting config proposals don't match the active round. Please update the wallet."
+          }
         }
       }
     },
@@ -1577,6 +1895,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallet Update Required"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wallet Update Required"
@@ -1592,6 +1916,12 @@
             "state" : "translated",
             "value" : "Wallet does not support %@ version \"%@\". Please update the wallet."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallet does not support %@ version \"%@\". Please update the wallet."
+          }
         }
       }
     },
@@ -1599,6 +1929,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Source actions"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Source actions"
@@ -1614,6 +1950,12 @@
             "state" : "translated",
             "value" : "Close"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
         }
       }
     },
@@ -1621,6 +1963,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default data source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Default data source"
@@ -1636,6 +1984,12 @@
             "state" : "translated",
             "value" : "Select %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select %@"
+          }
         }
       }
     },
@@ -1643,6 +1997,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add custom source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add custom source"
@@ -1658,6 +2018,12 @@
             "state" : "translated",
             "value" : "Coinholder Poll"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coinholder Poll"
+          }
         }
       }
     },
@@ -1665,6 +2031,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom chain"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Custom chain"
@@ -1680,6 +2052,12 @@
             "state" : "translated",
             "value" : "Default"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default"
+          }
         }
       }
     },
@@ -1687,6 +2065,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
@@ -1702,6 +2086,12 @@
             "state" : "translated",
             "value" : "Edit"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit"
+          }
         }
       }
     },
@@ -1709,6 +2099,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This source URL is already added."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "This source URL is already added."
@@ -1724,6 +2120,12 @@
             "state" : "translated",
             "value" : "Please enter a valid URL (e.g. https://zodl.com/polls)"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter a valid URL (e.g. https://zodl.com/polls)"
+          }
         }
       }
     },
@@ -1731,6 +2133,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title must be 15 characters or less, including spaces."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Title must be 15 characters or less, including spaces."
@@ -1746,6 +2154,12 @@
             "state" : "translated",
             "value" : "Add a poll source that isn't listed by default. You'll need a valid chain URL from the provider hosting the poll."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a poll source that isn't listed by default. You'll need a valid chain URL from the provider hosting the poll."
+          }
         }
       }
     },
@@ -1753,6 +2167,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add Custom Source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add Custom Source"
@@ -1768,6 +2188,12 @@
             "state" : "translated",
             "value" : "Update the title or URL for this custom poll source. You'll need a valid chain URL from the provider hosting the poll."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update the title or URL for this custom poll source. You'll need a valid chain URL from the provider hosting the poll."
+          }
         }
       }
     },
@@ -1775,6 +2201,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Custom Source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edit Custom Source"
@@ -1790,6 +2222,12 @@
             "state" : "translated",
             "value" : "Copy Data Source URL"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Data Source URL"
+          }
         }
       }
     },
@@ -1797,6 +2235,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save"
@@ -1812,6 +2256,12 @@
             "state" : "translated",
             "value" : "Save changes"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save changes"
+          }
         }
       }
     },
@@ -1819,6 +2269,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Data Source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Select Data Source"
@@ -1834,6 +2290,12 @@
             "state" : "translated",
             "value" : "Pick a poll source, or add your own."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick a poll source, or add your own."
+          }
         }
       }
     },
@@ -1841,6 +2303,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poll Data Source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poll Data Source"
@@ -1856,6 +2324,12 @@
             "state" : "translated",
             "value" : "Title"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
         }
       }
     },
@@ -1863,6 +2337,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ADD SOURCE"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "ADD SOURCE"
@@ -1878,6 +2358,12 @@
             "state" : "translated",
             "value" : "EDIT SOURCE"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "EDIT SOURCE"
+          }
         }
       }
     },
@@ -1885,6 +2371,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "URL"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "URL"
@@ -1900,6 +2392,12 @@
             "state" : "translated",
             "value" : "Enter..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter..."
+          }
         }
       }
     },
@@ -1907,6 +2405,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Validating..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Validating..."
@@ -1922,6 +2426,12 @@
             "state" : "translated",
             "value" : "We couldn't authorize your vote.\nCheck your connection and try again."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't authorize your vote.\nCheck your connection and try again."
+          }
         }
       }
     },
@@ -1929,6 +2439,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorization Failed"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Authorization Failed"
@@ -1944,6 +2460,12 @@
             "state" : "translated",
             "value" : "Bundle %@ of %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bundle %@ of %@"
+          }
         }
       }
     },
@@ -1951,6 +2473,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm with Keystone"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Confirm with Keystone"
@@ -1966,6 +2494,12 @@
             "state" : "translated",
             "value" : "Amount"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Amount"
+          }
         }
       }
     },
@@ -1973,6 +2507,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0.00000001 ZEC"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "0.00000001 ZEC"
@@ -1988,6 +2528,12 @@
             "state" : "translated",
             "value" : "Fee"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fee"
+          }
         }
       }
     },
@@ -1995,6 +2541,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0 ZEC"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "0 ZEC"
@@ -2010,6 +2562,12 @@
             "state" : "translated",
             "value" : "Memo"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memo"
+          }
         }
       }
     },
@@ -2017,6 +2575,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poll"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poll"
@@ -2032,6 +2596,12 @@
             "state" : "translated",
             "value" : "Voting hotkey"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting hotkey"
+          }
         }
       }
     },
@@ -2039,6 +2609,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting power"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voting power"
@@ -2054,6 +2630,12 @@
             "state" : "translated",
             "value" : "%@ ZEC"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC"
+          }
         }
       }
     },
@@ -2061,6 +2643,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitted %@ votes with voting power %@."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submitted %@ votes with voting power %@."
@@ -2076,6 +2664,12 @@
             "state" : "translated",
             "value" : "Submitted %@ vote with voting power %@."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitted %@ vote with voting power %@."
+          }
         }
       }
     },
@@ -2083,6 +2677,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting %@ votes with voting power %@."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submitting %@ votes with voting power %@."
@@ -2098,6 +2698,12 @@
             "state" : "translated",
             "value" : "Submitting %@ vote with voting power %@."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting %@ vote with voting power %@."
+          }
         }
       }
     },
@@ -2105,6 +2711,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your vote was successfully published and cannot be changed."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your vote was successfully published and cannot be changed."
@@ -2120,6 +2732,12 @@
             "state" : "translated",
             "value" : "Review before confirming the voting authorization. This is final. Your vote will be published and cannot be changed."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review before confirming the voting authorization. This is final. Your vote will be published and cannot be changed."
+          }
         }
       }
     },
@@ -2127,6 +2745,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review before signing the voting authorization with your Keystone. This is final. Your vote will be published and cannot be changed."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Review before signing the voting authorization with your Keystone. This is final. Your vote will be published and cannot be changed."
@@ -2142,6 +2766,12 @@
             "state" : "translated",
             "value" : "Vote submission is in progress, please don’t leave this screen until it is finished."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote submission is in progress, please don’t leave this screen until it is finished."
+          }
         }
       }
     },
@@ -2149,6 +2779,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submission Confirmed!"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submission Confirmed!"
@@ -2164,6 +2800,12 @@
             "state" : "translated",
             "value" : "Confirm & Submit"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm & Submit"
+          }
         }
       }
     },
@@ -2171,6 +2813,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting vote..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submitting vote..."
@@ -2186,6 +2834,12 @@
             "state" : "translated",
             "value" : "I am authorizing this hotkey managed by my wallet to vote on %@ with %@ ZEC."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I am authorizing this hotkey managed by my wallet to vote on %@ with %@ ZEC."
+          }
         }
       }
     },
@@ -2193,6 +2847,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorizing..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Authorizing..."
@@ -2208,6 +2868,12 @@
             "state" : "translated",
             "value" : "Submitting vote %@ of %@..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting vote %@ of %@..."
+          }
         }
       }
     },
@@ -2215,6 +2881,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About %@ minutes left..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "About %@ minutes left..."
@@ -2230,6 +2902,12 @@
             "state" : "translated",
             "value" : "About 1 minute left..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About 1 minute left..."
+          }
         }
       }
     },
@@ -2237,6 +2915,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your vote couldn't be submitted\nCheck your connection and try again."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your vote couldn't be submitted\nCheck your connection and try again."
@@ -2252,6 +2936,12 @@
             "state" : "translated",
             "value" : "Submission Failed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submission Failed"
+          }
         }
       }
     },
@@ -2259,6 +2949,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submit"
@@ -2274,6 +2970,12 @@
             "state" : "translated",
             "value" : "Vote %@ of %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote %@ of %@"
+          }
         }
       }
     },
@@ -2281,6 +2983,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your shielded balance at the snapshot (%@ ZEC) is below the minimum required to vote (%@ ZEC)."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your shielded balance at the snapshot (%@ ZEC) is below the minimum required to vote (%@ ZEC)."
@@ -2296,6 +3004,12 @@
             "state" : "translated",
             "value" : "Failed to restore voting state: %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to restore voting state: %@"
+          }
         }
       }
     },
@@ -2303,6 +3017,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Building bundle %@ of %@..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Building bundle %@ of %@..."
@@ -2318,6 +3038,12 @@
             "state" : "translated",
             "value" : "Building delegation request..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Building delegation request..."
+          }
         }
       }
     },
@@ -2325,6 +3051,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign bundle %@ of %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sign bundle %@ of %@"
@@ -2340,6 +3072,12 @@
             "state" : "translated",
             "value" : "Bundle %@ of %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bundle %@ of %@"
+          }
         }
       }
     },
@@ -2347,6 +3085,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This bundle adds %@ ZEC of voting weight."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "This bundle adds %@ ZEC of voting weight."
@@ -2362,6 +3106,12 @@
             "state" : "translated",
             "value" : "Finalizing voting authorization…"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finalizing voting authorization…"
+          }
         }
       }
     },
@@ -2369,6 +3119,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After you have signed with Keystone, tap on the Scan Signature button below."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "After you have signed with Keystone, tap on the Scan Signature button below."
@@ -2384,6 +3140,12 @@
             "state" : "translated",
             "value" : "Memo"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memo"
+          }
         }
       }
     },
@@ -2391,6 +3153,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I am authorizing this hotkey managed by my wallet to vote on %@ with %@ ZEC."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "I am authorizing this hotkey managed by my wallet to vote on %@ with %@ ZEC."
@@ -2406,6 +3174,12 @@
             "state" : "translated",
             "value" : "Your voting weight is split into %@ Keystone signatures. After each signature, we'll prepare the next one."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your voting weight is split into %@ Keystone signatures. After each signature, we'll prepare the next one."
+          }
         }
       }
     },
@@ -2413,6 +3187,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parsing signature…"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Parsing signature…"
@@ -2428,6 +3208,12 @@
             "state" : "translated",
             "value" : "Bundle %@ signed. Preparing bundle %@ of %@..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bundle %@ signed. Preparing bundle %@ of %@..."
+          }
         }
       }
     },
@@ -2435,6 +3221,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing signing request…"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Preparing signing request…"
@@ -2450,6 +3242,12 @@
             "state" : "translated",
             "value" : "Processing..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing..."
+          }
         }
       }
     },
@@ -2457,6 +3255,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing signature..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Processing signature..."
@@ -2472,6 +3276,12 @@
             "state" : "translated",
             "value" : "QR encoding failed. Tap Cancel and try again."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "QR encoding failed. Tap Cancel and try again."
+          }
         }
       }
     },
@@ -2479,6 +3289,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Keystone QR code\nto sign the transaction"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan Keystone QR code\nto sign the transaction"
@@ -2494,6 +3310,12 @@
             "state" : "translated",
             "value" : "Scan Signature"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Signature"
+          }
         }
       }
     },
@@ -2501,6 +3323,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Signed Bundle %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Scan Signed Bundle %@"
@@ -2516,6 +3344,12 @@
             "state" : "translated",
             "value" : "Scan signed PCZT"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan signed PCZT"
+          }
         }
       }
     },
@@ -2523,6 +3357,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open your Keystone device and scan the signed PCZT back to continue."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open your Keystone device and scan the signed PCZT back to continue."
@@ -2538,6 +3378,12 @@
             "state" : "translated",
             "value" : "%@ of %@ signed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ of %@ signed"
+          }
         }
       }
     },
@@ -2545,6 +3391,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC Authorized - %@ ZEC Pending"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ ZEC Authorized - %@ ZEC Pending"
@@ -2560,6 +3412,12 @@
             "state" : "translated",
             "value" : "Keep Signing"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep Signing"
+          }
         }
       }
     },
@@ -2567,6 +3425,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You will vote with %@ ZEC from your signed bundles. The remaining %@ ZEC in unsigned bundles will not be included. This cannot be changed for this round."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "You will vote with %@ ZEC from your signed bundles. The remaining %@ ZEC in unsigned bundles will not be included. This cannot be changed for this round."
@@ -2582,6 +3446,12 @@
             "state" : "translated",
             "value" : "Vote with signed bundles only"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote with signed bundles only"
+          }
         }
       }
     },
@@ -2589,6 +3459,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Signed Bundles Only?"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Use Signed Bundles Only?"
@@ -2604,6 +3480,12 @@
             "state" : "translated",
             "value" : "Skip Remaining %@ Bundle"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip Remaining %@ Bundle"
+          }
         }
       }
     },
@@ -2611,6 +3493,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip Remaining %@ Bundles"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skip Remaining %@ Bundles"
@@ -2626,6 +3514,12 @@
             "state" : "translated",
             "value" : "Skip remaining bundles"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip remaining bundles"
+          }
         }
       }
     },
@@ -2633,6 +3527,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use signed bundles only"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Use signed bundles only"
@@ -2648,6 +3548,12 @@
             "state" : "translated",
             "value" : "Continue without the remaining %@ ZEC."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue without the remaining %@ ZEC."
+          }
         }
       }
     },
@@ -2655,6 +3561,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change data source"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Change data source"
@@ -2670,6 +3582,12 @@
             "state" : "translated",
             "value" : "Voting unavailable"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting unavailable"
+          }
         }
       }
     },
@@ -2677,6 +3595,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Something Went Wrong"
@@ -2692,6 +3616,12 @@
             "state" : "translated",
             "value" : "Your balance at the snapshot time determines your voting weight. You don't need to move your funds anywhere."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your balance at the snapshot time determines your voting weight. You don't need to move your funds anywhere."
+          }
         }
       }
     },
@@ -2699,6 +3629,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When you're ready, you'll confirm a small authorization transaction and submit your vote in one step. After submission, your vote cannot be changed."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "When you're ready, you'll confirm a small authorization transaction and submit your vote in one step. After submission, your vote cannot be changed."
@@ -2714,6 +3650,12 @@
             "state" : "translated",
             "value" : "Authorize and Submit"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize and Submit"
+          }
         }
       }
     },
@@ -2721,6 +3663,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vote on each question by selecting an answer. You can skip questions and update your choices anytime before submitting."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Vote on each question by selecting an answer. You can skip questions and update your choices anytime before submitting."
@@ -2736,6 +3684,12 @@
             "state" : "translated",
             "value" : "Voting on Proposals"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting on Proposals"
+          }
         }
       }
     },
@@ -2743,6 +3697,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your ZEC gives you a voice. Shape the future of the Zcash network by voting on active proposals."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your ZEC gives you a voice. Shape the future of the Zcash network by voting on active proposals."
@@ -2758,6 +3718,12 @@
             "state" : "translated",
             "value" : "How to vote with Keystone"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to vote with Keystone"
+          }
         }
       }
     },
@@ -2765,6 +3731,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to vote with Zodl"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "How to vote with Zodl"
@@ -2780,6 +3752,12 @@
             "state" : "translated",
             "value" : "Your shielded balance at the snapshot block was %@, which is below the 0.125 ZEC minimum required to vote."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your shielded balance at the snapshot block was %@, which is below the 0.125 ZEC minimum required to vote."
+          }
         }
       }
     },
@@ -2787,6 +3765,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ballots"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ballots"
@@ -2802,6 +3786,12 @@
             "state" : "translated",
             "value" : "Minimum"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Minimum"
+          }
         }
       }
     },
@@ -2809,6 +3799,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "0.125 ZEC"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "0.125 ZEC"
@@ -2824,6 +3820,12 @@
             "state" : "translated",
             "value" : "Notes found"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notes found"
+          }
         }
       }
     },
@@ -2831,6 +3833,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshot"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Snapshot"
@@ -2846,6 +3854,12 @@
             "state" : "translated",
             "value" : "Your balance"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your balance"
+          }
         }
       }
     },
@@ -2853,6 +3867,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "To participate in future voting rounds, ensure you have at least 0.125 ZEC in shielded funds before the snapshot block."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "To participate in future voting rounds, ensure you have at least 0.125 ZEC in shielded funds before the snapshot block."
@@ -2868,6 +3888,12 @@
             "state" : "translated",
             "value" : "Your wallet has no shielded notes from before the snapshot block. Only funds that existed at block #%@ are eligible for this voting round."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your wallet has no shielded notes from before the snapshot block. Only funds that existed at block #%@ are eligible for this voting round."
+          }
         }
       }
     },
@@ -2875,6 +3901,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting power is derived from your shielded ZEC at the round's snapshot height. This wallet had no eligible notes at that moment."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voting power is derived from your shielded ZEC at the round's snapshot height. This wallet had no eligible notes at that moment."
@@ -2890,6 +3922,12 @@
             "state" : "translated",
             "value" : "Not Eligible for This Round"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Eligible for This Round"
+          }
         }
       }
     },
@@ -2897,6 +3935,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can't vote in this round"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "You can't vote in this round"
@@ -2912,6 +3956,12 @@
             "state" : "translated",
             "value" : "The voting period has ended.\nYour vote can no longer be submitted."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The voting period has ended.\nYour vote can no longer be submitted."
+          }
         }
       }
     },
@@ -2923,6 +3973,12 @@
             "state" : "translated",
             "value" : "Poll Closed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poll Closed"
+          }
         }
       }
     },
@@ -2930,6 +3986,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View status"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "View status"
@@ -2946,6 +4008,12 @@
             "state" : "translated",
             "value" : "Approved by Zodl"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approved by Zodl"
+          }
         }
       }
     },
@@ -2954,6 +4022,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting chain config"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Voting chain config"
@@ -2969,6 +4043,12 @@
             "state" : "translated",
             "value" : "Closed %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed %@"
+          }
         }
       }
     },
@@ -2976,6 +4056,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closes %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Closes %@"
@@ -2991,6 +4077,12 @@
             "state" : "translated",
             "value" : "There aren’t any active polls at the moment.\nCheck back later."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There aren’t any active polls at the moment.\nCheck back later."
+          }
         }
       }
     },
@@ -2998,6 +4090,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No polls right now"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No polls right now"
@@ -3013,6 +4111,12 @@
             "state" : "translated",
             "value" : "Enter Poll"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter Poll"
+          }
         }
       }
     },
@@ -3020,6 +4124,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your wallet is not eligible for this voting round because it held %1$@ ZEC at snapshot block height #%2$@. A minimum balance of %3$@ ZEC was required to participate."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your wallet is not eligible for this voting round because it held %1$@ ZEC at snapshot block height #%2$@. A minimum balance of %3$@ ZEC was required to participate."
@@ -3035,6 +4145,12 @@
             "state" : "translated",
             "value" : "Insufficient Balance"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Insufficient Balance"
+          }
         }
       }
     },
@@ -3046,6 +4162,12 @@
             "state" : "translated",
             "value" : "Check your connection and try again. If the problem persists, come back later."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your connection and try again. If the problem persists, come back later."
+          }
         }
       }
     },
@@ -3053,6 +4175,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load polls"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Couldn't load polls"
@@ -3069,6 +4197,12 @@
             "state" : "translated",
             "value" : "Review"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review"
+          }
         }
       }
     },
@@ -3076,6 +4210,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Active"
@@ -3091,6 +4231,12 @@
             "state" : "translated",
             "value" : "Closed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Closed"
+          }
         }
       }
     },
@@ -3098,6 +4244,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View My Votes"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "View My Votes"
@@ -3113,6 +4265,12 @@
             "state" : "translated",
             "value" : "Proposal not found"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proposal not found"
+          }
         }
       }
     },
@@ -3120,6 +4278,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ OF %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ OF %@"
@@ -3135,6 +4299,12 @@
             "state" : "translated",
             "value" : "You haven't answered question(s) %@. Continue to the review screen without them, or go back to respond."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You haven't answered question(s) %@. Continue to the review screen without them, or go back to respond."
+          }
         }
       }
     },
@@ -3142,6 +4312,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have not responded to %@ questions. Confirm to abstain from these questions or go back to respond."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "You have not responded to %@ questions. Confirm to abstain from these questions or go back to respond."
@@ -3157,6 +4333,12 @@
             "state" : "translated",
             "value" : "You have not responded to %@ question. Confirm to abstain from this question or go back to respond."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have not responded to %@ question. Confirm to abstain from this question or go back to respond."
+          }
         }
       }
     },
@@ -3164,6 +4346,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unanswered Questions"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unanswered Questions"
@@ -3179,6 +4367,12 @@
             "state" : "translated",
             "value" : "View Forum Discussion"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Forum Discussion"
+          }
         }
       }
     },
@@ -3186,6 +4380,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm & Submit"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Confirm & Submit"
@@ -3201,6 +4401,12 @@
             "state" : "translated",
             "value" : "Continue Voting"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue Voting"
+          }
         }
       }
     },
@@ -3208,6 +4414,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review Answers"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Review Answers"
@@ -3223,6 +4435,12 @@
             "state" : "translated",
             "value" : "Start Voting"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Voting"
+          }
         }
       }
     },
@@ -3230,6 +4448,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ends %@"
@@ -3245,6 +4469,12 @@
             "state" : "translated",
             "value" : "There are no voting rounds in progress. Rounds are created by governance administrators — check back later."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no voting rounds in progress. Rounds are created by governance administrators — check back later."
+          }
         }
       }
     },
@@ -3252,6 +4482,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Active Voting Round"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No Active Voting Round"
@@ -3267,6 +4503,12 @@
             "state" : "translated",
             "value" : "Preparing your voting power…"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing your voting power…"
+          }
         }
       }
     },
@@ -3274,6 +4516,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review your submitted votes"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Review your submitted votes"
@@ -3289,6 +4537,12 @@
             "state" : "translated",
             "value" : "Tap on the question to edit any of your answers. After you review your answers, tap on Confirm & Submit."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap on the question to edit any of your answers. After you review your answers, tap on Confirm & Submit."
+          }
         }
       }
     },
@@ -3296,6 +4550,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review and submit vote"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Review and submit vote"
@@ -3311,6 +4571,12 @@
             "state" : "translated",
             "value" : "Submit votes (%@)"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit votes (%@)"
+          }
         }
       }
     },
@@ -3318,6 +4584,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View Forum Discussions"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "View Forum Discussions"
@@ -3333,6 +4605,12 @@
             "state" : "translated",
             "value" : "View more"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View more"
+          }
         }
       }
     },
@@ -3344,6 +4622,12 @@
             "state" : "translated",
             "value" : "Voting power: %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting power: %@"
+          }
         }
       }
     },
@@ -3351,6 +4635,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your vote:"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your vote:"
@@ -3367,6 +4657,12 @@
             "state" : "translated",
             "value" : "Approved by Zodl"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approved by Zodl"
+          }
         }
       }
     },
@@ -3374,6 +4670,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check your connection and try again. If the problem persists, come back later."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Check your connection and try again. If the problem persists, come back later."
@@ -3389,6 +4691,12 @@
             "state" : "translated",
             "value" : "Couldn't load results"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't load results"
+          }
         }
       }
     },
@@ -3396,6 +4704,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading results..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Loading results..."
@@ -3411,6 +4725,12 @@
             "state" : "translated",
             "value" : "Voted %@  ·  Voting Power %@ ZEC"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voted %@  ·  Voting Power %@ ZEC"
+          }
         }
       }
     },
@@ -3418,6 +4738,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No proposals in this round"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No proposals in this round"
@@ -3433,6 +4759,12 @@
             "state" : "translated",
             "value" : "No votes recorded"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No votes recorded"
+          }
         }
       }
     },
@@ -3440,6 +4772,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Option %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Option %@"
@@ -3455,6 +4793,12 @@
             "state" : "translated",
             "value" : "%@%%"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@%%"
+          }
         }
       }
     },
@@ -3462,6 +4806,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tie"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tie"
@@ -3477,6 +4827,12 @@
             "state" : "translated",
             "value" : "Results"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results"
+          }
         }
       }
     },
@@ -3484,6 +4840,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total: %@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Total: %@"
@@ -3499,6 +4861,12 @@
             "state" : "translated",
             "value" : "Voted: %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voted: %@"
+          }
         }
       }
     },
@@ -3506,6 +4874,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Winner:"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Winner:"
@@ -3521,6 +4895,12 @@
             "state" : "translated",
             "value" : "delegation TX failed on-chain (code %@) or missing delegate_vote event%@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "delegation TX failed on-chain (code %@) or missing delegate_vote event%@"
+          }
         }
       }
     },
@@ -3528,6 +4908,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keystone delegation signature tuple (rk, sighash, sig) is inconsistent with the payload being submitted."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keystone delegation signature tuple (rk, sighash, sig) is inconsistent with the payload being submitted."
@@ -3543,6 +4929,12 @@
             "state" : "translated",
             "value" : "missing active voting session"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missing active voting session"
+          }
         }
       }
     },
@@ -3550,6 +4942,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missing hotkey address for delegation PCZT"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "missing hotkey address for delegation PCZT"
@@ -3565,6 +4963,12 @@
             "state" : "translated",
             "value" : "missing pending unsigned delegation PCZT"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missing pending unsigned delegation PCZT"
+          }
         }
       }
     },
@@ -3572,6 +4976,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "missing signing account for delegation PCZT"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "missing signing account for delegation PCZT"
@@ -3587,6 +4997,12 @@
             "state" : "translated",
             "value" : "vote commitment build completed without a commitment bundle"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vote commitment build completed without a commitment bundle"
+          }
         }
       }
     },
@@ -3594,6 +5010,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vote commitment TX failed on-chain (code %@)%@"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "vote commitment TX failed on-chain (code %@)%@"
@@ -3609,6 +5031,12 @@
             "state" : "translated",
             "value" : "Round %@"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round %@"
+          }
         }
       }
     },
@@ -3616,6 +5044,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorizing vote..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Authorizing vote..."
@@ -3631,6 +5065,12 @@
             "state" : "translated",
             "value" : "Authorizing vote... %@%%"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorizing vote... %@%%"
+          }
         }
       }
     },
@@ -3638,6 +5078,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Building vote proof..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Building vote proof..."
@@ -3653,6 +5099,12 @@
             "state" : "translated",
             "value" : "Building vote proof (%@/%@)..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Building vote proof (%@/%@)..."
+          }
         }
       }
     },
@@ -3660,6 +5112,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending to vote servers..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sending to vote servers..."
@@ -3675,6 +5133,12 @@
             "state" : "translated",
             "value" : "Sending to vote servers (%@/%@)..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending to vote servers (%@/%@)..."
+          }
         }
       }
     },
@@ -3682,6 +5146,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for confirmation..."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Waiting for confirmation..."
@@ -3697,6 +5167,12 @@
             "state" : "translated",
             "value" : "Waiting for confirmation (%@/%@)..."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for confirmation (%@/%@)..."
+          }
         }
       }
     },
@@ -3704,6 +5180,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your transaction hasn't been confirmed yet. The network may be congested — please wait a moment and try again."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your transaction hasn't been confirmed yet. The network may be congested — please wait a moment and try again."
@@ -3719,6 +5201,12 @@
             "state" : "translated",
             "value" : "The voting server is temporarily unavailable. Please try again shortly."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The voting server is temporarily unavailable. Please try again shortly."
+          }
         }
       }
     },
@@ -3726,6 +5214,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The voting state is out of sync. Please retry to use the latest data."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The voting state is out of sync. Please retry to use the latest data."
@@ -3741,6 +5235,12 @@
             "state" : "translated",
             "value" : "Your proof was rejected by the network. Please try again."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your proof was rejected by the network. Please try again."
+          }
         }
       }
     },
@@ -3748,6 +5248,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the Zcash lightwalletd server. Please check your internet connection or try switching to a different server in Settings."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Unable to reach the Zcash lightwalletd server. Please check your internet connection or try switching to a different server in Settings."
@@ -3763,6 +5269,12 @@
             "state" : "translated",
             "value" : "Unable to reach any vote server. Please check your internet connection and try again."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach any vote server. Please check your internet connection and try again."
+          }
         }
       }
     },
@@ -3770,6 +5282,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The voting commitment tree is not available yet. The voting round may not have started or the chain has not processed any commitments."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The voting commitment tree is not available yet. The voting round may not have started or the chain has not processed any commitments."
@@ -3785,6 +5303,12 @@
             "state" : "translated",
             "value" : "This wallet has already been registered for this voting round. If you have this wallet on multiple devices, please use the device where you originally started the voting process."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This wallet has already been registered for this voting round. If you have this wallet on multiple devices, please use the device where you originally started the voting process."
+          }
         }
       }
     },
@@ -3792,6 +5316,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The voting configuration is missing nullifier-service endpoints. Please update the app and try again."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The voting configuration is missing nullifier-service endpoints. Please update the app and try again."
@@ -3807,6 +5337,12 @@
             "state" : "translated",
             "value" : "The nullifier service returned invalid proof data. Please try again in a few minutes."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The nullifier service returned invalid proof data. Please try again in a few minutes."
+          }
         }
       }
     },
@@ -3814,6 +5350,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The nullifier service is out of sync with the round's snapshot. Voting cannot proceed until a PIR server reports the matching snapshot. Please try again in a few minutes."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The nullifier service is out of sync with the round's snapshot. Voting cannot proceed until a PIR server reports the matching snapshot. Please try again in a few minutes."
@@ -3829,6 +5371,12 @@
             "state" : "translated",
             "value" : "Unable to reach the nullifier service. Please check your internet connection and try again."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to reach the nullifier service. Please check your internet connection and try again."
+          }
         }
       }
     },
@@ -3836,6 +5384,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proof generation failed. Please try again."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Proof generation failed. Please try again."
@@ -3851,6 +5405,12 @@
             "state" : "translated",
             "value" : "This voting round is no longer accepting votes. It may have ended or is not yet open."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This voting round is no longer accepting votes. It may have ended or is not yet open."
+          }
         }
       }
     },
@@ -3858,6 +5418,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This voting round could not be found on the network."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "This voting round could not be found on the network."
@@ -3873,6 +5439,12 @@
             "state" : "translated",
             "value" : "Sending %@ votes to the network"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending %@ votes to the network"
+          }
         }
       }
     },
@@ -3880,6 +5452,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending %@ vote to the network"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sending %@ vote to the network"
@@ -3895,6 +5473,12 @@
             "state" : "translated",
             "value" : "Submitting votes"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submitting votes"
+          }
         }
       }
     },
@@ -3902,6 +5486,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some votes could not be submitted."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Some votes could not be submitted."
@@ -3917,6 +5507,12 @@
             "state" : "translated",
             "value" : "Voting has closed. Final results will appear here once the helpers finish tallying."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voting has closed. Final results will appear here once the helpers finish tallying."
+          }
         }
       }
     },
@@ -3924,6 +5520,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ended"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ended"
@@ -3939,6 +5541,12 @@
             "state" : "translated",
             "value" : "Proposals"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proposals"
+          }
         }
       }
     },
@@ -3946,6 +5554,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Round"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Round"
@@ -3961,6 +5575,12 @@
             "state" : "translated",
             "value" : "Tallying"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallying"
+          }
         }
       }
     },
@@ -3968,6 +5588,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results are being tallied. The election authority is decrypting the aggregate vote totals."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Results are being tallied. The election authority is decrypting the aggregate vote totals."
@@ -3983,6 +5609,12 @@
             "state" : "translated",
             "value" : "Votes Closed"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votes Closed"
+          }
         }
       }
     },
@@ -3990,6 +5622,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tallying in progress"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tallying in progress"
@@ -4005,6 +5643,12 @@
             "state" : "translated",
             "value" : "There are no voting rounds available right now."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There are no voting rounds available right now."
+          }
         }
       }
     },
@@ -4012,6 +5656,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Voting Rounds"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No Voting Rounds"
@@ -4027,6 +5677,12 @@
             "state" : "translated",
             "value" : "The voting period has ended.\nYour vote can no longer be submitted."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The voting period has ended.\nYour vote can no longer be submitted."
+          }
         }
       }
     },
@@ -4034,6 +5690,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Poll Closed"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Poll Closed"
@@ -4050,6 +5712,12 @@
             "state" : "translated",
             "value" : "This poll hasn't been verified. We can't confirm its legitimacy or how results will be used."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This poll hasn't been verified. We can't confirm its legitimacy or how results will be used."
+          }
         }
       }
     },
@@ -4058,6 +5726,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proceed anyway"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Proceed anyway"
@@ -4074,6 +5748,12 @@
             "state" : "translated",
             "value" : "Unverified Poll"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unverified Poll"
+          }
         }
       }
     },
@@ -4081,6 +5761,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catching up to round snapshot"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Catching up to round snapshot"
@@ -4096,6 +5782,12 @@
             "state" : "translated",
             "value" : "Blocks remaining"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocks remaining"
+          }
         }
       }
     },
@@ -4103,6 +5795,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Snapshot block"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Snapshot block"
@@ -4118,6 +5816,12 @@
             "state" : "translated",
             "value" : "Wallet synced to"
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallet synced to"
+          }
         }
       }
     },
@@ -4125,6 +5829,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please wait for your wallet to finish syncing, then come back to vote."
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Please wait for your wallet to finish syncing, then come back to vote."
@@ -4140,6 +5850,12 @@
             "state" : "translated",
             "value" : "Your wallet needs to sync to the snapshot block height before you can participate in voting."
           }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your wallet needs to sync to the snapshot block height before you can participate in voting."
+          }
         }
       }
     },
@@ -4147,6 +5863,12 @@
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wallet Syncing"
+          }
+        },
+        "es" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Wallet Syncing"
