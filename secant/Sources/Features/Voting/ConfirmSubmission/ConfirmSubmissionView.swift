@@ -405,41 +405,70 @@ private struct VotingHeaderIcons: View {
     var showCheckmark: Bool = false
 
     var body: some View {
-        HStack(spacing: -4) {
-            if isKeystone {
-                Asset.Assets.Brandmarks.brandmarkKeystone.image
-                    .resizable()
-                    .frame(width: 48, height: 48)
-                    .clipShape(Circle())
-            } else {
-                ZStack {
+        // Mirrors the disc-pair pattern from `TransactionDetailsView.headerView`:
+        // the left disc has a `destinationOut` circle overlay that carves a
+        // notch where the right disc sits, `compositingGroup()` scopes the
+        // blend, and the foreground symbol is re-overlaid on top so it isn't
+        // cut. The right disc is `offset(x: -4)` so it overlaps the notch
+        // with a ~1.5pt halo (51pt mask vs. 48pt right disc).
+        HStack(spacing: 0) {
+            leftDisc
+                .overlay {
                     Circle()
-                        .fill(Design.Text.primary.color(colorScheme))
-                        .frame(width: 48, height: 48)
-                    Asset.Assets.zashiLogo.image
-                        .zImage(size: 22, color: Design.Surfaces.bgPrimary.color(colorScheme))
+                        .frame(width: 51, height: 51)
+                        .offset(x: 42)
+                        .blendMode(.destinationOut)
                 }
-            }
+                .compositingGroup()
+                .overlay { leftSymbol }
 
-            if showCheckmark {
-                ZStack {
-                    Circle()
-                        .fill(Design.Utility.SuccessGreen._500.color(colorScheme).opacity(0.15))
-                        .frame(width: 48, height: 48)
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(Design.Utility.SuccessGreen._500.color(colorScheme))
-                }
-                .zIndex(1)
-            } else {
-                ZStack {
-                    Circle()
-                        .fill(Design.Surfaces.bgTertiary.color(colorScheme))
-                        .frame(width: 48, height: 48)
-                    Image(systemName: "hand.thumbsup")
-                        .font(.system(size: 22, weight: .regular))
-                        .foregroundStyle(Design.Text.primary.color(colorScheme))
-                }
+            rightDisc
+                .offset(x: -4)
+        }
+    }
+
+    @ViewBuilder
+    private var leftDisc: some View {
+        if isKeystone {
+            Asset.Assets.Brandmarks.brandmarkKeystone.image
+                .resizable()
+                .frame(width: 48, height: 48)
+                .clipShape(Circle())
+        } else {
+            Circle()
+                .fill(Design.Text.primary.color(colorScheme))
+                .frame(width: 48, height: 48)
+        }
+    }
+
+    @ViewBuilder
+    private var leftSymbol: some View {
+        if !isKeystone {
+            Asset.Assets.zashiLogo.image
+                .zImage(size: 22, color: Design.Surfaces.bgPrimary.color(colorScheme))
+        }
+    }
+
+    @ViewBuilder
+    private var rightDisc: some View {
+        if showCheckmark {
+            ZStack {
+                Circle()
+                    .fill(Design.Utility.SuccessGreen._500.color(colorScheme).opacity(0.15))
+                    .frame(width: 48, height: 48)
+
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.system(size: 24))
+                    .foregroundStyle(Design.Utility.SuccessGreen._500.color(colorScheme))
+            }
+        } else {
+            ZStack {
+                Circle()
+                    .fill(Design.Surfaces.bgTertiary.color(colorScheme))
+                    .frame(width: 48, height: 48)
+                Image(systemName: "hand.thumbsup")
+                    .font(.system(size: 22, weight: .regular))
+                    .foregroundStyle(Design.Text.primary.color(colorScheme))
             }
         }
     }

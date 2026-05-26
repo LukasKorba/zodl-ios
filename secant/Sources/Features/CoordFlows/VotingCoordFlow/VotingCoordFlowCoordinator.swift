@@ -47,8 +47,7 @@ extension VotingCoordFlow {
                 state.serviceConfig = nil
                 state.pollsLoadError = false
                 state.rootScreen = .loading
-                state.pollClosedAlert = nil
-                state.pollClosedRoundId = nil
+                state.pollClosedSheet = nil
                 return .merge(
                     .cancel(id: cancelPipelineId),
                     .cancel(id: cancelDelegationPrecomputeId),
@@ -194,7 +193,18 @@ extension VotingCoordFlow {
                 }
                 state.voteRecords = records
 
-                state.rootScreen = visibleRoundCount(state: state) == 0 ? .noRounds : .pollsList
+                // On default config, defer the pollsList-vs-noRounds decision
+                // until `.zodlEndorsementsLoaded` (or `.zodlEndorsementsFailed`)
+                // resolves; otherwise this branch would compute the empty-state
+                // against an as-yet-unpopulated endorsement set and lock the
+                // user on noRounds even when endorsed rounds arrive a moment
+                // later. On custom config there's no endorsement filter, so we
+                // can decide immediately from `allRounds`.
+                if state.isOnDefaultConfig {
+                    state.rootScreen = .loading
+                } else {
+                    state.rootScreen = state.allRounds.isEmpty ? .noRounds : .pollsList
+                }
 
                 // If the user is currently on TallyingView for a round whose
                 // status just flipped to .finalized, swap the topmost path
@@ -232,23 +242,28 @@ extension VotingCoordFlow {
 
             case let .zodlEndorsementsLoaded(ids):
                 state.zodlEndorsedRoundIds = ids
-                // Re-evaluate the empty state — when the endorsements set
-                // arrives after `.allRoundsLoaded` and its intersection
-                // with `allRounds` is empty (no endorsed rounds at all on
-                // prod, for example), the polls list would otherwise stay
-                // on the loading skeleton forever because
-                // `PollsListView.visiblePolls` becomes empty.
-                if state.rootScreen == .pollsList,
-                   visibleRoundCount(state: state) == 0 {
-                    state.rootScreen = .noRounds
+                // Resolve the pollsList-vs-noRounds decision now that the
+                // endorsement set is known. We only override `rootScreen`
+                // when it's one of the three round-derived states — leaving
+                // `.howToVote`, `.walletSyncing`, `.error`, and `.configError`
+                // intact so the endorsement landing doesn't yank the user
+                // out of an unrelated branch.
+                if state.rootScreen == .loading
+                    || state.rootScreen == .pollsList
+                    || state.rootScreen == .noRounds {
+                    state.rootScreen = visibleRoundCount(state: state) == 0 ? .noRounds : .pollsList
                 }
                 return .none
 
             case .zodlEndorsementsFailed:
-                // Leave the existing set in place; the polls list either
-                // renders empty (default source) or unaffected (custom source
-                // skips the filter). The polls-list error sheet already
-                // covers the user-visible network-failure surface.
+                // The fetch failed; treat as empty endorsement set. If we're
+                // still waiting on the round-derived decision, fall through
+                // to noRounds rather than spinning on the loading skeleton.
+                // On custom config the decision was already made at
+                // `.allRoundsLoaded`, so this is a no-op there.
+                if state.rootScreen == .loading {
+                    state.rootScreen = visibleRoundCount(state: state) == 0 ? .noRounds : .pollsList
+                }
                 return .none
 
             case .roundsLoadFailed:
@@ -273,8 +288,7 @@ extension VotingCoordFlow {
                 state.roundCache.removeAll()
                 state.path.removeAll()
                 state.pendingBatchSubmission = false
-                state.pollClosedAlert = nil
-                state.pollClosedRoundId = nil
+                state.pollClosedSheet = nil
                 state.ineligibleSheet = nil
                 state.checkingEligibilityRoundId = nil
                 state.walletSyncingSheetRoundId = nil
@@ -289,13 +303,13 @@ extension VotingCoordFlow {
                     .cancel(id: cancelShareTrackingId)
                 )
 
-            case let .submissionDoneTapped(roundId):
-                // Pop the ConfirmSubmission/Review stack and land the user
-                // on the round's read-only ProposalList. Mirrors the agency
-                // `.doneTapped` behavior — round cache and share-tracking
-                // poll stay alive so unconfirmed shares keep recovering.
+            case .submissionDoneTapped:
+                // Pop the entire ConfirmSubmission/Review stack back to the
+                // polls list and let the user decide what to do next — tap
+                // into the now-Voted round to see their review, or visit a
+                // different poll. Round cache and share-tracking poll stay
+                // alive so unconfirmed shares keep recovering.
                 state.path.removeAll()
-                state.path.append(.reviewVotes(ReviewVotes.State(roundId: roundId)))
                 state.pendingBatchSubmission = false
                 state.skippedQuestionsSheet = nil
                 return .none
@@ -1150,8 +1164,7 @@ extension VotingCoordFlow {
                 case .tallying:
                     let isCurrentRound = topPathRoundId(state) == roundId
                     if activeVotingFlowRoundId(state) == roundId {
-                        state.pollClosedAlert = .pollClosed(status: status)
-                        state.pollClosedRoundId = roundId
+                        state.pollClosedSheet = State.PollClosedSheet(roundId: roundId, status: status)
                     } else if isCurrentRound {
                         replacePathWithStatusScreen(&state, roundId: roundId, status: status)
                     }
@@ -1165,8 +1178,7 @@ extension VotingCoordFlow {
                 case .finalized:
                     let isCurrentRound = topPathRoundId(state) == roundId
                     if activeVotingFlowRoundId(state) == roundId {
-                        state.pollClosedAlert = .pollClosed(status: status)
-                        state.pollClosedRoundId = roundId
+                        state.pollClosedSheet = State.PollClosedSheet(roundId: roundId, status: status)
                     } else if isCurrentRound {
                         replacePathWithStatusScreen(&state, roundId: roundId, status: status)
                     }
@@ -1184,15 +1196,14 @@ extension VotingCoordFlow {
                 }
 
             case .dismissPollClosedAlert:
-                state.pollClosedAlert = nil
-                state.pollClosedRoundId = nil
+                state.pollClosedSheet = nil
                 state.path.removeAll()
                 return .none
 
             case .viewPollClosedResults:
-                let roundId = state.pollClosedRoundId ?? activeVotingFlowRoundId(state)
-                state.pollClosedAlert = nil
-                state.pollClosedRoundId = nil
+                let sheet = state.pollClosedSheet
+                state.pollClosedSheet = nil
+                let roundId = sheet?.roundId ?? activeVotingFlowRoundId(state)
                 guard let roundId,
                       let status = state.allRounds.first(where: { $0.id == roundId })?.session.status
                 else {
@@ -1206,18 +1217,6 @@ extension VotingCoordFlow {
                         .send(.startNewRoundPolling)
                     )
                 }
-                return .none
-
-            case .pollClosedAlert(.presented(.dismissPollClosedAlert)):
-                return .send(.dismissPollClosedAlert)
-
-            case .pollClosedAlert(.presented(.viewPollClosedResults)):
-                return .send(.viewPollClosedResults)
-
-            case .pollClosedAlert(.dismiss):
-                return .send(.dismissPollClosedAlert)
-
-            case .pollClosedAlert:
                 return .none
 
             case .startNewRoundPolling:
@@ -1452,8 +1451,7 @@ extension VotingCoordFlow {
         state.submissionAlert = nil
         state.keystoneScan = nil
         state.skipBundlesAlert = nil
-        state.pollClosedAlert = nil
-        state.pollClosedRoundId = nil
+        state.pollClosedSheet = nil
         state.pollsLoadError = false
         state.serviceConfig = nil
         state.walletScannedHeight = 0
@@ -3578,27 +3576,6 @@ extension AlertState where Action == VotingCoordFlow.Action {
         }
     }
 
-    static func pollClosed(status: SessionStatus) -> AlertState {
-        AlertState {
-            TextState("Voting closed")
-        } actions: {
-            ButtonState(action: .viewPollClosedResults) {
-                TextState(status == .finalized ? "View results" : "View status")
-            }
-            ButtonState(role: .cancel, action: .dismissPollClosedAlert) {
-                TextState("Back to polls")
-            }
-        } message: {
-            switch status {
-            case .finalized:
-                TextState("This round has finalized. You can view the results now.")
-            case .tallying:
-                TextState("This round is tallying. Results will appear once tallying finishes.")
-            case .active, .unspecified:
-                TextState("This round is no longer available for voting.")
-            }
-        }
-    }
 }
 
 // MARK: - Array helper

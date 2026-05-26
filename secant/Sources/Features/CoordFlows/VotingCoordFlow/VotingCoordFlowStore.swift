@@ -158,13 +158,16 @@ struct VotingCoordFlow {
         /// giving-up amounts so the decision is informed.
         @Presents var skipBundlesAlert: AlertState<Action>?
 
-        /// Alert shown when an opened active round transitions to tallying
-        /// or finalized while the user is still in voting/review/submission.
-        @Presents var pollClosedAlert: AlertState<Action>?
+        /// Bottom sheet shown when an opened active round transitions to
+        /// tallying or finalized while the user is still in voting / review /
+        /// submission. Carries the round id and the new status so the action
+        /// buttons can route to the right screen.
+        var pollClosedSheet: PollClosedSheet?
 
-        /// Round id associated with `pollClosedAlert`; retained so the alert
-        /// actions still know which status screen to route to.
-        var pollClosedRoundId: String?
+        struct PollClosedSheet: Equatable {
+            let roundId: String
+            let status: SessionStatus
+        }
 
         @Shared(.inMemory(.selectedWalletAccount))
         var selectedWalletAccount: WalletAccount?
@@ -257,7 +260,6 @@ struct VotingCoordFlow {
         case tallyResultsLoaded(roundId: String, results: [UInt32: TallyResult])
         case tallyResultsFailed(roundId: String, message: String)
         case submissionAlert(PresentationAction<Never>)
-        case pollClosedAlert(PresentationAction<Action>)
 
         // MARK: - Stage 5: submission pipeline
 
@@ -373,7 +375,6 @@ struct VotingCoordFlow {
                 Scan()
             }
             .ifLet(\.$skipBundlesAlert, action: \.skipBundlesAlert)
-            .ifLet(\.$pollClosedAlert, action: \.pollClosedAlert)
     }
 }
 

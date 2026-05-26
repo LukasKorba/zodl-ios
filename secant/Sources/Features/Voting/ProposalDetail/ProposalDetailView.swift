@@ -48,10 +48,10 @@ struct ProposalDetailView: View {
                 submittedChoice: session?.votes[proposalId]
             )
             let isLocked = mode == .review || session?.votes[proposalId] != nil
+            let forumURL = browserSafeForumURL(info.proposal?.forumURL)
 
-            ZStack(alignment: .bottom) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
                         if let proposal = info.proposal {
                             VStack(alignment: .leading, spacing: 16) {
                                 Text(proposal.title)
@@ -94,12 +94,11 @@ struct ProposalDetailView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.bottom, 96)
                 }
                 .padding(.vertical, 1)
-
-                bottomBar(forumURL: browserSafeForumURL(info.proposal?.forumURL))
-            }
+                .safeAreaInset(edge: .bottom, spacing: 0) {
+                    bottomBar(forumURL: forumURL)
+                }
             .applyScreenBackground()
             .screenTitle(info.screenTitle)
             .zashiBackV2(customDismiss: {
@@ -211,10 +210,11 @@ struct ProposalDetailView: View {
     private func bottomBar(forumURL: URL?) -> some View {
         let showNext = mode == .voting
         if forumURL != nil || showNext {
-            VStack(spacing: 12) {
+            VStack(spacing: Design.Spacing._3xl) {
                 if let forumURL {
                     forumDiscussionRow(url: forumURL)
                 }
+                
                 if showNext {
                     ZashiButton(String(localizable: .coinVoteCommonNext)) {
                         store.send(
@@ -254,9 +254,8 @@ struct ProposalDetailView: View {
                     Circle()
                         .fill(Design.Surfaces.bgTertiary.color(colorScheme))
                         .frame(width: 40, height: 40)
-                    Image(systemName: "bubble.left")
-                        .font(.system(size: 18, weight: .regular))
-                        .foregroundStyle(Design.Text.primary.color(colorScheme))
+                    Asset.Assets.Icons.messageChat.image
+                        .zImage(size: 20, style: Design.Text.primary)
                 }
 
                 Text(localizable: .coinVoteProposalDetailViewForumDiscussion)
@@ -264,9 +263,8 @@ struct ProposalDetailView: View {
                     .tracking(-0.256)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Design.Text.tertiary.color(colorScheme))
+                Asset.Assets.chevronRight.image
+                    .zImage(size: 20, style: Design.Text.tertiary)
             }
             .contentShape(Rectangle())
         }
@@ -299,20 +297,24 @@ struct ProposalDetailView: View {
             }
         } label: {
             HStack(alignment: .center, spacing: 12) {
-                ZStack {
+                if isSelected {
                     Circle()
-                        .stroke(
-                            isSelected
-                                ? Design.Text.primary.color(colorScheme)
-                                : Design.Surfaces.strokeSecondary.color(colorScheme),
-                            lineWidth: 2
-                        )
-                        .frame(width: 22, height: 22)
-                    if isSelected {
-                        Circle()
-                            .fill(Design.Text.primary.color(colorScheme))
-                            .frame(width: 12, height: 12)
-                    }
+                        .fill(Design.Checkboxes.onBg.color(colorScheme))
+                        .frame(width: 20, height: 20)
+                        .overlay {
+                            Circle()
+                                .fill(Design.Checkboxes.onFg.color(colorScheme))
+                                .frame(width: 10, height: 10)
+                        }
+                } else {
+                    Circle()
+                        .fill(Design.Checkboxes.offBg.color(colorScheme))
+                        .frame(width: 20, height: 20)
+                        .overlay {
+                            Circle()
+                                .stroke(Design.Checkboxes.offStroke.color(colorScheme))
+                                .frame(width: 20, height: 20)
+                        }
                 }
 
                 VStack(alignment: .leading, spacing: 4) {

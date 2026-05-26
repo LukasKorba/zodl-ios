@@ -29,10 +29,7 @@ struct PollsListView: View {
                     if store.pollsLoadError || visiblePolls.isEmpty {
                         PollsListSkeletonCard()
                     } else {
-                        // Newest polls first. `allRounds` is stored ascending
-                        // so assigned round numbers stay sane (round 1 =
-                        // oldest), but the list shows the latest at the top.
-                        ForEach(Array(visiblePolls.reversed()), id: \.id) { item in
+                        ForEach(sortedPolls(visiblePolls), id: \.id) { item in
                             pollCard(for: item)
                         }
                     }
@@ -201,6 +198,32 @@ struct PollsListView: View {
             return store.voteRecords[item.id] != nil ? .voted : .active
         case .tallying, .finalized, .unspecified:
             return .closed
+        }
+    }
+
+    /// Clusters polls into Active → Voted → Closed. Active/Voted are sorted
+    /// by `voteEndTime` ascending (closing-soonest first); Closed is sorted
+    /// descending so the most recently closed round leads its cluster.
+    private func sortedPolls(_ polls: [RoundListItem]) -> [RoundListItem] {
+        func rank(_ state: CardState) -> Int {
+            switch state {
+            case .active: return 0
+            case .voted:  return 1
+            case .closed: return 2
+            }
+        }
+        return polls.sorted { lhs, rhs in
+            let lhsState = cardState(for: lhs)
+            let rhsState = cardState(for: rhs)
+            let lhsRank = rank(lhsState)
+            let rhsRank = rank(rhsState)
+            if lhsRank != rhsRank {
+                return lhsRank < rhsRank
+            }
+            if lhsState == .closed {
+                return lhs.session.voteEndTime > rhs.session.voteEndTime
+            }
+            return lhs.session.voteEndTime < rhs.session.voteEndTime
         }
     }
 
