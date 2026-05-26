@@ -40,10 +40,7 @@ private enum SourceField: Hashable {
 struct VotingConfigSettingsView: View {
     let store: StoreOf<VotingConfigSettings>
 
-    @Dependency(\.pasteboard) private var pasteboard
     @FocusState private var focusedSourceField: SourceField?
-
-    private let copyTapFeedback = UIImpactFeedbackGenerator(style: .light)
 
     var body: some View {
         WithPerceptionTracking {
@@ -73,21 +70,17 @@ struct VotingConfigSettingsView: View {
             }
             .padding(.horizontal, 24)
             .applyScreenBackground()
-            .screenTitle(String(localized: "Select Data Source"))
+            .screenTitle(String(localizable: .coinVoteConfigSettingsScreenTitle))
             .zashiBack { store.send(.dismissTapped) }
-            .zashiSheet(
-                isPresented: addCustomChainSheetBinding,
-                horizontalPadding: 0,
-                dragIndicatorVisibility: .hidden
-            ) {
+            .sheet(isPresented: addCustomChainSheetBinding) {
                 addCustomChainSheet
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.hidden)
             }
-            .zashiSheet(
-                isPresented: editCustomChainSheetBinding,
-                horizontalPadding: 0,
-                dragIndicatorVisibility: .hidden
-            ) {
+            .sheet(isPresented: editCustomChainSheetBinding) {
                 editCustomChainSheet
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.hidden)
             }
             .onAppear {
                 store.send(.onAppear)
@@ -97,12 +90,12 @@ struct VotingConfigSettingsView: View {
 
     private var sourceListHeader: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(String(localized: "Poll Data Source"))
+            Text(localizable: .coinVoteConfigSettingsSectionTitle)
                 .zFont(.semiBold, size: 24, style: Design.Text.primary)
                 .tracking(-0.384)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text(String(localized: "Pick a poll source, or add your own."))
+            Text(localizable: .coinVoteConfigSettingsSectionSubtitle)
                 .zFont(size: 14, style: Design.Text.tertiary)
                 .tracking(-0.084)
                 .fixedSize(horizontal: false, vertical: true)
@@ -115,15 +108,14 @@ struct VotingConfigSettingsView: View {
         let pair = VotingChainDisplayURL.defaultBundled
 
         return chainSourceCard(
-            name: String(localized: "Coinholder Poll"),
+            name: String(localizable: .coinVoteConfigSettingsBundledName),
             url: pair.compact,
             isDefault: true,
             isSelected: isSelected,
-            selectAccessibilityLabel: String(localized: "Default data source"),
-            onSelectTap: { store.send(.bundledTapped) }
-        ) {
-            sourceActionsMenu(fullURL: pair.full, chain: nil)
-        }
+            selectAccessibilityLabel: String(localizable: .coinVoteConfigSettingsAccessibilityDefault),
+            onSelectTap: { store.send(.bundledTapped) },
+            onContentTap: nil
+        )
         .accessibilityElement(children: .contain)
     }
 
@@ -136,57 +128,37 @@ struct VotingConfigSettingsView: View {
             url: pair.compact,
             isDefault: false,
             isSelected: isSelected,
-            selectAccessibilityLabel: String(localized: "Select \(chain.name)"),
-            onSelectTap: { store.send(.customChainSelected(chain.id)) }
-        ) {
-            sourceActionsMenu(fullURL: pair.full, chain: chain)
-        }
+            selectAccessibilityLabel: String(localizable: .coinVoteConfigSettingsAccessibilitySelectChain(chain.name)),
+            onSelectTap: { store.send(.customChainSelected(chain.id)) },
+            onContentTap: { store.send(.editChainTapped(chain.id)) }
+        )
     }
 
-    private func chainSourceCard<MenuContent: View>(
+    private func chainSourceCard(
         name: String,
         url: String,
         isDefault: Bool,
         isSelected: Bool,
         selectAccessibilityLabel: String,
         onSelectTap: @escaping () -> Void,
-        @ViewBuilder menuContent: () -> MenuContent
+        onContentTap: (() -> Void)?
     ) -> some View {
-        HStack(alignment: .top, spacing: 16) {
+        HStack(alignment: .center, spacing: 16) {
             Button(action: onSelectTap) {
-                HStack(alignment: .top, spacing: 16) {
-                    selectionIndicator(isSelected: isSelected)
-                        .padding(.top, 2)
-
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack(spacing: 6) {
-                            Text(name)
-                                .zFont(.medium, size: 16, style: Design.Text.primary)
-                                .tracking(-0.256)
-                                .lineLimit(1)
-                                .truncationMode(.middle)
-
-                            if isDefault {
-                                defaultBadge()
-                            }
-                        }
-
-                        Text(url)
-                            .zFont(size: 14, style: Design.Text.tertiary)
-                            .tracking(-0.224)
-                            .lineLimit(1)
-                            .truncationMode(.tail)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .contentShape(Rectangle())
+                selectionIndicator(isSelected: isSelected)
+                    .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .frame(maxWidth: .infinity, alignment: .leading)
             .accessibilityLabel(selectAccessibilityLabel)
             .accessibilityAddTraits(isSelected ? .isSelected : [])
 
-            menuContent()
+            chainSourceCardContent(
+                name: name,
+                url: url,
+                isDefault: isDefault,
+                showChevron: onContentTap != nil,
+                contentTap: onContentTap ?? onSelectTap
+            )
         }
         .padding(.leading, 20)
         .padding(.trailing, 16)
@@ -214,38 +186,60 @@ struct VotingConfigSettingsView: View {
         .padding(.horizontal, 2)
     }
 
-    private func sourceActionsMenu(fullURL: String, chain: CustomChainEntry?) -> some View {
-        Menu {
-            Button {
-                copyToPasteboard(fullURL)
-            } label: {
-                Label(String(localized: "Copy Data Source URL"), systemImage: "doc.on.doc")
-            }
-
-            if let chain {
-                Button {
-                    store.send(.editChainTapped(chain.id))
-                } label: {
-                    Label(String(localized: "Edit"), systemImage: "pencil")
-                }
-
-                Button(role: .destructive) {
-                    store.send(.customChainDeleteTapped(chain.id))
-                } label: {
-                    Label(String(localized: "Delete"), systemImage: "trash.fill")
-                }
-            }
-        } label: {
-            Asset.Assets.Icons.dotsMenu.image
-                .zImage(size: 20, style: Design.Text.primary)
-                .padding(8)
+    /// Right-hand portion of the source card: name + url, plus an optional
+    /// trailing chevron. Rows with a chevron route to the edit popover via
+    /// `contentTap`; rows without a chevron fall through to selection.
+    private func chainSourceCardContent(
+        name: String,
+        url: String,
+        isDefault: Bool,
+        showChevron: Bool,
+        contentTap: @escaping () -> Void
+    ) -> some View {
+        Button(action: contentTap) {
+            chainSourceCardContentRow(name: name, url: url, isDefault: isDefault, showChevron: showChevron)
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(String(localized: "Source actions"))
+    }
+
+    private func chainSourceCardContentRow(
+        name: String,
+        url: String,
+        isDefault: Bool,
+        showChevron: Bool
+    ) -> some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 6) {
+                    Text(name)
+                        .zFont(.medium, size: 16, style: Design.Text.primary)
+                        .tracking(-0.256)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+
+                    if isDefault {
+                        defaultBadge()
+                    }
+                }
+
+                Text(url)
+                    .zFont(size: 14, style: Design.Text.tertiary)
+                    .tracking(-0.224)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
+            if showChevron {
+                Asset.Assets.chevronRight.image
+                    .zImage(size: 20, style: Design.Text.tertiary)
+            }
+        }
     }
 
     private func defaultBadge() -> some View {
-        Text(String(localized: "Default"))
+        Text(localizable: .coinVoteConfigSettingsDefaultBadge)
             .zFont(.medium, size: 12, color: Design.Utility.Gray._700.color(colorScheme))
             .tracking(-0.072)
             .padding(.horizontal, 6)
@@ -260,13 +254,7 @@ struct VotingConfigSettingsView: View {
             }
     }
 
-    private func copyToPasteboard(_ string: String) {
-        pasteboard.setString(string.redacted)
-        copyTapFeedback.prepare()
-        copyTapFeedback.impactOccurred()
-    }
-
-    private var bottomBar: some View {
+private var bottomBar: some View {
         VStack(spacing: 12) {
             Button {
                 store.send(.addCustomChainButtonTapped)
@@ -275,7 +263,7 @@ struct VotingConfigSettingsView: View {
                     Asset.Assets.Icons.plus.image
                         .zImage(size: 20, style: Design.Text.primary)
 
-                    Text(String(localized: "Add custom source"))
+                    Text(localizable: .coinVoteConfigSettingsAddCustomSource)
                         .zFont(.semiBold, size: 16, style: Design.Text.primary)
                         .tracking(-0.256)
                 }
@@ -309,112 +297,109 @@ struct VotingConfigSettingsView: View {
         return VStack(spacing: 0) {
             sourceFormToolbar(for: mode)
 
-            VStack(alignment: .leading, spacing: 0) {
-                sourceFormHeader(for: mode)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    sourceFormHeader(for: mode)
 
-                VStack(spacing: 16) {
-                    sourceTextField(
-                        title: String(localized: "Title"),
-                        text: isEditing ? editChainNameBinding : pendingNewChainNameBinding,
-                        error: validationError(for: .title),
-                        focusField: isEditing ? .editTitle : .addTitle
-                    )
+                    VStack(spacing: 16) {
+                        sourceTextField(
+                            title: String(localizable: .coinVoteConfigSettingsTitleField),
+                            text: isEditing ? editChainNameBinding : pendingNewChainNameBinding,
+                            error: validationError(for: .title),
+                            focusField: isEditing ? .editTitle : .addTitle
+                        )
 
-                    sourceTextField(
-                        title: String(localized: "URL"),
-                        text: isEditing ? editChainURLBinding : pendingNewChainURLBinding,
-                        placeholder: String(localized: "Enter..."),
-                        error: validationError(for: .url),
-                        focusField: isEditing ? .editURL : .addURL,
-                        isURL: true
-                    )
+                        sourceTextField(
+                            title: String(localizable: .coinVoteConfigSettingsUrlField),
+                            text: isEditing ? editChainURLBinding : pendingNewChainURLBinding,
+                            placeholder: String(localizable: .coinVoteConfigSettingsUrlPlaceholder),
+                            error: validationError(for: .url),
+                            focusField: isEditing ? .editURL : .addURL,
+                            isURL: true
+                        )
+                    }
+                    .padding(.top, 16)
                 }
-                .padding(.top, 16)
+                .padding(.horizontal, 24)
+                .padding(.top, 12)
+                .padding(.bottom, 24)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
 
-                Spacer(minLength: 24)
-
-                VStack(spacing: 12) {
-                    if isEditing {
-                        ZashiButton(String(localized: "Delete"), type: .destructive1, minHeight: 48) {
-                            if let id = store.editingChainId {
-                                store.send(.customChainDeleteTapped(id))
-                            }
+            VStack(spacing: 12) {
+                if isEditing {
+                    ZashiButton(String(localizable: .coinVoteConfigSettingsDelete), type: .destructive1, minHeight: 48) {
+                        if let id = store.editingChainId {
+                            store.send(.customChainDeleteTapped(id))
                         }
                     }
-
-                    ZashiButton(sourceFormSaveTitle(for: mode), minHeight: 48) {
-                        store.send(.saveTapped)
-                    }
-                    .disabled(saveDisabled)
                 }
+
+                ZashiButton(sourceFormSaveTitle(for: mode), minHeight: 48) {
+                    store.send(.saveTapped)
+                }
+                .disabled(saveDisabled)
             }
             .padding(.horizontal, 24)
+            .padding(.bottom, 24)
             .padding(.top, 12)
-            .padding(.bottom, 52)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .frame(maxWidth: .infinity, minHeight: sourceFormSheetMinHeight, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .applyScreenBackground()
         .onAppear {
-            focusedSourceField = isEditing ? nil : .addTitle
+            focusedSourceField = isEditing ? .editTitle : .addTitle
         }
     }
 
     private func sourceFormToolbar(for mode: SourceFormMode) -> some View {
-        ZStack(alignment: .top) {
-            Capsule()
-                .fill(Color(red: 0.72, green: 0.70, blue: 0.66))
-                .frame(width: 36, height: 4)
-                .padding(.top, 8)
-
-            ZStack {
-                HStack {
-                    Button {
-                        switch mode {
-                        case .add:
-                            store.send(.addCustomChainButtonTapped)
-                        case .edit:
-                            store.send(.cancelChainEditTapped)
-                        }
-                    } label: {
-                        Asset.Assets.buttonCloseX.image
-                            .zImage(size: 20, style: Design.Text.tertiary)
-                            .frame(width: 44, height: 44)
-                            .background {
-                                Circle()
-                                    .fill(Design.Btns.Tertiary.bg.color(colorScheme))
-                            }
+        ZStack {
+            HStack {
+                Button {
+                    switch mode {
+                    case .add:
+                        store.send(.addCustomChainButtonTapped)
+                    case .edit:
+                        store.send(.cancelChainEditTapped)
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(String(localized: "Close"))
-
-                    Spacer()
-
-                    Color.clear
+                } label: {
+                    Asset.Assets.buttonCloseX.image
+                        .zImage(size: 20, style: Design.Text.tertiary)
                         .frame(width: 44, height: 44)
+                        .background {
+                            Circle()
+                                .fill(Design.Btns.Tertiary.bg.color(colorScheme))
+                        }
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(String(localizable: .coinVoteConfigSettingsAccessibilityClose))
 
-                Text(sourceFormToolbarTitle(for: mode))
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundColor(Design.Text.primary.color(colorScheme))
-                    .tracking(-0.43)
-                    .lineLimit(1)
+                Spacer()
+
+                Color.clear
+                    .frame(width: 44, height: 44)
             }
-            .frame(height: 44)
-            .padding(.top, 24)
+
+            Text(sourceFormToolbarTitle(for: mode))
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundColor(Design.Text.primary.color(colorScheme))
+                .tracking(-0.43)
+                .lineLimit(1)
         }
+        .frame(height: 44)
         .padding(.horizontal, 16)
-        .frame(height: 92)
+        .padding(.top, 8)
+        .padding(.bottom, 12)
         .frame(maxWidth: .infinity)
     }
 
     private func sourceFormHeader(for mode: SourceFormMode) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text(String(localized: sourceFormHeaderTitle(for: mode)))
+            Text(sourceFormHeaderTitle(for: mode))
                 .zFont(.semiBold, size: 24, style: Design.Text.primary)
                 .tracking(-0.384)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Text(String(localized: sourceFormBody(for: mode)))
+            Text(sourceFormBody(for: mode))
                 .zFont(size: 14, style: Design.Text.primary)
                 .tracking(-0.224)
                 .fixedSize(horizontal: false, vertical: true)
@@ -423,36 +408,34 @@ struct VotingConfigSettingsView: View {
 
     private func sourceFormToolbarTitle(for mode: SourceFormMode) -> String {
         switch mode {
-        case .add: return String(localized: "ADD SOURCE")
-        case .edit: return String(localized: "EDIT SOURCE")
+        case .add: return String(localizable: .coinVoteConfigSettingsToolbarAdd)
+        case .edit: return String(localizable: .coinVoteConfigSettingsToolbarEdit)
         }
     }
 
-    private func sourceFormHeaderTitle(for mode: SourceFormMode) -> String.LocalizationValue {
+    private func sourceFormHeaderTitle(for mode: SourceFormMode) -> String {
         switch mode {
-        case .add: return "Add Custom Source"
-        case .edit: return "Edit Custom Source"
+        case .add: return String(localizable: .coinVoteConfigSettingsHeaderAddTitle)
+        case .edit: return String(localizable: .coinVoteConfigSettingsHeaderEditTitle)
         }
     }
 
-    private func sourceFormBody(for mode: SourceFormMode) -> String.LocalizationValue {
+    private func sourceFormBody(for mode: SourceFormMode) -> String {
         switch mode {
-        case .add:
-            return "Add a poll source that isn't listed by default. You'll need a valid chain URL from the provider hosting the poll."
-        case .edit:
-            return "Update the title or URL for this custom poll source. You'll need a valid chain URL from the provider hosting the poll."
+        case .add: return String(localizable: .coinVoteConfigSettingsHeaderAddBody)
+        case .edit: return String(localizable: .coinVoteConfigSettingsHeaderEditBody)
         }
     }
 
     private func sourceFormSaveTitle(for mode: SourceFormMode) -> String {
         if isValidating {
-            return String(localized: "Validating...")
+            return String(localizable: .coinVoteConfigSettingsValidating)
         }
         switch mode {
         case .add:
-            return String(localized: "Save")
+            return String(localizable: .coinVoteConfigSettingsSave)
         case .edit:
-            return String(localized: "Save changes")
+            return String(localizable: .coinVoteConfigSettingsSaveChanges)
         }
     }
 
@@ -634,7 +617,9 @@ struct VotingConfigSettingsView: View {
     }
 
     private var saveTitle: String {
-        isValidating ? String(localized: "Validating...") : String(localized: "Save changes")
+        isValidating
+            ? String(localizable: .coinVoteConfigSettingsValidating)
+            : String(localizable: .coinVoteConfigSettingsSaveChanges)
     }
 
     private var isValidating: Bool {

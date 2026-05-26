@@ -866,10 +866,21 @@ extension VotingAPIClient: DependencyKey {
                     guard let ids = json["vote_round_ids"] as? [String] else {
                         return []
                     }
-                    // Chain returns base64-encoded 32-byte round ids; the app
+                    // The chain returns ids either as base64-encoded 32-byte
+                    // values or as 64-char hex strings depending on the
+                    // deployment. Hex digits are also valid base64 chars, so
+                    // we can't tell by parse success alone — accept a base64
+                    // decode only if it yields exactly 32 bytes, otherwise
+                    // fall back to treating the value as already hex. App
                     // keys rounds by lowercase hex.
-                    return Set(ids.compactMap { encoded in
-                        Data(base64Encoded: encoded).map(hexString(from:))
+                    return Set(ids.compactMap { raw -> String? in
+                        if let data = Data(base64Encoded: raw), data.count == 32 {
+                            return hexString(from: data)
+                        }
+                        let normalized = raw.lowercased()
+                        let isHex = normalized.count == 64
+                            && normalized.allSatisfy(\.isHexDigit)
+                        return isHex ? normalized : nil
                     })
                 } catch SvAPIError.httpError(let statusCode, _) where statusCode == 400 || statusCode == 404 {
                     // Endorser not configured on this chain. Treat as no endorsements.

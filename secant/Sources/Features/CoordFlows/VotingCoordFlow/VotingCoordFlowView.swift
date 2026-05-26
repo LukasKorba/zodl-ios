@@ -70,10 +70,48 @@ struct VotingCoordFlowView: View {
             }
             .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
             .alert($store.scope(state: \.skipBundlesAlert, action: \.skipBundlesAlert))
-            .alert($store.scope(state: \.pollClosedAlert, action: \.pollClosedAlert))
+            .votingSheet(
+                isPresented: pollClosedSheetBinding,
+                title: String(localizable: .coinVotePollClosedSheetTitle),
+                message: String(localizable: .coinVotePollClosedSheetMessage),
+                primary: .init(
+                    title: pollClosedPrimaryTitle,
+                    style: .primary
+                ) {
+                    store.send(.viewPollClosedResults)
+                },
+                secondary: .init(
+                    title: String(localizable: .coinVoteCommonClose),
+                    style: .secondary
+                ) {
+                    store.send(.dismissPollClosedAlert)
+                }
+            )
             .onChange(of: store.selectedWalletAccount?.id) { _ in
                 store.send(.walletAccountChanged(store.selectedWalletAccount))
             }
+        }
+    }
+
+    private var pollClosedSheetBinding: Binding<Bool> {
+        Binding(
+            get: { store.pollClosedSheet != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissPollClosedAlert)
+                }
+            }
+        )
+    }
+
+    /// Tallying rounds don't have results yet — surface "View status" so the
+    /// user lands on the tallying screen instead of an empty results view.
+    private var pollClosedPrimaryTitle: String {
+        switch store.pollClosedSheet?.status {
+        case .finalized, .none, .some(.active), .some(.unspecified):
+            return String(localizable: .coinVoteCommonViewResults)
+        case .some(.tallying):
+            return String(localizable: .coinVotePollClosedSheetViewStatus)
         }
     }
 
