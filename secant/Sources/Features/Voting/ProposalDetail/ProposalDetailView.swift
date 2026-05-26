@@ -150,14 +150,17 @@ struct ProposalDetailView: View {
     }
 
     /// Localized sheet body showing the count of proposals the user hasn't
-    /// answered. Empty fallback so the `.votingSheet` modifier doesn't
-    /// crash during its dismiss animation when the state has just been
-    /// cleared.
+    /// answered. Singular vs plural copy differs ("this question" vs
+    /// "these questions"), so we route through two distinct keys. Empty
+    /// fallback so the `.votingSheet` modifier doesn't crash during its
+    /// dismiss animation when the state has just been cleared.
     private var skippedQuestionsSheetMessage: String {
         guard let sheet = store.skippedQuestionsSheet else { return "" }
-        return String(
-            localizable: .coinVoteProposalDetailSkippedMessage(String(sheet.skippedDisplayIndices.count))
-        )
+        let count = sheet.skippedDisplayIndices.count
+        if count == 1 {
+            return String(localizable: .coinVoteProposalDetailSkippedMessageSingle(String(count)))
+        }
+        return String(localizable: .coinVoteProposalDetailSkippedMessageMultiple(String(count)))
     }
 
     /// Bundles the current proposal and its 1-indexed screen title.

@@ -4291,19 +4291,36 @@
         }
       }
     },
-    "coinVote.proposalDetail.skippedMessage" : {
+    "coinVote.proposalDetail.skippedMessageMultiple" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You have not responded to %@ question(s). Confirm to skip these questions or go back to respond."
+            "value" : "You have not responded to %@ questions. Confirm to skip these questions or go back to respond."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You have not responded to %@ question(s). Confirm to skip these questions or go back to respond."
+            "value" : "You have not responded to %@ questions. Confirm to skip these questions or go back to respond."
+          }
+        }
+      }
+    },
+    "coinVote.proposalDetail.skippedMessageSingle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have not responded to %@ question. Confirm to skip this question or go back to respond."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You have not responded to %@ question. Confirm to skip this question or go back to respond."
           }
         }
       }
