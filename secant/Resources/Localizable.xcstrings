@@ -4297,13 +4297,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You haven't answered question(s) %@. Continue to the review screen without them, or go back to respond."
+            "value" : "You have not responded to %@ question(s). Confirm to skip these questions or go back to respond."
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You haven't answered question(s) %@. Continue to the review screen without them, or go back to respond."
+            "value" : "You have not responded to %@ question(s). Confirm to skip these questions or go back to respond."
           }
         }
       }

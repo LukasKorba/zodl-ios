@@ -149,16 +149,15 @@ struct ProposalDetailView: View {
         )
     }
 
-    /// Localized sheet body listing the 1-indexed positions of the
-    /// proposals the user hasn't answered yet. Empty fallback so the
-    /// `.votingSheet` modifier doesn't crash during its dismiss
-    /// animation when the state has just been cleared.
+    /// Localized sheet body showing the count of proposals the user hasn't
+    /// answered. Empty fallback so the `.votingSheet` modifier doesn't
+    /// crash during its dismiss animation when the state has just been
+    /// cleared.
     private var skippedQuestionsSheetMessage: String {
         guard let sheet = store.skippedQuestionsSheet else { return "" }
-        let joined = sheet.skippedDisplayIndices
-            .map(String.init)
-            .joined(separator: ", ")
-        return String(localizable: .coinVoteProposalDetailSkippedMessage(joined))
+        return String(
+            localizable: .coinVoteProposalDetailSkippedMessage(String(sheet.skippedDisplayIndices.count))
+        )
     }
 
     /// Bundles the current proposal and its 1-indexed screen title.
