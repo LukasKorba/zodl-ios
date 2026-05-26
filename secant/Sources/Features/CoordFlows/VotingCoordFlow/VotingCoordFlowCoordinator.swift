@@ -198,10 +198,17 @@ extension VotingCoordFlow {
                 // resolves; otherwise this branch would compute the empty-state
                 // against an as-yet-unpopulated endorsement set and lock the
                 // user on noRounds even when endorsed rounds arrive a moment
-                // later. On custom config there's no endorsement filter, so we
-                // can decide immediately from `allRounds`.
+                // later. Only fall back to `.loading` when no round-derived
+                // screen is currently showing — on a refresh while the user is
+                // already on `.pollsList` or `.noRounds`, keep that visible
+                // until `.zodlEndorsementsLoaded` re-evaluates, so a slow or
+                // failed endorsement refresh can't blank the list. On custom
+                // config there's no endorsement filter, so we decide
+                // immediately from `allRounds`.
                 if state.isOnDefaultConfig {
-                    state.rootScreen = .loading
+                    if state.rootScreen != .pollsList && state.rootScreen != .noRounds {
+                        state.rootScreen = .loading
+                    }
                 } else {
                     state.rootScreen = state.allRounds.isEmpty ? .noRounds : .pollsList
                 }
