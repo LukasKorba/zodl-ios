@@ -286,7 +286,7 @@ struct DelegationSigningView: View {
                         .fill(Design.Surfaces.bgQuaternary.color(colorScheme))
                     Capsule()
                         .fill(Design.Text.primary.color(colorScheme))
-                        .frame(width: geometry.size.width * Self.bundleShare(total: total))
+                        .frame(width: geometry.size.width * Self.signingProgress(signed: signed, total: total))
                 }
             }
             .frame(height: 6)
@@ -403,9 +403,13 @@ struct DelegationSigningView: View {
         return min(current + 1, total)
     }
 
-    private static func bundleShare(total: UInt32) -> Double {
+    /// Fraction of bundles already signed, clamped to [0, 1]. Drives the
+    /// signing-progress capsule. Replaces an earlier `bundleShare(total:)`
+    /// that ignored `signed` and always returned `1 / total` (showing 50%
+    /// indefinitely on a 2-bundle round).
+    private static func signingProgress(signed: UInt32, total: UInt32) -> Double {
         guard total > 0 else { return 0 }
-        return min(1, 1 / Double(total))
+        return min(1, Double(signed) / Double(total))
     }
 
     private func weightSummary(signed: UInt32, signedWeight: UInt64, pendingWeight: UInt64) -> String {
