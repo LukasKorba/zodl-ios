@@ -3047,6 +3047,23 @@
         }
       }
     },
+    "coinVote.delegationSigning.awaitingWeightSummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC signed · %@ ZEC awaiting"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC signed · %@ ZEC awaiting"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.bundleProgress" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3070,13 +3087,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bundle %@ of %@"
+            "value" : "Signature %@ of %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bundle %@ of %@"
+            "value" : "Signature %@ of %@"
           }
         }
       }
@@ -3308,13 +3325,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scan Signature"
+            "value" : "Scan signature"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scan Signature"
+            "value" : "Scan signature"
           }
         }
       }
@@ -3393,13 +3410,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ ZEC Authorized - %@ ZEC Pending"
+            "value" : "%@ ZEC Signed · %@ ZEC Pending"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ ZEC Authorized - %@ ZEC Pending"
+            "value" : "%@ ZEC Signed · %@ ZEC Pending"
           }
         }
       }
@@ -3519,6 +3536,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Skip remaining bundles"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize Vote"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize Vote"
           }
         }
       }
