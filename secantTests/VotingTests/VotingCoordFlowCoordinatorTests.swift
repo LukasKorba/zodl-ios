@@ -2,6 +2,7 @@ import ComposableArchitecture
 import Foundation
 import XCTest
 @testable import zashi_internal
+@testable @preconcurrency import ZcashLightClientKit
 
 final class VotingCoordFlowCoordinatorTests: XCTestCase {
     func testBatchVoteSubmittedMovesDraftIntoSubmittedVotes() {
@@ -217,6 +218,7 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         var session = roundSession()
         session.bundleCount = 2
         session.currentKeystoneBundleIndex = 1
+        session.keystoneBundleSignatures = [signature(byte: 1, bundleIndex: 0)]
         session.keystoneSigningStatus = .awaitingSignature
         var state = VotingCoordFlow.State()
         state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
@@ -225,13 +227,16 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         _ = VotingCoordFlow().reduceKeystoneBundleSignatureStored(
             &state,
             roundId: roundId,
-            signature: signature(byte: 2),
+            signature: signature(byte: 2, bundleIndex: 1),
             bundleIndex: 1,
             bundleCount: 2
         )
 
         let updated = tryUnwrap(state.roundCache[roundId])
-        XCTAssertEqual(updated.keystoneBundleSignatures, [signature(byte: 2)])
+        XCTAssertEqual(updated.keystoneBundleSignatures, [
+            signature(byte: 1, bundleIndex: 0),
+            signature(byte: 2, bundleIndex: 1)
+        ])
         XCTAssertEqual(updated.keystoneSigningStatus, .finalizingAuthorization)
         XCTAssertEqual(updated.delegationProofStatus, .generating(progress: 0))
         XCTAssertTrue(updated.isDelegationProofInFlight)
@@ -273,6 +278,371 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         XCTAssertEqual(updated.batchSubmissionStatus, .authorizing)
         XCTAssertEqual(updated.voteSubmissionStep, .authorizingVote)
         XCTAssertFalse(isDelegationSigningTop(state))
+    }
+
+    func testSkippingRemainingKeystoneBundlesDropsSparseRecoveredState() {
+        var session = roundSession(
+            votingWeight: 150_000_000,
+            notes: notes(count: 15, value: 10_000_000)
+        )
+        session.bundleCount = 3
+        session.completedKeystoneDelegationBundleIndices = [0]
+        session.keystoneBundleSignatures = [signature(byte: 3, bundleIndex: 2)]
+        var state = VotingCoordFlow.State()
+        state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+        state.roundCache[roundId] = session
+
+        _ = VotingCoordFlow().reduceSkipRemainingKeystoneBundles(&state, roundId: roundId)
+
+        let updated = tryUnwrap(state.roundCache[roundId])
+        XCTAssertEqual(updated.bundleCount, 1)
+        XCTAssertEqual(updated.completedKeystoneDelegationBundleIndices, Set([0]))
+        XCTAssertTrue(updated.keystoneBundleSignatures.isEmpty)
+    }
+
+    func testRecoveredKeystoneBundleResumesAtFirstIncompleteBundle() {
+        var session = roundSession()
+        session.bundleCount = 2
+        var state = VotingCoordFlow.State()
+        state.roundCache[roundId] = session
+
+        _ = VotingCoordFlow().coordinatorReduce().reduce(
+            into: &state,
+            action: .delegationBundlesRecovered(roundId: roundId, bundleIndices: [0])
+        )
+
+        let updated = tryUnwrap(state.roundCache[roundId])
+        XCTAssertEqual(updated.completedKeystoneDelegationBundleIndices, Set([0]))
+        XCTAssertEqual(updated.currentKeystoneBundleIndex, 1)
+    }
+
+    func testFinalSignatureAfterRecoveredBundleMovesToFinalizingAuthorization() {
+        var session = roundSession()
+        session.bundleCount = 2
+        session.currentKeystoneBundleIndex = 1
+        session.completedKeystoneDelegationBundleIndices = [0]
+        session.keystoneSigningStatus = .awaitingSignature
+        var state = VotingCoordFlow.State()
+        state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+        state.roundCache[roundId] = session
+
+        _ = VotingCoordFlow().reduceKeystoneBundleSignatureStored(
+            &state,
+            roundId: roundId,
+            signature: signature(byte: 2, bundleIndex: 1),
+            bundleIndex: 1,
+            bundleCount: 2
+        )
+
+        let updated = tryUnwrap(state.roundCache[roundId])
+        XCTAssertEqual(updated.completedKeystoneDelegationBundleIndices, Set([0]))
+        XCTAssertEqual(updated.keystoneBundleSignatures, [signature(byte: 2, bundleIndex: 1)])
+        XCTAssertEqual(updated.keystoneSigningStatus, .finalizingAuthorization)
+        XCTAssertEqual(updated.delegationProofStatus, .generating(progress: 0))
+        XCTAssertTrue(updated.isDelegationProofInFlight)
+        XCTAssertEqual(updated.batchSubmissionStatus, .authorizing)
+        XCTAssertEqual(updated.voteSubmissionStep, .authorizingVote)
+        XCTAssertFalse(isDelegationSigningTop(state))
+    }
+
+    func testDuplicateKeystoneScanIsRejectedBeforeSignatureExtraction() {
+        let duplicateSighash = Data(repeating: 0x02, count: 32)
+        let message = VotingCoordFlow.keystoneScanRejectionMessage(
+            scannedSighash: duplicateSighash,
+            expectedSighash: Data(repeating: 0x05, count: 32),
+            existingSignatures: [
+                signature(byte: 1, bundleIndex: 0, sighash: duplicateSighash)
+            ],
+            currentBundleIndex: 1,
+            bundleCount: 2
+        )
+
+        XCTAssertEqual(
+            message,
+            String(localizable: .coinVoteDelegationSigningDuplicateSignature("1", "2"))
+        )
+    }
+
+    func testWrongKeystoneScanIsRejectedBeforeSignatureExtraction() {
+        let pendingSighash = Data(repeating: 0x05, count: 32)
+        let scannedSighash = Data(repeating: 0x06, count: 32)
+        let message = VotingCoordFlow.keystoneScanRejectionMessage(
+            scannedSighash: scannedSighash,
+            expectedSighash: pendingSighash,
+            existingSignatures: [],
+            currentBundleIndex: 1,
+            bundleCount: 2
+        )
+
+        XCTAssertEqual(
+            message,
+            String(localizable: .coinVoteDelegationSigningWrongSignature("2", "2"))
+        )
+    }
+
+    func testMatchingKeystoneScanIsAcceptedForCurrentBundle() {
+        let pendingSighash = Data(repeating: 0x05, count: 32)
+
+        XCTAssertNil(
+            VotingCoordFlow.keystoneScanRejectionMessage(
+                scannedSighash: pendingSighash,
+                expectedSighash: pendingSighash,
+                existingSignatures: [signature(byte: 1, bundleIndex: 0)],
+                currentBundleIndex: 1,
+                bundleCount: 2
+            )
+        )
+    }
+
+    @MainActor
+    func testDuplicateKeystoneScanReducerRejectsWithoutExtractingSignature() async {
+        let duplicateSighash = Data(repeating: 0x02, count: 32)
+        let expectedMessage = String(localizable: .coinVoteDelegationSigningDuplicateSignature("1", "2"))
+        let recorder = EventRecorder()
+        let store = Store(
+            initialState: scanState(
+                pendingSighash: Data(repeating: 0x05, count: 32),
+                existingSignatures: [
+                    signature(byte: 1, bundleIndex: 0, sighash: duplicateSighash)
+                ]
+            )
+        ) {
+            VotingCoordFlow()
+        } withDependencies: {
+            $0.votingCrypto.extractPcztSighash = { _ in duplicateSighash }
+            $0.votingCrypto.extractSpendAuthSignatureFromSignedPczt = { _, _ in
+                recorder.record("spend-auth")
+                throw TestError.unexpectedSpendAuthExtraction
+            }
+        }
+
+        store.send(.keystoneScan(.presented(.foundVotingDelegationPCZT(Data([0x0A])))))
+        await waitForStore {
+            store.state.keystoneSignatureRejectionAlert == .keystoneSignatureRejected(expectedMessage)
+        }
+
+        let session = tryUnwrap(store.state.roundCache[roundId])
+        XCTAssertNil(store.state.keystoneScan)
+        XCTAssertEqual(store.state.keystoneSignatureRejectionAlert, .keystoneSignatureRejected(expectedMessage))
+        XCTAssertEqual(session.keystoneSigningStatus, .awaitingSignature)
+        XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
+        XCTAssertNotNil(session.pendingVotingPczt)
+        XCTAssertEqual(session.batchSubmissionStatus, .idle)
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertTrue(recorder.events().isEmpty)
+    }
+
+    @MainActor
+    func testWrongKeystoneScanReducerRejectsWithoutExtractingSignature() async {
+        let pendingSighash = Data(repeating: 0x05, count: 32)
+        let scannedSighash = Data(repeating: 0x06, count: 32)
+        let expectedMessage = String(localizable: .coinVoteDelegationSigningWrongSignature("2", "2"))
+        let recorder = EventRecorder()
+        let store = Store(initialState: scanState(pendingSighash: pendingSighash)) {
+            VotingCoordFlow()
+        } withDependencies: {
+            $0.votingCrypto.extractPcztSighash = { _ in scannedSighash }
+            $0.votingCrypto.extractSpendAuthSignatureFromSignedPczt = { _, _ in
+                recorder.record("spend-auth")
+                throw TestError.unexpectedSpendAuthExtraction
+            }
+        }
+
+        store.send(.keystoneScan(.presented(.foundVotingDelegationPCZT(Data([0x0B])))))
+        await waitForStore {
+            store.state.keystoneSignatureRejectionAlert == .keystoneSignatureRejected(expectedMessage)
+        }
+
+        let session = tryUnwrap(store.state.roundCache[roundId])
+        XCTAssertNil(store.state.keystoneScan)
+        XCTAssertEqual(store.state.keystoneSignatureRejectionAlert, .keystoneSignatureRejected(expectedMessage))
+        XCTAssertEqual(session.keystoneSigningStatus, .awaitingSignature)
+        XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
+        XCTAssertNotNil(session.pendingVotingPczt)
+        XCTAssertEqual(session.batchSubmissionStatus, .idle)
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        XCTAssertTrue(recorder.events().isEmpty)
+    }
+
+    @MainActor
+    func testKeystoneAuthorizationSkipsRecoveredBundleAndSubmitsOnlyMissingBundle() async {
+        let recorder = EventRecorder()
+        let sig = signature(byte: 2, bundleIndex: 1)
+        let store = Store(initialState: authorizationState(signatures: [sig], completedBundles: [0])) {
+            VotingCoordFlow()
+        } withDependencies: {
+            self.configureKeystoneAuthorizationDependencies(&$0, recorder: recorder)
+        }
+
+        store.send(.keystoneAllBundlesSigned(roundId: activeRoundId))
+        await waitForStore {
+            store.state.roundCache[self.activeRoundId]?.delegationProofStatus == .complete
+        }
+
+        XCTAssertEqual(recorder.events(), [
+            "recover:0",
+            "recover:1",
+            "prove:1",
+            "registration:1",
+            "submit:1",
+            "store-tx:1:bundle-1-tx",
+            "fetch:bundle-1-tx",
+            "van:1:43"
+        ])
+        let session = tryUnwrap(store.state.roundCache[activeRoundId])
+        XCTAssertEqual(session.delegationProofStatus, .complete)
+        XCTAssertTrue(session.completedKeystoneDelegationBundleIndices.isEmpty)
+    }
+
+    @MainActor
+    func testKeystoneAuthorizationRecoversPersistedBundleAndSubmitsOnlyMissingBundle() async {
+        let recorder = EventRecorder()
+        let sig = signature(byte: 2, bundleIndex: 1)
+        let store = Store(initialState: authorizationState(signatures: [sig], completedBundles: [])) {
+            VotingCoordFlow()
+        } withDependencies: {
+            self.configureKeystoneAuthorizationDependencies(
+                &$0,
+                recorder: recorder,
+                cachedRecoveredBundles: [0]
+            )
+        }
+
+        store.send(.keystoneAllBundlesSigned(roundId: activeRoundId))
+        await waitForStore {
+            store.state.roundCache[self.activeRoundId]?.delegationProofStatus == .complete
+        }
+
+        XCTAssertEqual(recorder.events(), [
+            "recover:0",
+            "fetch:cached-bundle-0-tx",
+            "van:0:43",
+            "recover:1",
+            "prove:1",
+            "registration:1",
+            "submit:1",
+            "store-tx:1:bundle-1-tx",
+            "fetch:bundle-1-tx",
+            "van:1:43"
+        ])
+        let session = tryUnwrap(store.state.roundCache[activeRoundId])
+        XCTAssertEqual(session.delegationProofStatus, .complete)
+        XCTAssertTrue(session.completedKeystoneDelegationBundleIndices.isEmpty)
+    }
+
+    @MainActor
+    func testRecoveredPersistedKeystoneBundleIsRetainedIfLaterBundleFails() async {
+        let recorder = EventRecorder()
+        let expectedError = TestError.proofFailed.localizedDescription
+        let sig = signature(byte: 2, bundleIndex: 1)
+        let store = Store(initialState: authorizationState(signatures: [sig], completedBundles: [])) {
+            VotingCoordFlow()
+        } withDependencies: {
+            self.configureKeystoneAuthorizationDependencies(
+                &$0,
+                recorder: recorder,
+                failingProofBundleIndex: 1,
+                cachedRecoveredBundles: [0]
+            )
+        }
+
+        store.send(.keystoneAllBundlesSigned(roundId: activeRoundId))
+        await waitForStore {
+            store.state.roundCache[self.activeRoundId]?.batchSubmissionStatus == .authorizationFailed(error: expectedError)
+        }
+
+        XCTAssertEqual(recorder.events(), [
+            "recover:0",
+            "fetch:cached-bundle-0-tx",
+            "van:0:43",
+            "recover:1",
+            "prove:1"
+        ])
+        let session = tryUnwrap(store.state.roundCache[activeRoundId])
+        XCTAssertEqual(session.completedKeystoneDelegationBundleIndices, Set([0]))
+        XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
+        XCTAssertEqual(session.batchSubmissionStatus, .authorizationFailed(error: expectedError))
+    }
+
+    @MainActor
+    func testSuccessfulKeystoneBundleIsRetainedIfLaterBundleFails() async {
+        let recorder = EventRecorder()
+        let expectedError = TestError.proofFailed.localizedDescription
+        let store = Store(
+            initialState: authorizationState(
+                signatures: [
+                    signature(byte: 1, bundleIndex: 0),
+                    signature(byte: 2, bundleIndex: 1)
+                ],
+                completedBundles: []
+            )
+        ) {
+            VotingCoordFlow()
+        } withDependencies: {
+            self.configureKeystoneAuthorizationDependencies(
+                &$0,
+                recorder: recorder,
+                failingProofBundleIndex: 1
+            )
+        }
+
+        store.send(.keystoneAllBundlesSigned(roundId: activeRoundId))
+        await waitForStore {
+            store.state.roundCache[self.activeRoundId]?.batchSubmissionStatus == .authorizationFailed(error: expectedError)
+        }
+
+        XCTAssertEqual(recorder.events(), [
+            "recover:0",
+            "recover:1",
+            "prove:0",
+            "registration:0",
+            "submit:0",
+            "store-tx:0:bundle-0-tx",
+            "fetch:bundle-0-tx",
+            "van:0:42",
+            "prove:1"
+        ])
+        let session = tryUnwrap(store.state.roundCache[activeRoundId])
+        XCTAssertEqual(session.completedKeystoneDelegationBundleIndices, Set([0]))
+        XCTAssertTrue(session.keystoneBundleSignatures.isEmpty)
+        XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
+        XCTAssertEqual(session.batchSubmissionStatus, .authorizationFailed(error: expectedError))
+    }
+
+    @MainActor
+    func testRetryBatchSubmissionResumesKeystoneAtFirstIncompleteBundle() async {
+        let recorder = EventRecorder()
+        var state = authorizationState(signatures: [], completedBundles: [0])
+        state.roundCache[activeRoundId]?.draftVotes = [1: .option(0)]
+        state.roundCache[activeRoundId]?.delegationProofStatus = .failed("failed")
+        state.roundCache[activeRoundId]?.isDelegationProofInFlight = false
+        state.roundCache[activeRoundId]?.keystoneSigningStatus = .idle
+        state.roundCache[activeRoundId]?.batchSubmissionStatus = .authorizationFailed(error: "failed")
+        let store = Store(initialState: state) {
+            VotingCoordFlow()
+        } withDependencies: {
+            $0.backgroundTask = .noOp
+            $0.mnemonic = .noOp
+            $0.sdkSynchronizer = .noOp
+            $0.walletStorage = .noOp
+            $0.votingCrypto.extractOrchardFvkFromUfvk = { _, _ in Data([0x01]) }
+            $0.votingCrypto.buildVotingPczt = { _, bundleIndex, _, _, _, _, _, _, _, _ in
+                recorder.record("pczt:\(bundleIndex)")
+                return Self.makeVotingPcztResult(pcztSighash: Data(repeating: UInt8(bundleIndex + 5), count: 32))
+            }
+        }
+
+        store.send(.retryBatchSubmission(roundId: activeRoundId))
+        await waitForStore {
+            store.state.roundCache[self.activeRoundId]?.keystoneSigningStatus == .awaitingSignature
+        }
+
+        XCTAssertEqual(recorder.events(), ["pczt:1"])
+        let session = tryUnwrap(store.state.roundCache[activeRoundId])
+        XCTAssertEqual(session.completedKeystoneDelegationBundleIndices, Set([0]))
+        XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
+        XCTAssertNotNil(session.pendingVotingPczt)
+        XCTAssertEqual(session.batchSubmissionStatus, .authorizing)
     }
 
     func testDelegationRejectedResetsKeystoneLoopButPreservesVotes() {
@@ -408,12 +778,13 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
     private let activeRoundId = String(repeating: "aa", count: 32)
 
     private func roundSession(
+        roundId: String? = nil,
         votingWeight: UInt64 = 0,
         drafts: [UInt32: VoteChoice] = [:],
         votes: [UInt32: VoteChoice] = [:],
         notes: [NoteInfo] = []
     ) -> RoundSession {
-        var session = RoundSession(roundId: roundId)
+        var session = RoundSession(roundId: roundId ?? self.roundId)
         session.votingWeight = votingWeight
         session.draftVotes = drafts
         session.votes = votes
@@ -454,10 +825,15 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         )
     }
 
-    private func signature(byte: UInt8) -> KeystoneBundleSignature {
+    private func signature(
+        byte: UInt8,
+        bundleIndex: UInt32 = 0,
+        sighash: Data? = nil
+    ) -> KeystoneBundleSignature {
         KeystoneBundleSignature(
+            bundleIndex: bundleIndex,
             sig: Data(repeating: byte, count: 64),
-            sighash: Data(repeating: byte + 1, count: 32),
+            sighash: sighash ?? Data(repeating: byte + 1, count: 32),
             rk: Data(repeating: byte + 2, count: 32)
         )
     }
@@ -477,9 +853,65 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         )
     }
 
-    private static func makeVotingPcztResult() -> VotingPcztResult {
+    private func notes(count: Int, value: UInt64) -> [NoteInfo] {
+        (0..<count).map { note(value: value, position: UInt64($0)) }
+    }
+
+    private func scanState(
+        pendingSighash: Data,
+        existingSignatures: [KeystoneBundleSignature] = []
+    ) -> VotingCoordFlow.State {
+        var session = roundSession()
+        session.bundleCount = 2
+        session.currentKeystoneBundleIndex = 1
+        session.keystoneSigningStatus = .awaitingSignature
+        session.pendingVotingPczt = Self.makeVotingPcztResult(pcztSighash: pendingSighash)
+        session.pendingUnsignedDelegationPczt = Data([0x01])
+        session.keystoneBundleSignatures = existingSignatures
+        var state = VotingCoordFlow.State()
+        state.path.append(.delegationSigning(DelegationSigning.State(roundId: roundId)))
+        state.keystoneScan = Scan.State.initial
+        state.roundCache[roundId] = session
+        return state
+    }
+
+    private func authorizationState(
+        signatures: [KeystoneBundleSignature],
+        completedBundles: Set<UInt32>
+    ) -> VotingCoordFlow.State {
+        var session = roundSession(
+            roundId: activeRoundId,
+            notes: notes(count: 10, value: 10_000_000)
+        )
+        session.bundleCount = 2
+        session.keystoneBundleSignatures = signatures
+        session.completedKeystoneDelegationBundleIndices = completedBundles
+        session.keystoneSigningStatus = .finalizingAuthorization
+        session.delegationProofStatus = .generating(progress: 0)
+        session.batchSubmissionStatus = .authorizing
+        session.voteSubmissionStep = .authorizingVote
+
+        var state = VotingCoordFlow.State()
+        state.roundCache[activeRoundId] = session
+        state.allRounds = [RoundListItem(roundNumber: 1, session: votingSession())]
+        state.serviceConfig = VotingServiceConfig(
+            configVersion: 1,
+            voteServers: [],
+            pirEndpoints: [.init(url: "https://pir.example.com", label: "pir")],
+            supportedVersions: .init(pir: ["v0"], voteProtocol: "v0", tally: "v0", voteServer: "v1"),
+            rounds: [:]
+        )
+        state.isKeystoneUser = true
+        state.$selectedWalletAccount.withLock { $0 = keystoneWalletAccount() }
+        return state
+    }
+
+    private static func makeVotingPcztResult(
+        pcztSighash: Data = Data(repeating: 0x0C, count: 32)
+    ) -> VotingPcztResult {
         VotingPcztResult(
             pcztBytes: Data([0x01]),
+            pcztSighash: pcztSighash,
             rk: Data(repeating: 0x01, count: 32),
             alpha: Data(repeating: 0x02, count: 32),
             nfSigned: Data(repeating: 0x03, count: 32),
@@ -497,17 +929,21 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         )
     }
 
-    private static func makeDelegationRegistration() -> DelegationRegistration {
+    private static func makeDelegationRegistration(
+        rk: Data = Data(repeating: 0x01, count: 32),
+        spendAuthSig: Data = Data(repeating: 0x02, count: 64),
+        sighash: Data = Data(repeating: 0x08, count: 32)
+    ) -> DelegationRegistration {
         DelegationRegistration(
-            rk: Data(repeating: 0x01, count: 32),
-            spendAuthSig: Data(repeating: 0x02, count: 64),
+            rk: rk,
+            spendAuthSig: spendAuthSig,
             signedNoteNullifier: Data(repeating: 0x03, count: 32),
             cmxNew: Data(repeating: 0x04, count: 32),
             vanCmx: Data(repeating: 0x05, count: 32),
             govNullifiers: [Data(repeating: 0x06, count: 32)],
             proof: Data(repeating: 0x07, count: 32),
             voteRoundId: Data([0xAA, 0xBB]),
-            sighash: Data(repeating: 0x08, count: 32)
+            sighash: sighash
         )
     }
 
@@ -531,6 +967,20 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
         return true
     }
 
+    @MainActor
+    private func waitForStore(
+        timeoutNanoseconds: UInt64 = 2_000_000_000,
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        condition: @escaping @MainActor () -> Bool
+    ) async {
+        let deadline = DispatchTime.now().uptimeNanoseconds + timeoutNanoseconds
+        while !condition(), DispatchTime.now().uptimeNanoseconds < deadline {
+            try? await Task.sleep(nanoseconds: 10_000_000)
+        }
+        XCTAssertTrue(condition(), "Timed out waiting for store state", file: file, line: line)
+    }
+
     private func tryUnwrap<T>(
         _ value: T?,
         file: StaticString = #filePath,
@@ -540,6 +990,71 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
             return try XCTUnwrap(value, file: file, line: line)
         } catch {
             fatalError("XCTUnwrap failed")
+        }
+    }
+
+    private func keystoneWalletAccount() -> WalletAccount {
+        WalletAccount(Account(
+            id: AccountUUID(id: [UInt8](repeating: 0x01, count: 16)),
+            name: "Keystone",
+            keySource: String(localizable: .accountsKeystone).lowercased(),
+            seedFingerprint: [UInt8](repeating: 0x02, count: 32),
+            hdAccountIndex: Zip32AccountIndex(0),
+            ufvk: nil,
+            uivk: nil
+        ))
+    }
+
+    private func configureKeystoneAuthorizationDependencies(
+        _ dependencies: inout DependencyValues,
+        recorder: EventRecorder,
+        failingProofBundleIndex: UInt32? = nil,
+        cachedRecoveredBundles: Set<UInt32> = []
+    ) {
+        dependencies.backgroundTask = .noOp
+        dependencies.mnemonic = .noOp
+        dependencies.walletStorage = .noOp
+        dependencies.votingCrypto.getDelegationTxHash = { _, bundleIndex in
+            recorder.record("recover:\(bundleIndex)")
+            if cachedRecoveredBundles.contains(bundleIndex) {
+                return .present("cached-bundle-\(bundleIndex)-tx")
+            }
+            return .notFound
+        }
+        dependencies.votingCrypto.buildAndProveDelegation = { _, bundleIndex, _, _, _, _, _, _, _ in
+            recorder.record("prove:\(bundleIndex)")
+            return AsyncThrowingStream { continuation in
+                if bundleIndex == failingProofBundleIndex {
+                    continuation.finish(throwing: TestError.proofFailed)
+                } else {
+                    continuation.yield(.progress(1))
+                    continuation.finish()
+                }
+            }
+        }
+        dependencies.votingCrypto.getDelegationSubmissionWithKeystoneSig = { _, bundleIndex, sig, sighash in
+            recorder.record("registration:\(bundleIndex)")
+            return Self.makeDelegationRegistration(
+                rk: Data(repeating: UInt8(bundleIndex + 3), count: 32),
+                spendAuthSig: sig,
+                sighash: sighash
+            )
+        }
+        dependencies.votingCrypto.storeDelegationTxHash = { _, bundleIndex, txHash in
+            recorder.record("store-tx:\(bundleIndex):\(txHash)")
+        }
+        dependencies.votingCrypto.storeVanPosition = { _, bundleIndex, position in
+            recorder.record("van:\(bundleIndex):\(position)")
+        }
+        dependencies.votingAPI.submitDelegation = { registration in
+            let bundleIndex = UInt32(max(Int(registration.spendAuthSig.first ?? 1) - 1, 0))
+            recorder.record("submit:\(bundleIndex)")
+            return TxResult(txHash: "bundle-\(bundleIndex)-tx", code: 0)
+        }
+        dependencies.votingAPI.fetchTxConfirmation = { txHash in
+            recorder.record("fetch:\(txHash)")
+            let position: UInt32 = txHash == "bundle-0-tx" ? 42 : 43
+            return Self.makeDelegationConfirmation(position: position)
         }
     }
 
@@ -582,5 +1097,36 @@ private actor RecoveryOrderRecorder {
 
     func events() -> [String] {
         recordedEvents
+    }
+}
+
+private final class EventRecorder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var recordedEvents: [String] = []
+
+    func record(_ event: String) {
+        lock.lock()
+        recordedEvents.append(event)
+        lock.unlock()
+    }
+
+    func events() -> [String] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recordedEvents
+    }
+}
+
+private enum TestError: LocalizedError {
+    case unexpectedSpendAuthExtraction
+    case proofFailed
+
+    var errorDescription: String? {
+        switch self {
+        case .unexpectedSpendAuthExtraction:
+            return "unexpected SpendAuth extraction"
+        case .proofFailed:
+            return "proof failed"
+        }
     }
 }

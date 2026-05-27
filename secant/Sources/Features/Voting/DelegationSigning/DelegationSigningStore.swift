@@ -292,7 +292,7 @@ struct DelegationSigningView: View {
     private func instructionText(status: KeystoneSigningStatus) -> some View {
         switch status {
         case .awaitingSignature:
-            Text(localizable: .coinVoteDelegationSigningScanSignedPCZTInstruction)
+            Text(String(localizable: .coinVoteDelegationSigningScanSignedPCZTInstruction))
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
@@ -344,7 +344,7 @@ struct DelegationSigningView: View {
                     store.send(.openKeystoneSignatureScan)
                 }
                 if (store.roundCache[roundId]?.bundleCount ?? 0) > 1
-                    && !(store.roundCache[roundId]?.keystoneBundleSignatures.isEmpty ?? true) {
+                    && (store.roundCache[roundId]?.resolvedKeystonePrefixCount ?? 0) > 0 {
                     ZashiButton(
                         String(localizable: .coinVoteDelegationSigningSkipRemainingBundlesCTA),
                         type: .tertiary

@@ -69,6 +69,7 @@ struct VotingCoordFlowView: View {
                 }
             }
             .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
+            .alert($store.scope(state: \.keystoneSignatureRejectionAlert, action: \.keystoneSignatureRejectionAlert))
             .alert($store.scope(state: \.skipBundlesAlert, action: \.skipBundlesAlert))
             .votingSheet(
                 isPresented: pollClosedSheetBinding,

@@ -137,6 +137,9 @@ struct RoundSession: Equatable {
     /// scan so a crash mid-loop doesn't lose signed bundles.
     var keystoneBundleSignatures: [KeystoneBundleSignature] = []
 
+    /// Delegation bundles recovered as already submitted on-chain.
+    var completedKeystoneDelegationBundleIndices: Set<UInt32> = []
+
     /// Voting PCZT result (metadata + pczt_bytes) for the bundle currently
     /// being shown as a QR on the Keystone signing screen.
     var pendingVotingPczt: VotingPcztResult?
@@ -241,6 +244,7 @@ enum KeystoneSigningStatus: Equatable {
 
 /// Captured signature material for one Keystone-signed bundle.
 struct KeystoneBundleSignature: Equatable {
+    let bundleIndex: UInt32
     let sig: Data
     let sighash: Data
     let rk: Data // swiftlint:disable:this identifier_name
@@ -251,4 +255,42 @@ enum ShareTrackingStatus: Equatable {
     case loading
     case tracking
     case fullyConfirmed
+}
+
+extension RoundSession {
+    var resolvedKeystoneBundleIndices: Set<UInt32> {
+        var indices = completedKeystoneDelegationBundleIndices
+        indices.formUnion(keystoneBundleSignatures.map(\.bundleIndex))
+        return indices.filter { $0 < bundleCount }
+    }
+
+    var resolvedKeystoneBundleCount: Int {
+        resolvedKeystoneBundleIndices.count
+    }
+
+    var resolvedKeystonePrefixCount: UInt32 {
+        let resolvedIndices = resolvedKeystoneBundleIndices
+        var count: UInt32 = 0
+        while count < bundleCount, resolvedIndices.contains(count) {
+            count += 1
+        }
+        return count
+    }
+
+    var firstIncompleteKeystoneBundleIndex: UInt32? {
+        Self.firstIncompleteKeystoneBundleIndex(
+            bundleCount: bundleCount,
+            resolvedIndices: resolvedKeystoneBundleIndices
+        )
+    }
+
+    static func firstIncompleteKeystoneBundleIndex(
+        bundleCount: UInt32,
+        resolvedIndices: Set<UInt32>
+    ) -> UInt32? {
+        for bundleIndex in 0..<bundleCount where !resolvedIndices.contains(bundleIndex) {
+            return bundleIndex
+        }
+        return nil
+    }
 }
