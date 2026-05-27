@@ -418,12 +418,12 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
 
         store.send(.keystoneScan(.presented(.foundVotingDelegationPCZT(Data([0x0A])))))
         await waitForStore {
-            store.state.keystoneSignatureRejectionAlert == .keystoneSignatureRejected(expectedMessage)
+            store.state.keystoneSignatureRejectionSheet?.message == expectedMessage
         }
 
         let session = tryUnwrap(store.state.roundCache[roundId])
         XCTAssertNil(store.state.keystoneScan)
-        XCTAssertEqual(store.state.keystoneSignatureRejectionAlert, .keystoneSignatureRejected(expectedMessage))
+        XCTAssertEqual(store.state.keystoneSignatureRejectionSheet?.message, expectedMessage)
         XCTAssertEqual(session.keystoneSigningStatus, .awaitingSignature)
         XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
         XCTAssertNotNil(session.pendingVotingPczt)
@@ -450,12 +450,12 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
 
         store.send(.keystoneScan(.presented(.foundVotingDelegationPCZT(Data([0x0B])))))
         await waitForStore {
-            store.state.keystoneSignatureRejectionAlert == .keystoneSignatureRejected(expectedMessage)
+            store.state.keystoneSignatureRejectionSheet?.message == expectedMessage
         }
 
         let session = tryUnwrap(store.state.roundCache[roundId])
         XCTAssertNil(store.state.keystoneScan)
-        XCTAssertEqual(store.state.keystoneSignatureRejectionAlert, .keystoneSignatureRejected(expectedMessage))
+        XCTAssertEqual(store.state.keystoneSignatureRejectionSheet?.message, expectedMessage)
         XCTAssertEqual(session.keystoneSigningStatus, .awaitingSignature)
         XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
         XCTAssertNotNil(session.pendingVotingPczt)
