@@ -465,7 +465,8 @@ extension VotingCoordFlow {
                 }
                 return .none
 
-            case .submissionAlert:
+            case .submissionAlert,
+                 .keystoneSignatureRejectionAlert:
                 return .none
 
             // MARK: - Stage 5: submission pipeline
@@ -682,6 +683,7 @@ extension VotingCoordFlow {
                     roundSession.keystoneSigningStatus = .awaitingSignature
                     roundSession.keystoneSigningNotice = message
                 }
+                state.keystoneSignatureRejectionAlert = .keystoneSignatureRejected(message)
                 return .none
 
             case let .keystoneShowSigningScreen(roundId):
@@ -3706,6 +3708,18 @@ extension AlertState where Action == Never {
             TextState(String(localizable: .coinVoteErrorTitle))
         } message: {
             TextState(error.localizedDescription)
+        }
+    }
+
+    static func keystoneSignatureRejected(_ message: String) -> AlertState {
+        AlertState {
+            TextState(String(localizable: .coinVoteErrorTitle))
+        } actions: {
+            ButtonState(role: .cancel) {
+                TextState(String(localizable: .generalOk))
+            }
+        } message: {
+            TextState(message)
         }
     }
 }

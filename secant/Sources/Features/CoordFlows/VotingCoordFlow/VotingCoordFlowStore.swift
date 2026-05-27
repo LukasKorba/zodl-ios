@@ -148,6 +148,10 @@ struct VotingCoordFlow {
         /// `RoundSession.batchSubmissionStatus`.
         @Presents var submissionAlert: AlertState<Never>?
 
+        /// Blocking acknowledgement for an invalid Keystone signed-PCZT scan
+        /// during the multi-bundle signing loop.
+        @Presents var keystoneSignatureRejectionAlert: AlertState<Never>?
+
         /// Sheet state for the Keystone QR scan that captures the signed
         /// PCZT from the device. Lifecycle is bound to the delegation
         /// signing screen.
@@ -260,6 +264,7 @@ struct VotingCoordFlow {
         case tallyResultsLoaded(roundId: String, results: [UInt32: TallyResult])
         case tallyResultsFailed(roundId: String, message: String)
         case submissionAlert(PresentationAction<Never>)
+        case keystoneSignatureRejectionAlert(PresentationAction<Never>)
 
         // MARK: - Stage 5: submission pipeline
 
@@ -373,6 +378,7 @@ struct VotingCoordFlow {
         coordinatorReduce()
             .forEach(\.path, action: \.path)
             .ifLet(\.$submissionAlert, action: \.submissionAlert)
+            .ifLet(\.$keystoneSignatureRejectionAlert, action: \.keystoneSignatureRejectionAlert)
             .ifLet(\.$keystoneScan, action: \.keystoneScan) {
                 Scan()
             }

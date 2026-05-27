@@ -423,6 +423,7 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
 
         let session = tryUnwrap(store.state.roundCache[roundId])
         XCTAssertNil(store.state.keystoneScan)
+        XCTAssertEqual(store.state.keystoneSignatureRejectionAlert, .keystoneSignatureRejected(expectedMessage))
         XCTAssertEqual(session.keystoneSigningStatus, .awaitingSignature)
         XCTAssertEqual(session.keystoneSigningNotice, expectedMessage)
         XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
@@ -455,6 +456,7 @@ final class VotingCoordFlowCoordinatorTests: XCTestCase {
 
         let session = tryUnwrap(store.state.roundCache[roundId])
         XCTAssertNil(store.state.keystoneScan)
+        XCTAssertEqual(store.state.keystoneSignatureRejectionAlert, .keystoneSignatureRejected(expectedMessage))
         XCTAssertEqual(session.keystoneSigningStatus, .awaitingSignature)
         XCTAssertEqual(session.keystoneSigningNotice, expectedMessage)
         XCTAssertEqual(session.currentKeystoneBundleIndex, 1)
