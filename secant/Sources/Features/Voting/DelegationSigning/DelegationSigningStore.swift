@@ -423,7 +423,14 @@ struct DelegationSigningView: View {
     }
 
     private func canUseSignedBundlesOnly(signed: UInt32, total: UInt32) -> Bool {
-        total > 1 && signed > 0 && signed < total
+        // Mirror the gate added on main (PR #1789 / commit 8e570578): we only
+        // surface "Use signed bundles only" when the resolved bundles form a
+        // contiguous prefix starting from index 0. Without that constraint,
+        // an out-of-order signature (e.g. bundle 2 signed before 1) could
+        // cause `skipRemainingKeystoneBundles` to skip across a gap and
+        // submit nothing for the missing prefix.
+        let resolvedPrefix = store.roundCache[roundId]?.resolvedKeystonePrefixCount ?? 0
+        return total > 1 && signed > 0 && signed < total && resolvedPrefix > 0
     }
 
     private static func isSigningRouteActive(
