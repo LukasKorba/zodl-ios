@@ -43,7 +43,11 @@ struct DelegationSigningView: View {
             let status = session?.keystoneSigningStatus ?? .idle
             let bundleCount = session?.bundleCount ?? 0
             let currentBundle = session?.currentKeystoneBundleIndex ?? 0
-            let signedBundleCount = UInt32(session?.keystoneBundleSignatures.count ?? 0)
+            // Use the resolved prefix rather than `keystoneBundleSignatures.count`
+            // so the count reflects bundles already accepted by the reducer
+            // (including any recovered after a crash) — not just the ones the
+            // user signed in the current session.
+            let signedBundleCount = session?.resolvedKeystonePrefixCount ?? 0
             let bundleWeights = Self.bundleWeightSummary(session: session)
             let pollTitle = store.allRounds.first { $0.id == roundId }?.title ?? ""
             let currentBundleMemo = Self.currentBundleMemo(
@@ -69,7 +73,8 @@ struct DelegationSigningView: View {
                             signed: signedBundleCount,
                             signedWeight: bundleWeights.signed,
                             pendingWeight: bundleWeights.pending,
-                            memo: currentBundleMemo
+                            memo: currentBundleMemo,
+                            status: status
                         )
                         .padding(.top, 24)
                     }
@@ -243,7 +248,8 @@ struct DelegationSigningView: View {
         signed: UInt32,
         signedWeight: UInt64,
         pendingWeight: UInt64,
-        memo: String?
+        memo: String?,
+        status: KeystoneSigningStatus
     ) -> some View {
         VStack(spacing: 0) {
             signatureProgressSection(
@@ -254,7 +260,7 @@ struct DelegationSigningView: View {
                 pendingWeight: pendingWeight
             )
 
-            if canUseSignedBundlesOnly(signed: signed, total: total) {
+            if canUseSignedBundlesOnly(signed: signed, total: total, status: status) {
                 detailsDivider()
                 useSignedBundlesOnlyRow(pendingWeight: pendingWeight)
             }
@@ -391,7 +397,10 @@ struct DelegationSigningView: View {
         guard let session else { return (0, 0) }
 
         let bundles = session.walletNotes.smartBundles().bundles
-        let signedCount = min(session.keystoneBundleSignatures.count, bundles.count)
+        // Drive the signed/pending split from the resolved-prefix count so
+        // recovered bundles roll into the "signed" bucket even when the
+        // current-session signature array hasn't been repopulated yet.
+        let signedCount = min(Int(session.resolvedKeystonePrefixCount), bundles.count)
         let countedBundleCount = min(Int(session.bundleCount), bundles.count)
         var signed: UInt64 = 0
         var pending: UInt64 = 0
@@ -447,7 +456,13 @@ struct DelegationSigningView: View {
         ))
     }
 
-    private func canUseSignedBundlesOnly(signed: UInt32, total: UInt32) -> Bool {
+    private func canUseSignedBundlesOnly(signed: UInt32, total: UInt32, status: KeystoneSigningStatus) -> Bool {
+        // Only surface the row while we're idle on a new bundle request — the
+        // old standalone CTA had the same gate. Without it, the row can be
+        // tapped while the next Keystone PCZT is still being prepared, which
+        // races the in-flight signing-status transitions.
+        guard status == .awaitingSignature else { return false }
+
         // Mirror the gate added on main (PR #1789 / commit 8e570578): we only
         // surface "Use signed bundles only" when the resolved bundles form a
         // contiguous prefix starting from index 0. Without that constraint,
