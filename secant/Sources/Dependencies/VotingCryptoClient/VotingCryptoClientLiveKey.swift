@@ -230,6 +230,7 @@ extension VotingCryptoClient: DependencyKey {
                 ))
                 publishState(backend: backend, roundId: roundId)
                 let pcztBytes: Data = Data(result.pcztBytes)
+                let pcztSighash: Data = Data(result.pcztSighash)
                 let rk: Data = Data(result.randomizedKey)
                 let alpha: Data = Data(result.alpha)
                 let nfSigned: Data = Data(result.nfSigned)
@@ -245,6 +246,7 @@ extension VotingCryptoClient: DependencyKey {
                 let actionBytes: Data = Data(result.actionBytes)
                 return VotingPcztResult(
                     pcztBytes: pcztBytes,
+                    pcztSighash: pcztSighash,
                     rk: rk,
                     alpha: alpha,
                     nfSigned: nfSigned,

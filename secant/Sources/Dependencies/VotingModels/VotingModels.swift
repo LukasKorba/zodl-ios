@@ -273,6 +273,8 @@ struct VotingHotkey: Equatable, Sendable {
 struct VotingPcztResult: Equatable, Sendable {
     /// Serialized PCZT bytes for UR-encoding and Keystone signing.
     let pcztBytes: Data
+    /// ZIP-244 sighash that the Keystone signs for this PCZT.
+    let pcztSighash: Data
     /// Randomized verification key (32 bytes).
     let rk: Data // swiftlint:disable:this identifier_name
     /// Spend auth randomizer scalar (32 bytes).
@@ -304,6 +306,7 @@ struct VotingPcztResult: Equatable, Sendable {
 
     init(
         pcztBytes: Data,
+        pcztSighash: Data,
         rk: Data, // swiftlint:disable:this identifier_name
         alpha: Data,
         nfSigned: Data,
@@ -320,6 +323,7 @@ struct VotingPcztResult: Equatable, Sendable {
         actionIndex: UInt32
     ) {
         self.pcztBytes = pcztBytes
+        self.pcztSighash = pcztSighash
         self.rk = rk
         self.alpha = alpha
         self.nfSigned = nfSigned

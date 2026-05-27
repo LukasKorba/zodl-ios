@@ -312,7 +312,7 @@ struct VotingCoordFlow {
         case keystoneSigningFailed(roundId: String, error: String)
         case openKeystoneSignatureScan
         case keystoneScan(PresentationAction<Scan.Action>)
-        case spendAuthSignatureExtracted(roundId: String, sig: Data, signedPczt: Pczt)
+        case spendAuthSignatureExtracted(roundId: String, sig: Data, sighash: Data)
         case keystoneBundleSignatureStored(
             roundId: String,
             signature: KeystoneBundleSignature,
@@ -320,8 +320,10 @@ struct VotingCoordFlow {
             bundleCount: UInt32
         )
         case keystoneAllBundlesSigned(roundId: String)
+        case delegationBundlesRecovered(roundId: String, bundleIndices: Set<UInt32>)
         case keystoneSignaturesRestored(roundId: String, signatures: [KeystoneBundleSignatureInfo])
         case keystoneShowSigningScreen(roundId: String)
+        case keystoneSignatureRejected(roundId: String, message: String)
         case skipRemainingKeystoneBundles(roundId: String)
         case skipRemainingKeystoneBundlesConfirmed(roundId: String)
         case skipBundlesAlert(PresentationAction<Action>)
