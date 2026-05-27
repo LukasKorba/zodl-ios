@@ -35,6 +35,8 @@ struct DelegationSigningView: View {
     @Perception.Bindable var store: StoreOf<VotingCoordFlow>
     let roundId: String
 
+    @State private var isQRCodeEnlarged = false
+
     var body: some View {
         WithPerceptionTracking {
             let session = store.roundCache[roundId]
@@ -93,6 +95,19 @@ struct DelegationSigningView: View {
                 store: store.scope(state: \.$keystoneScan, action: \.keystoneScan)
             ) { scanStore in
                 ScanView(store: scanStore, popoverRatio: 1.075)
+            }
+            .enlargeQR(isPresented: $isQRCodeEnlarged) {
+                Group {
+                    if let pczt = store.roundCache[roundId]?.pendingUnsignedDelegationPczt,
+                       let encoder = sdkSynchronizer.urEncoderForPCZT(pczt) {
+                        AnimatedQRCode(urEncoder: encoder, size: UIScreen.main.bounds.width - 64)
+                            .padding()
+                            .background {
+                                RoundedRectangle(cornerRadius: Design.Radius._4xl)
+                                    .fill(Color.white)
+                            }
+                    }
+                }
             }
         }
     }
@@ -163,9 +178,15 @@ struct DelegationSigningView: View {
 
             case .awaitingSignature:
                 if let pczt = store.roundCache[roundId]?.pendingUnsignedDelegationPczt,
-                   let encoder = sdkSynchronizer.urEncoderForPCZT(pczt) {
+                   let encoder = sdkSynchronizer.urEncoderForPCZT(pczt),
+                   !isQRCodeEnlarged {
                     AnimatedQRCode(urEncoder: encoder, size: 216)
                         .frame(width: 216, height: 216)
+                        .onTapGesture {
+                            withAnimation(.easeInOut) {
+                                isQRCodeEnlarged = true
+                            }
+                        }
                 } else {
                     qrStatusView(text: nil)
                 }
