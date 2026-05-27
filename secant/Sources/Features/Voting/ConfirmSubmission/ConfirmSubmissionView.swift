@@ -169,11 +169,13 @@ struct ConfirmSubmissionView: View {
                 value: pollTitle
             )
 
-            detailsDivider()
-
-            if isIdle && !isKeystoneUser {
+            if isIdle && isKeystoneUser {
+                EmptyView()
+            } else if isIdle {
+                detailsDivider()
                 memoRow(pollTitle: pollTitle, weightString: weightString)
             } else {
+                detailsDivider()
                 detailRow(
                     label: String(localizable: .coinVoteConfirmSubmissionDetailVotingPower),
                     value: String(localizable: .coinVoteConfirmSubmissionDetailVotingPowerValue(weightString))

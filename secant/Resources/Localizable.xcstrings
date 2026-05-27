@@ -3047,6 +3047,23 @@
         }
       }
     },
+    "coinVote.delegationSigning.awaitingWeightSummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC signed · %@ ZEC awaiting"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC signed · %@ ZEC awaiting"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.bundleProgress" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3070,13 +3087,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bundle %@ of %@"
+            "value" : "Signature %@ of %@"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bundle %@ of %@"
+            "value" : "Signature %@ of %@"
           }
         }
       }
@@ -3325,13 +3342,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scan Signature"
+            "value" : "Scan signature"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Scan Signature"
+            "value" : "Scan signature"
           }
         }
       }
@@ -3410,13 +3427,13 @@
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ ZEC Authorized - %@ ZEC Pending"
+            "value" : "%@ ZEC Signed · %@ ZEC Pending"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ ZEC Authorized - %@ ZEC Pending"
+            "value" : "%@ ZEC Signed · %@ ZEC Pending"
           }
         }
       }
@@ -3540,6 +3557,23 @@
         }
       }
     },
+    "coinVote.delegationSigning.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize Vote"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authorize Vote"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.useSignedBundlesOnly" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3570,6 +3604,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continue without the remaining %@ ZEC."
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.signatureRejectedOk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.signatureRejectedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
           }
         }
       }

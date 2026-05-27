@@ -35,12 +35,20 @@ struct DelegationSigningView: View {
     @Perception.Bindable var store: StoreOf<VotingCoordFlow>
     let roundId: String
 
+    @State private var isQRCodeEnlarged = false
+
     var body: some View {
         WithPerceptionTracking {
             let session = store.roundCache[roundId]
             let status = session?.keystoneSigningStatus ?? .idle
             let bundleCount = session?.bundleCount ?? 0
             let currentBundle = session?.currentKeystoneBundleIndex ?? 0
+            // Use the resolved prefix rather than `keystoneBundleSignatures.count`
+            // so the count reflects bundles already accepted by the reducer
+            // (including any recovered after a crash) — not just the ones the
+            // user signed in the current session.
+            let signedBundleCount = session?.resolvedKeystonePrefixCount ?? 0
+            let bundleWeights = Self.bundleWeightSummary(session: session)
             let pollTitle = store.allRounds.first { $0.id == roundId }?.title ?? ""
             let currentBundleMemo = Self.currentBundleMemo(
                 session: session,
@@ -52,30 +60,29 @@ struct DelegationSigningView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         keystoneDeviceCard()
-                            .padding(.top, 40)
-
-                        if bundleCount > 1 {
-                            multiBundleProgressCard(current: currentBundle, total: bundleCount)
-                                .padding(.top, 24)
-                        }
-
-                        if let currentBundleMemo {
-                            memoCard(memo: currentBundleMemo)
-                                .padding(.top, 16)
-                        }
+                            .padding(.top, 12)
 
                         if isSigningRouteActive {
                             qrCodeSection(status: status)
-                                .padding(.top, bundleCount > 1 || currentBundleMemo != nil ? 24 : 32)
-
-                            instructionText(status: status)
-                                .padding(.top, 32)
+                                .padding(.top, 20)
                         }
+
+                        signingDetailsCard(
+                            current: currentBundle,
+                            total: bundleCount,
+                            signed: signedBundleCount,
+                            signedWeight: bundleWeights.signed,
+                            pendingWeight: bundleWeights.pending,
+                            memo: currentBundleMemo,
+                            status: status
+                        )
+                        .padding(.top, 24)
                     }
                     .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
                 }
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 if isSigningRouteActive {
                     actionButtons(status: status)
@@ -84,7 +91,7 @@ struct DelegationSigningView: View {
                 }
             }
             .applyScreenBackground()
-            .screenTitle(String(localizable: .coinVoteCommonConfirmation))
+            .screenTitle(String(localizable: .coinVoteDelegationSigningTitle))
             .zashiBack {
                 store.send(.delegationRejected(roundId: roundId))
             }
@@ -94,22 +101,32 @@ struct DelegationSigningView: View {
             ) { scanStore in
                 ScanView(store: scanStore, popoverRatio: 1.075)
             }
+            .enlargeQR(isPresented: $isQRCodeEnlarged) {
+                Group {
+                    if let pczt = store.roundCache[roundId]?.pendingUnsignedDelegationPczt,
+                       let encoder = sdkSynchronizer.urEncoderForPCZT(pczt) {
+                        AnimatedQRCode(urEncoder: encoder, size: UIScreen.main.bounds.width - 64)
+                            .padding()
+                            .background {
+                                RoundedRectangle(cornerRadius: Design.Radius._4xl)
+                                    .fill(Color.white)
+                            }
+                    }
+                }
+            }
         }
     }
 
-    // MARK: - Keystone device card
+    // MARK: - Keystone Device
 
     @ViewBuilder
     private func keystoneDeviceCard() -> some View {
         HStack(spacing: 0) {
-            Asset.Assets.Partners.keystoneLogo.image
+            Asset.Assets.Brandmarks.brandmarkKeystone.image
                 .resizable()
-                .frame(width: 24, height: 24)
-                .padding(8)
-                .background {
-                    Circle().fill(Design.Surfaces.bgAlt.color(colorScheme))
-                }
-                .padding(.trailing, 12)
+                .frame(width: 40, height: 40)
+                .clipShape(Circle())
+                .padding(.trailing, 16)
 
             VStack(alignment: .leading, spacing: 0) {
                 Text(localizable: .accountsKeystone)
@@ -117,7 +134,7 @@ struct DelegationSigningView: View {
 
                 if let address = store.selectedWalletAccount?.unifiedAddress {
                     Text(address)
-                        .zFont(fontFamily: .robotoMono, size: 12, style: Design.Text.tertiary)
+                        .zFont(size: 12, style: Design.Text.tertiary)
                         .lineLimit(1)
                         .truncationMode(.middle)
                 }
@@ -140,165 +157,220 @@ struct DelegationSigningView: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
+        .frame(maxWidth: .infinity)
         .background {
             RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
+                .fill(Design.Surfaces.bgPrimary.color(colorScheme))
+                .overlay {
+                    RoundedRectangle(cornerRadius: Design.Radius._2xl)
+                        .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
+                }
+        }
+    }
+
+    // MARK: - QR Code
+
+    @ViewBuilder
+    private func qrCodeSection(status: KeystoneSigningStatus) -> some View {
+        ZStack {
+            switch status {
+            case .idle, .preparingRequest:
+                qrStatusView(
+                    text: status == .preparingRequest
+                        ? String(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
+                        : nil
+                )
+
+            case .awaitingSignature:
+                if let pczt = store.roundCache[roundId]?.pendingUnsignedDelegationPczt,
+                   let encoder = sdkSynchronizer.urEncoderForPCZT(pczt),
+                   !isQRCodeEnlarged {
+                    AnimatedQRCode(urEncoder: encoder, size: 216)
+                        .frame(width: 216, height: 216)
+                        .onTapGesture {
+                            withAnimation(.easeInOut) {
+                                isQRCodeEnlarged = true
+                            }
+                        }
+                } else {
+                    qrStatusView(text: nil)
+                }
+
+            case .parsingSignature:
+                qrStatusView(text: String(localizable: .coinVoteDelegationSigningParsingSignatureEllipsis))
+
+            case .finalizingAuthorization:
+                qrStatusView(text: String(localizable: .coinVoteDelegationSigningFinalizingAuthorizationEllipsis))
+
+            case .failed(let message):
+                VStack(spacing: 8) {
+                    Image(systemName: "exclamationmark.circle")
+                        .font(.system(size: 32))
+                        .foregroundStyle(Design.Utility.ErrorRed._500.color(colorScheme))
+
+                    Text(message)
+                        .zFont(.medium, size: 13, style: Design.Text.tertiary)
+                        .multilineTextAlignment(.center)
+                    }
+                    .padding(24)
+                }
+        }
+        .frame(width: 248, height: 248)
+        .background {
+            RoundedRectangle(cornerRadius: Design.Radius._3xl)
+                .fill(Design.Surfaces.bgPrimary.color(colorScheme))
+                .overlay {
+                    RoundedRectangle(cornerRadius: Design.Radius._3xl)
+                        .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
+                }
         }
     }
 
     @ViewBuilder
-    private func multiBundleProgressCard(current: UInt32, total: UInt32) -> some View {
-        HStack {
-            Text(localizable: .coinVoteDelegationSigningCurrentBundleProgress(String(current + 1), String(total)))
-                .zFont(.semiBold, size: 14, style: Design.Text.primary)
-            Spacer()
+    private func qrStatusView(text: String?) -> some View {
+        VStack(spacing: 8) {
+            ProgressView()
+            if let text {
+                Text(text)
+                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
+                    .multilineTextAlignment(.center)
+            }
         }
-        .padding(Design.Spacing._xl)
-        .frame(maxWidth: .infinity)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
-        )
+        .frame(width: 216, height: 216)
+    }
+
+    // MARK: - Signing Details
+
+    @ViewBuilder
+    private func signingDetailsCard(
+        current: UInt32,
+        total: UInt32,
+        signed: UInt32,
+        signedWeight: UInt64,
+        pendingWeight: UInt64,
+        memo: String?,
+        status: KeystoneSigningStatus
+    ) -> some View {
+        VStack(spacing: 0) {
+            signatureProgressSection(
+                current: current,
+                total: total,
+                signed: signed,
+                signedWeight: signedWeight,
+                pendingWeight: pendingWeight
+            )
+
+            if canUseSignedBundlesOnly(signed: signed, total: total, status: status) {
+                detailsDivider()
+                useSignedBundlesOnlyRow(pendingWeight: pendingWeight)
+            }
+
+            if let memo {
+                detailsDivider()
+                memoSection(memo)
+            }
+        }
+        .background(Design.Surfaces.bgSecondary.color(colorScheme))
+        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._xl))
     }
 
     @ViewBuilder
-    private func memoCard(memo: String) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
+    private func signatureProgressSection(
+        current: UInt32,
+        total: UInt32,
+        signed: UInt32,
+        signedWeight: UInt64,
+        pendingWeight: UInt64
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                Text(localizable: .coinVoteDelegationSigningCurrentBundleProgress(
+                    String(Self.displayBundleNumber(current: current, total: total)),
+                    String(max(total, 1))
+                ))
+                .zFont(.medium, size: 14, style: Design.Text.primary)
+
+                Spacer(minLength: 8)
+
+                Text(localizable: .coinVoteDelegationSigningSignedProgress(String(signed), String(max(total, 1))))
+                    .zFont(.medium, size: 12, style: Design.Utility.HyperBlue._700)
+                    .lineLimit(1)
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 8)
+                    .background {
+                        Capsule()
+                            .fill(Design.Utility.HyperBlue._50.color(colorScheme))
+                            .overlay {
+                                Capsule()
+                                    .stroke(Design.Utility.HyperBlue._200.color(colorScheme), lineWidth: 1)
+                            }
+                    }
+            }
+
+            GeometryReader { geometry in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Design.Surfaces.bgQuaternary.color(colorScheme))
+                    Capsule()
+                        .fill(Design.Text.primary.color(colorScheme))
+                        .frame(width: geometry.size.width * Self.signingProgress(signed: signed, total: total))
+                }
+            }
+            .frame(height: 6)
+
+            Text(weightSummary(signed: signed, signedWeight: signedWeight, pendingWeight: pendingWeight))
+                .zFont(size: 12, style: Design.Text.tertiary)
+                .lineLimit(1)
+        }
+        .padding(16)
+    }
+
+    @ViewBuilder
+    private func useSignedBundlesOnlyRow(pendingWeight: UInt64) -> some View {
+        Button {
+            store.send(.skipRemainingKeystoneBundles(roundId: roundId))
+        } label: {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text(localizable: .coinVoteDelegationSigningUseSignedBundlesOnly)
+                        .zFont(.medium, size: 14, style: Design.Text.primary)
+                        .lineLimit(1)
+
+                    Text(localizable: .coinVoteDelegationSigningUseSignedBundlesOnlySubtitle(Self.formatZec(pendingWeight)))
+                        .zFont(size: 12, style: Design.Text.tertiary)
+                        .lineLimit(1)
+                }
+
+                Spacer(minLength: 8)
+
+                Asset.Assets.chevronRight.image
+                    .zImage(size: 20, style: Design.Text.primary)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(maxWidth: .infinity, minHeight: 60)
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private func memoSection(_ memo: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
             Text(localizable: .coinVoteDelegationSigningMemo)
                 .zFont(size: 14, style: Design.Text.tertiary)
 
             Text(memo)
-                .zFont(.medium, size: 13, style: Design.Text.primary)
+                .zFont(.medium, size: 12, style: Design.Text.primary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(Design.Spacing._xl)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Design.Surfaces.bgPrimary.color(colorScheme))
-        .clipShape(RoundedRectangle(cornerRadius: Design.Radius._2xl))
-        .overlay(
-            RoundedRectangle(cornerRadius: Design.Radius._2xl)
-                .stroke(Design.Surfaces.strokeSecondary.color(colorScheme), lineWidth: 1)
-        )
     }
 
-    // MARK: - QR
-
-    @ViewBuilder
-    private func qrCodeSection(status: KeystoneSigningStatus) -> some View {
-        switch status {
-        case .idle, .preparingRequest:
-            VStack {
-                ProgressView()
-                    .padding(.bottom, 8)
-                if case .preparingRequest = status {
-                    Text(localizable: .coinVoteDelegationSigningPreparingRequestEllipsis)
-                        .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                        .multilineTextAlignment(.center)
-                }
-            }
-            .frame(width: 216, height: 216)
-            .padding(24)
-            .background {
-                RoundedRectangle(cornerRadius: Design.Radius._xl)
-                    .fill(Asset.Colors.ZDesign.Base.bone.color)
-                    .background {
-                        RoundedRectangle(cornerRadius: Design.Radius._xl)
-                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
-                    }
-            }
-
-        case .awaitingSignature:
-            if let pczt = store.roundCache[roundId]?.pendingUnsignedDelegationPczt,
-               let encoder = sdkSynchronizer.urEncoderForPCZT(pczt) {
-                AnimatedQRCode(urEncoder: encoder, size: 216)
-                    .padding(24)
-                    .background {
-                        RoundedRectangle(cornerRadius: Design.Radius._xl)
-                            .fill(Asset.Colors.ZDesign.Base.bone.color)
-                            .background {
-                                RoundedRectangle(cornerRadius: Design.Radius._xl)
-                                    .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
-                            }
-                    }
-            } else {
-                ProgressView()
-                    .frame(width: 216, height: 216)
-            }
-
-        case .parsingSignature:
-            VStack {
-                ProgressView()
-                Text(localizable: .coinVoteDelegationSigningParsingSignatureEllipsis)
-                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 8)
-            }
-            .frame(width: 216, height: 216)
-            .padding(24)
-            .background {
-                RoundedRectangle(cornerRadius: Design.Radius._xl)
-                    .fill(Asset.Colors.ZDesign.Base.bone.color)
-                    .background {
-                        RoundedRectangle(cornerRadius: Design.Radius._xl)
-                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
-                    }
-            }
-
-        case .finalizingAuthorization:
-            VStack {
-                ProgressView()
-                Text(localizable: .coinVoteDelegationSigningFinalizingAuthorizationEllipsis)
-                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                    .multilineTextAlignment(.center)
-                    .padding(.top, 8)
-            }
-            .frame(width: 216, height: 216)
-            .padding(24)
-            .background {
-                RoundedRectangle(cornerRadius: Design.Radius._xl)
-                    .fill(Asset.Colors.ZDesign.Base.bone.color)
-                    .background {
-                        RoundedRectangle(cornerRadius: Design.Radius._xl)
-                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
-                    }
-            }
-
-        case .failed(let message):
-            VStack {
-                Image(systemName: "exclamationmark.circle")
-                    .font(.system(size: 32))
-                    .foregroundStyle(Design.Utility.ErrorRed._500.color(colorScheme))
-                    .padding(.bottom, 8)
-                Text(message)
-                    .zFont(.medium, size: 13, style: Design.Text.tertiary)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(width: 216, height: 216)
-            .padding(24)
-            .background {
-                RoundedRectangle(cornerRadius: Design.Radius._xl)
-                    .fill(Asset.Colors.ZDesign.Base.bone.color)
-                    .background {
-                        RoundedRectangle(cornerRadius: Design.Radius._xl)
-                            .stroke(Design.Surfaces.strokeSecondary.color(colorScheme))
-                    }
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func instructionText(status: KeystoneSigningStatus) -> some View {
-        switch status {
-        case .awaitingSignature:
-            Text(String(localizable: .coinVoteDelegationSigningScanSignedPCZTInstruction))
-                .zFont(.medium, size: 14, style: Design.Text.primary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-        default:
-            EmptyView()
-        }
+    private func detailsDivider() -> some View {
+        Design.Surfaces.strokeSecondary.color(colorScheme)
+            .frame(height: 1)
     }
 
     // MARK: - Memo
@@ -321,6 +393,86 @@ struct DelegationSigningView: View {
         return votingAuthorizationMemo(pollTitle: pollTitle, rawWeight: bundleTotal)
     }
 
+    private static func bundleWeightSummary(session: RoundSession?) -> (signed: UInt64, pending: UInt64) {
+        guard let session else { return (0, 0) }
+
+        let bundles = session.walletNotes.smartBundles().bundles
+        // Drive the signed/pending split from the resolved-prefix count so
+        // recovered bundles roll into the "signed" bucket even when the
+        // current-session signature array hasn't been repopulated yet.
+        let signedCount = min(Int(session.resolvedKeystonePrefixCount), bundles.count)
+        let countedBundleCount = min(Int(session.bundleCount), bundles.count)
+        var signed: UInt64 = 0
+        var pending: UInt64 = 0
+
+        for index in 0..<countedBundleCount {
+            let rawWeight = bundles[index].reduce(UInt64(0)) { $0 + $1.value }
+            if index < signedCount {
+                signed += quantizeWeight(rawWeight)
+            } else {
+                pending += quantizeWeight(rawWeight)
+            }
+        }
+
+        return (signed, pending)
+    }
+
+    private static func formatZec(_ zatoshi: UInt64) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 3
+        formatter.usesGroupingSeparator = true
+
+        let value = Double(zatoshi) / 100_000_000.0
+        return formatter.string(from: NSNumber(value: value)) ?? "0.000"
+    }
+
+    private static func displayBundleNumber(current: UInt32, total: UInt32) -> UInt32 {
+        guard total > 0 else { return 1 }
+        return min(current + 1, total)
+    }
+
+    /// Fraction of bundles already signed, clamped to [0, 1]. Drives the
+    /// signing-progress capsule. Replaces an earlier `bundleShare(total:)`
+    /// that ignored `signed` and always returned `1 / total` (showing 50%
+    /// indefinitely on a 2-bundle round).
+    private static func signingProgress(signed: UInt32, total: UInt32) -> Double {
+        guard total > 0 else { return 0 }
+        return min(1, Double(signed) / Double(total))
+    }
+
+    private func weightSummary(signed: UInt32, signedWeight: UInt64, pendingWeight: UInt64) -> String {
+        if signed == 0 {
+            return String(localizable: .coinVoteDelegationSigningAwaitingWeightSummary(
+                Self.formatZec(signedWeight),
+                Self.formatZec(pendingWeight)
+            ))
+        }
+
+        return String(localizable: .coinVoteDelegationSigningSignedWeightSummary(
+            Self.formatZec(signedWeight),
+            Self.formatZec(pendingWeight)
+        ))
+    }
+
+    private func canUseSignedBundlesOnly(signed: UInt32, total: UInt32, status: KeystoneSigningStatus) -> Bool {
+        // Only surface the row while we're idle on a new bundle request — the
+        // old standalone CTA had the same gate. Without it, the row can be
+        // tapped while the next Keystone PCZT is still being prepared, which
+        // races the in-flight signing-status transitions.
+        guard status == .awaitingSignature else { return false }
+
+        // Mirror the gate added on main (PR #1789 / commit 8e570578): we only
+        // surface "Use signed bundles only" when the resolved bundles form a
+        // contiguous prefix starting from index 0. Without that constraint,
+        // an out-of-order signature (e.g. bundle 2 signed before 1) could
+        // cause `skipRemainingKeystoneBundles` to skip across a gap and
+        // submit nothing for the missing prefix.
+        let resolvedPrefix = store.roundCache[roundId]?.resolvedKeystonePrefixCount ?? 0
+        return total > 1 && signed > 0 && signed < total && resolvedPrefix > 0
+    }
+
     private static func isSigningRouteActive(
         _ path: StackState<VotingCoordFlow.Path.State>,
         roundId: String
@@ -339,19 +491,8 @@ struct DelegationSigningView: View {
     private func actionButtons(status: KeystoneSigningStatus) -> some View {
         switch status {
         case .awaitingSignature:
-            VStack(spacing: 12) {
-                ZashiButton(String(localizable: .coinVoteDelegationSigningScanSignedPCZTCTA)) {
-                    store.send(.openKeystoneSignatureScan)
-                }
-                if (store.roundCache[roundId]?.bundleCount ?? 0) > 1
-                    && (store.roundCache[roundId]?.resolvedKeystonePrefixCount ?? 0) > 0 {
-                    ZashiButton(
-                        String(localizable: .coinVoteDelegationSigningSkipRemainingBundlesCTA),
-                        type: .tertiary
-                    ) {
-                        store.send(.skipRemainingKeystoneBundles(roundId: roundId))
-                    }
-                }
+            ZashiButton(String(localizable: .coinVoteDelegationSigningScanSignature)) {
+                store.send(.openKeystoneSignatureScan)
             }
         case .failed:
             ZashiButton(String(localizable: .coinVoteCommonGoBack)) {
