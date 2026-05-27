@@ -1,6 +1,19 @@
 {
     "releases": [
         {
+            "version": "3.5.0",
+            "date": "27-05-2026",
+            "timestamp": 1779388800,
+            "sections": [
+                {
+                    "title": "Added:",
+                    "bulletpoints": [
+                        "Coinholder Polling lets you vote on Zcash governance privately, right from your Zodl and Keystone wallets."
+                    ]
+                }
+            ]
+        },
+        {
             "version": "3.4.1",
             "date": "18-05-2026",
             "timestamp": 1778606653,
