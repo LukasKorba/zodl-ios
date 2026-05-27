@@ -69,8 +69,19 @@ struct VotingCoordFlowView: View {
                 }
             }
             .alert($store.scope(state: \.submissionAlert, action: \.submissionAlert))
-            .alert($store.scope(state: \.keystoneSignatureRejectionAlert, action: \.keystoneSignatureRejectionAlert))
             .alert($store.scope(state: \.skipBundlesAlert, action: \.skipBundlesAlert))
+            .votingSheet(
+                isPresented: keystoneSignatureRejectionBinding,
+                title: String(localizable: .coinVoteDelegationSigningSignatureRejectedTitle),
+                message: store.keystoneSignatureRejectionSheet?.message ?? "",
+                primary: .init(
+                    title: String(localizable: .coinVoteDelegationSigningSignatureRejectedOk),
+                    style: .primary
+                ) {
+                    store.send(.dismissKeystoneSignatureRejectionSheet)
+                },
+                secondary: nil
+            )
             .votingSheet(
                 isPresented: pollClosedSheetBinding,
                 title: String(localizable: .coinVotePollClosedSheetTitle),
@@ -100,6 +111,17 @@ struct VotingCoordFlowView: View {
             set: { newValue in
                 if !newValue {
                     store.send(.dismissPollClosedAlert)
+                }
+            }
+        )
+    }
+
+    private var keystoneSignatureRejectionBinding: Binding<Bool> {
+        Binding(
+            get: { store.keystoneSignatureRejectionSheet != nil },
+            set: { newValue in
+                if !newValue {
+                    store.send(.dismissKeystoneSignatureRejectionSheet)
                 }
             }
         )

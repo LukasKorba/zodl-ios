@@ -3608,6 +3608,40 @@
         }
       }
     },
+    "coinVote.delegationSigning.signatureRejectedOk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.signatureRejectedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.wrongSignature" : {
       "extractionState" : "manual",
       "localizations" : {
