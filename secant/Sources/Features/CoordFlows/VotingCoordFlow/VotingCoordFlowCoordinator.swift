@@ -681,7 +681,6 @@ extension VotingCoordFlow {
             case let .keystoneSignatureRejected(roundId, message):
                 mutateSession(&state, roundId: roundId) { roundSession in
                     roundSession.keystoneSigningStatus = .awaitingSignature
-                    roundSession.keystoneSigningNotice = nil
                 }
                 state.keystoneSignatureRejectionAlert = .keystoneSignatureRejected(message)
                 return .none
@@ -2610,7 +2609,6 @@ extension VotingCoordFlow {
             $0.currentKeystoneBundleIndex = keystoneBundleIndex
             $0.isDelegationProofInFlight = true
             $0.keystoneSigningStatus = .preparingRequest
-            $0.keystoneSigningNotice = nil
         }
 
         return .run { [backgroundTask, sdkSynchronizer, votingCrypto, mnemonic, walletStorage] send in
@@ -2661,7 +2659,6 @@ extension VotingCoordFlow {
             roundSession.pendingUnsignedDelegationPczt = unsignedPczt
             roundSession.isDelegationProofInFlight = false
             roundSession.keystoneSigningStatus = .awaitingSignature
-            roundSession.keystoneSigningNotice = nil
         }
         return .none
     }
@@ -2676,7 +2673,6 @@ extension VotingCoordFlow {
         }
         mutateSession(&state, roundId: roundId) {
             $0.keystoneSigningStatus = .parsingSignature
-            $0.keystoneSigningNotice = nil
         }
         let actionIndex = govPczt.actionIndex
         let session = state.roundCache[roundId]
@@ -2744,7 +2740,6 @@ extension VotingCoordFlow {
             roundSession.keystoneBundleSignatures.sort { $0.bundleIndex < $1.bundleIndex }
             roundSession.pendingVotingPczt = nil
             roundSession.pendingUnsignedDelegationPczt = nil
-            roundSession.keystoneSigningNotice = nil
         }
 
         let sigInfo = KeystoneBundleSignatureInfo(
@@ -3214,7 +3209,6 @@ extension VotingCoordFlow {
         session.currentKeystoneBundleIndex = session.firstIncompleteKeystoneBundleIndex ?? 0
         session.pendingVotingPczt = nil
         session.pendingUnsignedDelegationPczt = nil
-        session.keystoneSigningNotice = nil
         session.keystoneSigningStatus = status
     }
 

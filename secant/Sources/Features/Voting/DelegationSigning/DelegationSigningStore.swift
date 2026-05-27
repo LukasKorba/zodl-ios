@@ -292,8 +292,7 @@ struct DelegationSigningView: View {
     private func instructionText(status: KeystoneSigningStatus) -> some View {
         switch status {
         case .awaitingSignature:
-            Text(store.roundCache[roundId]?.keystoneSigningNotice
-                 ?? String(localizable: .coinVoteDelegationSigningScanSignedPCZTInstruction))
+            Text(String(localizable: .coinVoteDelegationSigningScanSignedPCZTInstruction))
                 .zFont(.medium, size: 14, style: Design.Text.primary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)

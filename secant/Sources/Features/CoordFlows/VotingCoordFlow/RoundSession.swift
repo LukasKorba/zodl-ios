@@ -148,10 +148,6 @@ struct RoundSession: Equatable {
     /// once the signed PCZT comes back from the scan.
     var pendingUnsignedDelegationPczt: Pczt?
 
-    /// Inline guidance shown after a rejected Keystone scan, such as scanning
-    /// a duplicate or wrong-bundle signature.
-    var keystoneSigningNotice: String?
-
     /// On a successful batch run we persist a one-line record (date, weight,
     /// proposal count) into the encrypted voting metadata file. The Results
     /// screen uses this to render "Voted MMM d - Voting Power X.XXX ZEC".
