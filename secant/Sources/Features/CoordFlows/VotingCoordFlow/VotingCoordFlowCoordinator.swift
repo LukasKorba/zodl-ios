@@ -681,7 +681,7 @@ extension VotingCoordFlow {
             case let .keystoneSignatureRejected(roundId, message):
                 mutateSession(&state, roundId: roundId) { roundSession in
                     roundSession.keystoneSigningStatus = .awaitingSignature
-                    roundSession.keystoneSigningNotice = message
+                    roundSession.keystoneSigningNotice = nil
                 }
                 state.keystoneSignatureRejectionAlert = .keystoneSignatureRejected(message)
                 return .none
