@@ -96,6 +96,13 @@ jobs:
           xcrun simctl boot "iPhone 16 Pro" || true
           xcrun simctl bootstatus "iPhone 16 Pro" -b
 
+          # On CI the simulator defaults to "Connect Hardware Keyboard",
+          # which hides the software keyboard and causes XCUITest typeText
+          # to silently no-op (maestro reports inputText "completed" but
+          # nothing lands in the fields). Force-disable it.
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard 0
+          defaults write com.apple.iphonesimulator AutomaticallyShowSoftKeyboard 1
+
           # Resolve the .app explicitly — fail loudly if glob matched zero
           # or more than one bundle.
           shopt -s nullglob
