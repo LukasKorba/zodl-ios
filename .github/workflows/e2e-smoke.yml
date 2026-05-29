@@ -14,6 +14,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  # flexa-ios uses iOS 26's `.glass` button style which isn't available
+  # on the macos-15 runner's Xcode. Disable it to keep CI building.
+  FX_ENABLE_GLASS: "0"
+
 jobs:
   e2e-ios:
     runs-on: macos-15
