@@ -80,7 +80,7 @@ jobs:
           xcodebuild build \
             -project secant.xcodeproj \
             -scheme zashi-internal \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
+            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -skipPackagePluginValidation \
@@ -93,8 +93,8 @@ jobs:
       - name: Boot simulator and install app
         run: |
           # Boot, then wait for the device to be fully ready before installing.
-          xcrun simctl boot "iPhone 16 Pro" || true
-          xcrun simctl bootstatus "iPhone 16 Pro" -b
+          xcrun simctl boot "iPhone 17 Pro" || true
+          xcrun simctl bootstatus "iPhone 17 Pro" -b
 
           # On CI the simulator defaults to "Connect Hardware Keyboard",
           # which hides the software keyboard and causes XCUITest typeText
