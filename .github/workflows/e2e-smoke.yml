@@ -18,6 +18,8 @@ env:
   # flexa-ios uses iOS 26's `.glass` button style which isn't available
   # on the macos-15 runner's Xcode. Disable it to keep CI building.
   FX_ENABLE_GLASS: "0"
+  DERIVED_DATA_PATH: build
+  SOURCE_PACKAGES_PATH: build/SourcePackages
 
 jobs:
   e2e-ios:
@@ -36,11 +38,37 @@ jobs:
           path: zodl-qa
           token: ${{ secrets.ZODL_QA }}
 
+      - name: Compute Xcode cache key
+        id: xcode-cache-key
+        run: |
+          xcodebuild -version
+          xcodebuild -version | shasum -a 256 | awk '{ print "hash="$1 }' >> "$GITHUB_OUTPUT"
+
+      - name: Restore Swift package cache
+        id: spm-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ env.SOURCE_PACKAGES_PATH }}
+          key: ${{ runner.os }}-${{ runner.arch }}-xcode-spm-e2e-${{ steps.xcode-cache-key.outputs.hash }}-${{ hashFiles('secant.xcodeproj/project.pbxproj', 'secant.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ runner.arch }}-xcode-spm-e2e-${{ steps.xcode-cache-key.outputs.hash }}-
+            ${{ runner.os }}-${{ runner.arch }}-xcode-spm-e2e-
+
       - name: Resolve packages
         run: |
           xcodebuild -project secant.xcodeproj \
             -scheme secant-testnet \
-            -resolvePackageDependencies
+            -resolvePackageDependencies \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH"
+
+      - name: Save Swift package cache
+        if: ${{ steps.spm-cache.outputs.cache-hit != 'true' }}
+        continue-on-error: true
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.SOURCE_PACKAGES_PATH }}
+          key: ${{ steps.spm-cache.outputs.cache-primary-key }}
 
       - name: Build for simulator
         run: |
@@ -48,7 +76,8 @@ jobs:
             -project secant.xcodeproj \
             -scheme secant-testnet \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
-            -derivedDataPath build/ \
+            -derivedDataPath "$DERIVED_DATA_PATH" \
+            -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -skipPackagePluginValidation \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO \
@@ -65,6 +94,10 @@ jobs:
           echo "$HOME/.maestro/bin" >> $GITHUB_PATH
 
       - name: Run smoke tests
+        env:
+          # XCUITest driver build/install can take a few minutes on CI;
+          # default 60s timeout isn't enough on a cold runner.
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 300000
         run: |
           maestro test zodl-qa/maestro/smoke/ \
             --include-tags="ios"
