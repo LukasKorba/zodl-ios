@@ -71,6 +71,11 @@ jobs:
           key: ${{ steps.spm-cache.outputs.cache-primary-key }}
 
       - name: Build for simulator
+        # Ad-hoc sign ("-") so the app's entitlements (Keychain access group
+        # etc.) are embedded in the build. Plain CODE_SIGNING_ALLOWED=NO
+        # leaves the bundle without entitlements, which makes the app crash
+        # on launch with error -34018 (errSecMissingEntitlement) the moment
+        # it touches the Keychain.
         run: |
           xcodebuild build \
             -project secant.xcodeproj \
@@ -80,7 +85,9 @@ jobs:
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
             -skipPackagePluginValidation \
             -skipMacroValidation \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGNING_REQUIRED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=16.0
 
       - name: Boot simulator and install app
