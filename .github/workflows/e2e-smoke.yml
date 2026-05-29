@@ -28,6 +28,18 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Select latest Xcode
+        # macos-15 runners ship multiple Xcodes; default-selected may be 16.x.
+        # XCUITest from older Xcode driving an iOS 26 sim causes maestro tap/
+        # input quirks (empty seed fields). Pin to the newest Xcode available.
+        run: |
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            echo "Selecting $LATEST"
+            sudo xcode-select -s "$LATEST/Contents/Developer"
+          fi
+          xcodebuild -version
+
       - name: Checkout app
         uses: actions/checkout@v4
 
