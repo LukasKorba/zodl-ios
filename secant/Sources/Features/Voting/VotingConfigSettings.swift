@@ -331,7 +331,9 @@ struct VotingConfigSettings {
                 switch context {
                 case .addPanelNewChain:
                     let trimmedName = state.pendingNewChainName.trimmingCharacters(in: .whitespacesAndNewlines)
-                    let resolvedName = trimmedName.isEmpty ? String(localized: "Custom chain") : trimmedName
+                    let resolvedName = trimmedName.isEmpty
+                        ? String(localizable: .coinVoteConfigSettingsCustomChainFallbackName)
+                        : trimmedName
                     let entry = CustomChainEntry(name: resolvedName, url: rawURL)
                     var chains = Self.decodeChains(state.customChainsJSON)
                     chains.append(entry)
@@ -441,9 +443,17 @@ struct VotingConfigSettings {
         cancelID: CancelID
     ) -> Effect<Action> {
         .run { send in
+            @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+            @Shared(.inMemory(.swapAPIAccess)) var swapAPIAccess: WalletStorage.SwapAPIAccess = .direct
             do {
                 let source = try PinnedConfigSource.parse(rawURL)
-                _ = try await StaticVotingConfig.loadFromNetwork(source: source, session: .shared)
+                _ = try await StaticVotingConfig.loadFromNetwork(source: source) { request in
+                    if swapAPIAccess == .protected {
+                        let (data, response) = try await sdkSynchronizer.httpRequestOverTor(request)
+                        return (data, response as URLResponse)
+                    }
+                    return try await URLSession.shared.data(for: request)
+                }
                 await send(.validationPassed(
                     source,
                     rawURL: rawURL,
@@ -477,15 +487,15 @@ struct VotingConfigSettings {
 
     /// User-visible error when adding or switching a chain URL that matches Default or another custom entry.
     private static var duplicateChainURLErrorMessage: String {
-        String(localized: "This source URL is already added.")
+        String(localizable: .coinVoteConfigSettingsErrorDuplicateUrl)
     }
 
     private static var invalidChainURLErrorMessage: String {
-        String(localized: "Please enter a valid URL (e.g. https://zodl.com/polls)")
+        String(localizable: .coinVoteConfigSettingsErrorInvalidUrl)
     }
 
     private static var titleTooLongErrorMessage: String {
-        String(localized: "Title must be 15 characters or less, including spaces.")
+        String(localizable: .coinVoteConfigSettingsErrorTitleTooLong)
     }
 
     private static func titleValidationError(_ title: String) -> String? {

@@ -6,6 +6,11 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ## [Unreleased]
 
+## 3.5.0 build 1 (2026-05-27)
+
+### Added
+- Coinholder Polling lets you vote on Zcash governance privately, right from your Zodl and Keystone wallets.
+
 ## 3.4.1 build 1 (2026-05-18)
 
 ### Changed

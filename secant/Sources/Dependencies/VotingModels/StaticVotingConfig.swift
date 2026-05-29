@@ -9,8 +9,8 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
     static let supportedVersion = 1
     static let algEd25519 = "ed25519"
     static let bundledPinnedSource =
-        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/5ed8d623e4150d383a4dac05dd6bfbdd126a5408/prod/static-voting-config.json" +
-        "?checksum=sha256:5a6bc0dce85a8ee8d6585d2a180e62f145abcfee7768c15b88de47c9a01a5738"
+        "https://raw.githubusercontent.com/valargroup/token-holder-voting-config/2785311d45758e85567d70a1f13709fa01b62c6b/prod/static-voting-config.json" +
+        "?checksum=sha256:bed0116f961226b256a574b52461ce81d9f5294a57e190987dc155f07eb1e431"
 
     let staticConfigVersion: Int
     let dynamicConfigURL: URL
@@ -55,9 +55,12 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
     ///
     /// There is no fallback: a transport failure, decode failure, or hash
     /// mismatch blocks voting until the user can fetch a trusted config.
+    /// `fetch` is injected by the caller so the request can be routed through
+    /// Tor (`SDKSynchronizerClient.httpRequestOverTor`) when the user enabled
+    /// Tor in Settings, and through the plain URLSession otherwise.
     static func loadFromNetwork(
         source: PinnedConfigSource,
-        session: URLSession
+        fetch: (URLRequest) async throws -> (Data, URLResponse)
     ) async throws -> StaticVotingConfig {
         let data: Data
         let response: URLResponse
@@ -65,7 +68,7 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
             var request = URLRequest(url: source.url, cachePolicy: .reloadIgnoringLocalCacheData)
             request.setValue("no-cache", forHTTPHeaderField: "Cache-Control")
             request.setValue("no-cache", forHTTPHeaderField: "Pragma")
-            (data, response) = try await session.data(for: request)
+            (data, response) = try await fetch(request)
         } catch {
             throw VotingConfigError.staticConfigFetchFailed(error.localizedDescription)
         }
@@ -116,6 +119,18 @@ struct StaticVotingConfig: Codable, Equatable, Sendable {
             guard key.pubkey.count == 32 else {
                 throw VotingConfigError.decodeFailed("trusted_keys[\(key.keyId)].pubkey must decode to 32 bytes")
             }
+        }
+
+        // The dynamic config URL must be HTTPS. iOS App Transport Security
+        // already blocks plaintext HTTP for this app, and the user-pasted
+        // custom-chain path enforces https in `PinnedConfigSource.parse`.
+        // Enforce the same here so a future static-config rotation (the only
+        // place where this URL is decided) can't silently downgrade voting to
+        // an unauthenticated transport.
+        guard dynamicConfigURL.scheme?.lowercased() == "https" else {
+            throw VotingConfigError.decodeFailed(
+                "dynamic_config_url must use https; got \(dynamicConfigURL.scheme ?? "<none>")"
+            )
         }
     }
 }

@@ -8,9 +8,8 @@ import ComposableArchitecture
 import UIKit
 import os
 
-private let logger = Logger(subsystem: "co.zodl", category: "BackgroundTaskClient")
-
 /// Tracks the active continued processing task (iOS 26+) so endContinuedProcessing can find it.
+#if compiler(>=6.2)
 @available(iOS 26.0, *)
 private final class ContinuedProcessingState: Sendable {
     private let storage = OSAllocatedUnfairLock<BGContinuedProcessingTask?>(initialState: nil)
@@ -27,14 +26,17 @@ private final class ContinuedProcessingState: Sendable {
         }
     }
 }
+#endif
 
 extension BackgroundTaskClient: DependencyKey {
     static let liveValue: Self = {
+#if compiler(>=6.2)
         // iOS 26 continued processing state (lazy, only allocated on iOS 26+)
         let cpState: Any? = {
             if #available(iOS 26.0, *) { return ContinuedProcessingState() }
             return nil
         }()
+#endif
 
         return Self(
             beginTask: { name in
@@ -42,7 +44,7 @@ extension BackgroundTaskClient: DependencyKey {
                     UIApplication.shared.isIdleTimerDisabled = true
                     var taskId: UIBackgroundTaskIdentifier = .invalid
                     taskId = UIApplication.shared.beginBackgroundTask(withName: name) {
-                        logger.warning("Background task '\(name)' expired by iOS — ending task")
+                        LoggerProxy.warn("Background task '\(name)' expired by iOS — ending task")
                         UIApplication.shared.isIdleTimerDisabled = false
                         UIApplication.shared.endBackgroundTask(taskId)
                         taskId = .invalid
@@ -58,6 +60,7 @@ extension BackgroundTaskClient: DependencyKey {
                 }
             },
             beginContinuedProcessing: { identifier, title, subtitle in
+#if compiler(>=6.2)
                 guard #available(iOS 26.0, *), let state = cpState as? ContinuedProcessingState else {
                     return false
                 }
@@ -70,7 +73,7 @@ extension BackgroundTaskClient: DependencyKey {
 
                 do {
                     try BGTaskScheduler.shared.submit(request)
-                    logger.info("Continued processing task submitted: \(identifier)")
+                    LoggerProxy.info("Continued processing task submitted: \(identifier)")
 
                     // The task is delivered via the handler registered for this identifier.
                     // Register a one-shot handler to capture the task object.
@@ -84,18 +87,23 @@ extension BackgroundTaskClient: DependencyKey {
                     }
                     return true
                 } catch {
-                    logger.warning("Continued processing submission failed: \(error)")
+                    LoggerProxy.warn("Continued processing submission failed: \(error)")
                     return false
                 }
+#else
+                return false
+#endif
             },
             endContinuedProcessing: {
+#if compiler(>=6.2)
                 guard #available(iOS 26.0, *), let state = cpState as? ContinuedProcessingState else {
                     return
                 }
                 if let task = state.take() {
                     task.setTaskCompleted(success: true)
-                    logger.info("Continued processing task completed")
+                    LoggerProxy.info("Continued processing task completed")
                 }
+#endif
             }
         )
     }()

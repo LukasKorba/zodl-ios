@@ -509,7 +509,27 @@ extension Root {
                 userDefaults.remove(Constants.udLeavesScreenOpen)
                 userDefaults.remove(.hasSeenHowToVote)
                 userDefaults.remove(.hasSeenHowToVoteKeystone)
-                // Wipe persisted per-round vote records written by the Voting module.
+                // Drop the user-supplied voting chain override and the saved
+                // custom-chain list. Without this wipe, the next wallet on
+                // this device would silently resolve voting through whatever
+                // third-party host the previous owner had pointed at.
+                userDefaults.remove(.votingConfigOverrideURL)
+                userDefaults.remove(.votingCustomChains)
+                // Delete the voting SQLite DB so per-round share delegation
+                // history, vote records, and stored TX hashes from the
+                // previous wallet don't leak across the reset boundary. The
+                // file is recreated empty on the next voting flow entry.
+                if let documents = FileManager.default
+                    .urls(for: .documentDirectory, in: .userDomainMask)
+                    .first {
+                    let votingDbURL = documents.appendingPathComponent("voting.sqlite3")
+                    try? FileManager.default.removeItem(at: votingDbURL)
+                }
+                // Belt-and-suspenders: voting drafts and vote records live in
+                // the encrypted per-account `votingMetadata` file now, which
+                // resetAccount() below removes. This sweep catches any stale
+                // plaintext entries from the previous UserDefaults-based
+                // storage that hung around on internal dev devices.
                 let standardDefaults = UserDefaults.standard
                 for key in standardDefaults.dictionaryRepresentation().keys
                     where key.hasPrefix("voting.voteRecord.") || key.hasPrefix("voting.draftVotes.") {
@@ -522,6 +542,7 @@ extension Root {
                     state.walletAccounts.forEach { account in
                         try? userMetadataProvider.resetAccount(account.account)
                         try? addressBook.resetAccount(account.account)
+                        try? votingMetadata.resetAccount(account.account)
                     }
                 }
                 state.walletAccounts.forEach { account in
@@ -529,6 +550,7 @@ extension Root {
                 }
                 state.autoUpdateSwapCandidates.removeAll()
                 try? userMetadataProvider.reset()
+                votingMetadata.reset()
                 state.$walletStatus.withLock { $0 = .none }
                 state.$selectedWalletAccount.withLock { $0 = nil }
                 state.$walletAccounts.withLock { $0 = [] }

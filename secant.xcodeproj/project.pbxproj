@@ -2315,101 +2315,6 @@
 		37CEBEF22F8E939D002DA90E /* VotingCryptoClientTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBE982F8E939D002DA90E /* VotingCryptoClientTestKey.swift */; };
 		37CEBEF32F8E939D002DA90E /* VotingStorageClientLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEA22F8E939D002DA90E /* VotingStorageClientLiveKey.swift */; };
 		37CEBEF42F8E939D002DA90E /* VotingRound.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBE9D2F8E939D002DA90E /* VotingRound.swift */; };
-		37CEBF0F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF102F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
-		37CEBF112F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
-		37CEBF122F8E940A002DA90E /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */; };
-		37CEBF132F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
-		37CEBF152F8E940A002DA90E /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF002F8E940A002DA90E /* ProposalListView.swift */; };
-		37CEBF162F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */; };
-		37CEBF172F8E940A002DA90E /* VotingStore+Submission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */; };
-		37CEBF182F8E940A002DA90E /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0C2F8E940A002DA90E /* VotingView.swift */; };
-		37CEBF192F8E940A002DA90E /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */; };
-		37CEBF1A2F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */; };
-		37CEBF1B2F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */; };
-		37CEBF1C2F8E940A002DA90E /* VotingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF042F8E940A002DA90E /* VotingComponents.swift */; };
-		37CEBF1D2F8E940A002DA90E /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF022F8E940A002DA90E /* TallyingView.swift */; };
-		37CEBF1E2F8E940A002DA90E /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFE2F8E940A002DA90E /* PollsListView.swift */; };
-		37CEBF1F2F8E940A002DA90E /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF052F8E940A002DA90E /* VotingErrorView.swift */; };
-		37CEBF202F8E940A002DA90E /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */; };
-		37CEBF212F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
-		37CEBF222F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
-		37CEBF232F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF242F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
-		37CEBF252F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
-		37CEBF262F8E940A002DA90E /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */; };
-		37CEBF272F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
-		37CEBF292F8E940A002DA90E /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF002F8E940A002DA90E /* ProposalListView.swift */; };
-		37CEBF2A2F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */; };
-		37CEBF2B2F8E940A002DA90E /* VotingStore+Submission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */; };
-		37CEBF2C2F8E940A002DA90E /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0C2F8E940A002DA90E /* VotingView.swift */; };
-		37CEBF2D2F8E940A002DA90E /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */; };
-		37CEBF2E2F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */; };
-		37CEBF2F2F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */; };
-		37CEBF302F8E940A002DA90E /* VotingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF042F8E940A002DA90E /* VotingComponents.swift */; };
-		37CEBF312F8E940A002DA90E /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF022F8E940A002DA90E /* TallyingView.swift */; };
-		37CEBF322F8E940A002DA90E /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFE2F8E940A002DA90E /* PollsListView.swift */; };
-		37CEBF332F8E940A002DA90E /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF052F8E940A002DA90E /* VotingErrorView.swift */; };
-		37CEBF342F8E940A002DA90E /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */; };
-		37CEBF352F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
-		37CEBF362F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
-		37CEBF372F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF382F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
-		37CEBF392F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
-		37CEBF3A2F8E940A002DA90E /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */; };
-		37CEBF3B2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
-		37CEBF3D2F8E940A002DA90E /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF002F8E940A002DA90E /* ProposalListView.swift */; };
-		37CEBF3E2F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */; };
-		37CEBF3F2F8E940A002DA90E /* VotingStore+Submission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */; };
-		37CEBF402F8E940A002DA90E /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0C2F8E940A002DA90E /* VotingView.swift */; };
-		37CEBF412F8E940A002DA90E /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */; };
-		37CEBF422F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */; };
-		37CEBF432F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */; };
-		37CEBF442F8E940A002DA90E /* VotingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF042F8E940A002DA90E /* VotingComponents.swift */; };
-		37CEBF452F8E940A002DA90E /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF022F8E940A002DA90E /* TallyingView.swift */; };
-		37CEBF462F8E940A002DA90E /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFE2F8E940A002DA90E /* PollsListView.swift */; };
-		37CEBF472F8E940A002DA90E /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF052F8E940A002DA90E /* VotingErrorView.swift */; };
-		37CEBF482F8E940A002DA90E /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */; };
-		37CEBF492F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
-		37CEBF4A2F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
-		37CEBF4B2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF4C2F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
-		37CEBF4D2F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
-		37CEBF4E2F8E940A002DA90E /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */; };
-		37CEBF4F2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
-		37CEBF512F8E940A002DA90E /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF002F8E940A002DA90E /* ProposalListView.swift */; };
-		37CEBF522F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */; };
-		37CEBF532F8E940A002DA90E /* VotingStore+Submission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */; };
-		37CEBF542F8E940A002DA90E /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0C2F8E940A002DA90E /* VotingView.swift */; };
-		37CEBF552F8E940A002DA90E /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */; };
-		37CEBF562F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */; };
-		37CEBF572F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */; };
-		37CEBF582F8E940A002DA90E /* VotingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF042F8E940A002DA90E /* VotingComponents.swift */; };
-		37CEBF592F8E940A002DA90E /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF022F8E940A002DA90E /* TallyingView.swift */; };
-		37CEBF5A2F8E940A002DA90E /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFE2F8E940A002DA90E /* PollsListView.swift */; };
-		37CEBF5B2F8E940A002DA90E /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF052F8E940A002DA90E /* VotingErrorView.swift */; };
-		37CEBF5C2F8E940A002DA90E /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */; };
-		37CEBF5D2F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
-		37CEBF5E2F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
-		37CEBF5F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */; };
-		37CEBF602F8E940A002DA90E /* DelegationSigningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */; };
-		37CEBF612F8E940A002DA90E /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF012F8E940A002DA90E /* ResultsView.swift */; };
-		37CEBF622F8E940A002DA90E /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */; };
-		37CEBF632F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */; };
-		37CEBF652F8E940A002DA90E /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF002F8E940A002DA90E /* ProposalListView.swift */; };
-		37CEBF662F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */; };
-		37CEBF672F8E940A002DA90E /* VotingStore+Submission.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */; };
-		37CEBF682F8E940A002DA90E /* VotingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0C2F8E940A002DA90E /* VotingView.swift */; };
-		37CEBF692F8E940A002DA90E /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */; };
-		37CEBF6A2F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */; };
-		37CEBF6B2F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */; };
-		37CEBF6C2F8E940A002DA90E /* VotingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF042F8E940A002DA90E /* VotingComponents.swift */; };
-		37CEBF6D2F8E940A002DA90E /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF022F8E940A002DA90E /* TallyingView.swift */; };
-		37CEBF6E2F8E940A002DA90E /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFE2F8E940A002DA90E /* PollsListView.swift */; };
-		37CEBF6F2F8E940A002DA90E /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF052F8E940A002DA90E /* VotingErrorView.swift */; };
-		37CEBF702F8E940A002DA90E /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */; };
-		37CEBF712F8E940A002DA90E /* VotingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBF062F8E940A002DA90E /* VotingStore.swift */; };
-		37CEBF722F8E940A002DA90E /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */; };
 		37D001A796A834CF74EC0001 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		37D001A796A834CF74EC0002 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
 		37D001A796A834CF74EC0003 /* StoredVotingHotkey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */; };
@@ -2547,9 +2452,156 @@
 		9EDDAF6E2BA2D71700A69A07 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */; };
 		9EDDAF6F2BA2D71700A69A07 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */; };
 		9EEB06C62B344F1E00EEE50F /* SyncProgressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEB06C52B344F1E00EEE50F /* SyncProgressTests.swift */; };
-		A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */; };
+		9EEBF7752FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7762FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7772FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7782FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7792FBB053400DD38DB /* VotingMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */; };
+		9EEBF7972FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF7982FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF7992FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF79A2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF79B2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */; };
+		9EEBF7A22FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A32FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A42FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A52FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7A62FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */; };
+		9EEBF7AD2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7AE2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7AF2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7B02FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF7B12FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */; };
+		9EEBF8282FBC64CE00DD38DB /* ProposalListStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */; };
+		9EEBF8292FBC64CE00DD38DB /* ProposalListStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */; };
+		9EEBF82A2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */; };
+		9EEBF82B2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */; };
+		9EEBF82C2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */; };
+		9EEBF8382FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */; };
+		9EEBF8392FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */; };
+		9EEBF83A2FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */; };
+		9EEBF83B2FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */; };
+		9EEBF83C2FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */; };
+		9EEBF83E2FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */; };
+		9EEBF83F2FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */; };
+		9EEBF8402FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */; };
+		9EEBF8412FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */; };
+		9EEBF8422FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */; };
+		9EEBF8492FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */; };
+		9EEBF84A2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */; };
+		9EEBF84B2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */; };
+		9EEBF84C2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */; };
+		9EEBF84D2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */; };
+		9EEBF8542FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */; };
+		9EEBF8552FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */; };
+		9EEBF8562FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */; };
+		9EEBF8572FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */; };
+		9EEBF8582FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */; };
+		9EEBF85F2FBC64F800DD38DB /* TallyingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */; };
+		9EEBF8602FBC64F800DD38DB /* TallyingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */; };
+		9EEBF8612FBC64F800DD38DB /* TallyingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */; };
+		9EEBF8622FBC64F800DD38DB /* TallyingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */; };
+		9EEBF8632FBC64F800DD38DB /* TallyingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */; };
+		9EEBF8652FBC64FD00DD38DB /* ResultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */; };
+		9EEBF8662FBC64FD00DD38DB /* ResultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */; };
+		9EEBF8672FBC64FD00DD38DB /* ResultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */; };
+		9EEBF8682FBC64FD00DD38DB /* ResultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */; };
+		9EEBF8692FBC64FD00DD38DB /* ResultsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */; };
+		9EEBF86B2FBC650200DD38DB /* IneligibleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */; };
+		9EEBF86C2FBC650200DD38DB /* IneligibleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */; };
+		9EEBF86D2FBC650200DD38DB /* IneligibleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */; };
+		9EEBF86E2FBC650200DD38DB /* IneligibleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */; };
+		9EEBF86F2FBC650200DD38DB /* IneligibleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */; };
+		9EEBF8762FBC650D00DD38DB /* RoundSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8752FBC650D00DD38DB /* RoundSession.swift */; };
+		9EEBF8772FBC650D00DD38DB /* RoundSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8752FBC650D00DD38DB /* RoundSession.swift */; };
+		9EEBF8782FBC650D00DD38DB /* RoundSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8752FBC650D00DD38DB /* RoundSession.swift */; };
+		9EEBF8792FBC650D00DD38DB /* RoundSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8752FBC650D00DD38DB /* RoundSession.swift */; };
+		9EEBF87A2FBC650D00DD38DB /* RoundSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8752FBC650D00DD38DB /* RoundSession.swift */; };
+		9EEBF8812FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
+		9EEBF8822FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
+		9EEBF8832FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
+		9EEBF8842FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
+		9EEBF8852FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */; };
+		9EEBF88F2FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8902FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8912FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8922FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF8932FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */; };
+		9EEBF89B2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89C2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89D2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89E2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF89F2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */; };
+		9EEBF8A82FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8A92FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8AA2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8AB2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8AC2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */; };
+		9EEBF8B62FBC6D3300DD38DB /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */; };
+		9EEBF8B72FBC6D3300DD38DB /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */; };
+		9EEBF8B82FBC6D3300DD38DB /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */; };
+		9EEBF8B92FBC6D3300DD38DB /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */; };
+		9EEBF8BA2FBC6D3300DD38DB /* PollsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */; };
+		9EEBF8D22FBC747A00DD38DB /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */; };
+		9EEBF8D32FBC747A00DD38DB /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */; };
+		9EEBF8D42FBC747A00DD38DB /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */; };
+		9EEBF8D52FBC747A00DD38DB /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */; };
+		9EEBF8D62FBC747A00DD38DB /* ProposalListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */; };
+		9EEBF8DF2FBC757700DD38DB /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */; };
+		9EEBF8E02FBC757700DD38DB /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */; };
+		9EEBF8E12FBC757700DD38DB /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */; };
+		9EEBF8E22FBC757700DD38DB /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */; };
+		9EEBF8E32FBC757700DD38DB /* ProposalDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */; };
+		9EEBF8FD2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */; };
+		9EEBF8FE2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */; };
+		9EEBF8FF2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */; };
+		9EEBF9002FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */; };
+		9EEBF9012FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */; };
+		9EEBF9112FBC7FC500DD38DB /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */; };
+		9EEBF9122FBC7FC500DD38DB /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */; };
+		9EEBF9132FBC7FC500DD38DB /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */; };
+		9EEBF9142FBC7FC500DD38DB /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */; };
+		9EEBF9152FBC7FC500DD38DB /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */; };
+		9EEBF91C2FBC7FD300DD38DB /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */; };
+		9EEBF91D2FBC7FD300DD38DB /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */; };
+		9EEBF91E2FBC7FD300DD38DB /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */; };
+		9EEBF91F2FBC7FD300DD38DB /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */; };
+		9EEBF9202FBC7FD300DD38DB /* TallyingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */; };
+		9EEBF9572FBC811A00DD38DB /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */; };
+		9EEBF9582FBC811A00DD38DB /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */; };
+		9EEBF9592FBC811A00DD38DB /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */; };
+		9EEBF95A2FBC811A00DD38DB /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */; };
+		9EEBF95B2FBC811A00DD38DB /* HowToVoteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */; };
+		9EEBF9622FBC812600DD38DB /* NoRoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */; };
+		9EEBF9632FBC812600DD38DB /* NoRoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */; };
+		9EEBF9642FBC812600DD38DB /* NoRoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */; };
+		9EEBF9652FBC812600DD38DB /* NoRoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */; };
+		9EEBF9662FBC812600DD38DB /* NoRoundsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */; };
+		9EEBF96D2FBC813100DD38DB /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */; };
+		9EEBF96E2FBC813100DD38DB /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */; };
+		9EEBF96F2FBC813100DD38DB /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */; };
+		9EEBF9702FBC813100DD38DB /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */; };
+		9EEBF9712FBC813100DD38DB /* WalletSyncingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */; };
+		9EEBF9782FBC813B00DD38DB /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */; };
+		9EEBF9792FBC813B00DD38DB /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */; };
+		9EEBF97A2FBC813B00DD38DB /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */; };
+		9EEBF97B2FBC813B00DD38DB /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */; };
+		9EEBF97C2FBC813B00DD38DB /* VotingErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */; };
+		9EEBF9832FBC814600DD38DB /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9822FBC814600DD38DB /* IneligibleView.swift */; };
+		9EEBF9842FBC814600DD38DB /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9822FBC814600DD38DB /* IneligibleView.swift */; };
+		9EEBF9852FBC814600DD38DB /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9822FBC814600DD38DB /* IneligibleView.swift */; };
+		9EEBF9862FBC814600DD38DB /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9822FBC814600DD38DB /* IneligibleView.swift */; };
+		9EEBF9872FBC814600DD38DB /* IneligibleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9822FBC814600DD38DB /* IneligibleView.swift */; };
+		9EEBF9D32FBDAE2100DD38DB /* VotingHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */; };
+		9EEBF9D42FBDAE2100DD38DB /* VotingHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */; };
+		9EEBF9D52FBDAE2100DD38DB /* VotingHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */; };
+		9EEBF9D62FBDAE2100DD38DB /* VotingHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */; };
+		9EEBF9D72FBDAE2100DD38DB /* VotingHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */; };
 		AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00102D00000100000002 /* VotingSessionTests.swift */; };
-		AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00112D00000100000002 /* VotingSubmissionTests.swift */; };
+		AD0D00202D00000100000001 /* VotingAPIResponseParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */; };
+		AD0D00212D00000100000001 /* VotingHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00212D00000100000002 /* VotingHelpersTests.swift */; };
+		AD0D00222D00000100000001 /* VotingCoordFlowCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */; };
+		AD0D00232D00000100000001 /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00232D00000100000002 /* VotingServiceConfigTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2557,8 +2609,8 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 0D4E79FD26B364170058B01E /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 0D4E7A0426B364170058B01E;
-			remoteInfo = secant;
+			remoteGlobalIDString = 9E5AB4632C94777800065483;
+			remoteInfo = "zashi-internal";
 		};
 		0D4E7A2226B364180058B01E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -3034,25 +3086,6 @@
 		37CEBEA12F8E939D002DA90E /* VotingStorageClientInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientInterface.swift; sourceTree = "<group>"; };
 		37CEBEA22F8E939D002DA90E /* VotingStorageClientLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientLiveKey.swift; sourceTree = "<group>"; };
 		37CEBEA32F8E939D002DA90E /* VotingStorageClientTestKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStorageClientTestKey.swift; sourceTree = "<group>"; };
-		37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmSubmissionView.swift; sourceTree = "<group>"; };
-		37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationSigningView.swift; sourceTree = "<group>"; };
-		37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowToVoteView.swift; sourceTree = "<group>"; };
-		37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IneligibleView.swift; sourceTree = "<group>"; };
-		37CEBEFE2F8E940A002DA90E /* PollsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollsListView.swift; sourceTree = "<group>"; };
-		37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalDetailView.swift; sourceTree = "<group>"; };
-		37CEBF002F8E940A002DA90E /* ProposalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalListView.swift; sourceTree = "<group>"; };
-		37CEBF012F8E940A002DA90E /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
-		37CEBF022F8E940A002DA90E /* TallyingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TallyingView.swift; sourceTree = "<group>"; };
-		37CEBF042F8E940A002DA90E /* VotingComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingComponents.swift; sourceTree = "<group>"; };
-		37CEBF052F8E940A002DA90E /* VotingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingErrorView.swift; sourceTree = "<group>"; };
-		37CEBF062F8E940A002DA90E /* VotingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingStore.swift; sourceTree = "<group>"; };
-		37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Delegation.swift"; sourceTree = "<group>"; };
-		37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Helpers.swift"; sourceTree = "<group>"; };
-		37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Navigation.swift"; sourceTree = "<group>"; };
-		37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Session.swift"; sourceTree = "<group>"; };
-		37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VotingStore+Submission.swift"; sourceTree = "<group>"; };
-		37CEBF0C2F8E940A002DA90E /* VotingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingView.swift; sourceTree = "<group>"; };
-		37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncingView.swift; sourceTree = "<group>"; };
 		37D001A796A834CF74ECA110 /* StoredVotingHotkey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredVotingHotkey.swift; sourceTree = "<group>"; };
 		37D0F0000000000000000001 /* StaticVotingConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticVotingConfig.swift; sourceTree = "<group>"; };
 		37D0F0000000000000000002 /* RoundAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundAuthenticator.swift; sourceTree = "<group>"; };
@@ -3119,11 +3152,42 @@
 		9ECDD9522CA6B2B400D81CA0 /* zashi-internal.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "zashi-internal.entitlements"; sourceTree = "<group>"; };
 		9EDDAF6C2BA2D71700A69A07 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9EEB06C52B344F1E00EEE50F /* SyncProgressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncProgressTests.swift; sourceTree = "<group>"; };
+		9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadata.swift; sourceTree = "<group>"; };
+		9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadataProviderInterface.swift; sourceTree = "<group>"; };
+		9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadataProviderLiveKey.swift; sourceTree = "<group>"; };
+		9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingMetadataStorage.swift; sourceTree = "<group>"; };
+		9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalListStore.swift; sourceTree = "<group>"; };
+		9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalDetailStore.swift; sourceTree = "<group>"; };
+		9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewVotesStore.swift; sourceTree = "<group>"; };
+		9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmSubmissionStore.swift; sourceTree = "<group>"; };
+		9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationSigningStore.swift; sourceTree = "<group>"; };
+		9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TallyingStore.swift; sourceTree = "<group>"; };
+		9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsStore.swift; sourceTree = "<group>"; };
+		9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IneligibleStore.swift; sourceTree = "<group>"; };
+		9EEBF8752FBC650D00DD38DB /* RoundSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundSession.swift; sourceTree = "<group>"; };
+		9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowStore.swift; sourceTree = "<group>"; };
+		9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowView.swift; sourceTree = "<group>"; };
+		9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundListItem.swift; sourceTree = "<group>"; };
+		9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowCoordinator.swift; sourceTree = "<group>"; };
+		9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollsListView.swift; sourceTree = "<group>"; };
+		9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalListView.swift; sourceTree = "<group>"; };
+		9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProposalDetailView.swift; sourceTree = "<group>"; };
+		9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmSubmissionView.swift; sourceTree = "<group>"; };
+		9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
+		9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TallyingView.swift; sourceTree = "<group>"; };
+		9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowToVoteView.swift; sourceTree = "<group>"; };
+		9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoRoundsView.swift; sourceTree = "<group>"; };
+		9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncingView.swift; sourceTree = "<group>"; };
+		9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingErrorView.swift; sourceTree = "<group>"; };
+		9EEBF9822FBC814600DD38DB /* IneligibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IneligibleView.swift; sourceTree = "<group>"; };
+		9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingHelpers.swift; sourceTree = "<group>"; };
 		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
-		A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingServiceConfigTests.swift; sourceTree = "<group>"; };
 		AD0D00102D00000100000002 /* VotingSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingSessionTests.swift; sourceTree = "<group>"; };
-		AD0D00112D00000100000002 /* VotingSubmissionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingSubmissionTests.swift; sourceTree = "<group>"; };
+		AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingAPIResponseParserTests.swift; sourceTree = "<group>"; };
+		AD0D00212D00000100000002 /* VotingHelpersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingHelpersTests.swift; sourceTree = "<group>"; };
+		AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingCoordFlowCoordinatorTests.swift; sourceTree = "<group>"; };
+		AD0D00232D00000100000002 /* VotingServiceConfigTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingServiceConfigTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3875,6 +3939,7 @@
 				37CEBE992F8E939D002DA90E /* VotingCryptoClient */,
 				37CEBEA02F8E939D002DA90E /* VotingModels */,
 				37CEBEA42F8E939D002DA90E /* VotingStorageClient */,
+				9EEBF78B2FBB058400DD38DB /* VotingMetadataProvider */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -3959,6 +4024,7 @@
 				34AA6C8A2F85774F00D244E2 /* WalletBackupCoordFlowCoordinator.swift */,
 				34AA6C8B2F85774F00D244E2 /* WalletBackupCoordFlowStore.swift */,
 				34AA6C8C2F85774F00D244E2 /* WalletBackupCoordFlowView.swift */,
+				9EEBF80F2FBC649300DD38DB /* VotingCoordFlow */,
 			);
 			path = CoordFlows;
 			sourceTree = "<group>";
@@ -4436,6 +4502,8 @@
 				34AA6D552F85774F00D244E2 /* WalletAccount.swift */,
 				34AA6D562F85774F00D244E2 /* WalletConfig.swift */,
 				9E27153E2F88FB1E00046B74 /* WalletStatus.swift */,
+				9EEBF7742FBB053400DD38DB /* VotingMetadata.swift */,
+				9EEBF89A2FBC6A6C00DD38DB /* RoundListItem.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -4928,28 +4996,23 @@
 		37CEBF0E2F8E940A002DA90E /* Voting */ = {
 			isa = PBXGroup;
 			children = (
-				37CEBEFA2F8E940A002DA90E /* ConfirmSubmissionView.swift */,
-				37CEBEFB2F8E940A002DA90E /* DelegationSigningView.swift */,
-				37CEBEFC2F8E940A002DA90E /* HowToVoteView.swift */,
-				37CEBEFD2F8E940A002DA90E /* IneligibleView.swift */,
-				37CEBEFE2F8E940A002DA90E /* PollsListView.swift */,
-				37CEBEFF2F8E940A002DA90E /* ProposalDetailView.swift */,
-				37CEBF002F8E940A002DA90E /* ProposalListView.swift */,
-				37CEBF012F8E940A002DA90E /* ResultsView.swift */,
-				37CEBF022F8E940A002DA90E /* TallyingView.swift */,
 				37C0F1002F94000000000001 /* VotingConfigSettings.swift */,
 				37C0F1012F94000000000001 /* VotingConfigSettingsView.swift */,
-				37CEBF042F8E940A002DA90E /* VotingComponents.swift */,
-				37CEBF052F8E940A002DA90E /* VotingErrorView.swift */,
 				9E48425A2F8E940A002DA90E /* VotingErrorSheet.swift */,
-				37CEBF062F8E940A002DA90E /* VotingStore.swift */,
-				37CEBF072F8E940A002DA90E /* VotingStore+Delegation.swift */,
-				37CEBF082F8E940A002DA90E /* VotingStore+Helpers.swift */,
-				37CEBF092F8E940A002DA90E /* VotingStore+Navigation.swift */,
-				37CEBF0A2F8E940A002DA90E /* VotingStore+Session.swift */,
-				37CEBF0B2F8E940A002DA90E /* VotingStore+Submission.swift */,
-				37CEBF0C2F8E940A002DA90E /* VotingView.swift */,
-				37CEBF0D2F8E940A002DA90E /* WalletSyncingView.swift */,
+				9EEBF8152FBC64A200DD38DB /* ProposalList */,
+				9EEBF8162FBC64AA00DD38DB /* ProposalDetail */,
+				9EEBF8172FBC64AD00DD38DB /* ReviewVotes */,
+				9EEBF8182FBC64B200DD38DB /* ConfirmSubmission */,
+				9EEBF8192FBC64B600DD38DB /* DelegationSigning */,
+				9EEBF81A2FBC64BA00DD38DB /* Tallying */,
+				9EEBF8252FBC64C200DD38DB /* Results */,
+				9EEBF8262FBC64C700DD38DB /* Ineligible */,
+				9EEBF8B42FBC6D3200DD38DB /* PollsList */,
+				9EEBF9482FBC80F500DD38DB /* HowToVote */,
+				9EEBF94E2FBC810200DD38DB /* NoRounds */,
+				9EEBF94F2FBC810600DD38DB /* WalletSyncing */,
+				9EEBF9502FBC810D00DD38DB /* VotingError */,
+				9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */,
 			);
 			path = Voting;
 			sourceTree = "<group>";
@@ -5249,6 +5312,137 @@
 			path = SyncProgressTests;
 			sourceTree = "<group>";
 		};
+		9EEBF78B2FBB058400DD38DB /* VotingMetadataProvider */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF7962FBB059200DD38DB /* VotingMetadataProviderInterface.swift */,
+				9EEBF7A12FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift */,
+				9EEBF7AC2FBB05CD00DD38DB /* VotingMetadataStorage.swift */,
+			);
+			path = VotingMetadataProvider;
+			sourceTree = "<group>";
+		};
+		9EEBF80F2FBC649300DD38DB /* VotingCoordFlow */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8752FBC650D00DD38DB /* RoundSession.swift */,
+				9EEBF8802FBC651800DD38DB /* VotingCoordFlowStore.swift */,
+				9EEBF88E2FBC678900DD38DB /* VotingCoordFlowView.swift */,
+				9EEBF8A72FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift */,
+			);
+			path = VotingCoordFlow;
+			sourceTree = "<group>";
+		};
+		9EEBF8152FBC64A200DD38DB /* ProposalList */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8272FBC64CE00DD38DB /* ProposalListStore.swift */,
+				9EEBF8D12FBC747A00DD38DB /* ProposalListView.swift */,
+			);
+			path = ProposalList;
+			sourceTree = "<group>";
+		};
+		9EEBF8162FBC64AA00DD38DB /* ProposalDetail */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8372FBC64D700DD38DB /* ProposalDetailStore.swift */,
+				9EEBF8DE2FBC757700DD38DB /* ProposalDetailView.swift */,
+			);
+			path = ProposalDetail;
+			sourceTree = "<group>";
+		};
+		9EEBF8172FBC64AD00DD38DB /* ReviewVotes */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF83D2FBC64DC00DD38DB /* ReviewVotesStore.swift */,
+			);
+			path = ReviewVotes;
+			sourceTree = "<group>";
+		};
+		9EEBF8182FBC64B200DD38DB /* ConfirmSubmission */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8482FBC64E200DD38DB /* ConfirmSubmissionStore.swift */,
+				9EEBF8FC2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift */,
+			);
+			path = ConfirmSubmission;
+			sourceTree = "<group>";
+		};
+		9EEBF8192FBC64B600DD38DB /* DelegationSigning */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8532FBC64E800DD38DB /* DelegationSigningStore.swift */,
+			);
+			path = DelegationSigning;
+			sourceTree = "<group>";
+		};
+		9EEBF81A2FBC64BA00DD38DB /* Tallying */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF85E2FBC64F800DD38DB /* TallyingStore.swift */,
+				9EEBF91B2FBC7FD300DD38DB /* TallyingView.swift */,
+			);
+			path = Tallying;
+			sourceTree = "<group>";
+		};
+		9EEBF8252FBC64C200DD38DB /* Results */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8642FBC64FD00DD38DB /* ResultsStore.swift */,
+				9EEBF9102FBC7FC500DD38DB /* ResultsView.swift */,
+			);
+			path = Results;
+			sourceTree = "<group>";
+		};
+		9EEBF8262FBC64C700DD38DB /* Ineligible */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF86A2FBC650200DD38DB /* IneligibleStore.swift */,
+				9EEBF9822FBC814600DD38DB /* IneligibleView.swift */,
+			);
+			path = Ineligible;
+			sourceTree = "<group>";
+		};
+		9EEBF8B42FBC6D3200DD38DB /* PollsList */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF8B52FBC6D3300DD38DB /* PollsListView.swift */,
+			);
+			path = PollsList;
+			sourceTree = "<group>";
+		};
+		9EEBF9482FBC80F500DD38DB /* HowToVote */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF9562FBC811A00DD38DB /* HowToVoteView.swift */,
+			);
+			path = HowToVote;
+			sourceTree = "<group>";
+		};
+		9EEBF94E2FBC810200DD38DB /* NoRounds */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF9612FBC812600DD38DB /* NoRoundsView.swift */,
+			);
+			path = NoRounds;
+			sourceTree = "<group>";
+		};
+		9EEBF94F2FBC810600DD38DB /* WalletSyncing */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF96C2FBC813100DD38DB /* WalletSyncingView.swift */,
+			);
+			path = WalletSyncing;
+			sourceTree = "<group>";
+		};
+		9EEBF9502FBC810D00DD38DB /* VotingError */ = {
+			isa = PBXGroup;
+			children = (
+				9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */,
+			);
+			path = VotingError;
+			sourceTree = "<group>";
+		};
 		9EF8135927ECC25E0075AF48 /* UtilTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -5265,9 +5459,11 @@
 		A9987CA12F96D90500C9B8BE /* VotingTests */ = {
 			isa = PBXGroup;
 			children = (
-				A9987C9F2F96D90500C9B8BE /* VotingServiceConfigTests.swift */,
 				AD0D00102D00000100000002 /* VotingSessionTests.swift */,
-				AD0D00112D00000100000002 /* VotingSubmissionTests.swift */,
+				AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */,
+				AD0D00232D00000100000002 /* VotingServiceConfigTests.swift */,
+				AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */,
+				AD0D00212D00000100000002 /* VotingHelpersTests.swift */,
 			);
 			path = VotingTests;
 			sourceTree = "<group>";
@@ -5512,7 +5708,7 @@
 					};
 					0D4E7A1526B364180058B01E = {
 						CreatedOnToolsVersion = 12.5;
-						TestTargetID = 0D4E7A0426B364170058B01E;
+						TestTargetID = 9E5AB4632C94777800065483;
 					};
 					0D4E7A2026B364180058B01E = {
 						CreatedOnToolsVersion = 12.5;
@@ -6125,9 +6321,11 @@
 				37CEBEBA2F8E939D002DA90E /* VotingModels.swift in Sources */,
 				37CEBEBB2F8E939D002DA90E /* VotingCryptoClientInterface.swift in Sources */,
 				37CEBEBC2F8E939D002DA90E /* VotingCryptoClientLiveKey.swift in Sources */,
+				9EEBF8B92FBC6D3300DD38DB /* PollsListView.swift in Sources */,
 				37CEBEBD2F8E939D002DA90E /* VotingServiceConfig.swift in Sources */,
 				37CEBEBE2F8E939D002DA90E /* VotingAPIClientInterface.swift in Sources */,
 				37CEBEBF2F8E939D002DA90E /* VotingStorageClientInterface.swift in Sources */,
+				9EEBF86B2FBC650200DD38DB /* IneligibleStore.swift in Sources */,
 				37CEBEC02F8E939D002DA90E /* VotingSessionState.swift in Sources */,
 				37CEBEC12F8E939D002DA90E /* ServerHealthTracker.swift in Sources */,
 				37CEBEC22F8E939D002DA90E /* VotingCryptoClientTestKey.swift in Sources */,
@@ -6137,6 +6335,8 @@
 				34AA73162F85774F00D244E2 /* NumberFormatter+zcash.swift in Sources */,
 				34AA73172F85774F00D244E2 /* UnknownAddressPreferenceKey.swift in Sources */,
 				34AA73182F85774F00D244E2 /* MnemonicInterface.swift in Sources */,
+				9EEBF8632FBC64F800DD38DB /* TallyingStore.swift in Sources */,
+				9EEBF84A2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */,
 				34AA73192F85774F00D244E2 /* SwapForm.swift in Sources */,
 				34AA731A2F85774F00D244E2 /* CrossPayForm.swift in Sources */,
 				34AA731B2F85774F00D244E2 /* DerivationToolInterface.swift in Sources */,
@@ -6148,6 +6348,7 @@
 				34AA73212F85774F00D244E2 /* AddressBookLiveKey.swift in Sources */,
 				34AA73222F85774F00D244E2 /* SwapAndPayOptInView.swift in Sources */,
 				34AA73232F85774F00D244E2 /* FailedView.swift in Sources */,
+				9EEBF8812FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */,
 				34AA73242F85774F00D244E2 /* NotEnoughFreeSpaceView.swift in Sources */,
 				34AA73252F85774F00D244E2 /* ConditionalStrikethrough.swift in Sources */,
 				34AA73262F85774F00D244E2 /* SendFeedbackView.swift in Sources */,
@@ -6155,6 +6356,7 @@
 				34AA73282F85774F00D244E2 /* CaptureDeviceTestKey.swift in Sources */,
 				34AA73292F85774F00D244E2 /* UserMetadataProviderInterface.swift in Sources */,
 				34AA732A2F85774F00D244E2 /* UserDefaultsInterface.swift in Sources */,
+				9EEBF8412FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */,
 				34AA732B2F85774F00D244E2 /* RestoreInfoView.swift in Sources */,
 				9E48424A2F87C41200D0649B /* ResyncWalletView.swift in Sources */,
 				34AA732C2F85774F00D244E2 /* SupportDataGeneratorLiveKey.swift in Sources */,
@@ -6172,6 +6374,7 @@
 				34AA73392F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA733A2F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA733B2F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7AE2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA733C2F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA733D2F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA733E2F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -6198,6 +6401,7 @@
 				34AA73532F85774F00D244E2 /* ServerSetupView.swift in Sources */,
 				34AA73542F85774F00D244E2 /* ReceiveCoordinator.swift in Sources */,
 				34AA73552F85774F00D244E2 /* ReadTransactionsStorageTestKey.swift in Sources */,
+				9EEBF83B2FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */,
 				34AA73562F85774F00D244E2 /* VisualEffectBlur.swift in Sources */,
 				34AA73572F85774F00D244E2 /* RootAddressBook.swift in Sources */,
 				34AA73582F85774F00D244E2 /* PasteboardInterface.swift in Sources */,
@@ -6221,6 +6425,7 @@
 				34AA736C2F85774F00D244E2 /* ScanChecker.swift in Sources */,
 				34AA736D2F85774F00D244E2 /* RootDestination.swift in Sources */,
 				34AA736E2F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowView.swift in Sources */,
+				9EEBF8572FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */,
 				34AA736F2F85774F00D244E2 /* TCALogging.swift in Sources */,
 				34AA73712F85774F00D244E2 /* SendingView.swift in Sources */,
 				34AA73722F85774F00D244E2 /* TorSetupStore.swift in Sources */,
@@ -6240,26 +6445,8 @@
 				34AA73802F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000005 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000005 /* VotingConfigSettingsView.swift in Sources */,
-				37CEBF4B2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF4C2F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
-				37CEBF4D2F8E940A002DA90E /* ResultsView.swift in Sources */,
-				37CEBF4E2F8E940A002DA90E /* ProposalDetailView.swift in Sources */,
-				37CEBF4F2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
-				37CEBF512F8E940A002DA90E /* ProposalListView.swift in Sources */,
-				37CEBF522F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */,
-				37CEBF532F8E940A002DA90E /* VotingStore+Submission.swift in Sources */,
-				37CEBF542F8E940A002DA90E /* VotingView.swift in Sources */,
-				37CEBF552F8E940A002DA90E /* WalletSyncingView.swift in Sources */,
-				37CEBF562F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */,
-				37CEBF572F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */,
 				9E48425E2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */,
-				37CEBF582F8E940A002DA90E /* VotingComponents.swift in Sources */,
-				37CEBF592F8E940A002DA90E /* TallyingView.swift in Sources */,
-				37CEBF5A2F8E940A002DA90E /* PollsListView.swift in Sources */,
-				37CEBF5B2F8E940A002DA90E /* VotingErrorView.swift in Sources */,
-				37CEBF5C2F8E940A002DA90E /* IneligibleView.swift in Sources */,
-				37CEBF5D2F8E940A002DA90E /* VotingStore.swift in Sources */,
-				37CEBF5E2F8E940A002DA90E /* HowToVoteView.swift in Sources */,
+				9EEBF8D22FBC747A00DD38DB /* ProposalListView.swift in Sources */,
 				34AA73812F85774F00D244E2 /* SendCoordFlowView.swift in Sources */,
 				34AA73822F85774F00D244E2 /* SwapAndPayLiveKey.swift in Sources */,
 				34AA73832F85774F00D244E2 /* SDKSynchronizerInterface.swift in Sources */,
@@ -6268,6 +6455,7 @@
 				34AA73862F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA73872F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA73882F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A52FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA73892F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA738A2F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA738B2F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -6318,6 +6506,7 @@
 				34AA73B82F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowStore.swift in Sources */,
 				34AA73B92F85774F00D244E2 /* Network.swift in Sources */,
 				34AA73BA2F85774F00D244E2 /* WalletConfigProviderLiveKey.swift in Sources */,
+				9EEBF8FD2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */,
 				34AA73BB2F85774F00D244E2 /* NotEnoughFreeSpaceStore.swift in Sources */,
 				34AA73BC2F85774F00D244E2 /* SecItemLive.swift in Sources */,
 				34755C672F8647B00093FC84 /* DisconnectHWWalletView.swift in Sources */,
@@ -6329,6 +6518,7 @@
 				34AA73C12F85774F00D244E2 /* RequestZecCoordFlowStore.swift in Sources */,
 				34AA73C22F85774F00D244E2 /* WalletBackupCoordFlowView.swift in Sources */,
 				34AA73C32F85774F00D244E2 /* NumberFormatterInterface.swift in Sources */,
+				9EEBF9152FBC7FC500DD38DB /* ResultsView.swift in Sources */,
 				34AA73C42F85774F00D244E2 /* FeedbackGeneratorLiveKey.swift in Sources */,
 				34AA73C52F85774F00D244E2 /* KeystoneHandlerTestKey.swift in Sources */,
 				34AA73C62F85774F00D244E2 /* RequestZecSummaryView.swift in Sources */,
@@ -6343,7 +6533,9 @@
 				34AA73CF2F85774F00D244E2 /* DatabaseFiles.swift in Sources */,
 				34AA73D02F85774F00D244E2 /* UMv1.swift in Sources */,
 				34AA73D12F85774F00D244E2 /* OSStatusErrorStore.swift in Sources */,
+				9EEBF8E32FBC757700DD38DB /* ProposalDetailView.swift in Sources */,
 				34AA73D22F85774F00D244E2 /* ServerSetupStore.swift in Sources */,
+				9EEBF9D52FBDAE2100DD38DB /* VotingHelpers.swift in Sources */,
 				34AA73D32F85774F00D244E2 /* TransactionListStore.swift in Sources */,
 				34AA73D42F85774F00D244E2 /* SwapFromToView.swift in Sources */,
 				34AA73D52F85774F00D244E2 /* ExportLogsStore.swift in Sources */,
@@ -6352,10 +6544,13 @@
 				34AA73D82F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA73D92F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA73DB2F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8922FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
+				9EEBF7992FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA73DC2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA73DD2F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA73DE2F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
 				34AA73DF2F85774F00D244E2 /* BalanceFormatterTestKey.swift in Sources */,
+				9EEBF97B2FBC813B00DD38DB /* VotingErrorView.swift in Sources */,
 				34AA73E02F85774F00D244E2 /* AddHWWalletView.swift in Sources */,
 				34AA73E12F85774F00D244E2 /* ExchangeRateLiveKey.swift in Sources */,
 				34AA73E22F85774F00D244E2 /* NetworkMonitorLiveKey.swift in Sources */,
@@ -6366,6 +6561,7 @@
 				34AA73E72F85774F00D244E2 /* AppVersionMocks.swift in Sources */,
 				34AA73E82F85774F00D244E2 /* SmartBannerHelpSheet.swift in Sources */,
 				34AA73E92F85774F00D244E2 /* StateWrapper.swift in Sources */,
+				9EEBF8782FBC650D00DD38DB /* RoundSession.swift in Sources */,
 				34AA73EA2F85774F00D244E2 /* AnimatedQRCode.swift in Sources */,
 				34AA73EB2F85774F00D244E2 /* AdvancedSettingsStore.swift in Sources */,
 				34AA73EC2F85774F00D244E2 /* UserPreferencesStorage.swift in Sources */,
@@ -6407,6 +6603,7 @@
 				34AA74112F85774F00D244E2 /* FlexaHandlerLiveKey.swift in Sources */,
 				34AA74122F85774F00D244E2 /* ZashiPicker.swift in Sources */,
 				34AA74132F85774F00D244E2 /* QRImageDetectorLiveKey.swift in Sources */,
+				9EEBF91E2FBC7FD300DD38DB /* TallyingView.swift in Sources */,
 				34AA74142F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA74152F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA74162F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
@@ -6418,6 +6615,7 @@
 				34AA74182F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
 				34AA74192F85774F00D244E2 /* ZcashSDKEnvironmentInterface.swift in Sources */,
 				34AA741A2F85774F00D244E2 /* AppDelegate.swift in Sources */,
+				9EEBF8682FBC64FD00DD38DB /* ResultsStore.swift in Sources */,
 				34AA741B2F85774F00D244E2 /* FloatingArrow.swift in Sources */,
 				34AA741C2F85774F00D244E2 /* InsufficientFundsSheet.swift in Sources */,
 				34AA741D2F85774F00D244E2 /* DescriptiveToggle.swift in Sources */,
@@ -6426,6 +6624,7 @@
 				34AA74202F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA74212F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA74222F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89E2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA74232F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA74242F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA74252F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -6462,6 +6661,7 @@
 				34AA74432F85774F00D244E2 /* ScreenBackground.swift in Sources */,
 				34AA74442F85774F00D244E2 /* SDKSynchronizerLive.swift in Sources */,
 				34AA74452F85774F00D244E2 /* SecItemInterface.swift in Sources */,
+				9EEBF9642FBC812600DD38DB /* NoRoundsView.swift in Sources */,
 				34AA74462F85774F00D244E2 /* WelcomeView.swift in Sources */,
 				34AA74472F85774F00D244E2 /* ZashiText.swift in Sources */,
 				34AA74482F85774F00D244E2 /* ListBackground.swift in Sources */,
@@ -6470,6 +6670,8 @@
 				34AA744B2F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA744C2F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA744D2F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8AC2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
+				9EEBF9712FBC813100DD38DB /* WalletSyncingView.swift in Sources */,
 				34AA744E2F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA744F2F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA74502F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -6497,6 +6699,7 @@
 				34AA74662F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA74672F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA74682F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7772FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA74692F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA746A2F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA746B2F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -6525,6 +6728,7 @@
 				34AA74842F85774F00D244E2 /* ExportTransactionHistoryView.swift in Sources */,
 				34AA74852F85774F00D244E2 /* ZcashError+DetailedMessage.swift in Sources */,
 				34AA74862F85774F00D244E2 /* RestoreWalletCoordFlowCoordinator.swift in Sources */,
+				9EEBF9852FBC814600DD38DB /* IneligibleView.swift in Sources */,
 				34AA74872F85774F00D244E2 /* ReminedMeTimestamp.swift in Sources */,
 				34AA74882F85774F00D244E2 /* PrivateDataConsentStore.swift in Sources */,
 				34AA74892F85774F00D244E2 /* RootCheckFunds.swift in Sources */,
@@ -6534,6 +6738,7 @@
 				34AA748D2F85774F00D244E2 /* WalletConfigProviderInterface.swift in Sources */,
 				34AA748E2F85774F00D244E2 /* WalletBackupCoordFlowStore.swift in Sources */,
 				34AA748F2F85774F00D244E2 /* SwapAndPaySheets.swift in Sources */,
+				9EEBF95A2FBC811A00DD38DB /* HowToVoteView.swift in Sources */,
 				34AA74902F85774F00D244E2 /* KeystoneDeviceReadyView.swift in Sources */,
 				34AA74912F85774F00D244E2 /* TorSetupView.swift in Sources */,
 				34AA74922F85774F00D244E2 /* AboutView.swift in Sources */,
@@ -6549,6 +6754,7 @@
 				34AA749C2F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA749D2F85774F00D244E2 /* AnyDecodable.swift in Sources */,
 				34AA749E2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
+				9EEBF82C2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA749F2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
 				9E2706682AFF99F5000DA6EC /* ReadTransactionsStorageModel.xcdatamodeld in Sources */,
 				37D0F0000000000000000010 /* StaticVotingConfig.swift in Sources */,
@@ -6579,9 +6785,11 @@
 				37CEBEDA2F8E939D002DA90E /* VotingModels.swift in Sources */,
 				37CEBEDB2F8E939D002DA90E /* VotingCryptoClientInterface.swift in Sources */,
 				37CEBEDC2F8E939D002DA90E /* VotingCryptoClientLiveKey.swift in Sources */,
+				9EEBF8B72FBC6D3300DD38DB /* PollsListView.swift in Sources */,
 				37CEBEDD2F8E939D002DA90E /* VotingServiceConfig.swift in Sources */,
 				37CEBEDE2F8E939D002DA90E /* VotingAPIClientInterface.swift in Sources */,
 				37CEBEDF2F8E939D002DA90E /* VotingStorageClientInterface.swift in Sources */,
+				9EEBF86F2FBC650200DD38DB /* IneligibleStore.swift in Sources */,
 				37CEBEE02F8E939D002DA90E /* VotingSessionState.swift in Sources */,
 				37CEBEE12F8E939D002DA90E /* ServerHealthTracker.swift in Sources */,
 				37CEBEE22F8E939D002DA90E /* VotingCryptoClientTestKey.swift in Sources */,
@@ -6591,6 +6799,8 @@
 				34AA6FB22F85774F00D244E2 /* NumberFormatter+zcash.swift in Sources */,
 				34AA6FB32F85774F00D244E2 /* UnknownAddressPreferenceKey.swift in Sources */,
 				34AA6FB42F85774F00D244E2 /* MnemonicInterface.swift in Sources */,
+				9EEBF8602FBC64F800DD38DB /* TallyingStore.swift in Sources */,
+				9EEBF8492FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */,
 				34AA6FB52F85774F00D244E2 /* SwapForm.swift in Sources */,
 				34AA6FB62F85774F00D244E2 /* CrossPayForm.swift in Sources */,
 				34AA6FB72F85774F00D244E2 /* DerivationToolInterface.swift in Sources */,
@@ -6602,6 +6812,7 @@
 				34AA6FBD2F85774F00D244E2 /* AddressBookLiveKey.swift in Sources */,
 				34AA6FBE2F85774F00D244E2 /* SwapAndPayOptInView.swift in Sources */,
 				34AA6FBF2F85774F00D244E2 /* FailedView.swift in Sources */,
+				9EEBF8852FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */,
 				34AA6FC02F85774F00D244E2 /* NotEnoughFreeSpaceView.swift in Sources */,
 				34AA6FC12F85774F00D244E2 /* ConditionalStrikethrough.swift in Sources */,
 				34AA6FC22F85774F00D244E2 /* SendFeedbackView.swift in Sources */,
@@ -6609,6 +6820,7 @@
 				34AA6FC42F85774F00D244E2 /* CaptureDeviceTestKey.swift in Sources */,
 				34AA6FC52F85774F00D244E2 /* UserMetadataProviderInterface.swift in Sources */,
 				34AA6FC62F85774F00D244E2 /* UserDefaultsInterface.swift in Sources */,
+				9EEBF8422FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */,
 				34AA6FC72F85774F00D244E2 /* RestoreInfoView.swift in Sources */,
 				9E48424E2F87C41200D0649B /* ResyncWalletView.swift in Sources */,
 				34AA6FC82F85774F00D244E2 /* SupportDataGeneratorLiveKey.swift in Sources */,
@@ -6626,6 +6838,7 @@
 				34AA6FD52F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA6FD62F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA6FD72F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7B02FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA6FD82F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA6FD92F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA6FDA2F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -6652,6 +6865,7 @@
 				34AA6FEF2F85774F00D244E2 /* ServerSetupView.swift in Sources */,
 				34AA6FF02F85774F00D244E2 /* ReceiveCoordinator.swift in Sources */,
 				34AA6FF12F85774F00D244E2 /* ReadTransactionsStorageTestKey.swift in Sources */,
+				9EEBF8382FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */,
 				34AA6FF22F85774F00D244E2 /* VisualEffectBlur.swift in Sources */,
 				34AA6FF32F85774F00D244E2 /* RootAddressBook.swift in Sources */,
 				34AA6FF42F85774F00D244E2 /* PasteboardInterface.swift in Sources */,
@@ -6675,6 +6889,7 @@
 				34AA70082F85774F00D244E2 /* ScanChecker.swift in Sources */,
 				34AA70092F85774F00D244E2 /* RootDestination.swift in Sources */,
 				34AA700A2F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowView.swift in Sources */,
+				9EEBF8562FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */,
 				34AA700B2F85774F00D244E2 /* TCALogging.swift in Sources */,
 				34AA700D2F85774F00D244E2 /* SendingView.swift in Sources */,
 				34AA700E2F85774F00D244E2 /* TorSetupStore.swift in Sources */,
@@ -6694,26 +6909,8 @@
 				34AA701C2F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000003 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000003 /* VotingConfigSettingsView.swift in Sources */,
-				37CEBF232F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF242F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
-				37CEBF252F8E940A002DA90E /* ResultsView.swift in Sources */,
-				37CEBF262F8E940A002DA90E /* ProposalDetailView.swift in Sources */,
-				37CEBF272F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
-				37CEBF292F8E940A002DA90E /* ProposalListView.swift in Sources */,
-				37CEBF2A2F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */,
-				37CEBF2B2F8E940A002DA90E /* VotingStore+Submission.swift in Sources */,
-				37CEBF2C2F8E940A002DA90E /* VotingView.swift in Sources */,
-				37CEBF2D2F8E940A002DA90E /* WalletSyncingView.swift in Sources */,
-				37CEBF2E2F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */,
-				37CEBF2F2F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */,
 				9E48425C2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */,
-				37CEBF302F8E940A002DA90E /* VotingComponents.swift in Sources */,
-				37CEBF312F8E940A002DA90E /* TallyingView.swift in Sources */,
-				37CEBF322F8E940A002DA90E /* PollsListView.swift in Sources */,
-				37CEBF332F8E940A002DA90E /* VotingErrorView.swift in Sources */,
-				37CEBF342F8E940A002DA90E /* IneligibleView.swift in Sources */,
-				37CEBF352F8E940A002DA90E /* VotingStore.swift in Sources */,
-				37CEBF362F8E940A002DA90E /* HowToVoteView.swift in Sources */,
+				9EEBF8D52FBC747A00DD38DB /* ProposalListView.swift in Sources */,
 				34AA701D2F85774F00D244E2 /* SendCoordFlowView.swift in Sources */,
 				34AA701E2F85774F00D244E2 /* SwapAndPayLiveKey.swift in Sources */,
 				34AA701F2F85774F00D244E2 /* SDKSynchronizerInterface.swift in Sources */,
@@ -6722,6 +6919,7 @@
 				34AA70222F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA70232F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA70242F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A62FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA70252F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA70262F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA70272F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -6772,6 +6970,7 @@
 				34AA70542F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowStore.swift in Sources */,
 				34AA70552F85774F00D244E2 /* Network.swift in Sources */,
 				34AA70562F85774F00D244E2 /* WalletConfigProviderLiveKey.swift in Sources */,
+				9EEBF8FF2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */,
 				34AA70572F85774F00D244E2 /* NotEnoughFreeSpaceStore.swift in Sources */,
 				34AA70582F85774F00D244E2 /* SecItemLive.swift in Sources */,
 				34755C6B2F8647B00093FC84 /* DisconnectHWWalletView.swift in Sources */,
@@ -6783,6 +6982,7 @@
 				34AA705D2F85774F00D244E2 /* RequestZecCoordFlowStore.swift in Sources */,
 				34AA705E2F85774F00D244E2 /* WalletBackupCoordFlowView.swift in Sources */,
 				34AA705F2F85774F00D244E2 /* NumberFormatterInterface.swift in Sources */,
+				9EEBF9122FBC7FC500DD38DB /* ResultsView.swift in Sources */,
 				34AA70602F85774F00D244E2 /* FeedbackGeneratorLiveKey.swift in Sources */,
 				34AA70612F85774F00D244E2 /* KeystoneHandlerTestKey.swift in Sources */,
 				34AA70622F85774F00D244E2 /* RequestZecSummaryView.swift in Sources */,
@@ -6797,7 +6997,9 @@
 				34AA706B2F85774F00D244E2 /* DatabaseFiles.swift in Sources */,
 				34AA706C2F85774F00D244E2 /* UMv1.swift in Sources */,
 				34AA706D2F85774F00D244E2 /* OSStatusErrorStore.swift in Sources */,
+				9EEBF8E12FBC757700DD38DB /* ProposalDetailView.swift in Sources */,
 				34AA706E2F85774F00D244E2 /* ServerSetupStore.swift in Sources */,
+				9EEBF9D62FBDAE2100DD38DB /* VotingHelpers.swift in Sources */,
 				34AA706F2F85774F00D244E2 /* TransactionListStore.swift in Sources */,
 				34AA70702F85774F00D244E2 /* SwapFromToView.swift in Sources */,
 				34AA70712F85774F00D244E2 /* ExportLogsStore.swift in Sources */,
@@ -6806,10 +7008,13 @@
 				34AA70742F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA70752F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA70772F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8912FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
+				9EEBF7972FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA70782F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA70792F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA707A2F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
 				34AA707B2F85774F00D244E2 /* BalanceFormatterTestKey.swift in Sources */,
+				9EEBF9782FBC813B00DD38DB /* VotingErrorView.swift in Sources */,
 				34AA707C2F85774F00D244E2 /* AddHWWalletView.swift in Sources */,
 				34AA707D2F85774F00D244E2 /* ExchangeRateLiveKey.swift in Sources */,
 				34AA707E2F85774F00D244E2 /* NetworkMonitorLiveKey.swift in Sources */,
@@ -6820,6 +7025,7 @@
 				34AA70832F85774F00D244E2 /* AppVersionMocks.swift in Sources */,
 				34AA70842F85774F00D244E2 /* SmartBannerHelpSheet.swift in Sources */,
 				34AA70852F85774F00D244E2 /* StateWrapper.swift in Sources */,
+				9EEBF8772FBC650D00DD38DB /* RoundSession.swift in Sources */,
 				34AA70862F85774F00D244E2 /* AnimatedQRCode.swift in Sources */,
 				34AA70872F85774F00D244E2 /* AdvancedSettingsStore.swift in Sources */,
 				34AA70882F85774F00D244E2 /* UserPreferencesStorage.swift in Sources */,
@@ -6861,6 +7067,7 @@
 				34AA70AD2F85774F00D244E2 /* FlexaHandlerLiveKey.swift in Sources */,
 				34AA70AE2F85774F00D244E2 /* ZashiPicker.swift in Sources */,
 				34AA70AF2F85774F00D244E2 /* QRImageDetectorLiveKey.swift in Sources */,
+				9EEBF91D2FBC7FD300DD38DB /* TallyingView.swift in Sources */,
 				34AA70B02F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA70B12F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA70B22F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
@@ -6872,6 +7079,7 @@
 				34AA70B42F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
 				34AA70B52F85774F00D244E2 /* ZcashSDKEnvironmentInterface.swift in Sources */,
 				34AA70B62F85774F00D244E2 /* AppDelegate.swift in Sources */,
+				9EEBF8652FBC64FD00DD38DB /* ResultsStore.swift in Sources */,
 				34AA70B72F85774F00D244E2 /* FloatingArrow.swift in Sources */,
 				34AA70B82F85774F00D244E2 /* InsufficientFundsSheet.swift in Sources */,
 				34AA70B92F85774F00D244E2 /* DescriptiveToggle.swift in Sources */,
@@ -6880,6 +7088,7 @@
 				34AA70BC2F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA70BD2F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA70BE2F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89C2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA70BF2F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA70C02F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA70C12F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -6916,6 +7125,7 @@
 				34AA70DF2F85774F00D244E2 /* ScreenBackground.swift in Sources */,
 				34AA70E02F85774F00D244E2 /* SDKSynchronizerLive.swift in Sources */,
 				34AA70E12F85774F00D244E2 /* SecItemInterface.swift in Sources */,
+				9EEBF9632FBC812600DD38DB /* NoRoundsView.swift in Sources */,
 				34AA70E22F85774F00D244E2 /* WelcomeView.swift in Sources */,
 				34AA70E32F85774F00D244E2 /* ZashiText.swift in Sources */,
 				34AA70E42F85774F00D244E2 /* ListBackground.swift in Sources */,
@@ -6924,6 +7134,8 @@
 				34AA70E72F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA70E82F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA70E92F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8AB2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
+				9EEBF96D2FBC813100DD38DB /* WalletSyncingView.swift in Sources */,
 				34AA70EA2F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA70EB2F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA70EC2F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -6951,6 +7163,7 @@
 				34AA71022F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA71032F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA71042F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7792FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA71052F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA71062F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA71072F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -6979,6 +7192,7 @@
 				34AA71202F85774F00D244E2 /* ExportTransactionHistoryView.swift in Sources */,
 				34AA71212F85774F00D244E2 /* ZcashError+DetailedMessage.swift in Sources */,
 				34AA71222F85774F00D244E2 /* RestoreWalletCoordFlowCoordinator.swift in Sources */,
+				9EEBF9862FBC814600DD38DB /* IneligibleView.swift in Sources */,
 				34AA71232F85774F00D244E2 /* ReminedMeTimestamp.swift in Sources */,
 				34AA71242F85774F00D244E2 /* PrivateDataConsentStore.swift in Sources */,
 				34AA71252F85774F00D244E2 /* RootCheckFunds.swift in Sources */,
@@ -6988,6 +7202,7 @@
 				34AA71292F85774F00D244E2 /* WalletConfigProviderInterface.swift in Sources */,
 				34AA712A2F85774F00D244E2 /* WalletBackupCoordFlowStore.swift in Sources */,
 				34AA712B2F85774F00D244E2 /* SwapAndPaySheets.swift in Sources */,
+				9EEBF95B2FBC811A00DD38DB /* HowToVoteView.swift in Sources */,
 				34AA712C2F85774F00D244E2 /* KeystoneDeviceReadyView.swift in Sources */,
 				34AA712D2F85774F00D244E2 /* TorSetupView.swift in Sources */,
 				34AA712E2F85774F00D244E2 /* AboutView.swift in Sources */,
@@ -7003,6 +7218,7 @@
 				34AA71382F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA71392F85774F00D244E2 /* AnyDecodable.swift in Sources */,
 				34AA713A2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
+				9EEBF82A2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA713B2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
 				9E2706672AFF99F5000DA6EC /* ReadTransactionsStorageModel.xcdatamodeld in Sources */,
 				37D0F0000000000000000011 /* StaticVotingConfig.swift in Sources */,
@@ -7014,54 +7230,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9E139AAF2B07B3A600D104B8 /* ZatoshiStringRepresentationTests.swift in Sources */,
-				9E3451B529C8565500177D16 /* LoggerTests.swift in Sources */,
-				9E3451C229C857DB00177D16 /* TransactionSendingSnapshotTests.swift in Sources */,
-				9E34519E29C849B400177D16 /* WalletConfigProviderTests.swift in Sources */,
-				9E3451C029C857D400177D16 /* RecoveryPhraseDisplaySnapshotTests.swift in Sources */,
-				9E3451B629C8565500177D16 /* ZatoshiTests.swift in Sources */,
-				9E3451B829C856E700177D16 /* TransactionListTests.swift in Sources */,
-				9E34519529C4A4BF00177D16 /* ReceiveTests.swift in Sources */,
-				9E3451B929C857C000177D16 /* ReceiveSnapshotTests.swift in Sources */,
-				9E34519B29C4A90700177D16 /* DeeplinkTests.swift in Sources */,
-				9E3451BD29C857CC00177D16 /* ImportWalletSnapshotTests.swift in Sources */,
-				9E3451B429C8565500177D16 /* WalletStorageTests.swift in Sources */,
-				9E4938D82ACE8E8F003C4C1D /* SecurityWarningSnapshotTests.swift in Sources */,
-				9E3451C429C857DF00177D16 /* View+UIImage.swift in Sources */,
-				9E34519729C4A51100177D16 /* RecoveryPhraseBackupTests.swift in Sources */,
-				9E0C0D702AFB842B00D69A16 /* TransactionStateTests.swift in Sources */,
-				9E5B8E742B46E04E00CA3616 /* RestoreWalletTests.swift in Sources */,
-				9E683E472B0377F0002E7B5D /* WalletNukeTests.swift in Sources */,
-				9E3451BC29C857C800177D16 /* NotEnoughFeeSpaceSnapshots.swift in Sources */,
-				9E3451B229C8565500177D16 /* SecItemClientTests.swift in Sources */,
-				A9987CA32F96D90500C9B8BE /* VotingServiceConfigTests.swift in Sources */,
-				9E3451C629C857E700177D16 /* WelcomeSnapshotTests.swift in Sources */,
 				AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */,
-				AD0D00112D00000100000001 /* VotingSubmissionTests.swift in Sources */,
-				9E3451C529C857E400177D16 /* TransactionListSnapshotTests.swift in Sources */,
-				9EEB06C62B344F1E00EEE50F /* SyncProgressTests.swift in Sources */,
-				9E34519C29C4A91A00177D16 /* HomeTests.swift in Sources */,
-				9E1FAFB72AF2C6D40084CA3D /* PrivateDataConsentSnapshotTests.swift in Sources */,
-				9E3451BB29C857C800177D16 /* HomeSnapshotTests.swift in Sources */,
-				9E3451AF29C855B200177D16 /* SensitiveDataTests.swift in Sources */,
-				9E3451A729C84E9900177D16 /* AppInitializationTests.swift in Sources */,
-				9E3451B029C855E600177D16 /* SettingsTests.swift in Sources */,
-				9E34519F29C849D300177D16 /* ImportWalletTests.swift in Sources */,
-				9E74CCD029DC0628003D6E32 /* ReviewRequestTests.swift in Sources */,
-				9E3451A029C84A2D00177D16 /* MultiLineTextFieldTests.swift in Sources */,
-				9E3451B729C8565500177D16 /* DatabaseFilesTests.swift in Sources */,
-				9E3451B129C8565500177D16 /* UserPreferencesStorageTests.swift in Sources */,
-				9E3451BA29C857C500177D16 /* BalanceBreakdownSnapshotTests.swift in Sources */,
-				9E3451A629C84B6600177D16 /* RootTests.swift in Sources */,
-				9E3451AE29C84F2800177D16 /* SendTests.swift in Sources */,
-				9EA7ED062B7A591C005979F4 /* ZatoshiStringRepresentationCommaTests.swift in Sources */,
-				9E34519A29C4A52F00177D16 /* BalanceBreakdownTests.swift in Sources */,
-				9E46919A2AD5735E0082D7DF /* TabsTests.swift in Sources */,
-				9E1FAFBA2AF2C7F20084CA3D /* PrivateDataConsentTests.swift in Sources */,
-				9E3451C329C857DD00177D16 /* SettingsSnapshotTests.swift in Sources */,
-				9E34519D29C8484D00177D16 /* HomeFeatureFlagTests.swift in Sources */,
-				9E3451A929C84EC000177D16 /* ScanTests.swift in Sources */,
-				9E3451A829C84EAF00177D16 /* DebugTests.swift in Sources */,
+				AD0D00202D00000100000001 /* VotingAPIResponseParserTests.swift in Sources */,
+				AD0D00232D00000100000001 /* VotingServiceConfigTests.swift in Sources */,
+				AD0D00222D00000100000001 /* VotingCoordFlowCoordinatorTests.swift in Sources */,
+				AD0D00212D00000100000001 /* VotingHelpersTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7096,9 +7269,11 @@
 				37CEBEEA2F8E939D002DA90E /* VotingModels.swift in Sources */,
 				37CEBEEB2F8E939D002DA90E /* VotingCryptoClientInterface.swift in Sources */,
 				37CEBEEC2F8E939D002DA90E /* VotingCryptoClientLiveKey.swift in Sources */,
+				9EEBF8B62FBC6D3300DD38DB /* PollsListView.swift in Sources */,
 				37CEBEED2F8E939D002DA90E /* VotingServiceConfig.swift in Sources */,
 				37CEBEEE2F8E939D002DA90E /* VotingAPIClientInterface.swift in Sources */,
 				37CEBEEF2F8E939D002DA90E /* VotingStorageClientInterface.swift in Sources */,
+				9EEBF86C2FBC650200DD38DB /* IneligibleStore.swift in Sources */,
 				37CEBEF02F8E939D002DA90E /* VotingSessionState.swift in Sources */,
 				37CEBEF12F8E939D002DA90E /* ServerHealthTracker.swift in Sources */,
 				37CEBEF22F8E939D002DA90E /* VotingCryptoClientTestKey.swift in Sources */,
@@ -7108,6 +7283,8 @@
 				34AA74AC2F85774F00D244E2 /* NumberFormatter+zcash.swift in Sources */,
 				34AA74AD2F85774F00D244E2 /* UnknownAddressPreferenceKey.swift in Sources */,
 				34AA74AE2F85774F00D244E2 /* MnemonicInterface.swift in Sources */,
+				9EEBF8612FBC64F800DD38DB /* TallyingStore.swift in Sources */,
+				9EEBF84B2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */,
 				34AA74AF2F85774F00D244E2 /* SwapForm.swift in Sources */,
 				34AA74B02F85774F00D244E2 /* CrossPayForm.swift in Sources */,
 				34AA74B12F85774F00D244E2 /* DerivationToolInterface.swift in Sources */,
@@ -7119,6 +7296,7 @@
 				34AA74B72F85774F00D244E2 /* AddressBookLiveKey.swift in Sources */,
 				34AA74B82F85774F00D244E2 /* SwapAndPayOptInView.swift in Sources */,
 				34AA74B92F85774F00D244E2 /* FailedView.swift in Sources */,
+				9EEBF8822FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */,
 				34AA74BA2F85774F00D244E2 /* NotEnoughFreeSpaceView.swift in Sources */,
 				34AA74BB2F85774F00D244E2 /* ConditionalStrikethrough.swift in Sources */,
 				34AA74BC2F85774F00D244E2 /* SendFeedbackView.swift in Sources */,
@@ -7126,6 +7304,7 @@
 				34AA74BE2F85774F00D244E2 /* CaptureDeviceTestKey.swift in Sources */,
 				34AA74BF2F85774F00D244E2 /* UserMetadataProviderInterface.swift in Sources */,
 				34AA74C02F85774F00D244E2 /* UserDefaultsInterface.swift in Sources */,
+				9EEBF83F2FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */,
 				34AA74C12F85774F00D244E2 /* RestoreInfoView.swift in Sources */,
 				9E48424B2F87C41200D0649B /* ResyncWalletView.swift in Sources */,
 				34AA74C22F85774F00D244E2 /* SupportDataGeneratorLiveKey.swift in Sources */,
@@ -7143,6 +7322,7 @@
 				34AA74CF2F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA74D02F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA74D12F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7B12FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA74D22F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA74D32F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA74D42F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -7169,6 +7349,7 @@
 				34AA74E92F85774F00D244E2 /* ServerSetupView.swift in Sources */,
 				34AA74EA2F85774F00D244E2 /* ReceiveCoordinator.swift in Sources */,
 				34AA74EB2F85774F00D244E2 /* ReadTransactionsStorageTestKey.swift in Sources */,
+				9EEBF83A2FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */,
 				34AA74EC2F85774F00D244E2 /* VisualEffectBlur.swift in Sources */,
 				34AA74ED2F85774F00D244E2 /* RootAddressBook.swift in Sources */,
 				34AA74EE2F85774F00D244E2 /* PasteboardInterface.swift in Sources */,
@@ -7192,6 +7373,7 @@
 				34AA75022F85774F00D244E2 /* ScanChecker.swift in Sources */,
 				34AA75032F85774F00D244E2 /* RootDestination.swift in Sources */,
 				34AA75042F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowView.swift in Sources */,
+				9EEBF8542FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */,
 				34AA75052F85774F00D244E2 /* TCALogging.swift in Sources */,
 				34AA75072F85774F00D244E2 /* SendingView.swift in Sources */,
 				34AA75082F85774F00D244E2 /* TorSetupStore.swift in Sources */,
@@ -7211,26 +7393,8 @@
 				34AA75162F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000006 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000006 /* VotingConfigSettingsView.swift in Sources */,
-				37CEBF5F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF602F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
-				37CEBF612F8E940A002DA90E /* ResultsView.swift in Sources */,
-				37CEBF622F8E940A002DA90E /* ProposalDetailView.swift in Sources */,
-				37CEBF632F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
-				37CEBF652F8E940A002DA90E /* ProposalListView.swift in Sources */,
-				37CEBF662F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */,
-				37CEBF672F8E940A002DA90E /* VotingStore+Submission.swift in Sources */,
-				37CEBF682F8E940A002DA90E /* VotingView.swift in Sources */,
-				37CEBF692F8E940A002DA90E /* WalletSyncingView.swift in Sources */,
-				37CEBF6A2F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */,
-				37CEBF6B2F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */,
 				9E48425F2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */,
-				37CEBF6C2F8E940A002DA90E /* VotingComponents.swift in Sources */,
-				37CEBF6D2F8E940A002DA90E /* TallyingView.swift in Sources */,
-				37CEBF6E2F8E940A002DA90E /* PollsListView.swift in Sources */,
-				37CEBF6F2F8E940A002DA90E /* VotingErrorView.swift in Sources */,
-				37CEBF702F8E940A002DA90E /* IneligibleView.swift in Sources */,
-				37CEBF712F8E940A002DA90E /* VotingStore.swift in Sources */,
-				37CEBF722F8E940A002DA90E /* HowToVoteView.swift in Sources */,
+				9EEBF8D42FBC747A00DD38DB /* ProposalListView.swift in Sources */,
 				34AA75172F85774F00D244E2 /* SendCoordFlowView.swift in Sources */,
 				34AA75182F85774F00D244E2 /* SwapAndPayLiveKey.swift in Sources */,
 				34AA75192F85774F00D244E2 /* SDKSynchronizerInterface.swift in Sources */,
@@ -7239,6 +7403,7 @@
 				34AA751C2F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA751D2F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA751E2F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A42FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA751F2F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA75202F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA75212F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -7289,6 +7454,7 @@
 				34AA754E2F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowStore.swift in Sources */,
 				34AA754F2F85774F00D244E2 /* Network.swift in Sources */,
 				34AA75502F85774F00D244E2 /* WalletConfigProviderLiveKey.swift in Sources */,
+				9EEBF9002FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */,
 				34AA75512F85774F00D244E2 /* NotEnoughFreeSpaceStore.swift in Sources */,
 				34AA75522F85774F00D244E2 /* SecItemLive.swift in Sources */,
 				34755C692F8647B00093FC84 /* DisconnectHWWalletView.swift in Sources */,
@@ -7300,6 +7466,7 @@
 				34AA75572F85774F00D244E2 /* RequestZecCoordFlowStore.swift in Sources */,
 				34AA75582F85774F00D244E2 /* WalletBackupCoordFlowView.swift in Sources */,
 				34AA75592F85774F00D244E2 /* NumberFormatterInterface.swift in Sources */,
+				9EEBF9112FBC7FC500DD38DB /* ResultsView.swift in Sources */,
 				34AA755A2F85774F00D244E2 /* FeedbackGeneratorLiveKey.swift in Sources */,
 				34AA755B2F85774F00D244E2 /* KeystoneHandlerTestKey.swift in Sources */,
 				34AA755C2F85774F00D244E2 /* RequestZecSummaryView.swift in Sources */,
@@ -7314,7 +7481,9 @@
 				34AA75652F85774F00D244E2 /* DatabaseFiles.swift in Sources */,
 				34AA75662F85774F00D244E2 /* UMv1.swift in Sources */,
 				34AA75672F85774F00D244E2 /* OSStatusErrorStore.swift in Sources */,
+				9EEBF8E22FBC757700DD38DB /* ProposalDetailView.swift in Sources */,
 				34AA75682F85774F00D244E2 /* ServerSetupStore.swift in Sources */,
+				9EEBF9D32FBDAE2100DD38DB /* VotingHelpers.swift in Sources */,
 				34AA75692F85774F00D244E2 /* TransactionListStore.swift in Sources */,
 				34AA756A2F85774F00D244E2 /* SwapFromToView.swift in Sources */,
 				34AA756B2F85774F00D244E2 /* ExportLogsStore.swift in Sources */,
@@ -7323,10 +7492,13 @@
 				34AA756E2F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA756F2F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA75712F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8932FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
+				9EEBF79B2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA75722F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA75732F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA75742F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
 				34AA75752F85774F00D244E2 /* BalanceFormatterTestKey.swift in Sources */,
+				9EEBF9792FBC813B00DD38DB /* VotingErrorView.swift in Sources */,
 				34AA75762F85774F00D244E2 /* AddHWWalletView.swift in Sources */,
 				34AA75772F85774F00D244E2 /* ExchangeRateLiveKey.swift in Sources */,
 				34AA75782F85774F00D244E2 /* NetworkMonitorLiveKey.swift in Sources */,
@@ -7337,6 +7509,7 @@
 				34AA757D2F85774F00D244E2 /* AppVersionMocks.swift in Sources */,
 				34AA757E2F85774F00D244E2 /* SmartBannerHelpSheet.swift in Sources */,
 				34AA757F2F85774F00D244E2 /* StateWrapper.swift in Sources */,
+				9EEBF8792FBC650D00DD38DB /* RoundSession.swift in Sources */,
 				34AA75802F85774F00D244E2 /* AnimatedQRCode.swift in Sources */,
 				34AA75812F85774F00D244E2 /* AdvancedSettingsStore.swift in Sources */,
 				34AA75822F85774F00D244E2 /* UserPreferencesStorage.swift in Sources */,
@@ -7378,6 +7551,7 @@
 				34AA75A72F85774F00D244E2 /* FlexaHandlerLiveKey.swift in Sources */,
 				34AA75A82F85774F00D244E2 /* ZashiPicker.swift in Sources */,
 				34AA75A92F85774F00D244E2 /* QRImageDetectorLiveKey.swift in Sources */,
+				9EEBF91C2FBC7FD300DD38DB /* TallyingView.swift in Sources */,
 				34AA75AA2F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA75AB2F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA75AC2F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
@@ -7389,6 +7563,7 @@
 				34AA75AE2F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
 				34AA75AF2F85774F00D244E2 /* ZcashSDKEnvironmentInterface.swift in Sources */,
 				34AA75B02F85774F00D244E2 /* AppDelegate.swift in Sources */,
+				9EEBF8672FBC64FD00DD38DB /* ResultsStore.swift in Sources */,
 				34AA75B12F85774F00D244E2 /* FloatingArrow.swift in Sources */,
 				34AA75B22F85774F00D244E2 /* InsufficientFundsSheet.swift in Sources */,
 				34AA75B32F85774F00D244E2 /* DescriptiveToggle.swift in Sources */,
@@ -7397,6 +7572,7 @@
 				34AA75B62F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA75B72F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA75B82F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89F2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA75B92F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA75BA2F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA75BB2F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -7433,6 +7609,7 @@
 				34AA75D92F85774F00D244E2 /* ScreenBackground.swift in Sources */,
 				34AA75DA2F85774F00D244E2 /* SDKSynchronizerLive.swift in Sources */,
 				34AA75DB2F85774F00D244E2 /* SecItemInterface.swift in Sources */,
+				9EEBF9652FBC812600DD38DB /* NoRoundsView.swift in Sources */,
 				34AA75DC2F85774F00D244E2 /* WelcomeView.swift in Sources */,
 				34AA75DD2F85774F00D244E2 /* ZashiText.swift in Sources */,
 				34AA75DE2F85774F00D244E2 /* ListBackground.swift in Sources */,
@@ -7441,6 +7618,8 @@
 				34AA75E12F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA75E22F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA75E32F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8A92FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
+				9EEBF96E2FBC813100DD38DB /* WalletSyncingView.swift in Sources */,
 				34AA75E42F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA75E52F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA75E62F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -7468,6 +7647,7 @@
 				34AA75FC2F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA75FD2F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA75FE2F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7782FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA75FF2F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA76002F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA76012F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -7496,6 +7676,7 @@
 				34AA761A2F85774F00D244E2 /* ExportTransactionHistoryView.swift in Sources */,
 				34AA761B2F85774F00D244E2 /* ZcashError+DetailedMessage.swift in Sources */,
 				34AA761C2F85774F00D244E2 /* RestoreWalletCoordFlowCoordinator.swift in Sources */,
+				9EEBF9832FBC814600DD38DB /* IneligibleView.swift in Sources */,
 				34AA761D2F85774F00D244E2 /* ReminedMeTimestamp.swift in Sources */,
 				34AA761E2F85774F00D244E2 /* PrivateDataConsentStore.swift in Sources */,
 				34AA761F2F85774F00D244E2 /* RootCheckFunds.swift in Sources */,
@@ -7505,6 +7686,7 @@
 				34AA76232F85774F00D244E2 /* WalletConfigProviderInterface.swift in Sources */,
 				34AA76242F85774F00D244E2 /* WalletBackupCoordFlowStore.swift in Sources */,
 				34AA76252F85774F00D244E2 /* SwapAndPaySheets.swift in Sources */,
+				9EEBF9572FBC811A00DD38DB /* HowToVoteView.swift in Sources */,
 				34AA76262F85774F00D244E2 /* KeystoneDeviceReadyView.swift in Sources */,
 				34AA76272F85774F00D244E2 /* TorSetupView.swift in Sources */,
 				34AA76282F85774F00D244E2 /* AboutView.swift in Sources */,
@@ -7520,6 +7702,7 @@
 				34AA76322F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA76332F85774F00D244E2 /* AnyDecodable.swift in Sources */,
 				34AA76342F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
+				9EEBF8292FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA76352F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
 				9E41FFA82CB2814500783CFD /* ReadTransactionsStorageModel.xcdatamodeld in Sources */,
 				37D0F0000000000000000012 /* StaticVotingConfig.swift in Sources */,
@@ -7550,9 +7733,11 @@
 				37CEBEAA2F8E939D002DA90E /* VotingModels.swift in Sources */,
 				37CEBEAB2F8E939D002DA90E /* VotingCryptoClientInterface.swift in Sources */,
 				37CEBEAC2F8E939D002DA90E /* VotingCryptoClientLiveKey.swift in Sources */,
+				9EEBF8BA2FBC6D3300DD38DB /* PollsListView.swift in Sources */,
 				37CEBEAD2F8E939D002DA90E /* VotingServiceConfig.swift in Sources */,
 				37CEBEAE2F8E939D002DA90E /* VotingAPIClientInterface.swift in Sources */,
 				37CEBEAF2F8E939D002DA90E /* VotingStorageClientInterface.swift in Sources */,
+				9EEBF86E2FBC650200DD38DB /* IneligibleStore.swift in Sources */,
 				37CEBEB02F8E939D002DA90E /* VotingSessionState.swift in Sources */,
 				37CEBEB12F8E939D002DA90E /* ServerHealthTracker.swift in Sources */,
 				37CEBEB22F8E939D002DA90E /* VotingCryptoClientTestKey.swift in Sources */,
@@ -7562,6 +7747,8 @@
 				34AA71482F85774F00D244E2 /* NumberFormatter+zcash.swift in Sources */,
 				34AA71492F85774F00D244E2 /* UnknownAddressPreferenceKey.swift in Sources */,
 				34AA714A2F85774F00D244E2 /* MnemonicInterface.swift in Sources */,
+				9EEBF8622FBC64F800DD38DB /* TallyingStore.swift in Sources */,
+				9EEBF84D2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */,
 				34AA714B2F85774F00D244E2 /* SwapForm.swift in Sources */,
 				34AA714C2F85774F00D244E2 /* CrossPayForm.swift in Sources */,
 				34AA714D2F85774F00D244E2 /* DerivationToolInterface.swift in Sources */,
@@ -7573,6 +7760,7 @@
 				34AA71532F85774F00D244E2 /* AddressBookLiveKey.swift in Sources */,
 				34AA71542F85774F00D244E2 /* SwapAndPayOptInView.swift in Sources */,
 				34AA71552F85774F00D244E2 /* FailedView.swift in Sources */,
+				9EEBF8842FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */,
 				34AA71562F85774F00D244E2 /* NotEnoughFreeSpaceView.swift in Sources */,
 				34AA71572F85774F00D244E2 /* ConditionalStrikethrough.swift in Sources */,
 				34AA71582F85774F00D244E2 /* SendFeedbackView.swift in Sources */,
@@ -7580,6 +7768,7 @@
 				34AA715A2F85774F00D244E2 /* CaptureDeviceTestKey.swift in Sources */,
 				34AA715B2F85774F00D244E2 /* UserMetadataProviderInterface.swift in Sources */,
 				34AA715C2F85774F00D244E2 /* UserDefaultsInterface.swift in Sources */,
+				9EEBF83E2FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */,
 				34AA715D2F85774F00D244E2 /* RestoreInfoView.swift in Sources */,
 				9E48424C2F87C41200D0649B /* ResyncWalletView.swift in Sources */,
 				34AA715E2F85774F00D244E2 /* SupportDataGeneratorLiveKey.swift in Sources */,
@@ -7597,6 +7786,7 @@
 				34AA716B2F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA716C2F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA716D2F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7AD2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA716E2F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA716F2F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA71702F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -7623,6 +7813,7 @@
 				34AA71852F85774F00D244E2 /* ServerSetupView.swift in Sources */,
 				34AA71862F85774F00D244E2 /* ReceiveCoordinator.swift in Sources */,
 				34AA71872F85774F00D244E2 /* ReadTransactionsStorageTestKey.swift in Sources */,
+				9EEBF8392FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */,
 				34AA71882F85774F00D244E2 /* VisualEffectBlur.swift in Sources */,
 				34AA71892F85774F00D244E2 /* RootAddressBook.swift in Sources */,
 				34AA718A2F85774F00D244E2 /* PasteboardInterface.swift in Sources */,
@@ -7646,6 +7837,7 @@
 				34AA719E2F85774F00D244E2 /* ScanChecker.swift in Sources */,
 				34AA719F2F85774F00D244E2 /* RootDestination.swift in Sources */,
 				34AA71A02F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowView.swift in Sources */,
+				9EEBF8552FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */,
 				34AA71A12F85774F00D244E2 /* TCALogging.swift in Sources */,
 				34AA71A32F85774F00D244E2 /* SendingView.swift in Sources */,
 				34AA71A42F85774F00D244E2 /* TorSetupStore.swift in Sources */,
@@ -7665,26 +7857,8 @@
 				34AA71B22F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000004 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000004 /* VotingConfigSettingsView.swift in Sources */,
-				37CEBF372F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF382F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
-				37CEBF392F8E940A002DA90E /* ResultsView.swift in Sources */,
-				37CEBF3A2F8E940A002DA90E /* ProposalDetailView.swift in Sources */,
-				37CEBF3B2F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
-				37CEBF3D2F8E940A002DA90E /* ProposalListView.swift in Sources */,
-				37CEBF3E2F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */,
-				37CEBF3F2F8E940A002DA90E /* VotingStore+Submission.swift in Sources */,
-				37CEBF402F8E940A002DA90E /* VotingView.swift in Sources */,
-				37CEBF412F8E940A002DA90E /* WalletSyncingView.swift in Sources */,
-				37CEBF422F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */,
-				37CEBF432F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */,
 				9E48425D2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */,
-				37CEBF442F8E940A002DA90E /* VotingComponents.swift in Sources */,
-				37CEBF452F8E940A002DA90E /* TallyingView.swift in Sources */,
-				37CEBF462F8E940A002DA90E /* PollsListView.swift in Sources */,
-				37CEBF472F8E940A002DA90E /* VotingErrorView.swift in Sources */,
-				37CEBF482F8E940A002DA90E /* IneligibleView.swift in Sources */,
-				37CEBF492F8E940A002DA90E /* VotingStore.swift in Sources */,
-				37CEBF4A2F8E940A002DA90E /* HowToVoteView.swift in Sources */,
+				9EEBF8D32FBC747A00DD38DB /* ProposalListView.swift in Sources */,
 				34AA71B32F85774F00D244E2 /* SendCoordFlowView.swift in Sources */,
 				34AA71B42F85774F00D244E2 /* SwapAndPayLiveKey.swift in Sources */,
 				34AA71B52F85774F00D244E2 /* SDKSynchronizerInterface.swift in Sources */,
@@ -7693,6 +7867,7 @@
 				34AA71B82F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA71B92F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA71BA2F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A22FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA71BB2F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA71BC2F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA71BD2F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -7743,6 +7918,7 @@
 				34AA71EA2F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowStore.swift in Sources */,
 				34AA71EB2F85774F00D244E2 /* Network.swift in Sources */,
 				34AA71EC2F85774F00D244E2 /* WalletConfigProviderLiveKey.swift in Sources */,
+				9EEBF9012FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */,
 				34AA71ED2F85774F00D244E2 /* NotEnoughFreeSpaceStore.swift in Sources */,
 				34AA71EE2F85774F00D244E2 /* SecItemLive.swift in Sources */,
 				34755C632F8647B00093FC84 /* DisconnectHWWalletView.swift in Sources */,
@@ -7754,6 +7930,7 @@
 				34AA71F32F85774F00D244E2 /* RequestZecCoordFlowStore.swift in Sources */,
 				34AA71F42F85774F00D244E2 /* WalletBackupCoordFlowView.swift in Sources */,
 				34AA71F52F85774F00D244E2 /* NumberFormatterInterface.swift in Sources */,
+				9EEBF9132FBC7FC500DD38DB /* ResultsView.swift in Sources */,
 				34AA71F62F85774F00D244E2 /* FeedbackGeneratorLiveKey.swift in Sources */,
 				34AA71F72F85774F00D244E2 /* KeystoneHandlerTestKey.swift in Sources */,
 				34AA71F82F85774F00D244E2 /* RequestZecSummaryView.swift in Sources */,
@@ -7768,7 +7945,9 @@
 				34AA72012F85774F00D244E2 /* DatabaseFiles.swift in Sources */,
 				34AA72022F85774F00D244E2 /* UMv1.swift in Sources */,
 				34AA72032F85774F00D244E2 /* OSStatusErrorStore.swift in Sources */,
+				9EEBF8E02FBC757700DD38DB /* ProposalDetailView.swift in Sources */,
 				34AA72042F85774F00D244E2 /* ServerSetupStore.swift in Sources */,
+				9EEBF9D72FBDAE2100DD38DB /* VotingHelpers.swift in Sources */,
 				34AA72052F85774F00D244E2 /* TransactionListStore.swift in Sources */,
 				34AA72062F85774F00D244E2 /* SwapFromToView.swift in Sources */,
 				34AA72072F85774F00D244E2 /* ExportLogsStore.swift in Sources */,
@@ -7777,10 +7956,13 @@
 				34AA720A2F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA720B2F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA720D2F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF8902FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
+				9EEBF79A2FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA720E2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA720F2F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA72102F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
 				34AA72112F85774F00D244E2 /* BalanceFormatterTestKey.swift in Sources */,
+				9EEBF97C2FBC813B00DD38DB /* VotingErrorView.swift in Sources */,
 				34AA72122F85774F00D244E2 /* AddHWWalletView.swift in Sources */,
 				34AA72132F85774F00D244E2 /* ExchangeRateLiveKey.swift in Sources */,
 				34AA72142F85774F00D244E2 /* NetworkMonitorLiveKey.swift in Sources */,
@@ -7791,6 +7973,7 @@
 				34AA72192F85774F00D244E2 /* AppVersionMocks.swift in Sources */,
 				34AA721A2F85774F00D244E2 /* SmartBannerHelpSheet.swift in Sources */,
 				34AA721B2F85774F00D244E2 /* StateWrapper.swift in Sources */,
+				9EEBF8762FBC650D00DD38DB /* RoundSession.swift in Sources */,
 				34AA721C2F85774F00D244E2 /* AnimatedQRCode.swift in Sources */,
 				34AA721D2F85774F00D244E2 /* AdvancedSettingsStore.swift in Sources */,
 				34AA721E2F85774F00D244E2 /* UserPreferencesStorage.swift in Sources */,
@@ -7832,6 +8015,7 @@
 				34AA72432F85774F00D244E2 /* FlexaHandlerLiveKey.swift in Sources */,
 				34AA72442F85774F00D244E2 /* ZashiPicker.swift in Sources */,
 				34AA72452F85774F00D244E2 /* QRImageDetectorLiveKey.swift in Sources */,
+				9EEBF91F2FBC7FD300DD38DB /* TallyingView.swift in Sources */,
 				34AA72462F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA72472F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA72482F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
@@ -7843,6 +8027,7 @@
 				34AA724A2F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
 				34AA724B2F85774F00D244E2 /* ZcashSDKEnvironmentInterface.swift in Sources */,
 				34AA724C2F85774F00D244E2 /* AppDelegate.swift in Sources */,
+				9EEBF8692FBC64FD00DD38DB /* ResultsStore.swift in Sources */,
 				34AA724D2F85774F00D244E2 /* FloatingArrow.swift in Sources */,
 				34AA724E2F85774F00D244E2 /* InsufficientFundsSheet.swift in Sources */,
 				34AA724F2F85774F00D244E2 /* DescriptiveToggle.swift in Sources */,
@@ -7851,6 +8036,7 @@
 				34AA72522F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA72532F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA72542F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89D2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA72552F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA72562F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA72572F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -7887,6 +8073,7 @@
 				34AA72752F85774F00D244E2 /* ScreenBackground.swift in Sources */,
 				34AA72762F85774F00D244E2 /* SDKSynchronizerLive.swift in Sources */,
 				34AA72772F85774F00D244E2 /* SecItemInterface.swift in Sources */,
+				9EEBF9662FBC812600DD38DB /* NoRoundsView.swift in Sources */,
 				34AA72782F85774F00D244E2 /* WelcomeView.swift in Sources */,
 				34AA72792F85774F00D244E2 /* ZashiText.swift in Sources */,
 				34AA727A2F85774F00D244E2 /* ListBackground.swift in Sources */,
@@ -7895,6 +8082,8 @@
 				34AA727D2F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA727E2F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA727F2F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8A82FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
+				9EEBF96F2FBC813100DD38DB /* WalletSyncingView.swift in Sources */,
 				34AA72802F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA72812F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA72822F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -7922,6 +8111,7 @@
 				34AA72982F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA72992F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA729A2F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7762FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA729B2F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA729C2F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA729D2F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -7950,6 +8140,7 @@
 				34AA72B62F85774F00D244E2 /* ExportTransactionHistoryView.swift in Sources */,
 				34AA72B72F85774F00D244E2 /* ZcashError+DetailedMessage.swift in Sources */,
 				34AA72B82F85774F00D244E2 /* RestoreWalletCoordFlowCoordinator.swift in Sources */,
+				9EEBF9842FBC814600DD38DB /* IneligibleView.swift in Sources */,
 				34AA72B92F85774F00D244E2 /* ReminedMeTimestamp.swift in Sources */,
 				34AA72BA2F85774F00D244E2 /* PrivateDataConsentStore.swift in Sources */,
 				34AA72BB2F85774F00D244E2 /* RootCheckFunds.swift in Sources */,
@@ -7959,6 +8150,7 @@
 				34AA72BF2F85774F00D244E2 /* WalletConfigProviderInterface.swift in Sources */,
 				34AA72C02F85774F00D244E2 /* WalletBackupCoordFlowStore.swift in Sources */,
 				34AA72C12F85774F00D244E2 /* SwapAndPaySheets.swift in Sources */,
+				9EEBF9582FBC811A00DD38DB /* HowToVoteView.swift in Sources */,
 				34AA72C22F85774F00D244E2 /* KeystoneDeviceReadyView.swift in Sources */,
 				34AA72C32F85774F00D244E2 /* TorSetupView.swift in Sources */,
 				34AA72C42F85774F00D244E2 /* AboutView.swift in Sources */,
@@ -7974,6 +8166,7 @@
 				34AA72CE2F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA72CF2F85774F00D244E2 /* AnyDecodable.swift in Sources */,
 				34AA72D02F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
+				9EEBF82B2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA72D12F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
 				9E4AB2A42BA1BEE900F5D6DB /* ReadTransactionsStorageModel.xcdatamodeld in Sources */,
 				37D0F0000000000000000013 /* StaticVotingConfig.swift in Sources */,
@@ -8004,9 +8197,11 @@
 				37CEBECA2F8E939D002DA90E /* VotingModels.swift in Sources */,
 				37CEBECB2F8E939D002DA90E /* VotingCryptoClientInterface.swift in Sources */,
 				37CEBECC2F8E939D002DA90E /* VotingCryptoClientLiveKey.swift in Sources */,
+				9EEBF8B82FBC6D3300DD38DB /* PollsListView.swift in Sources */,
 				37CEBECD2F8E939D002DA90E /* VotingServiceConfig.swift in Sources */,
 				37CEBECE2F8E939D002DA90E /* VotingAPIClientInterface.swift in Sources */,
 				37CEBECF2F8E939D002DA90E /* VotingStorageClientInterface.swift in Sources */,
+				9EEBF86D2FBC650200DD38DB /* IneligibleStore.swift in Sources */,
 				37CEBED02F8E939D002DA90E /* VotingSessionState.swift in Sources */,
 				37CEBED12F8E939D002DA90E /* ServerHealthTracker.swift in Sources */,
 				37CEBED22F8E939D002DA90E /* VotingCryptoClientTestKey.swift in Sources */,
@@ -8016,6 +8211,8 @@
 				34AA6DE42F85774F00D244E2 /* NumberFormatter+zcash.swift in Sources */,
 				34AA6DE52F85774F00D244E2 /* UnknownAddressPreferenceKey.swift in Sources */,
 				34AA6DE62F85774F00D244E2 /* MnemonicInterface.swift in Sources */,
+				9EEBF85F2FBC64F800DD38DB /* TallyingStore.swift in Sources */,
+				9EEBF84C2FBC64E200DD38DB /* ConfirmSubmissionStore.swift in Sources */,
 				34AA6DE72F85774F00D244E2 /* SwapForm.swift in Sources */,
 				34AA6DE82F85774F00D244E2 /* CrossPayForm.swift in Sources */,
 				34AA6DE92F85774F00D244E2 /* DerivationToolInterface.swift in Sources */,
@@ -8027,6 +8224,7 @@
 				34AA6DEF2F85774F00D244E2 /* AddressBookLiveKey.swift in Sources */,
 				34AA6DF02F85774F00D244E2 /* SwapAndPayOptInView.swift in Sources */,
 				34AA6DF12F85774F00D244E2 /* FailedView.swift in Sources */,
+				9EEBF8832FBC651800DD38DB /* VotingCoordFlowStore.swift in Sources */,
 				34AA6DF22F85774F00D244E2 /* NotEnoughFreeSpaceView.swift in Sources */,
 				34AA6DF32F85774F00D244E2 /* ConditionalStrikethrough.swift in Sources */,
 				34AA6DF42F85774F00D244E2 /* SendFeedbackView.swift in Sources */,
@@ -8034,6 +8232,7 @@
 				34AA6DF62F85774F00D244E2 /* CaptureDeviceTestKey.swift in Sources */,
 				34AA6DF72F85774F00D244E2 /* UserMetadataProviderInterface.swift in Sources */,
 				34AA6DF82F85774F00D244E2 /* UserDefaultsInterface.swift in Sources */,
+				9EEBF8402FBC64DC00DD38DB /* ReviewVotesStore.swift in Sources */,
 				34AA6DF92F85774F00D244E2 /* RestoreInfoView.swift in Sources */,
 				9E48424D2F87C41200D0649B /* ResyncWalletView.swift in Sources */,
 				34AA6DFA2F85774F00D244E2 /* SupportDataGeneratorLiveKey.swift in Sources */,
@@ -8051,6 +8250,7 @@
 				34AA6E072F85774F00D244E2 /* ReceiveView.swift in Sources */,
 				34AA6E082F85774F00D244E2 /* DerivationToolTestKey.swift in Sources */,
 				34AA6E092F85774F00D244E2 /* SecantTextStyles.swift in Sources */,
+				9EEBF7AF2FBB05CD00DD38DB /* VotingMetadataStorage.swift in Sources */,
 				34AA6E0A2F85774F00D244E2 /* TransactionsManagerStore.swift in Sources */,
 				34AA6E0B2F85774F00D244E2 /* ReadTransactionsStorageLiveKey.swift in Sources */,
 				34AA6E0C2F85774F00D244E2 /* ZatoshiStringRepresentation.swift in Sources */,
@@ -8077,6 +8277,7 @@
 				34AA6E212F85774F00D244E2 /* ServerSetupView.swift in Sources */,
 				34AA6E222F85774F00D244E2 /* ReceiveCoordinator.swift in Sources */,
 				34AA6E232F85774F00D244E2 /* ReadTransactionsStorageTestKey.swift in Sources */,
+				9EEBF83C2FBC64D700DD38DB /* ProposalDetailStore.swift in Sources */,
 				34AA6E242F85774F00D244E2 /* VisualEffectBlur.swift in Sources */,
 				34AA6E252F85774F00D244E2 /* RootAddressBook.swift in Sources */,
 				34AA6E262F85774F00D244E2 /* PasteboardInterface.swift in Sources */,
@@ -8100,6 +8301,7 @@
 				34AA6E3A2F85774F00D244E2 /* ScanChecker.swift in Sources */,
 				34AA6E3B2F85774F00D244E2 /* RootDestination.swift in Sources */,
 				34AA6E3C2F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowView.swift in Sources */,
+				9EEBF8582FBC64E800DD38DB /* DelegationSigningStore.swift in Sources */,
 				34AA6E3D2F85774F00D244E2 /* TCALogging.swift in Sources */,
 				34AA6E3F2F85774F00D244E2 /* SendingView.swift in Sources */,
 				34AA6E402F85774F00D244E2 /* TorSetupStore.swift in Sources */,
@@ -8119,26 +8321,8 @@
 				34AA6E4E2F85774F00D244E2 /* RootInitialization.swift in Sources */,
 				37C0F1002F94000000000002 /* VotingConfigSettings.swift in Sources */,
 				37C0F1012F94000000000002 /* VotingConfigSettingsView.swift in Sources */,
-				37CEBF0F2F8E940A002DA90E /* VotingStore+Session.swift in Sources */,
-				37CEBF102F8E940A002DA90E /* DelegationSigningView.swift in Sources */,
-				37CEBF112F8E940A002DA90E /* ResultsView.swift in Sources */,
-				37CEBF122F8E940A002DA90E /* ProposalDetailView.swift in Sources */,
-				37CEBF132F8E940A002DA90E /* VotingStore+Navigation.swift in Sources */,
-				37CEBF152F8E940A002DA90E /* ProposalListView.swift in Sources */,
-				37CEBF162F8E940A002DA90E /* VotingStore+Helpers.swift in Sources */,
-				37CEBF172F8E940A002DA90E /* VotingStore+Submission.swift in Sources */,
-				37CEBF182F8E940A002DA90E /* VotingView.swift in Sources */,
-				37CEBF192F8E940A002DA90E /* WalletSyncingView.swift in Sources */,
-				37CEBF1A2F8E940A002DA90E /* VotingStore+Delegation.swift in Sources */,
-				37CEBF1B2F8E940A002DA90E /* ConfirmSubmissionView.swift in Sources */,
 				9E48425B2F8E940A002DA90E /* VotingErrorSheet.swift in Sources */,
-				37CEBF1C2F8E940A002DA90E /* VotingComponents.swift in Sources */,
-				37CEBF1D2F8E940A002DA90E /* TallyingView.swift in Sources */,
-				37CEBF1E2F8E940A002DA90E /* PollsListView.swift in Sources */,
-				37CEBF1F2F8E940A002DA90E /* VotingErrorView.swift in Sources */,
-				37CEBF202F8E940A002DA90E /* IneligibleView.swift in Sources */,
-				37CEBF212F8E940A002DA90E /* VotingStore.swift in Sources */,
-				37CEBF222F8E940A002DA90E /* HowToVoteView.swift in Sources */,
+				9EEBF8D62FBC747A00DD38DB /* ProposalListView.swift in Sources */,
 				34AA6E4F2F85774F00D244E2 /* SendCoordFlowView.swift in Sources */,
 				34AA6E502F85774F00D244E2 /* SwapAndPayLiveKey.swift in Sources */,
 				34AA6E512F85774F00D244E2 /* SDKSynchronizerInterface.swift in Sources */,
@@ -8147,6 +8331,7 @@
 				34AA6E542F85774F00D244E2 /* ZcashBadge.swift in Sources */,
 				34AA6E552F85774F00D244E2 /* DeeplinkInterface.swift in Sources */,
 				34AA6E562F85774F00D244E2 /* SendFormStore.swift in Sources */,
+				9EEBF7A32FBB059D00DD38DB /* VotingMetadataProviderLiveKey.swift in Sources */,
 				34AA6E572F85774F00D244E2 /* AudioServicesInterface.swift in Sources */,
 				34AA6E582F85774F00D244E2 /* Clamped.swift in Sources */,
 				34AA6E592F85774F00D244E2 /* DatabaseFilesLiveKey.swift in Sources */,
@@ -8197,6 +8382,7 @@
 				34AA6E862F85774F00D244E2 /* AddKeystoneHWWalletCoordFlowStore.swift in Sources */,
 				34AA6E872F85774F00D244E2 /* Network.swift in Sources */,
 				34AA6E882F85774F00D244E2 /* WalletConfigProviderLiveKey.swift in Sources */,
+				9EEBF8FE2FBC7EEC00DD38DB /* ConfirmSubmissionView.swift in Sources */,
 				34AA6E892F85774F00D244E2 /* NotEnoughFreeSpaceStore.swift in Sources */,
 				34AA6E8A2F85774F00D244E2 /* SecItemLive.swift in Sources */,
 				34755C652F8647B00093FC84 /* DisconnectHWWalletView.swift in Sources */,
@@ -8208,6 +8394,7 @@
 				34AA6E8F2F85774F00D244E2 /* RequestZecCoordFlowStore.swift in Sources */,
 				34AA6E902F85774F00D244E2 /* WalletBackupCoordFlowView.swift in Sources */,
 				34AA6E912F85774F00D244E2 /* NumberFormatterInterface.swift in Sources */,
+				9EEBF9142FBC7FC500DD38DB /* ResultsView.swift in Sources */,
 				34AA6E922F85774F00D244E2 /* FeedbackGeneratorLiveKey.swift in Sources */,
 				34AA6E932F85774F00D244E2 /* KeystoneHandlerTestKey.swift in Sources */,
 				34AA6E942F85774F00D244E2 /* RequestZecSummaryView.swift in Sources */,
@@ -8222,7 +8409,9 @@
 				34AA6E9D2F85774F00D244E2 /* DatabaseFiles.swift in Sources */,
 				34AA6E9E2F85774F00D244E2 /* UMv1.swift in Sources */,
 				34AA6E9F2F85774F00D244E2 /* OSStatusErrorStore.swift in Sources */,
+				9EEBF8DF2FBC757700DD38DB /* ProposalDetailView.swift in Sources */,
 				34AA6EA02F85774F00D244E2 /* ServerSetupStore.swift in Sources */,
+				9EEBF9D42FBDAE2100DD38DB /* VotingHelpers.swift in Sources */,
 				34AA6EA12F85774F00D244E2 /* TransactionListStore.swift in Sources */,
 				34AA6EA22F85774F00D244E2 /* SwapFromToView.swift in Sources */,
 				34AA6EA32F85774F00D244E2 /* ExportLogsStore.swift in Sources */,
@@ -8231,10 +8420,13 @@
 				34AA6EA62F85774F00D244E2 /* Tooltip.swift in Sources */,
 				34AA6EA72F85774F00D244E2 /* AddressBookStore.swift in Sources */,
 				34AA6EA92F85774F00D244E2 /* BalanceWithIconView.swift in Sources */,
+				9EEBF88F2FBC678900DD38DB /* VotingCoordFlowView.swift in Sources */,
+				9EEBF7982FBB059200DD38DB /* VotingMetadataProviderInterface.swift in Sources */,
 				34AA6EAA2F85774F00D244E2 /* ZashiSyncingProgressStyle.swift in Sources */,
 				34AA6EAB2F85774F00D244E2 /* LogStore.swift in Sources */,
 				34AA6EAC2F85774F00D244E2 /* CurrencyConversionSetupView.swift in Sources */,
 				34AA6EAD2F85774F00D244E2 /* BalanceFormatterTestKey.swift in Sources */,
+				9EEBF97A2FBC813B00DD38DB /* VotingErrorView.swift in Sources */,
 				34AA6EAE2F85774F00D244E2 /* AddHWWalletView.swift in Sources */,
 				34AA6EAF2F85774F00D244E2 /* ExchangeRateLiveKey.swift in Sources */,
 				34AA6EB02F85774F00D244E2 /* NetworkMonitorLiveKey.swift in Sources */,
@@ -8245,6 +8437,7 @@
 				34AA6EB52F85774F00D244E2 /* AppVersionMocks.swift in Sources */,
 				34AA6EB62F85774F00D244E2 /* SmartBannerHelpSheet.swift in Sources */,
 				34AA6EB72F85774F00D244E2 /* StateWrapper.swift in Sources */,
+				9EEBF87A2FBC650D00DD38DB /* RoundSession.swift in Sources */,
 				34AA6EB82F85774F00D244E2 /* AnimatedQRCode.swift in Sources */,
 				34AA6EB92F85774F00D244E2 /* AdvancedSettingsStore.swift in Sources */,
 				34AA6EBA2F85774F00D244E2 /* UserPreferencesStorage.swift in Sources */,
@@ -8286,6 +8479,7 @@
 				34AA6EDF2F85774F00D244E2 /* FlexaHandlerLiveKey.swift in Sources */,
 				34AA6EE02F85774F00D244E2 /* ZashiPicker.swift in Sources */,
 				34AA6EE12F85774F00D244E2 /* QRImageDetectorLiveKey.swift in Sources */,
+				9EEBF9202FBC7FD300DD38DB /* TallyingView.swift in Sources */,
 				34AA6EE22F85774F00D244E2 /* DeeplinkWarningView.swift in Sources */,
 				34AA6EE32F85774F00D244E2 /* ChainToken.swift in Sources */,
 				34AA6EE42F85774F00D244E2 /* WalletStorageLiveKey.swift in Sources */,
@@ -8297,6 +8491,7 @@
 				34AA6EE62F85774F00D244E2 /* UserPreferencesStorageLive.swift in Sources */,
 				34AA6EE72F85774F00D244E2 /* ZcashSDKEnvironmentInterface.swift in Sources */,
 				34AA6EE82F85774F00D244E2 /* AppDelegate.swift in Sources */,
+				9EEBF8662FBC64FD00DD38DB /* ResultsStore.swift in Sources */,
 				34AA6EE92F85774F00D244E2 /* FloatingArrow.swift in Sources */,
 				34AA6EEA2F85774F00D244E2 /* InsufficientFundsSheet.swift in Sources */,
 				34AA6EEB2F85774F00D244E2 /* DescriptiveToggle.swift in Sources */,
@@ -8305,6 +8500,7 @@
 				34AA6EEE2F85774F00D244E2 /* Deeplink.swift in Sources */,
 				34AA6EEF2F85774F00D244E2 /* TaxExporterLiveKey.swift in Sources */,
 				34AA6EF02F85774F00D244E2 /* RecoveryPhraseSecurityView.swift in Sources */,
+				9EEBF89B2FBC6A6C00DD38DB /* RoundListItem.swift in Sources */,
 				34AA6EF12F85774F00D244E2 /* SwapComponents.swift in Sources */,
 				34AA6EF22F85774F00D244E2 /* SettingsView.swift in Sources */,
 				34AA6EF32F85774F00D244E2 /* RemoteStorageLiveKey.swift in Sources */,
@@ -8341,6 +8537,7 @@
 				34AA6F112F85774F00D244E2 /* ScreenBackground.swift in Sources */,
 				34AA6F122F85774F00D244E2 /* SDKSynchronizerLive.swift in Sources */,
 				34AA6F132F85774F00D244E2 /* SecItemInterface.swift in Sources */,
+				9EEBF9622FBC812600DD38DB /* NoRoundsView.swift in Sources */,
 				34AA6F142F85774F00D244E2 /* WelcomeView.swift in Sources */,
 				34AA6F152F85774F00D244E2 /* ZashiText.swift in Sources */,
 				34AA6F162F85774F00D244E2 /* ListBackground.swift in Sources */,
@@ -8349,6 +8546,8 @@
 				34AA6F192F85774F00D244E2 /* ZashiTitle.swift in Sources */,
 				34AA6F1A2F85774F00D244E2 /* ReviewRequestInterface.swift in Sources */,
 				34AA6F1B2F85774F00D244E2 /* RootTorInitCheck.swift in Sources */,
+				9EEBF8AA2FBC6B6100DD38DB /* VotingCoordFlowCoordinator.swift in Sources */,
+				9EEBF9702FBC813100DD38DB /* WalletSyncingView.swift in Sources */,
 				34AA6F1C2F85774F00D244E2 /* Strings.swift in Sources */,
 				34AA6F1D2F85774F00D244E2 /* SendConfirmationView.swift in Sources */,
 				34AA6F1E2F85774F00D244E2 /* FeedbackGeneratorInterface.swift in Sources */,
@@ -8376,6 +8575,7 @@
 				34AA6F342F85774F00D244E2 /* TransactionSwapComponents.swift in Sources */,
 				34AA6F352F85774F00D244E2 /* Contact.swift in Sources */,
 				34AA6F362F85774F00D244E2 /* RecoveryPhrase.swift in Sources */,
+				9EEBF7752FBB053400DD38DB /* VotingMetadata.swift in Sources */,
 				34AA6F372F85774F00D244E2 /* FlexaHandlerInterface.swift in Sources */,
 				34AA6F382F85774F00D244E2 /* SupportDataGeneratorInterface.swift in Sources */,
 				34AA6F392F85774F00D244E2 /* CaptureDeviceInterface.swift in Sources */,
@@ -8404,6 +8604,7 @@
 				34AA6F522F85774F00D244E2 /* ExportTransactionHistoryView.swift in Sources */,
 				34AA6F532F85774F00D244E2 /* ZcashError+DetailedMessage.swift in Sources */,
 				34AA6F542F85774F00D244E2 /* RestoreWalletCoordFlowCoordinator.swift in Sources */,
+				9EEBF9872FBC814600DD38DB /* IneligibleView.swift in Sources */,
 				34AA6F552F85774F00D244E2 /* ReminedMeTimestamp.swift in Sources */,
 				34AA6F562F85774F00D244E2 /* PrivateDataConsentStore.swift in Sources */,
 				34AA6F572F85774F00D244E2 /* RootCheckFunds.swift in Sources */,
@@ -8413,6 +8614,7 @@
 				34AA6F5B2F85774F00D244E2 /* WalletConfigProviderInterface.swift in Sources */,
 				34AA6F5C2F85774F00D244E2 /* WalletBackupCoordFlowStore.swift in Sources */,
 				34AA6F5D2F85774F00D244E2 /* SwapAndPaySheets.swift in Sources */,
+				9EEBF9592FBC811A00DD38DB /* HowToVoteView.swift in Sources */,
 				34AA6F5E2F85774F00D244E2 /* KeystoneDeviceReadyView.swift in Sources */,
 				34AA6F5F2F85774F00D244E2 /* TorSetupView.swift in Sources */,
 				34AA6F602F85774F00D244E2 /* AboutView.swift in Sources */,
@@ -8428,6 +8630,7 @@
 				34AA6F6A2F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA6F6B2F85774F00D244E2 /* AnyDecodable.swift in Sources */,
 				34AA6F6C2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
+				9EEBF8282FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA6F6D2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
 				9E5AB46F2C94777800065483 /* ReadTransactionsStorageModel.xcdatamodeld in Sources */,
 				37D0F0000000000000000014 /* StaticVotingConfig.swift in Sources */,
@@ -8440,7 +8643,7 @@
 /* Begin PBXTargetDependency section */
 		0D4E7A1826B364180058B01E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 0D4E7A0426B364170058B01E /* secant-testnet */;
+			target = 9E5AB4632C94777800065483 /* zashi-internal */;
 			targetProxy = 0D4E7A1726B364180058B01E /* PBXContainerItemProxy */;
 		};
 		0D4E7A2326B364180058B01E /* PBXTargetDependency */ = {
@@ -8736,7 +8939,7 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG UNREDACTED";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/secant-testnet.app/secant-testnet";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/zashi-internal.app/zashi-internal";
 			};
 			name = Debug;
 		};
@@ -8758,7 +8961,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/secant-testnet.app/secant-testnet";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/zashi-internal.app/zashi-internal";
 			};
 			name = "Release-Testflight";
 		};
@@ -9113,7 +9316,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/secant-testnet.app/secant-testnet";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/zashi-internal.app/zashi-internal";
 			};
 			name = "Release-AppStore";
 		};
@@ -9186,7 +9389,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "zashi-internal.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 2;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
 				DEVELOPMENT_TEAM = RLPRR8CPQG;
@@ -9199,7 +9402,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.0;
+				MARKETING_VERSION = 3.5.0;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9217,7 +9420,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "zashi-internal.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
 				DEVELOPMENT_TEAM = RLPRR8CPQG;
 				ENABLE_BITCODE = NO;
@@ -9229,7 +9432,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.0;
+				MARKETING_VERSION = 3.5.0;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9247,7 +9450,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "zashi-internal.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
 				DEVELOPMENT_TEAM = RLPRR8CPQG;
 				ENABLE_BITCODE = NO;
@@ -9259,7 +9462,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.0;
+				MARKETING_VERSION = 3.5.0;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9363,6 +9566,8 @@
 				kind = upToNextMinorVersion;
 				minimumVersion = 1.25.5;
 			};
+			traits = (
+			);
 		};
 		34AA771D2F857DFF00D244E2 /* XCRemoteSwiftPackageReference "xctest-dynamic-overlay" */ = {
 			isa = XCRemoteSwiftPackageReference;

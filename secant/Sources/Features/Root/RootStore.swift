@@ -259,6 +259,7 @@ struct Root {
     @Dependency(\.userDefaults) var userDefaults
     @Dependency(\.userMetadataProvider) var userMetadataProvider
     @Dependency(\.userStoredPreferences) var userStoredPreferences
+    @Dependency(\.votingMetadata) var votingMetadata
     @Dependency(\.walletConfigProvider) var walletConfigProvider
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.readTransactionsStorage) var readTransactionsStorage
