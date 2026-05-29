@@ -57,7 +57,7 @@ jobs:
       - name: Resolve packages
         run: |
           xcodebuild -project secant.xcodeproj \
-            -scheme secant-testnet \
+            -scheme zashi-internal \
             -resolvePackageDependencies \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH"
@@ -74,7 +74,7 @@ jobs:
         run: |
           xcodebuild build \
             -project secant.xcodeproj \
-            -scheme secant-testnet \
+            -scheme zashi-internal \
             -destination 'platform=iOS Simulator,name=iPhone 16 Pro,OS=latest' \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
