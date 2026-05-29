@@ -85,8 +85,28 @@ jobs:
 
       - name: Boot simulator and install app
         run: |
+          # Boot, then wait for the device to be fully ready before installing.
           xcrun simctl boot "iPhone 16 Pro" || true
-          xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/*.app
+          xcrun simctl bootstatus "iPhone 16 Pro" -b
+
+          # Resolve the .app explicitly — fail loudly if glob matched zero
+          # or more than one bundle.
+          shopt -s nullglob
+          APPS=(build/Build/Products/Debug-iphonesimulator/*.app)
+          if [ "${#APPS[@]}" -ne 1 ]; then
+              echo "Expected exactly one .app, found ${#APPS[@]}:"
+              printf '  %s\n' "${APPS[@]}"
+              exit 1
+          fi
+          APP="${APPS[0]}"
+          echo "Installing $APP"
+          xcrun simctl install booted "$APP"
+
+          # Verify the app is actually present before handing off to maestro.
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
+          echo "Bundle ID: $BUNDLE_ID"
+          xcrun simctl listapps booted | grep -q "\"$BUNDLE_ID\"" \
+              || { echo "App $BUNDLE_ID not installed after simctl install"; exit 1; }
 
       - name: Install Maestro
         run: |
