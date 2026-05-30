@@ -22,7 +22,9 @@ struct SettingsView: View {
                             ) {
                                 store.send(.addressBookAccessCheck)
                             }
-                            
+                            .accessibilityIdentifier("settings.addressBook")
+
+
                             if store.isEnoughFreeSpaceMode {
                                 ActionRow(
                                     icon: Asset.Assets.Icons.currencyDollar.image,

@@ -48,6 +48,7 @@ extension HomeView {
             ) {
                 store.send(.moreInMoreTapped)
             }
+            .accessibilityIdentifier("moreSheet.moreInMore")
             .padding(.bottom, 24)
 
             HStack(alignment: .top, spacing: 0) {
