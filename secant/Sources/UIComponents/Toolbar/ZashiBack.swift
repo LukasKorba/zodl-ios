@@ -40,6 +40,7 @@ struct ZashiBackModifier: ViewModifier {
                             }
                         }
                         .disabled(disabled)
+                        .accessibilityIdentifier("navigation.back")
                     }
                 }
         }

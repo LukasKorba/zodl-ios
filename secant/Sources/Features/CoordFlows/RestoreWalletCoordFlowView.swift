@@ -45,11 +45,13 @@ struct RestoreWalletCoordFlowView: View {
                     ) {
                         store.send(.importExistingWallet)
                     }
+                    .accessibilityIdentifier("onboarding.restoreWallet")
                     .padding(.bottom, 8)
-                    
+
                     ZashiButton(String(localizable: .plainOnboardingButtonCreateNewWallet)) {
                         store.send(.createNewWalletTapped)
                     }
+                    .accessibilityIdentifier("onboarding.createWallet")
                     .padding(.bottom, 24)
                 }
                 .screenHorizontalPadding()
