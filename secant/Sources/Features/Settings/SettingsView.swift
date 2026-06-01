@@ -22,7 +22,7 @@ struct SettingsView: View {
                             ) {
                                 store.send(.addressBookAccessCheck)
                             }
-                            .accessibilityIdentifier("settings.addressBook")
+                            .accessibilityIdentifier(AccessibilityID.Settings.addressBook)
 
 
                             if store.isEnoughFreeSpaceMode {

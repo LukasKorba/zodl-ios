@@ -65,7 +65,7 @@ struct RecoveryPhraseDisplayView: View {
                             ) {
                                 store.send(.seedSavedTapped)
                             }
-                            .accessibilityIdentifier("recoveryPhrase.confirmButton")
+                            .accessibilityIdentifier(AccessibilityID.RecoveryPhrase.confirmButton)
                             .padding(.bottom, 24)
                         } else {
                             ZashiButton(

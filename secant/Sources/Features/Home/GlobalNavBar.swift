@@ -27,7 +27,7 @@ extension HomeView {
                 }
 #endif
         }
-        .accessibilityIdentifier("home.moreButton")
+        .accessibilityIdentifier(AccessibilityID.Home.moreButton)
     }
     
     @ViewBuilder func hideBalancesButton() -> some View {
