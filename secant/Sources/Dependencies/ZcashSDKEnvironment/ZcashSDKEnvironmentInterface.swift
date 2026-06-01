@@ -18,7 +18,7 @@ extension DependencyValues {
 
 extension ZcashSDKEnvironment {
     enum ZcashSDKConstants {
-        static let endpointMainnetAddress = "us.zec.stardust.rest"
+        static let endpointMainnetAddress = "zec.rocks"
         static let endpointTestnetAddress = "testnet.zec.rocks"
         static let endpointMainnetPort = 443
         static let endpointTestnetPort = 443
@@ -88,19 +88,19 @@ extension ZcashSDKEnvironment {
         var result: [LightWalletEndpoint] = []
         
         if !skipDefault {
-            result.append(LightWalletEndpoint(address: "us.zec.stardust.rest", port: 443))
+            result.append(LightWalletEndpoint(address: "zec.rocks", port: 443))
         }
         
         result.append(
             contentsOf: [
-                LightWalletEndpoint(address: "eu.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "eu2.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "jp.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "zec.rocks", port: 443),
                 LightWalletEndpoint(address: "na.zec.rocks", port: 443),
                 LightWalletEndpoint(address: "sa.zec.rocks", port: 443),
                 LightWalletEndpoint(address: "eu.zec.rocks", port: 443),
-                LightWalletEndpoint(address: "ap.zec.rocks", port: 443)
+                LightWalletEndpoint(address: "ap.zec.rocks", port: 443),
+                LightWalletEndpoint(address: "us.zec.stardust.rest", port: 443),
+                LightWalletEndpoint(address: "eu.zec.stardust.rest", port: 443),
+                LightWalletEndpoint(address: "eu2.zec.stardust.rest", port: 443),
+                LightWalletEndpoint(address: "jp.zec.stardust.rest", port: 443)
             ]
         )
         

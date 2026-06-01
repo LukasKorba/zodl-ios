@@ -6,6 +6,9 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ## [Unreleased]
 
+### Changed
+- Default server set to zec.rocks.
+
 ## 3.5.0 build 1 (2026-05-27)
 
 ### Added
