@@ -114,6 +114,11 @@ struct DelegationSigningView: View {
                     }
                 }
             }
+            // While this screen is up the user typically steps away to fetch
+            // and use their Keystone — keep the display awake so the QR stays
+            // visible and the submission flow stays foregrounded.
+            .onAppear { UIApplication.shared.isIdleTimerDisabled = true }
+            .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         }
     }
 
