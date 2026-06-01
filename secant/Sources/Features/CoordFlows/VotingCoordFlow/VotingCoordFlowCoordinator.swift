@@ -1209,10 +1209,18 @@ extension VotingCoordFlow {
                     session: session(item.session, withStatus: status)
                 )
 
+                // "Poll Closed" sheet is suppressed if the user has already
+                // submitted a ballot for this round — telling someone "your
+                // vote can no longer be submitted" right after they voted is
+                // jarring. In that case we silently swap their current screen
+                // for the appropriate status screen instead.
+                let hasVoted = state.voteRecords[roundId] != nil
+                    || state.roundCache[roundId]?.voteRecord != nil
+
                 switch status {
                 case .tallying:
                     let isCurrentRound = topPathRoundId(state) == roundId
-                    if activeVotingFlowRoundId(state) == roundId {
+                    if activeVotingFlowRoundId(state) == roundId, !hasVoted {
                         state.pollClosedSheet = State.PollClosedSheet(roundId: roundId, status: status)
                     } else if isCurrentRound {
                         replacePathWithStatusScreen(&state, roundId: roundId, status: status)
@@ -1226,7 +1234,7 @@ extension VotingCoordFlow {
 
                 case .finalized:
                     let isCurrentRound = topPathRoundId(state) == roundId
-                    if activeVotingFlowRoundId(state) == roundId {
+                    if activeVotingFlowRoundId(state) == roundId, !hasVoted {
                         state.pollClosedSheet = State.PollClosedSheet(roundId: roundId, status: status)
                     } else if isCurrentRound {
                         replacePathWithStatusScreen(&state, roundId: roundId, status: status)
@@ -2916,7 +2924,10 @@ extension VotingCoordFlow {
             }
             await backgroundTask.endTask(bgTaskId)
         } catch: { error, send in
-            await send(.delegationProofFailed(roundId: roundId, error: error.localizedDescription))
+            await send(.delegationProofFailed(
+                roundId: roundId,
+                error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription)
+            ))
         }
         .cancellable(id: cancelDelegationProofId, cancelInFlight: true)
     }
@@ -2961,7 +2972,10 @@ extension VotingCoordFlow {
             try await votingCrypto.deleteSkippedBundles(roundId, signedCount)
             await send(.keystoneAllBundlesSigned(roundId: roundId))
         } catch: { error, send in
-            await send(.delegationProofFailed(roundId: roundId, error: error.localizedDescription))
+            await send(.delegationProofFailed(
+                roundId: roundId,
+                error: VotingErrorMapper.userFriendlyMessage(from: error.localizedDescription)
+            ))
         }
     }
 

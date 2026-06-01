@@ -51,9 +51,10 @@ struct ProposalListView: View {
             let item = store.allRounds.first { $0.id == roundId }
             let proposals = item?.session.proposals ?? []
             let session = store.roundCache[roundId]
+            let voteRecord = session?.voteRecord ?? store.voteRecords[roundId]
             let weight = displayWeight(
                 session: session,
-                voteRecord: session?.voteRecord ?? store.voteRecords[roundId]
+                voteRecord: voteRecord
             )
             let pipelineReady = session?.hotkeyAddress != nil && (session?.bundleCount ?? 0) > 0
             let drafts = session?.draftVotes ?? [:]
@@ -77,6 +78,7 @@ struct ProposalListView: View {
                                 description: item?.session.description ?? "",
                                 snapshotHeight: item?.session.snapshotHeight ?? 0,
                                 voteEndTime: item?.session.voteEndTime ?? Date(),
+                                votedAt: voteRecord?.votedAt,
                                 weight: weight,
                                 ready: mode == .review || pipelineReady
                             )
@@ -148,6 +150,7 @@ struct ProposalListView: View {
         description: String,
         snapshotHeight: UInt64,
         voteEndTime: Date,
+        votedAt: Date?,
         weight: UInt64,
         ready: Bool
     ) -> some View {
@@ -168,11 +171,14 @@ struct ProposalListView: View {
             // Row 2: end date + voting power.
             // While the pipeline is still preparing, show the spinner row
             // instead so the user knows their voting power is being computed.
+            // Once the user has voted (review mode + persisted vote record),
+            // swap "Ends <date>" for "Voted <date>" using the locally-stored
+            // `votedAt` from the encrypted metadata.
             if ready {
                 HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text("\(String(localizable: .coinVoteProposalListHeaderEndsAt(formattedEndDate(voteEndTime)))) · ")
+                    Text("\(headerDateText(voteEndTime: voteEndTime, votedAt: votedAt)) · ")
                     Text("\(String(localizable: .coinVoteProposalListVotingPower(formattedZec(zatoshi: weight)))) ZEC")
-                    
+
                     Spacer()
                 }
                 .zFont(.medium, size: 12, style: Design.Text.tertiary)
@@ -195,11 +201,6 @@ struct ProposalListView: View {
             if !description.isEmpty {
                 ExpandableText(text: description, collapsedLineLimit: 2)
             }
-
-            if mode == .review {
-                Text(localizable: .coinVoteProposalListReviewSubmitted)
-                    .zFont(.medium, size: 14, style: Design.Text.tertiary)
-            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.bottom, 8)
@@ -210,6 +211,16 @@ struct ProposalListView: View {
         let formatter = DateFormatter()
         formatter.setLocalizedDateFormatFromTemplate("MMMdyyyy")
         return formatter.string(from: date)
+    }
+
+    /// Header date cell copy. In review mode (i.e. the user has fully
+    /// submitted a ballot) we surface the locally-known `votedAt` as
+    /// "Voted <date>"; otherwise we fall back to the upcoming end date.
+    private func headerDateText(voteEndTime: Date, votedAt: Date?) -> String {
+        if mode == .review, let votedAt {
+            return String(localizable: .coinVoteCommonVotedDate(formattedEndDate(votedAt)))
+        }
+        return String(localizable: .coinVoteProposalListHeaderEndsAt(formattedEndDate(voteEndTime)))
     }
 
     /// Voting power is stored as UInt64 zatoshi; the header copy shows ZEC.

@@ -71,7 +71,10 @@ struct ConfirmSubmissionView: View {
             .votingSheet(
                 isPresented: authorizationFailedBinding(status: status),
                 title: String(localizable: .coinVoteConfirmSubmissionAuthorizationFailedTitle),
-                message: String(localizable: .coinVoteConfirmSubmissionAuthorizationFailedMessage),
+                message: failureMessage(
+                    status: status,
+                    fallback: String(localizable: .coinVoteConfirmSubmissionAuthorizationFailedMessage)
+                ),
                 primary: .init(title: String(localizable: .coinVoteCommonTryAgain), style: .primary) {
                     store.send(.retryBatchSubmission(roundId: roundId))
                 },
@@ -83,7 +86,10 @@ struct ConfirmSubmissionView: View {
             .votingSheet(
                 isPresented: submissionFailedBinding(status: status),
                 title: String(localizable: .coinVoteConfirmSubmissionSubmissionFailedTitle),
-                message: String(localizable: .coinVoteConfirmSubmissionSubmissionFailedMessage),
+                message: failureMessage(
+                    status: status,
+                    fallback: String(localizable: .coinVoteConfirmSubmissionSubmissionFailedMessage)
+                ),
                 primary: .init(title: String(localizable: .coinVoteCommonTryAgain), style: .primary) {
                     store.send(.retryBatchSubmission(roundId: roundId))
                 },
@@ -378,6 +384,24 @@ struct ConfirmSubmissionView: View {
                 }
             }
         )
+    }
+
+    /// The reducer pre-maps backend errors through `VotingErrorMapper` before
+    /// storing them in `BatchSubmissionStatus`, so when a specific user-friendly
+    /// string is available (e.g. the "nullifier already spent" → "wallet already
+    /// registered" copy) it lives directly on the status. Fall back to the
+    /// generic sheet copy only when no error string was carried.
+    private func failureMessage(status: BatchSubmissionStatus, fallback: String) -> String {
+        let storedError: String
+        switch status {
+        case .authorizationFailed(let error):
+            storedError = error
+        case .submissionFailed(let error, _, _):
+            storedError = error
+        default:
+            return fallback
+        }
+        return storedError.isEmpty ? fallback : storedError
     }
 
     // MARK: - Helpers

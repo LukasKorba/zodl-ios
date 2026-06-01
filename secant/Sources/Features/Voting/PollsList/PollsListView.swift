@@ -19,6 +19,12 @@ struct PollsListView: View {
     @State private var loadErrorSheetPresented = true
     @State private var dismissFlowAfterLoadErrorSheetDismiss = false
 
+    /// Round id queued for entry while the "Unverified Poll" warning sheet
+    /// is showing. Set when the user taps Enter Poll on a card from a
+    /// non-default (custom) data source, then either consumed by
+    /// "Proceed anyway" or dropped by "Go back".
+    @State private var unverifiedWarningRoundId: String?
+
     let store: StoreOf<VotingCoordFlow>
 
     var body: some View {
@@ -87,7 +93,32 @@ struct PollsListView: View {
                 },
                 secondary: nil
             )
+            .votingSheet(
+                isPresented: unverifiedWarningBinding,
+                title: String(localizable: .coinVotePollsListUnverifiedSheetTitle),
+                message: String(localizable: .coinVotePollsListUnverifiedSheetMessage),
+                primary: .init(title: String(localizable: .coinVoteCommonGoBack), style: .primary) {
+                    unverifiedWarningRoundId = nil
+                },
+                secondary: .init(title: String(localizable: .coinVotePollsListUnverifiedSheetProceed), style: .secondary) {
+                    if let roundId = unverifiedWarningRoundId {
+                        unverifiedWarningRoundId = nil
+                        store.send(.roundTapped(roundId))
+                    }
+                }
+            )
         }
+    }
+
+    private var unverifiedWarningBinding: Binding<Bool> {
+        Binding(
+            get: { unverifiedWarningRoundId != nil },
+            set: { newValue in
+                if !newValue {
+                    unverifiedWarningRoundId = nil
+                }
+            }
+        )
     }
 
     private var ineligibleSheetBinding: Binding<Bool> {
@@ -456,6 +487,13 @@ struct PollsListView: View {
     private func tapPollCard(for item: RoundListItem, state: CardState) {
         switch state {
         case .active:
+            // On a custom (non-default) data source we can't confirm the
+            // poll's legitimacy from the bundled Zodl endorsement set, so
+            // warn the user before pushing them into the voting pipeline.
+            if !store.isOnDefaultConfig {
+                unverifiedWarningRoundId = item.id
+                return
+            }
             store.send(.roundTapped(item.id))
         case .voted:
             store.send(.viewMyVotesTapped(roundId: item.id))

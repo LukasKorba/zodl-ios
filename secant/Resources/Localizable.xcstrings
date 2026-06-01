@@ -4342,6 +4342,57 @@
         }
       }
     },
+    "coinVote.pollsList.unverifiedSheetMessage" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This poll hasn't been verified.\nWe can't confirm its legitimacy or how results will be used."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This poll hasn't been verified.\nWe can't confirm its legitimacy or how results will be used."
+          }
+        }
+      }
+    },
+    "coinVote.pollsList.unverifiedSheetProceed" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proceed anyway"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Proceed anyway"
+          }
+        }
+      }
+    },
+    "coinVote.pollsList.unverifiedSheetTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unverified Poll"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unverified Poll"
+          }
+        }
+      }
+    },
     "coinVote.pollsList.viewMyVotes" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4627,23 +4678,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Preparing your voting power…"
-          }
-        }
-      }
-    },
-    "coinVote.proposalList.reviewSubmitted" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Review your submitted votes"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Review your submitted votes"
           }
         }
       }
