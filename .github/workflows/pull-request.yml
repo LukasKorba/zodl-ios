@@ -28,6 +28,21 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Select latest Xcode
+        # macos-15 runners ship multiple Xcodes; default-selected is 16.x
+        # (Swift 6.0). The project is SWIFT_VERSION=6.0, and Swift 6.0 treats
+        # some concurrency diagnostics as errors that 6.2+ relaxed back to
+        # warnings ("Approachable Concurrency"). Without this step CI fails
+        # on call sites that compile fine in newer Xcode locally. Pin to the
+        # newest Xcode the runner has so the compiler matches local builds.
+        run: |
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            echo "Selecting $LATEST"
+            sudo xcode-select -s "$LATEST/Contents/Developer"
+          fi
+          xcodebuild -version
+
       - name: Compute Xcode cache key
         id: xcode-cache-key
         run: |
