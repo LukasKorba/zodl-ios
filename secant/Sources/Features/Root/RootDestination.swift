@@ -115,8 +115,10 @@ extension Root {
                         let network = zcashSDKEnvironment.network().networkType
                         let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, zip32AccountIndex, network)
 
-                        let result = try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
-                        
+                        let result = try await transactionGuard.withSubmission {
+                            try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
+                        }
+
                         switch result {
                         case .partial:
                             await send(.flexaTransactionFailed(String(localizable: .partnersFlexaTransactionFailedMessage)))
