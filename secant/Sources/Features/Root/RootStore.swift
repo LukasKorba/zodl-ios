@@ -104,6 +104,13 @@ struct Root {
         var walletBackupCoordFlowState = WalletBackupCoordFlow.State.initial
         var torSetupState = TorSetup.State.initial
 
+        /// True while Server Setup is presented via either entry point — the home-banner full-screen
+        /// cover (`serverSetupViewBinding`) or Settings → Choose Server (`chooseServerSetup`).
+        var isServerSetupVisible: Bool {
+            serverSetupViewBinding
+                || settingsState.path.contains { if case .chooseServerSetup = $0 { return true } else { return false } }
+        }
+
         init(
             appInitializationState: InitializationState = .uninitialized,
             appStartState: AppStartState = .unknown,
@@ -425,7 +432,7 @@ struct Root {
                 // (a manual Save owns that window) to avoid redundant work and stale UI. Correctness
                 // against a concurrent manual switch is guaranteed by TransactionGuard regardless:
                 // the manual Save uses switchWaiting (waits, then wins) while this uses switchIfIdle.
-                guard state.bgTask == nil, !state.serverSetupViewBinding else { return .none }
+                guard state.bgTask == nil, !state.isServerSetupVisible else { return .none }
                 return .run { _ in
                     await autoServerSelection.refreshIfEnabled()
                 }
