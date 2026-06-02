@@ -307,7 +307,10 @@ struct ServerSetupView: View {
                     .cornerRadius(32)
                     .shadow(color: .black.opacity(0.02), radius: 4, x: 0, y: -8)
 
-                let needsServer = store.connectionMode == .manual && store.selectedServer == nil
+                let customLabel = String(localizable: .serverSetupCustom)
+                let customIsBlank = store.selectedServer == customLabel
+                    && store.customServer.trimmingCharacters(in: .whitespaces).isEmpty
+                let needsServer = store.connectionMode == .manual && (store.selectedServer == nil || customIsBlank)
                 let canSave = store.hasChanges && !needsServer
 
                 Button {
