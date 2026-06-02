@@ -128,7 +128,7 @@ struct ServerSetup {
                 state.isEvaluatingServers = true
                 return .run { send in
                     let kBestServers = await sdkSynchronizer.evaluateBestOf(
-                        ZcashSDKEnvironment.endpoints(),
+                        ZcashSDKEnvironment.endpoints(for: .mainnet),
                         300.0,
                         60.0,
                         100,
