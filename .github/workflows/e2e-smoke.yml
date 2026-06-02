@@ -167,7 +167,8 @@ jobs:
           ZODL_TEST_CROSSPAY_TARGET_ADDRESS: ${{ vars.ZODL_TEST_CROSSPAY_TARGET_ADDRESS || '0xf90bd7c30fd538efde8729ea61fdf20920ed3171' }}
           ZODL_TEST_CROSSPAY_TARGET_NAME: ${{ vars.ZODL_TEST_CROSSPAY_TARGET_NAME || 'USDC Base' }}
           ZODL_TEST_CROSSPAY_CHAIN: ${{ vars.ZODL_TEST_CROSSPAY_CHAIN || 'BASE' }}
-          ZODL_TEST_CROSSPAY_AMOUNT: ${{ vars.ZODL_TEST_CROSSPAY_AMOUNT || '0.5' }}
+          ZODL_TEST_CROSSPAY_USDC_AMOUNT: ${{ vars.ZODL_TEST_CROSSPAY_USDC_AMOUNT || '0.5' }}
+          ZODL_TEST_SWAP_ZEC_AMOUNT: ${{ vars.ZODL_TEST_SWAP_ZEC_AMOUNT || '0.005' }}
 
           # Cache the AUTO_ALTERNATE state outside $HOME default so that
           # actions/cache (if added later) can persist it between runs.
