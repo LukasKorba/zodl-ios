@@ -28,6 +28,26 @@ enum AccessibilityID {
         static let addressBook = "settings.addressBook"
     }
 
+    enum SendForm {
+        static let addToContactsButton = "sendForm.addToContactsButton"
+        static let scanButton = "sendForm.scanButton"
+        static let reviewButton = "sendForm.reviewButton"
+    }
+
+    enum SendConfirmation {
+        static let sendButton = "sendConfirmation.sendButton"
+    }
+
+    enum SwapAndPayForm {
+        static let addToContactsButton = "swapAndPayForm.addToContactsButton"
+        static let scanButton = "swapAndPayForm.scanButton"
+    }
+
+    enum CrossPayForm {
+        static let assetSelectButton = "crossPayForm.assetSelectButton"
+        static let reviewButton = "crossPayForm.reviewButton"
+    }
+
     enum AddressBook {
         static let addContact = "addressBook.addContact"
         static let scanEntry = "addressBook.scanEntry"

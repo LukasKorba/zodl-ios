@@ -34,7 +34,8 @@ extension SwapAndPayForm {
                                 } label: {
                                     ticker(asset: store.selectedAsset, crosspay: true, colorScheme)
                                 }
-                                
+                                .accessibilityIdentifier(AccessibilityID.CrossPayForm.assetSelectButton)
+
                                 Spacer()
                             }
                             
@@ -136,6 +137,7 @@ extension SwapAndPayForm {
                                 ZashiButton(String(localizable: .sendReview)) {
                                     store.send(.getQuoteTapped)
                                 }
+                                .accessibilityIdentifier(AccessibilityID.CrossPayForm.reviewButton)
                                 .padding(.top, keyboardVisible ? 40 : 0)
                                 .padding(.bottom, 56)
                                 .disabled(!store.isValidForm)

@@ -84,7 +84,8 @@ struct SwapAndPayForm: View {
                             fieldButton(
                                 icon: store.isNotAddressInAddressBook
                                 ? Asset.Assets.Icons.userPlus.image
-                                : Asset.Assets.Icons.user.image
+                                : Asset.Assets.Icons.user.image,
+                                identifier: AccessibilityID.SwapAndPayForm.addToContactsButton
                             ) {
                                 if store.isNotAddressInAddressBook {
                                     store.send(.notInAddressBookButtonTapped(store.address))
@@ -92,8 +93,11 @@ struct SwapAndPayForm: View {
                                     store.send(.addressBookRequested)
                                 }
                             }
-                            
-                            fieldButton(icon: Asset.Assets.Icons.qr.image) {
+
+                            fieldButton(
+                                icon: Asset.Assets.Icons.qr.image,
+                                identifier: AccessibilityID.SwapAndPayForm.scanButton
+                            ) {
                                 store.send(.scanTapped)
                             }
                         }
@@ -174,13 +178,14 @@ struct SwapAndPayForm: View {
         }
     }
 
-    func fieldButton(icon: Image, _ action: @escaping () -> Void) -> some View {
+    func fieldButton(icon: Image, identifier: String = "", _ action: @escaping () -> Void) -> some View {
         Button {
             action()
         } label: {
             icon
                 .zImage(size: 20, style: Design.Inputs.Default.label)
         }
+        .accessibilityIdentifier(identifier)
         .padding(8)
         .background {
             RoundedRectangle(cornerRadius: Design.Radius._md)
