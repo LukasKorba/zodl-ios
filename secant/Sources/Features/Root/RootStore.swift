@@ -39,6 +39,7 @@ struct Root {
         var DidFinishLaunchingId = UUID()
         var CancelFlexaId = UUID()
         var shieldingProcessorCancelId = UUID()
+        var automaticServerRefreshCancelId = UUID()
 
         @Shared(.inMemory(.addressBookContacts)) var addressBookContacts: AddressBookContacts = .empty
         @Presents var alert: AlertState<Action>?
@@ -191,6 +192,7 @@ struct Root {
         case walletBackupCoordFlow(WalletBackupCoordFlow.Action)
         case torSetup(TorSetup.Action)
         case backToHomeFromServerSwitchTapped
+        case refreshAutomaticServer
 
         // Transactions
         case observeTransactions
@@ -255,6 +257,7 @@ struct Root {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.shieldingProcessor) var shieldingProcessor
     @Dependency(\.swapAndPay) var swapAndPay
+    @Dependency(\.autoServerSelection) var autoServerSelection
     @Dependency(\.uriParser) var uriParser
     @Dependency(\.userDefaults) var userDefaults
     @Dependency(\.userMetadataProvider) var userMetadataProvider
@@ -415,6 +418,14 @@ struct Root {
 
             case .onboarding(.newWalletSuccessfulyCreated):
                 return .send(.initialization(.initializeSDK(.newWallet)))
+
+            case .refreshAutomaticServer:
+                // Never benchmark during a background task; the launch/foreground paths gate the rest.
+                guard state.bgTask == nil else { return .none }
+                return .run { _ in
+                    await autoServerSelection.refreshIfEnabled()
+                }
+                .cancellable(id: state.automaticServerRefreshCancelId, cancelInFlight: true)
 
             default: return .none
             }
