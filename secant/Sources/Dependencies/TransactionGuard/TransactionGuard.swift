@@ -13,6 +13,8 @@ actor TransactionGuard {
     private var waiters: [CheckedContinuation<Void, Never>] = []
 
     /// Wait until the guard is free, then take it. Callers must `release()` when done.
+    /// Note: a task parked here is not cancellation-aware — it is resumed only by a future
+    /// `release()`. This is acceptable for the short-lived switch/submit operations that use it.
     func acquire() async {
         guard isBusy else {
             isBusy = true

@@ -421,8 +421,11 @@ struct Root {
                 return .send(.initialization(.initializeSDK(.newWallet)))
 
             case .refreshAutomaticServer:
-                // Never benchmark during a background task; the launch/foreground paths gate the rest.
-                guard state.bgTask == nil else { return .none }
+                // Skip during a background task, and while the user is on the Server Setup screen
+                // (a manual Save owns that window) to avoid redundant work and stale UI. Correctness
+                // against a concurrent manual switch is guaranteed by TransactionGuard regardless:
+                // the manual Save uses switchWaiting (waits, then wins) while this uses switchIfIdle.
+                guard state.bgTask == nil, !state.serverSetupViewBinding else { return .none }
                 return .run { _ in
                     await autoServerSelection.refreshIfEnabled()
                 }
