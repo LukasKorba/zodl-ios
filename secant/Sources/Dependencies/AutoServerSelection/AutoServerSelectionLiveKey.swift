@@ -21,7 +21,7 @@ extension AutoServerSelectionClient: DependencyKey {
 
             let ranked = await sdkSynchronizer.evaluateBestOf(
                 endpoints,
-                AutoServerSelectionConstants.connectionTimeoutMilliseconds,
+                0, // ignored: SDKSynchronizerLive.evaluateBestOf doesn't forward this arg to the SDK
                 AutoServerSelectionConstants.evaluationTimeoutSeconds,
                 AutoServerSelectionConstants.blocksToDownload,
                 AutoServerSelectionConstants.candidateCount,

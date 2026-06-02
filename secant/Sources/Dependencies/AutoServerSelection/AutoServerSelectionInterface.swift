@@ -23,7 +23,6 @@ struct AutoServerSelectionClient {
 
 enum AutoServerSelectionConstants {
     // Lightweight startup/foreground benchmark: cheap checks, short fetch.
-    static let connectionTimeoutMilliseconds = 300.0
     static let evaluationTimeoutSeconds = 5.0
     static let blocksToDownload: UInt64 = 1
     static let candidateCount = 3

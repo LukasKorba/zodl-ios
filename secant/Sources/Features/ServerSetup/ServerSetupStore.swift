@@ -25,7 +25,6 @@ struct ServerSetup {
 
     private enum Benchmark {
         // User-visible recommendation pass: can spend longer to rank several servers.
-        static let connectionTimeoutMilliseconds = 300.0
         static let evaluationTimeoutSeconds = 60.0
         static let blocksToDownload: UInt64 = 100
         static let recommendedServerCount = 3
@@ -188,7 +187,7 @@ struct ServerSetup {
                 return .run { send in
                     let kBestServers = await sdkSynchronizer.evaluateBestOf(
                         ZcashSDKEnvironment.endpoints(for: network),
-                        Benchmark.connectionTimeoutMilliseconds,
+                        0, // ignored: SDKSynchronizerLive.evaluateBestOf doesn't forward this arg to the SDK
                         Benchmark.evaluationTimeoutSeconds,
                         Benchmark.blocksToDownload,
                         Benchmark.recommendedServerCount,
@@ -245,7 +244,7 @@ struct ServerSetup {
                             } else {
                                 let ranked = await sdkSynchronizer.evaluateBestOf(
                                     ZcashSDKEnvironment.endpoints(for: network),
-                                    Benchmark.connectionTimeoutMilliseconds,
+                                    0, // ignored: SDKSynchronizerLive.evaluateBestOf doesn't forward this arg to the SDK
                                     Benchmark.evaluationTimeoutSeconds,
                                     Benchmark.blocksToDownload,
                                     1,
