@@ -19,8 +19,9 @@ struct UserPreferencesStorage {
         /// The current key for exchange rate setup.
         case ups_exchangeRate2
         case ups_server
+        case ups_automaticServerSelection
     }
-    
+
     enum UserPreferencesStorageError: Error {
         case exchangeRate
         case serverConfig
@@ -60,6 +61,16 @@ struct UserPreferencesStorage {
         } catch {
             throw UserPreferencesStorageError.serverConfig
         }
+    }
+
+    /// Whether the app automatically benchmarks known servers and keeps the fastest one.
+    /// `nil` means the preference has never been set (first run) — used by migration.
+    var automaticServerSelection: Bool? {
+        userDefaults.objectForKey(Constants.ups_automaticServerSelection.rawValue) as? Bool
+    }
+
+    func setAutomaticServerSelection(_ enabled: Bool) {
+        setValue(enabled, forKey: Constants.ups_automaticServerSelection.rawValue)
     }
 
     /// Exchange rate API in the SDK uses TOR and eventually fetches the data from rate providers. This has to be opted in by a user, by default it's off.
@@ -186,8 +197,19 @@ extension UserPreferencesStorage {
             guard let endpoint = ServerConfig.endpoint(for: string, streamingCallTimeoutInMillis: streamingCallTimeoutInMillis) else {
                 return nil
             }
-            
+
             return ServerConfig(host: endpoint.host, port: endpoint.port, isCustom: isCustom)
         }
+    }
+}
+
+// MARK: Connection Mode
+
+extension UserPreferencesStorage {
+    /// UI-facing connection mode for Server Setup. Persisted as the `automaticServerSelection` boolean
+    /// (`.automatic` == `true`); this enum exists so the two-mode picker reads clearly.
+    enum ConnectionMode: String, Codable, Equatable {
+        case automatic
+        case manual
     }
 }

@@ -20,6 +20,9 @@ struct UserPreferencesStorageClient {
     var server: @Sendable () -> UserPreferencesStorage.ServerConfig? = { nil }
     var setServer: @Sendable (UserPreferencesStorage.ServerConfig) throws -> Void
 
+    var automaticServerSelection: @Sendable () -> Bool? = { nil }
+    var setAutomaticServerSelection: @Sendable (Bool) -> Void
+
     var exchangeRate: @Sendable () -> UserPreferencesStorage.ExchangeRate? = { nil }
     var setExchangeRate: @Sendable (UserPreferencesStorage.ExchangeRate) throws -> Void
 
