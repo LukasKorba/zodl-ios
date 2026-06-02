@@ -48,6 +48,12 @@ enum AccessibilityID {
         static let reviewButton = "crossPayForm.reviewButton"
     }
 
+    enum SwapForm {
+        static let assetSelectButton = "swapForm.assetSelectButton"
+        static let changeModeButton = "swapForm.changeModeButton"
+        static let reviewButton = "swapForm.reviewButton"
+    }
+
     enum AddressBook {
         static let addContact = "addressBook.addContact"
         static let scanEntry = "addressBook.scanEntry"
