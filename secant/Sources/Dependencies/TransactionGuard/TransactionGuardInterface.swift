@@ -16,7 +16,9 @@ extension DependencyValues {
 @DependencyClient
 struct TransactionGuardClient {
     var acquire: @Sendable () async -> Void
-    var tryAcquire: @Sendable () async -> Bool = { true }
+    // Default to `false` so a partial override that wires `acquire`/`release` but forgets
+    // `tryAcquire` makes `switchIfIdle` a safe no-op rather than releasing a guard it never took.
+    var tryAcquire: @Sendable () async -> Bool = { false }
     var release: @Sendable () async -> Void
 }
 
