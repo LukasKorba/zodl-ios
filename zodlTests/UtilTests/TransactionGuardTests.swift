@@ -107,7 +107,9 @@ private actor AsyncBox {
     private var waiters: [CheckedContinuation<Void, Never>] = []
     func signal() {
         signaled = true
-        let w = waiters; waiters.removeAll(); w.forEach { $0.resume() }
+        let w = waiters
+        waiters.removeAll()
+        w.forEach { $0.resume() }
     }
     func wait() async {
         if signaled { return }

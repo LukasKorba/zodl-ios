@@ -25,7 +25,10 @@ extension TransactionGuardClient {
     /// and waits for an in-flight switch to finish first.
     func withSubmission<T>(_ body: () async throws -> T) async throws -> T {
         await acquire()
-        if Task.isCancelled { await release(); throw CancellationError() }
+        if Task.isCancelled {
+            await release()
+            throw CancellationError()
+        }
         do {
             let result = try await body()
             await release()
@@ -54,7 +57,10 @@ extension TransactionGuardClient {
     /// manual Save so an explicit user choice always wins.
     func switchWaiting(_ body: () async throws -> Void) async throws {
         await acquire()
-        if Task.isCancelled { await release(); throw CancellationError() }
+        if Task.isCancelled {
+            await release()
+            throw CancellationError()
+        }
         do {
             try await body()
             await release()
