@@ -366,11 +366,11 @@ struct ResultsView: View {
         }
     }
 
-    /// Inline restoration of the legacy `tallyEntryColor` helper that lived
-    /// in the deleted `VotingComponents.swift`. Looks the option up on the
-    /// proposal so Abstain stays HyperBlue; falls back to a synthetic
-    /// `VoteOption` for entries whose decision index isn't in
-    /// `proposal.options` (e.g. legacy Support/Oppose).
+    /// Pick the tally-bar color for an option. Looks the option up on the
+    /// proposal so the label-based mapping in `voteOptionColor` can fire;
+    /// falls back to a synthetic `VoteOption` for entries whose decision
+    /// index isn't in `proposal.options` (e.g. legacy Support / Oppose
+    /// rounds).
     private func tallyEntryColor(
         decision: UInt32,
         proposal: VotingProposal,
@@ -378,42 +378,30 @@ struct ResultsView: View {
     ) -> Color {
         let option = proposal.options.first { $0.index == decision }
             ?? VoteOption(index: decision, label: fallbackLabel)
-        return Self.voteOptionColor(
-            for: option,
-            total: proposal.options.count,
-            colorScheme: colorScheme
-        )
+        return Self.voteOptionColor(for: option, colorScheme: colorScheme)
     }
 
-    /// Inline restoration of the legacy `voteOptionColor` palette. Abstain
-    /// is HyperBlue regardless of how many options the proposal has so the
-    /// color stays stable. Two-option proposals keep the classic green
-    /// (Support) / red (Oppose) look. 3+ non-abstain options rotate
-    /// through a palette that deliberately excludes HyperBlue.
-    static func voteOptionColor(
-        for option: VoteOption,
-        total: Int,
-        colorScheme: ColorScheme
-    ) -> Color {
-        if option.label.localizedCaseInsensitiveContains("abstain") {
-            return Design.Utility.HyperBlue._700.color(colorScheme)
+    /// Color mapping per product spec:
+    ///   • Yes / Support → SuccessGreen
+    ///   • No  / Oppose  → ErrorRed
+    ///   • Abstain       → Gray
+    ///   • everything else → HyperBlue
+    /// Mirrors `ProposalListView.pillTone(for:)` so the same answer renders
+    /// with the same color across the voting screens.
+    /// Matches against the literal English option label until the voting
+    /// metadata exposes a typed option-kind (same caveat as
+    /// `ProposalListView.pillTone`).
+    static func voteOptionColor(for option: VoteOption, colorScheme: ColorScheme) -> Color {
+        switch option.label.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "yes", "support":
+            return Design.Utility.SuccessGreen._500.color(colorScheme)
+        case "no", "oppose":
+            return Design.Utility.ErrorRed._500.color(colorScheme)
+        case "abstain":
+            return Design.Utility.Gray._500.color(colorScheme)
+        default:
+            return Design.Utility.HyperBlue._500.color(colorScheme)
         }
-        if total == 2 {
-            return option.index == 0
-                ? Design.Utility.SuccessGreen._500.color(colorScheme)
-                : Design.Utility.ErrorRed._500.color(colorScheme)
-        }
-        let palette: [Color] = [
-            Design.Utility.SuccessGreen._500.color(colorScheme),
-            Design.Utility.ErrorRed._500.color(colorScheme),
-            Design.Utility.Purple._500.color(colorScheme),
-            Design.Utility.WarningYellow._500.color(colorScheme),
-            Design.Utility.Indigo._500.color(colorScheme),
-            Design.Utility.Brand._500.color(colorScheme),
-            Design.Utility.Gray._500.color(colorScheme),
-            Design.Utility.Indigo._700.color(colorScheme)
-        ]
-        return palette[Int(option.index) % palette.count]
     }
 
     // MARK: - ZEC formatting

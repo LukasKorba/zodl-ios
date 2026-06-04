@@ -418,7 +418,11 @@ enum VotingErrorMapper {
 
     // swiftlint:disable:next cyclomatic_complexity
     static func userFriendlyMessage(from rawError: String) -> String {
-        if rawError.contains("nullifier already spent") {
+        // Mirrors Android (`VotingErrorMapper.kt`): both substrings,
+        // case-insensitive — robust to wording variants like
+        // "Nullifier was already spent" vs "nullifier already spent".
+        if rawError.localizedCaseInsensitiveContains("nullifier")
+            && rawError.localizedCaseInsensitiveContains("spent") {
             return String(localizable: .coinVoteStoreUserErrorNullifierAlreadySpent)
         }
         if rawError.contains("vote round is not active") {

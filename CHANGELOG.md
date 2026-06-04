@@ -10,6 +10,16 @@ directly impact users rather than highlighting other crucial architectural updat
 - Default server set to zec.rocks.
 - We now keep the screen awake while you're submitting Coinholder Polling votes — including the Keystone QR signing step — so the device doesn't lock mid-submission.
 
+### Added
+- Tapping Enter Poll on a poll from a custom (unverified) data source now surfaces an "Unverified Poll" warning sheet, letting you go back or proceed at your own risk.
+
+### Fixed
+- We fixed the Coinholder Polling review screen so it now shows "Voted <date>" once you've submitted your ballot, instead of the round's upcoming end date.
+- We removed an unused "Review your submitted votes" subtitle from the Coinholder Polling review screen header to match the design.
+- We suppressed the Coinholder Polling "Poll Closed" sheet for users who already submitted their ballot — telling someone they can no longer vote right after voting is just noise.
+- We corrected the tally-bar colors on the Coinholder Polling answers screen: green for Yes/Support, red for No/Oppose, gray for Abstain, blue for everything else — matching the rest of the voting screens.
+- We now show a specific message when an attempt to vote fails because the same wallet has already voted from another device, instead of the generic "Check your connection" copy.
+
 ## 3.5.0 build 1 (2026-05-27)
 
 ### Added
