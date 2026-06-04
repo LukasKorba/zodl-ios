@@ -38,7 +38,9 @@ extension AutoServerSelectionClient: DependencyKey {
 
             do {
                 let didSwitch = try await transactionGuard.switchIfIdle {
-                    try await sdkSynchronizer.switchToEndpoint(best)
+                    try await withTimeout(serverSwitchTimeout) {
+                        try await sdkSynchronizer.switchToEndpoint(best)
+                    }
                 }
                 guard didSwitch else { return }
 

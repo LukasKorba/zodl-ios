@@ -4,7 +4,7 @@ import XCTest
 final class TransactionGuardTests: XCTestCase {
     func testTryAcquireFailsWhileHeld() async {
         let guardActor = TransactionGuard()
-        await guardActor.acquire()
+        try? await guardActor.acquire()
         let acquired = await guardActor.tryAcquire()
         XCTAssertFalse(acquired, "tryAcquire must fail while the guard is held")
         await guardActor.release()
@@ -98,6 +98,70 @@ final class TransactionGuardTests: XCTestCase {
         _ = try? await parked.value
 
         XCTAssertFalse(bodyRan.value, "A cancelled, parked submission must not run its body")
+    }
+
+    func testParkedAcquireUnblocksOnCancellationEvenIfHolderNeverReleases() async {
+        let guardActor = TransactionGuard()
+        // Holder takes the guard and never releases — simulates a hung switch.
+        try? await guardActor.acquire()
+
+        let parkedStarted = AsyncBox()
+        let parked = Task { () -> Bool in
+            await parkedStarted.signal()
+            do {
+                try await guardActor.acquire()
+                return false // acquired — must not happen while the guard is held
+            } catch is CancellationError {
+                return true
+            } catch {
+                return false
+            }
+        }
+
+        await parkedStarted.wait()
+        try? await Task.sleep(for: .milliseconds(50)) // let it park in acquire()
+        parked.cancel()
+
+        let unblockedByCancellation = await parked.value
+        XCTAssertTrue(
+            unblockedByCancellation,
+            "A parked acquire() must throw CancellationError when cancelled, even if the holder never releases"
+        )
+        // Cancelling the waiter must not have released the holder's guard.
+        let stillHeld = await guardActor.tryAcquire()
+        XCTAssertFalse(stillHeld, "Cancelling a waiter must not release the guard held by another task")
+    }
+
+    func testWithTimeoutThrowsWhenOperationExceedsDeadline() async {
+        do {
+            try await withTimeout(.milliseconds(50)) {
+                try await Task.sleep(for: .seconds(10))
+            }
+            XCTFail("withTimeout should have thrown TransactionTimeoutError")
+        } catch is TransactionTimeoutError {
+            // expected
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testWithTimeoutReturnsValueWhenOperationFinishesInTime() async throws {
+        let value = try await withTimeout(.seconds(5)) { 42 }
+        XCTAssertEqual(value, 42)
+    }
+
+    func testSwitchWaitingReleasesGuardWhenSwitchTimesOut() async {
+        let client = TransactionGuardClient.liveValue
+        // A switch body that hangs past its timeout must release the guard, not wedge it.
+        let timedOut: Void? = try? await client.switchWaiting {
+            try await withTimeout(.milliseconds(50)) {
+                try await Task.sleep(for: .seconds(10))
+            }
+        }
+        XCTAssertNil(timedOut, "switchWaiting must rethrow the timeout")
+
+        let didSwitch = try? await client.switchIfIdle { }
+        XCTAssertEqual(didSwitch, true, "Guard must be free after a timed-out switch")
     }
 }
 

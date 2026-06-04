@@ -15,7 +15,7 @@ extension DependencyValues {
 
 @DependencyClient
 struct TransactionGuardClient {
-    var acquire: @Sendable () async -> Void
+    var acquire: @Sendable () async throws -> Void
     // Default to `false` so a partial override that wires `acquire`/`release` but forgets
     // `tryAcquire` makes `switchIfIdle` a safe no-op rather than releasing a guard it never took.
     var tryAcquire: @Sendable () async -> Bool = { false }
@@ -26,7 +26,7 @@ extension TransactionGuardClient {
     /// Run a network submission with exclusive access. Blocks any server switch for its duration,
     /// and waits for an in-flight switch to finish first.
     func withSubmission<T>(_ body: () async throws -> T) async throws -> T {
-        await acquire()
+        try await acquire()
         if Task.isCancelled {
             await release()
             throw CancellationError()
@@ -58,7 +58,7 @@ extension TransactionGuardClient {
     /// Run a server switch, waiting for any active submission/switch to finish first. Used by the
     /// manual Save so an explicit user choice always wins.
     func switchWaiting(_ body: () async throws -> Void) async throws {
-        await acquire()
+        try await acquire()
         if Task.isCancelled {
             await release()
             throw CancellationError()

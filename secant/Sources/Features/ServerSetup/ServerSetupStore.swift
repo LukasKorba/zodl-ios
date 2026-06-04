@@ -256,7 +256,9 @@ struct ServerSetup {
                             let current = zcashSDKEnvironment.endpoint()
                             if best.host != current.host || best.port != current.port {
                                 try await transactionGuard.switchWaiting {
-                                    try await sdkSynchronizer.switchToEndpoint(best)
+                                    try await withTimeout(serverSwitchTimeout) {
+                                        try await sdkSynchronizer.switchToEndpoint(best)
+                                    }
                                 }
                             }
 
@@ -295,7 +297,9 @@ struct ServerSetup {
                             let current = zcashSDKEnvironment.endpoint()
                             if endpoint.host != current.host || endpoint.port != current.port {
                                 try await transactionGuard.switchWaiting {
-                                    try await sdkSynchronizer.switchToEndpoint(endpoint)
+                                    try await withTimeout(serverSwitchTimeout) {
+                                        try await sdkSynchronizer.switchToEndpoint(endpoint)
+                                    }
                                 }
                             }
 
