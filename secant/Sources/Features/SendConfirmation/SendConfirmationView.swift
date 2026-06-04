@@ -182,6 +182,7 @@ struct SendConfirmationView: View {
                         ZashiButton(String(localizable: .generalSend)) {
                             store.send(.sendTapped)
                         }
+                        .accessibilityIdentifier(AccessibilityID.SendConfirmation.sendButton)
                         .screenHorizontalPadding()
                         .padding(.bottom, 24)
                     }

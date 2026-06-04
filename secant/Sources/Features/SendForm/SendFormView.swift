@@ -63,7 +63,8 @@ struct SendFormView: View {
                                                             fieldButton(
                                                                 icon: store.isNotAddressInAddressBook
                                                                 ? Asset.Assets.Icons.userPlus.image
-                                                                : Asset.Assets.Icons.user.image
+                                                                : Asset.Assets.Icons.user.image,
+                                                                identifier: AccessibilityID.SendForm.addToContactsButton
                                                             ) {
                                                                 if store.isNotAddressInAddressBook {
                                                                     store.send(.addNewContactTapped(store.address))
@@ -71,8 +72,11 @@ struct SendFormView: View {
                                                                     store.send(.addressBookTapped)
                                                                 }
                                                             }
-                                                            
-                                                            fieldButton(icon: Asset.Assets.Icons.qr.image) {
+
+                                                            fieldButton(
+                                                                icon: Asset.Assets.Icons.qr.image,
+                                                                identifier: AccessibilityID.SendForm.scanButton
+                                                            ) {
                                                                 store.send(.scanTapped)
                                                             }
                                                         }
@@ -171,6 +175,7 @@ struct SendFormView: View {
                                         }
                                         .disabled(!store.isValidForm)
                                         .padding(.top, 40)
+                                        .accessibilityIdentifier(AccessibilityID.SendForm.reviewButton)
                                     }
                                 }
                                 .screenHorizontalPadding()
@@ -279,13 +284,14 @@ struct SendFormView: View {
         }
     }
     
-    private func fieldButton(icon: Image, _ action: @escaping () -> Void) -> some View {
+    private func fieldButton(icon: Image, identifier: String = "", _ action: @escaping () -> Void) -> some View {
         Button {
             action()
         } label: {
             icon
                 .zImage(size: 20, style: Design.Inputs.Default.label)
         }
+        .accessibilityIdentifier(identifier)
         .padding(8)
         .background {
             RoundedRectangle(cornerRadius: Design.Radius._md)

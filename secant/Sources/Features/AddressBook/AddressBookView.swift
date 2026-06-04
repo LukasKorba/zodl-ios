@@ -83,6 +83,7 @@ struct AddressBookView: View {
                         Text(localizable: .addressBookScanAddress)
                     }
                 }
+                .accessibilityIdentifier(AccessibilityID.AddressBook.scanEntry)
 
                 Button {
                     store.send(.addManualButtonTapped)
@@ -94,6 +95,7 @@ struct AddressBookView: View {
                         Text(localizable: .addressBookManualEntry)
                     }
                 }
+                .accessibilityIdentifier(AccessibilityID.AddressBook.manualEntry)
             } label: {
                 ZashiButton(
                     String(localizable: .addressBookAddNewContact),
@@ -103,12 +105,13 @@ struct AddressBookView: View {
                             .resizable()
                             .frame(width: 20, height: 20)
                 ) {
-                    
+
                 }
                 .screenHorizontalPadding()
                 .padding(.bottom, 24)
                 .padding(.top, 8)
             }
+            .accessibilityIdentifier(AccessibilityID.AddressBook.addContact)
         }
     }
     

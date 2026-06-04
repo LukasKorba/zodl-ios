@@ -33,6 +33,7 @@ struct AddressBookContactView: View {
                 )
                 .padding(.top, 20)
                 .focused($isAddressFocused)
+                .accessibilityIdentifier(AccessibilityID.AddressBookContact.walletAddressField)
 
                 ZashiTextField(
                     text: $store.name,
@@ -43,6 +44,7 @@ struct AddressBookContactView: View {
                 .padding(.top, 20)
                 .padding(.bottom, (store.context != .send || store.isEditingContactWithChain) ? 0 : 20)
                 .focused($isNameFocused)
+                .accessibilityIdentifier(AccessibilityID.AddressBookContact.contactNameField)
 
                 if store.context != .send || store.isEditingContactWithChain {
                     if store.isValidZcashAddress && store.context != .swap {
@@ -112,6 +114,7 @@ struct AddressBookContactView: View {
                                         .fill(Design.Inputs.Default.bg.color(colorScheme))
                                 )
                             }
+                            .accessibilityIdentifier(AccessibilityID.AddressBookContact.chainSelector)
                         }
                         .padding(.top, 20)
                         .focused($isChainIdFocused)
@@ -124,12 +127,14 @@ struct AddressBookContactView: View {
                     store.send(.saveButtonTapped)
                 }
                 .disabled(store.isSaveButtonDisabled)
+                .accessibilityIdentifier(AccessibilityID.AddressBookContact.saveButton)
                 .padding(.bottom, store.editId != nil ? 0 : 24)
 
                 if store.editId != nil {
                     ZashiButton(String(localizable: .generalDelete), type: .destructive1) {
                         store.send(.deleteId(store.uniqueId))
                     }
+                    .accessibilityIdentifier(AccessibilityID.AddressBookContact.deleteButton)
                     .padding(.bottom, 24)
                 }
             }

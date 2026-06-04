@@ -37,6 +37,7 @@ struct HomeView: View {
                     ) {
                         store.send(.receiveScreenRequested)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Home.receiveButton)
 
                     Spacer(minLength: 8)
 
@@ -46,6 +47,7 @@ struct HomeView: View {
                     ) {
                         store.send(.sendTapped)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Home.sendButton)
 
                     Spacer(minLength: 8)
 
@@ -55,6 +57,7 @@ struct HomeView: View {
                     ) {
                         store.send(.payWithNearTapped)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Home.payButton)
 
                     Spacer(minLength: 8)
 
@@ -64,6 +67,7 @@ struct HomeView: View {
                     ) {
                         store.send(.swapWithNearTapped)
                     }
+                    .accessibilityIdentifier(AccessibilityID.Home.swapButton)
                 }
                 .zFont(.medium, size: 12, style: Design.Text.primary)
                 .padding(.top, 24)

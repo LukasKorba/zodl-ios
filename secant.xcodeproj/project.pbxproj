@@ -415,6 +415,7 @@
 		34AA6F692F85774F00D244E2 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CE92F85774F00D244E2 /* SettingsCoordinator.swift */; };
 		34AA6F6A2F85774F00D244E2 /* GlobalNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C9D2F85774F00D244E2 /* GlobalNavBar.swift */; };
 		34AA6F6B2F85774F00D244E2 /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */; };
+		A6614A6838412195D1C0036E /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 		34AA6F6C2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C152F85774F00D244E2 /* ReviewRequestTestKey.swift */; };
 		34AA6F6D2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6BF22F85774F00D244E2 /* LogsHandlerInterface.swift */; };
 		34AA6F6E2F85774F00D244E2 /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 34AA6D2C2F85774F00D244E2 /* Inter-SemiBold.otf */; };
@@ -864,6 +865,7 @@
 		34AA71372F85774F00D244E2 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CE92F85774F00D244E2 /* SettingsCoordinator.swift */; };
 		34AA71382F85774F00D244E2 /* GlobalNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C9D2F85774F00D244E2 /* GlobalNavBar.swift */; };
 		34AA71392F85774F00D244E2 /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */; };
+		A3150A056C1A6B467B9F30BC /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 		34AA713A2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C152F85774F00D244E2 /* ReviewRequestTestKey.swift */; };
 		34AA713B2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6BF22F85774F00D244E2 /* LogsHandlerInterface.swift */; };
 		34AA713C2F85774F00D244E2 /* SwapAndPayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CF82F85774F00D244E2 /* SwapAndPayStore.swift */; };
@@ -1261,6 +1263,7 @@
 		34AA72CD2F85774F00D244E2 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CE92F85774F00D244E2 /* SettingsCoordinator.swift */; };
 		34AA72CE2F85774F00D244E2 /* GlobalNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C9D2F85774F00D244E2 /* GlobalNavBar.swift */; };
 		34AA72CF2F85774F00D244E2 /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */; };
+		38923B93B161EE61D86F3070 /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 		34AA72D02F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C152F85774F00D244E2 /* ReviewRequestTestKey.swift */; };
 		34AA72D12F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6BF22F85774F00D244E2 /* LogsHandlerInterface.swift */; };
 		34AA72D22F85774F00D244E2 /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 34AA6D2C2F85774F00D244E2 /* Inter-SemiBold.otf */; };
@@ -1710,6 +1713,7 @@
 		34AA749B2F85774F00D244E2 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CE92F85774F00D244E2 /* SettingsCoordinator.swift */; };
 		34AA749C2F85774F00D244E2 /* GlobalNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C9D2F85774F00D244E2 /* GlobalNavBar.swift */; };
 		34AA749D2F85774F00D244E2 /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */; };
+		92244D487F7EABE1C7B8EE6C /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 		34AA749E2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C152F85774F00D244E2 /* ReviewRequestTestKey.swift */; };
 		34AA749F2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6BF22F85774F00D244E2 /* LogsHandlerInterface.swift */; };
 		34AA74A02F85774F00D244E2 /* SwapAndPayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CF82F85774F00D244E2 /* SwapAndPayStore.swift */; };
@@ -2107,6 +2111,7 @@
 		34AA76312F85774F00D244E2 /* SettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CE92F85774F00D244E2 /* SettingsCoordinator.swift */; };
 		34AA76322F85774F00D244E2 /* GlobalNavBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C9D2F85774F00D244E2 /* GlobalNavBar.swift */; };
 		34AA76332F85774F00D244E2 /* AnyDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */; };
+		B162C19E08D002B2D9B020A9 /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 		34AA76342F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C152F85774F00D244E2 /* ReviewRequestTestKey.swift */; };
 		34AA76352F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6BF22F85774F00D244E2 /* LogsHandlerInterface.swift */; };
 		34AA76362F85774F00D244E2 /* Inter-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 34AA6D2C2F85774F00D244E2 /* Inter-SemiBold.otf */; };
@@ -3039,6 +3044,7 @@
 		34AA6DBA2F85774F00D244E2 /* TCALoggerReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCALoggerReducer.swift; sourceTree = "<group>"; };
 		34AA6DBB2F85774F00D244E2 /* TCALogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCALogging.swift; sourceTree = "<group>"; };
 		34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyDecodable.swift; sourceTree = "<group>"; };
+		0F94E337360CE50FACFB04CE /* AccessibilityID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityID.swift; sourceTree = "<group>"; };
 		34AA6DBE2F85774F00D244E2 /* Array+Chunked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Chunked.swift"; sourceTree = "<group>"; };
 		34AA6DBF2F85774F00D244E2 /* BalanceFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceFormatter.swift; sourceTree = "<group>"; };
 		34AA6DC02F85774F00D244E2 /* Bindings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bindings.swift; sourceTree = "<group>"; };
@@ -4848,6 +4854,7 @@
 			isa = PBXGroup;
 			children = (
 				34AA6DBD2F85774F00D244E2 /* AnyDecodable.swift */,
+				0F94E337360CE50FACFB04CE /* AccessibilityID.swift */,
 				34AA6DBE2F85774F00D244E2 /* Array+Chunked.swift */,
 				34AA6DBF2F85774F00D244E2 /* BalanceFormatter.swift */,
 				34AA6DC02F85774F00D244E2 /* Bindings.swift */,
@@ -6753,6 +6760,7 @@
 				34AA749B2F85774F00D244E2 /* SettingsCoordinator.swift in Sources */,
 				34AA749C2F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA749D2F85774F00D244E2 /* AnyDecodable.swift in Sources */,
+				92244D487F7EABE1C7B8EE6C /* AccessibilityID.swift in Sources */,
 				34AA749E2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
 				9EEBF82C2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA749F2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
@@ -7217,6 +7225,7 @@
 				34AA71372F85774F00D244E2 /* SettingsCoordinator.swift in Sources */,
 				34AA71382F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA71392F85774F00D244E2 /* AnyDecodable.swift in Sources */,
+				A3150A056C1A6B467B9F30BC /* AccessibilityID.swift in Sources */,
 				34AA713A2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
 				9EEBF82A2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA713B2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
@@ -7701,6 +7710,7 @@
 				34AA76312F85774F00D244E2 /* SettingsCoordinator.swift in Sources */,
 				34AA76322F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA76332F85774F00D244E2 /* AnyDecodable.swift in Sources */,
+				B162C19E08D002B2D9B020A9 /* AccessibilityID.swift in Sources */,
 				34AA76342F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
 				9EEBF8292FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA76352F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
@@ -8165,6 +8175,7 @@
 				34AA72CD2F85774F00D244E2 /* SettingsCoordinator.swift in Sources */,
 				34AA72CE2F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA72CF2F85774F00D244E2 /* AnyDecodable.swift in Sources */,
+				38923B93B161EE61D86F3070 /* AccessibilityID.swift in Sources */,
 				34AA72D02F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
 				9EEBF82B2FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA72D12F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
@@ -8629,6 +8640,7 @@
 				34AA6F692F85774F00D244E2 /* SettingsCoordinator.swift in Sources */,
 				34AA6F6A2F85774F00D244E2 /* GlobalNavBar.swift in Sources */,
 				34AA6F6B2F85774F00D244E2 /* AnyDecodable.swift in Sources */,
+				A6614A6838412195D1C0036E /* AccessibilityID.swift in Sources */,
 				34AA6F6C2F85774F00D244E2 /* ReviewRequestTestKey.swift in Sources */,
 				9EEBF8282FBC64CE00DD38DB /* ProposalListStore.swift in Sources */,
 				34AA6F6D2F85774F00D244E2 /* LogsHandlerInterface.swift in Sources */,
