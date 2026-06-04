@@ -27,7 +27,7 @@ final class AutoServerSelectionClientTests: XCTestCase {
             $0.zcashSDKEnvironment = .testnet
             $0.zcashSDKEnvironment.network = { ZcashNetworkBuilder.network(for: .mainnet) }
             $0.zcashSDKEnvironment.endpoint = { current }
-            $0.sdkSynchronizer.evaluateBestOf = { _, _, _, _, _, _ in best.map { [$0] } ?? [] }
+            $0.sdkSynchronizer.evaluateBestOf = { _, _, _, _, _ in best.map { [$0] } ?? [] }
             $0.sdkSynchronizer.switchToEndpoint = { recorder.switchedTo = $0 }
             $0.transactionGuard = TransactionGuardClient(
                 acquire: {},

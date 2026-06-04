@@ -69,8 +69,8 @@ struct SDKSynchronizerClient: Sendable {
     
     var refreshExchangeRateUSD: @Sendable () -> Void
     
-    var evaluateBestOf: @Sendable ([LightWalletEndpoint], Double, Double, UInt64, Int, NetworkType) async -> [LightWalletEndpoint] = { _,_,_,_,_,_ in [] }
-    
+    var evaluateBestOf: @Sendable ([LightWalletEndpoint], Double, UInt64, Int, NetworkType) async -> [LightWalletEndpoint] = { _,_,_,_,_ in [] }
+
     var walletAccounts: @Sendable () async throws -> [WalletAccount] = { [] }
     
     var estimateBirthdayHeight: @Sendable (Date) -> BlockHeight = { _ in BlockHeight(0) }

@@ -187,7 +187,6 @@ struct ServerSetup {
                 return .run { send in
                     let kBestServers = await sdkSynchronizer.evaluateBestOf(
                         ZcashSDKEnvironment.endpoints(for: network),
-                        0, // ignored: SDKSynchronizerLive.evaluateBestOf doesn't forward this arg to the SDK
                         Benchmark.evaluationTimeoutSeconds,
                         Benchmark.blocksToDownload,
                         Benchmark.recommendedServerCount,
@@ -244,7 +243,6 @@ struct ServerSetup {
                             } else {
                                 let ranked = await sdkSynchronizer.evaluateBestOf(
                                     ZcashSDKEnvironment.endpoints(for: network),
-                                    0, // ignored: SDKSynchronizerLive.evaluateBestOf doesn't forward this arg to the SDK
                                     Benchmark.evaluationTimeoutSeconds,
                                     Benchmark.blocksToDownload,
                                     1,

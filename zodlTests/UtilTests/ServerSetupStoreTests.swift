@@ -62,7 +62,7 @@ final class ServerSetupStoreTests: XCTestCase {
                 LightWalletEndpoint(address: "zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: 0)
             }
             $0.sdkSynchronizer.switchToEndpoint = { _ in }
-            $0.sdkSynchronizer.evaluateBestOf = { _, _, _, _, _, _ in [] }
+            $0.sdkSynchronizer.evaluateBestOf = { _, _, _, _, _ in [] }
             $0.userStoredPreferences.setAutomaticServerSelection = { prefs.automatic = $0 }
             $0.userStoredPreferences.setServer = { prefs.server = $0 }
             $0.transactionGuard = .testValue
