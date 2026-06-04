@@ -100,6 +100,7 @@ extension SwapAndPayForm {
                                 ZashiButton(String(localizable: .swapAndPayGetQuote)) {
                                     store.send(.getQuoteTapped)
                                 }
+                                .accessibilityIdentifier(AccessibilityID.SwapForm.reviewButton)
                                 .padding(.bottom, 56)
                                 .disabled(!store.isValidForm)
                             }
@@ -414,6 +415,7 @@ extension SwapAndPayForm {
                     } label: {
                         ticker(asset: store.selectedAsset, crosspay: false, colorScheme)
                     }
+                    .accessibilityIdentifier(AccessibilityID.SwapForm.assetSelectButton)
 
                     Spacer()
                 }
@@ -546,6 +548,7 @@ extension SwapAndPayForm {
                             }
                     }
             }
+            .accessibilityIdentifier(AccessibilityID.SwapForm.changeModeButton)
             .disabled(store.isQuoteRequestInFlight)
             
             Design.Utility.Gray._100.color(colorScheme)
