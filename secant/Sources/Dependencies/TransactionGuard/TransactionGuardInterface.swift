@@ -56,19 +56,9 @@ extension TransactionGuardClient {
     }
 
     /// Run a server switch, waiting for any active submission/switch to finish first. Used by the
-    /// manual Save so an explicit user choice always wins.
+    /// manual Save so an explicit user choice always wins. Identical to `withSubmission` (the guard
+    /// is symmetric); kept as a named alias so call sites read as a switch rather than a submission.
     func switchWaiting(_ body: () async throws -> Void) async throws {
-        try await acquire()
-        if Task.isCancelled {
-            await release()
-            throw CancellationError()
-        }
-        do {
-            try await body()
-            await release()
-        } catch {
-            await release()
-            throw error
-        }
+        try await withSubmission(body)
     }
 }

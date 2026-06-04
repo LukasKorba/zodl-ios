@@ -256,23 +256,7 @@ struct ServerSetup {
                                 )
                                 best = ranked.first ?? ZcashSDKEnvironment.defaultEndpoint(for: network)
                             }
-
-                            let current = zcashSDKEnvironment.endpoint()
-                            if best.host != current.host || best.port != current.port {
-                                try await transactionGuard.switchWaiting {
-                                    try await withTimeout(serverSwitchTimeout) {
-                                        try await sdkSynchronizer.switchToEndpoint(best)
-                                    }
-                                }
-                            }
-
-                            userStoredPreferences.setAutomaticServerSelection(true)
-                            try userStoredPreferences.setServer(
-                                UserPreferencesStorage.ServerConfig(host: best.host, port: best.port, isCustom: false)
-                            )
-
-                            try await mainQueue.sleep(for: Benchmark.saveCompletionDelay)
-                            await send(.switchSucceeded("\(best.host):\(best.port)"))
+                            try await applyServerSwitch(best, automatic: true, isCustom: false, send: send)
                         } catch is CancellationError {
                             return
                         } catch {
@@ -298,22 +282,7 @@ struct ServerSetup {
 
                     return .run { send in
                         do {
-                            let current = zcashSDKEnvironment.endpoint()
-                            if endpoint.host != current.host || endpoint.port != current.port {
-                                try await transactionGuard.switchWaiting {
-                                    try await withTimeout(serverSwitchTimeout) {
-                                        try await sdkSynchronizer.switchToEndpoint(endpoint)
-                                    }
-                                }
-                            }
-
-                            userStoredPreferences.setAutomaticServerSelection(false)
-                            try userStoredPreferences.setServer(
-                                UserPreferencesStorage.ServerConfig(host: endpoint.host, port: endpoint.port, isCustom: isCustom)
-                            )
-
-                            try await mainQueue.sleep(for: Benchmark.saveCompletionDelay)
-                            await send(.switchSucceeded("\(endpoint.host):\(endpoint.port)"))
+                            try await applyServerSwitch(endpoint, automatic: false, isCustom: isCustom, send: send)
                         } catch is CancellationError {
                             return
                         } catch {
@@ -341,6 +310,33 @@ struct ServerSetup {
                 return .none
             }
         }
+    }
+
+    /// Switch to `endpoint` (when it differs from the current one), persist the choice, and report
+    /// success. Shared by the automatic and manual Save paths: the switch is bounded by a timeout and
+    /// serialized against submissions via the transaction guard.
+    private func applyServerSwitch(
+        _ endpoint: LightWalletEndpoint,
+        automatic: Bool,
+        isCustom: Bool,
+        send: Send<Action>
+    ) async throws {
+        let current = zcashSDKEnvironment.endpoint()
+        if endpoint.host != current.host || endpoint.port != current.port {
+            try await transactionGuard.switchWaiting {
+                try await withTimeout(serverSwitchTimeout) {
+                    try await sdkSynchronizer.switchToEndpoint(endpoint)
+                }
+            }
+        }
+
+        userStoredPreferences.setAutomaticServerSelection(automatic)
+        try userStoredPreferences.setServer(
+            UserPreferencesStorage.ServerConfig(host: endpoint.host, port: endpoint.port, isCustom: isCustom)
+        )
+
+        try await mainQueue.sleep(for: Benchmark.saveCompletionDelay)
+        await send(.switchSucceeded("\(endpoint.host):\(endpoint.port)"))
     }
 }
 

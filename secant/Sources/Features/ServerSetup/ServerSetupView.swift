@@ -316,42 +316,26 @@ struct ServerSetupView: View {
                 Button {
                     store.send(.setServerTapped)
                 } label: {
-                    if store.isUpdatingServer {
-                        HStack(spacing: 8) {
-                            Text(localizable: .serverSetupSave)
-                                .zFont(.semiBold, size: 16,
-                                       style: !canSave
-                                       ? Design.Btns.Primary.fgDisabled
-                                       : Design.Btns.Primary.fg
-                                )
-                            progressView(invertTint: true)
-                        }
-                        .frame(height: 48)
-                        .frame(maxWidth: .infinity)
-                        .background(
-                            !canSave
-                            ? Design.Btns.Primary.bgDisabled.color(colorScheme)
-                            : Design.Btns.Primary.bg.color(colorScheme)
-                        )
-                        .cornerRadius(10)
-                        .screenHorizontalPadding()
-                    } else {
+                    HStack(spacing: 8) {
                         Text(localizable: .serverSetupSave)
                             .zFont(.semiBold, size: 16,
                                    style: !canSave
                                    ? Design.Btns.Primary.fgDisabled
                                    : Design.Btns.Primary.fg
                             )
-                            .frame(height: 48)
-                            .frame(maxWidth: .infinity)
-                            .background(
-                                !canSave
-                                ? Design.Btns.Primary.bgDisabled.color(colorScheme)
-                                : Design.Btns.Primary.bg.color(colorScheme)
-                            )
-                            .cornerRadius(10)
-                            .screenHorizontalPadding()
+                        if store.isUpdatingServer {
+                            progressView(invertTint: true)
+                        }
                     }
+                    .frame(height: 48)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        !canSave
+                        ? Design.Btns.Primary.bgDisabled.color(colorScheme)
+                        : Design.Btns.Primary.bg.color(colorScheme)
+                    )
+                    .cornerRadius(10)
+                    .screenHorizontalPadding()
                 }
                 .disabled(store.isUpdatingServer || !canSave)
             }
