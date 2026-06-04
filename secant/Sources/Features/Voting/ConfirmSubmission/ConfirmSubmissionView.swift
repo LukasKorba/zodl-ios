@@ -92,6 +92,15 @@ struct ConfirmSubmissionView: View {
                 },
                 visualStyle: .unverifiedWarning
             )
+            // Authorization + per-proposal submission can take several seconds
+            // to tens of seconds; if the device locks mid-flight the user is
+            // left with no visible progress and may not realize submission is
+            // continuing. Keep the display awake while we're working.
+            .onAppear { UIApplication.shared.isIdleTimerDisabled = status.isInFlight }
+            .onChange(of: status.isInFlight) { newValue in
+                UIApplication.shared.isIdleTimerDisabled = newValue
+            }
+            .onDisappear { UIApplication.shared.isIdleTimerDisabled = false }
         }
     }
 

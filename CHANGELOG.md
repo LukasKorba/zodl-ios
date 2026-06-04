@@ -8,6 +8,7 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ### Changed
 - Default server set to zec.rocks.
+- We now keep the screen awake while you're submitting Coinholder Polling votes — including the Keystone QR signing step — so the device doesn't lock mid-submission.
 
 ## 3.5.0 build 1 (2026-05-27)
 
