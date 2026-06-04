@@ -44,12 +44,10 @@ struct ServerSetup {
         var isEvaluatingServers = false
         var isUpdatingServer = false
         var activeSyncServer: String = ""
-        var recommendedSyncServer: String?
         var initialConnectionMode: UserPreferencesStorage.ConnectionMode
         var initialCustomServer: String = ""
         var initialSelectedServer: String?
         var network: NetworkType = .mainnet
-        var serverEvaluationRequestID = 0
         var selectedServer: String?
         var servers: [ZcashSDKEnvironment.Server]
         var topKServers: [ZcashSDKEnvironment.Server]
@@ -64,14 +62,18 @@ struct ServerSetup {
             return modeChanged || serverChanged || customChanged
         }
 
+        /// The fastest server from the most recent benchmark (the top of `topKServers`), or nil
+        /// before any evaluation has completed.
+        var recommendedSyncServer: String? {
+            topKServers.first?.value(for: network)
+        }
+
         init(
             connectionMode: UserPreferencesStorage.ConnectionMode = .automatic,
             customServer: String = "",
             isEvaluatingServers: Bool = false,
             isUpdatingServer: Bool = false,
-            recommendedSyncServer: String? = nil,
             network: NetworkType = .mainnet,
-            serverEvaluationRequestID: Int = 0,
             selectedServer: String? = nil,
             servers: [ZcashSDKEnvironment.Server] = [],
             topKServers: [ZcashSDKEnvironment.Server] = []
@@ -80,10 +82,8 @@ struct ServerSetup {
             self.customServer = customServer
             self.isEvaluatingServers = isEvaluatingServers
             self.isUpdatingServer = isUpdatingServer
-            self.recommendedSyncServer = recommendedSyncServer
             self.initialConnectionMode = connectionMode
             self.network = network
-            self.serverEvaluationRequestID = serverEvaluationRequestID
             self.selectedServer = selectedServer
             self.servers = servers
             self.topKServers = topKServers
@@ -94,7 +94,7 @@ struct ServerSetup {
         case alert(PresentationAction<Action>)
         case binding(BindingAction<State>)
         case connectionModeChanged(UserPreferencesStorage.ConnectionMode)
-        case evaluatedServers(Int, [LightWalletEndpoint])
+        case evaluatedServers([LightWalletEndpoint])
         case evaluateServers
         case onAppear
         case refreshServersTapped
@@ -127,7 +127,6 @@ struct ServerSetup {
                 state.network = zcashSDKEnvironment.network().networkType
                 let syncConfig = zcashSDKEnvironment.serverConfig()
                 state.activeSyncServer = syncConfig.serverString()
-                state.recommendedSyncServer = nil
 
                 if !state.topKServers.isEmpty {
                     let allServers = ZcashSDKEnvironment.servers(for: state.network)
@@ -187,8 +186,6 @@ struct ServerSetup {
                 guard !state.isUpdatingServer else { return .none }
 
                 state.isEvaluatingServers = true
-                state.serverEvaluationRequestID += 1
-                let requestID = state.serverEvaluationRequestID
                 let network = state.network
                 return .run { send in
                     let kBestServers = await sdkSynchronizer.evaluateBestOf(
@@ -198,24 +195,21 @@ struct ServerSetup {
                         Benchmark.recommendedServerCount,
                         network
                     )
-                    await send(.evaluatedServers(requestID, kBestServers))
+                    await send(.evaluatedServers(kBestServers))
                 }
                 .cancellable(id: CancelID.evaluateServers, cancelInFlight: true)
 
-            case .evaluatedServers(let requestID, let bestServers):
-                guard requestID == state.serverEvaluationRequestID else { return .none }
-
+            case .evaluatedServers(let bestServers):
                 state.isEvaluatingServers = false
                 state.topKServers = bestServers.map {
                     if ZcashSDKEnvironment.Server.default.value(for: state.network) == $0.server() {
                         ZcashSDKEnvironment.Server.default
                     } else {
-                        ZcashSDKEnvironment.Server.hardcoded("\($0.host):\($0.port)")
+                        ZcashSDKEnvironment.Server.hardcoded($0.server())
                     }
                 }
                 let allServers = ZcashSDKEnvironment.servers(for: state.network)
                 state.servers = allServers.filter { !state.topKServers.contains($0) }
-                state.recommendedSyncServer = bestServers.first?.server()
                 return .none
 
             case .refreshServersTapped:
@@ -331,12 +325,10 @@ struct ServerSetup {
         }
 
         userStoredPreferences.setAutomaticServerSelection(automatic)
-        try userStoredPreferences.setServer(
-            UserPreferencesStorage.ServerConfig(host: endpoint.host, port: endpoint.port, isCustom: isCustom)
-        )
+        try userStoredPreferences.setServer(endpoint.serverConfig(isCustom: isCustom))
 
         try await mainQueue.sleep(for: Benchmark.saveCompletionDelay)
-        await send(.switchSucceeded("\(endpoint.host):\(endpoint.port)"))
+        await send(.switchSucceeded(endpoint.server()))
     }
 }
 

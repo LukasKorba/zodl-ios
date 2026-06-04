@@ -43,9 +43,7 @@ extension AutoServerSelectionClient: DependencyKey {
                 }
                 guard didSwitch else { return }
 
-                try userStoredPreferences.setServer(
-                    UserPreferencesStorage.ServerConfig(host: best.host, port: best.port, isCustom: false)
-                )
+                try userStoredPreferences.setServer(best.serverConfig(isCustom: false))
             } catch {
                 LoggerProxy.error("[AutoServerSelection] Failed to switch endpoint: \(error)")
             }

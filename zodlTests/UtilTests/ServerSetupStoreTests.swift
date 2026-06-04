@@ -50,7 +50,7 @@ final class ServerSetupStoreTests: XCTestCase {
         var initial = ServerSetup.State()
         initial.connectionMode = .automatic
         initial.initialConnectionMode = .manual // a real change
-        initial.recommendedSyncServer = "na.zec.rocks:443"
+        initial.topKServers = [ZcashSDKEnvironment.Server.hardcoded("na.zec.rocks:443")]   // recommendedSyncServer derives from topKServers.first
         initial.network = .mainnet
 
         let store = TestStore(initialState: initial) {
