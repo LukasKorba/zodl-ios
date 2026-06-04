@@ -118,6 +118,12 @@ struct ServerSetup {
         Reduce { state, action in
             switch action {
             case .onAppear:
+                // Clear transient progress flags so a switch that hung or was cancelled on a previous
+                // visit (which leaves isUpdatingServer == true) can't wedge the screen on reopen — both
+                // Save and Back are disabled while it is set, and the long-lived serverSetupState is
+                // reused by the service-unavailable entry point without resetting to .initial.
+                state.isUpdatingServer = false
+                state.isEvaluatingServers = false
                 state.network = zcashSDKEnvironment.network().networkType
                 let syncConfig = zcashSDKEnvironment.serverConfig()
                 state.activeSyncServer = syncConfig.serverString()

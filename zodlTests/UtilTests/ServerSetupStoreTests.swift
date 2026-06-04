@@ -85,4 +85,27 @@ final class ServerSetupStoreTests: XCTestCase {
         // connectionMode == initialConnectionMode and no selection -> hasChanges is false
         await store.send(.setServerTapped)
     }
+
+    func testOnAppearClearsStuckUpdatingFlag() async {
+        var initial = ServerSetup.State()
+        initial.isUpdatingServer = true   // a previous switch that hung or was cancelled left this set
+        initial.network = .mainnet
+        initial.topKServers = [.default]  // non-empty so onAppear doesn't kick off an evaluation
+
+        let store = TestStore(initialState: initial) {
+            ServerSetup()
+        } withDependencies: {
+            $0.zcashSDKEnvironment = .testnet
+            $0.zcashSDKEnvironment.network = { ZcashNetworkBuilder.network(for: .mainnet) }
+            $0.zcashSDKEnvironment.serverConfig = {
+                UserPreferencesStorage.ServerConfig(host: "zec.rocks", port: 443, isCustom: false)
+            }
+            $0.userStoredPreferences.automaticServerSelection = { true }
+        }
+        store.exhaustivity = .off
+
+        await store.send(.onAppear)
+
+        XCTAssertFalse(store.state.isUpdatingServer, "onAppear must clear a stuck isUpdatingServer flag so the screen isn't wedged")
+    }
 }
