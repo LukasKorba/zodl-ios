@@ -180,13 +180,8 @@ extension SmartBannerView {
                 .padding(.trailing, 12)
             
             VStack(alignment: .leading, spacing: 2) {
-                ViewThatFits {
-                    Text(localizable: .smartBannerContentShieldTitle)
-                        .zFont(.medium, size: 14, color: titleStyle())
-
-                    Text(localizable: .smartBannerContentShieldTitleShorter)
-                        .zFont(.medium, size: 14, color: titleStyle())
-                }
+                Text(localizable: .smartBannerContentShieldTitle)
+                    .zFont(.medium, size: 14, color: titleStyle())
                 
                 ZatoshiText(store.transparentBalance, .expanded, store.tokenName)
                     .zFont(.medium, size: 12, color: infoStyle())
