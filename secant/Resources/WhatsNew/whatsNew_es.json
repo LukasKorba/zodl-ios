@@ -1,6 +1,25 @@
 {
     "releases": [
         {
+            "version": "3.5.2",
+            "date": "05-06-2026",
+            "timestamp": 1780658951,
+            "sections": [
+                {
+                    "title": "Cambiado:",
+                    "bulletpoints": [
+                        "Se eliminaron los servidores desmantelados de la lista de servidores."
+                    ]
+                },
+                {
+                    "title": "Corregido:",
+                    "bulletpoints": [
+                        "Corregimos un tiempo de espera de conexión en iOS que podía dejar la billetera atascada a mitad de la sincronización al recibir transacciones."
+                    ]
+                }
+            ]
+        },
+        {
             "version": "3.5.1",
             "date": "02-06-2026",
             "timestamp": 1780404420,

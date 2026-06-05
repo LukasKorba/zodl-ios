@@ -1,6 +1,25 @@
 {
     "releases": [
         {
+            "version": "3.5.2",
+            "date": "05-06-2026",
+            "timestamp": 1780658951,
+            "sections": [
+                {
+                    "title": "Changed:",
+                    "bulletpoints": [
+                        "Removed servers scheduled for decommissioning from the server list."
+                    ]
+                },
+                {
+                    "title": "Fixed:",
+                    "bulletpoints": [
+                        "We fixed a connection timeout on iOS that could leave the wallet stuck mid-sync after fetching transactions."
+                    ]
+                }
+            ]
+        },
+        {
             "version": "3.5.1",
             "date": "02-06-2026",
             "timestamp": 1780404420,
