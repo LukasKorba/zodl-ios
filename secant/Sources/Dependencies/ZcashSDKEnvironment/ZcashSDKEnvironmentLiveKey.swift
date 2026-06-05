@@ -38,7 +38,8 @@ extension ZcashSDKEnvironment: DependencyKey {
 extension ZcashSDKEnvironment {
     static func serverConfig(for network: NetworkType) -> UserPreferencesStorage.ServerConfig {
         migrateVersion1IfNeeded()
-        
+        migrateDecommissionedServersIfNeeded(for: network)
+
         guard let serverConfig = storedServerConfig() else {
             return defaultEndpoint(for: network).serverConfig()
         }
@@ -95,6 +96,26 @@ extension ZcashSDKEnvironment {
         }
     }
     
+    static func migrateDecommissionedServersIfNeeded(for network: NetworkType) {
+        @Dependency(\.userStoredPreferences) var userStoredPreferences
+
+        // Intentionally kept separate from `endpoints(...)`: these hosts have been removed from the
+        // endpoint list, and we migrate any user whose stored server matches one of these exact
+        // "host:port" values precisely because the server no longer appears there. Add future
+        // decommissioned servers here as "host:port".
+        let decommissionedServers: Set<String> = [
+            "eu2.zec.stardust.rest:443",
+            "jp.zec.stardust.rest:443"
+        ]
+
+        guard let serverConfig = userStoredPreferences.server() else { return }
+
+        if decommissionedServers.contains(serverConfig.serverString()) {
+            let defaultConfig = defaultEndpoint(for: network).serverConfig()
+            try? userStoredPreferences.setServer(defaultConfig)
+        }
+    }
+
     static func storedServerConfig() -> UserPreferencesStorage.ServerConfig? {
         @Dependency(\.userStoredPreferences) var userStoredPreferences
         return userStoredPreferences.server()
