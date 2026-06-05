@@ -1,6 +1,20 @@
 {
     "releases": [
         {
+            "version": "3.5.1",
+            "date": "02-06-2026",
+            "timestamp": 1780404420,
+            "sections": [
+                {
+                    "title": "Changed:",
+                    "bulletpoints": [
+                        "Updated compatibility with the latest Zcash network changes. This update is required to ensure continued wallet functionality.",
+                        "We updated the default server."
+                    ]
+                }
+            ]
+        },
+        {
             "version": "3.5.0",
             "date": "27-05-2026",
             "timestamp": 1779388800,

@@ -1,6 +1,20 @@
 {
     "releases": [
         {
+            "version": "3.5.1",
+            "date": "02-06-2026",
+            "timestamp": 1780404420,
+            "sections": [
+                {
+                    "title": "Cambiado:",
+                    "bulletpoints": [
+                        "Compatibilidad actualizada con los últimos cambios de la red Zcash. Esta actualización es necesaria para garantizar el correcto funcionamiento de la billetera.",
+                        "Actualizamos el servidor predeterminado."
+                    ]
+                }
+            ]
+        },
+        {
             "version": "3.5.0",
             "date": "27-05-2026",
             "timestamp": 1779388800,
