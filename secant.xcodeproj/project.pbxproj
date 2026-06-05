@@ -2561,6 +2561,7 @@
 		AD0D00212D00000100000001 /* VotingHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00212D00000100000002 /* VotingHelpersTests.swift */; };
 		AD0D00222D00000100000001 /* VotingCoordFlowCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */; };
 		AD0D00232D00000100000001 /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00232D00000100000002 /* VotingServiceConfigTests.swift */; };
+		34D06C912FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D06C902FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift */; };
 		B162C19E08D002B2D9B020A9 /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 /* End PBXBuildFile section */
 
@@ -7196,6 +7197,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34D06C912FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift in Sources */,
 				AD0D00102D00000100000001 /* VotingSessionTests.swift in Sources */,
 				AD0D00202D00000100000001 /* VotingAPIResponseParserTests.swift in Sources */,
 				AD0D00232D00000100000001 /* VotingServiceConfigTests.swift in Sources */,

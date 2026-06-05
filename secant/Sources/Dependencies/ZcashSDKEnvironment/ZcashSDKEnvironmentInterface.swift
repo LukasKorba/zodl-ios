@@ -98,9 +98,7 @@ extension ZcashSDKEnvironment {
                 LightWalletEndpoint(address: "eu.zec.rocks", port: 443),
                 LightWalletEndpoint(address: "ap.zec.rocks", port: 443),
                 LightWalletEndpoint(address: "us.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "eu.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "eu2.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "jp.zec.stardust.rest", port: 443)
+                LightWalletEndpoint(address: "eu.zec.stardust.rest", port: 443)
             ]
         )
         
