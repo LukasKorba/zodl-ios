@@ -2210,6 +2210,7 @@
 		34B967652F8CC48700823B20 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = 34B967642F8CC48700823B20 /* Atomics */; };
 		34B967672F8CC48B00823B20 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = 34B967662F8CC48B00823B20 /* Atomics */; };
 		34B967692F8CC49100823B20 /* Atomics in Frameworks */ = {isa = PBXBuildFile; productRef = 34B967682F8CC49100823B20 /* Atomics */; };
+		34D06C912FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D06C902FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift */; };
 		37BTC00000000000000INT02 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37BTC00000000000000INT03 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
 		37BTC00000000000000INT04 /* BackgroundTaskClientInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BTC00000000000000INT01 /* BackgroundTaskClientInterface.swift */; };
@@ -2561,7 +2562,6 @@
 		AD0D00212D00000100000001 /* VotingHelpersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00212D00000100000002 /* VotingHelpersTests.swift */; };
 		AD0D00222D00000100000001 /* VotingCoordFlowCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00222D00000100000002 /* VotingCoordFlowCoordinatorTests.swift */; };
 		AD0D00232D00000100000001 /* VotingServiceConfigTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD0D00232D00000100000002 /* VotingServiceConfigTests.swift */; };
-		34D06C912FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34D06C902FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift */; };
 		B162C19E08D002B2D9B020A9 /* AccessibilityID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F94E337360CE50FACFB04CE /* AccessibilityID.swift */; };
 /* End PBXBuildFile section */
 
@@ -9091,7 +9091,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-mainnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9131,7 +9131,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-mainnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9332,7 +9332,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.4.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-mainnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9360,7 +9360,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "zashi-internal.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
 				DEVELOPMENT_TEAM = RLPRR8CPQG;
@@ -9373,7 +9373,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.5.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9391,7 +9391,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "zashi-internal.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
 				DEVELOPMENT_TEAM = RLPRR8CPQG;
 				ENABLE_BITCODE = NO;
@@ -9403,7 +9403,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.5.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9421,7 +9421,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "zashi-internal.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"secant/Preview Content\"";
 				DEVELOPMENT_TEAM = RLPRR8CPQG;
 				ENABLE_BITCODE = NO;
@@ -9433,7 +9433,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.5.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.electriccoin.secant-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
