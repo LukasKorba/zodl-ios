@@ -3013,6 +3013,23 @@
         }
       }
     },
+    "coinVote.delegationSigning.awaitingWeightSummary" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC signed · %@ ZEC awaiting"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ ZEC signed · %@ ZEC awaiting"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.buildingBundleRequest" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3043,23 +3060,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Building delegation request..."
-          }
-        }
-      }
-    },
-    "coinVote.delegationSigning.awaitingWeightSummary" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ZEC signed · %@ ZEC awaiting"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ ZEC signed · %@ ZEC awaiting"
           }
         }
       }
@@ -3404,6 +3404,40 @@
         }
       }
     },
+    "coinVote.delegationSigning.signatureRejectedOk" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "OK"
+          }
+        }
+      }
+    },
+    "coinVote.delegationSigning.signatureRejectedTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Something Went Wrong"
+          }
+        }
+      }
+    },
     "coinVote.delegationSigning.signedProgress" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3604,40 +3638,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continue without the remaining %@ ZEC."
-          }
-        }
-      }
-    },
-    "coinVote.delegationSigning.signatureRejectedOk" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "OK"
-          }
-        }
-      }
-    },
-    "coinVote.delegationSigning.signatureRejectedTitle" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Something Went Wrong"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Something Went Wrong"
           }
         }
       }
@@ -13895,23 +13895,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saldo No Protegido"
-          }
-        }
-      }
-    },
-    "smartBanner.content.shield.titleShorter" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Transparent Balance"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saldo Transparente"
           }
         }
       }
