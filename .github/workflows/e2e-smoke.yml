@@ -24,9 +24,17 @@ env:
 jobs:
   e2e-ios:
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 35
     permissions:
       contents: read
+    strategy:
+      # Run the two suite phases in parallel jobs to halve wall time.
+      # Each job boots its own sim; phase 1 uses fresh wallets, phase 2
+      # restores once and runs cache-dependent tests.
+      fail-fast: false
+      matrix:
+        phase: [1, 2]
+    name: e2e-ios (phase ${{ matrix.phase }})
     steps:
       - name: Select latest Xcode
         # macos-15 runners ship multiple Xcodes; default-selected may be 16.x.
@@ -161,6 +169,7 @@ jobs:
           ZODL_TEST_ADDRESS_IOS: ${{ secrets.ZODL_TEST_ADDRESS_IOS }}
           ZODL_TEST_CONTACT_NAME_IOS: ${{ vars.ZODL_TEST_CONTACT_NAME_IOS || 'iOS Shield' }}
           ZODL_TEST_DIRECTION: ${{ vars.ZODL_TEST_DIRECTION || 'AUTO_ALTERNATE' }}
+          ZODL_TEST_PHASE: ${{ matrix.phase }}
           ZODL_TEST_SEND_AMOUNT: ${{ vars.ZODL_TEST_SEND_AMOUNT || '0.005' }}
           ZODL_TEST_BALANCE_MIN: ${{ vars.ZODL_TEST_BALANCE_MIN || '1.3' }}
           ZODL_TEST_BALANCE_WARN: ${{ vars.ZODL_TEST_BALANCE_WARN || '1.36' }}
@@ -181,5 +190,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-ios-results
+          name: maestro-ios-results-phase-${{ matrix.phase }}
           path: ~/.maestro/tests/
