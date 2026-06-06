@@ -78,7 +78,18 @@ jobs:
           path: ${{ env.SOURCE_PACKAGES_PATH }}
           key: ${{ steps.spm-cache.outputs.cache-primary-key }}
 
+      - name: Restore cached .app bundle
+        # Keyed on hashes of every input that affects the build output.
+        # On hit, skip xcodebuild and just upload the restored bundle.
+        # Misses fall through to a normal build.
+        id: app-cache
+        uses: actions/cache@v5
+        with:
+          path: build/Build/Products/Debug-iphonesimulator
+          key: ${{ runner.os }}-${{ runner.arch }}-ios-app-${{ steps.xcode-cache-key.outputs.hash }}-${{ hashFiles('secant/Sources/**', 'modules/Sources/**', 'secant.xcodeproj/**/*.pbxproj', 'secant.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+
       - name: Build for simulator
+        if: steps.app-cache.outputs.cache-hit != 'true'
         # Ad-hoc sign ("-") so the app's entitlements (Keychain access group
         # etc.) are embedded in the build. Plain CODE_SIGNING_ALLOWED=NO
         # leaves the bundle without entitlements, which makes the app crash
