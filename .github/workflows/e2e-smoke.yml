@@ -123,7 +123,11 @@ jobs:
   e2e-ios:
     needs: build
     runs-on: macos-15
-    timeout-minutes: 25
+    # Cold-cache phase 2 runs (no cached SDK DB yet for the seed)
+    # spend most of the budget scanning blocks from birthday height.
+    # 45 min leaves headroom for the first run; warm-cache runs
+    # finish in ~10-15 min.
+    timeout-minutes: 45
     permissions:
       contents: read
     strategy:
@@ -201,7 +205,11 @@ jobs:
 
       - name: Run smoke tests
         env:
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 300000
+          # 600s (was 300s). The first XCTest driver init on a cold
+          # sim regularly bumps against the lower bound; bumping gives
+          # headroom without masking real hangs (test still fails after
+          # 10 min instead of 5).
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 600000
           ZODL_TEST_SEED_ANDROID: ${{ secrets.ZODL_TEST_SEED_ANDROID }}
           ZODL_TEST_BIRTHDAY_ANDROID: ${{ secrets.ZODL_TEST_BIRTHDAY_ANDROID }}
           ZODL_TEST_ADDRESS_ANDROID: ${{ secrets.ZODL_TEST_ADDRESS_ANDROID }}
