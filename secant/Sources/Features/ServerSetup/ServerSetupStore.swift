@@ -97,6 +97,7 @@ struct ServerSetup {
         case evaluatedServers([LightWalletEndpoint])
         case evaluateServers
         case onAppear
+        case onDisappear
         case refreshServersTapped
         case serverSelected(String)
         case setServerTapped
@@ -153,6 +154,16 @@ struct ServerSetup {
                 state.initialSelectedServer = state.selectedServer
                 state.initialCustomServer = state.customServer
                 return state.topKServers.isEmpty ? .send(.evaluateServers) : .none
+
+            case .onDisappear:
+                // Defense-in-depth: if a Save/evaluate effect is cancelled by an external teardown while
+                // the screen is open, neither switchSucceeded/switchFailed nor evaluatedServers fires, so
+                // clear the transient progress flags on the way out -- a stuck isUpdatingServer otherwise
+                // disables Save/Back. (Back is disabled while updating, so a normal user dismiss already
+                // has these false; onAppear also clears them on re-entry.)
+                state.isUpdatingServer = false
+                state.isEvaluatingServers = false
+                return .none
 
             case .alert(.dismiss):
                 state.alert = nil

@@ -43,6 +43,7 @@ struct ServerSetupView: View {
             .zashiBack(store.isUpdatingServer, customDismiss: customDismiss)
             .screenTitle(String(localizable: .serverSetupTitle))
             .onAppear { store.send(.onAppear) }
+            .onDisappear { store.send(.onDisappear) }
             .alert($store.scope(state: \.alert, action: \.alert))
             .applyScreenBackground()
         }
