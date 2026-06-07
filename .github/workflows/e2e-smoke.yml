@@ -22,9 +22,12 @@ env:
   SOURCE_PACKAGES_PATH: build/SourcePackages
 
 jobs:
-  e2e-ios:
+  # Build once and share the .app bundle with both phase matrix jobs
+  # via actions/upload-artifact. The previous matrix design ran
+  # xcodebuild + SPM resolve in each phase job, paying ~7 min twice.
+  build:
     runs-on: macos-15
-    timeout-minutes: 60
+    timeout-minutes: 25
     permissions:
       contents: read
     steps:
@@ -42,13 +45,6 @@ jobs:
 
       - name: Checkout app
         uses: actions/checkout@v4
-
-      - name: Checkout smoke tests
-        uses: actions/checkout@v4
-        with:
-          repository: zodl-inc/zodl-qa
-          path: zodl-qa
-          token: ${{ secrets.ZODL_QA }}
 
       - name: Compute Xcode cache key
         id: xcode-cache-key
@@ -82,7 +78,18 @@ jobs:
           path: ${{ env.SOURCE_PACKAGES_PATH }}
           key: ${{ steps.spm-cache.outputs.cache-primary-key }}
 
+      - name: Restore cached .app bundle
+        # Keyed on hashes of every input that affects the build output.
+        # On hit, skip xcodebuild and just upload the restored bundle.
+        # Misses fall through to a normal build.
+        id: app-cache
+        uses: actions/cache@v5
+        with:
+          path: build/Build/Products/Debug-iphonesimulator
+          key: ${{ runner.os }}-${{ runner.arch }}-ios-app-${{ steps.xcode-cache-key.outputs.hash }}-${{ hashFiles('secant/Sources/**', 'modules/Sources/**', 'secant.xcodeproj/**/*.pbxproj', 'secant.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved') }}
+
       - name: Build for simulator
+        if: steps.app-cache.outputs.cache-hit != 'true'
         # Ad-hoc sign ("-") so the app's entitlements (Keychain access group
         # etc.) are embedded in the build. Plain CODE_SIGNING_ALLOWED=NO
         # leaves the bundle without entitlements, which makes the app crash
@@ -102,9 +109,59 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             IPHONEOS_DEPLOYMENT_TARGET=16.0
 
+      - name: Upload .app bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: zashi-internal-app
+          # We could zip just the .app, but the entire Products dir is small
+          # enough and keeping the bundle structure means the phase job can
+          # `simctl install` it directly without unzipping a separate step.
+          path: build/Build/Products/Debug-iphonesimulator/*.app
+          retention-days: 1
+          if-no-files-found: error
+
+  e2e-ios:
+    needs: build
+    runs-on: macos-15
+    # Cold-cache phase 2 runs (no cached SDK DB yet for the seed)
+    # spend most of the budget scanning blocks from birthday height.
+    # 45 min leaves headroom for the first run; warm-cache runs
+    # finish in ~10-15 min.
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    strategy:
+      # Run the two suite phases in parallel jobs to halve wall time.
+      # Each job boots its own sim; phase 1 uses fresh wallets, phase 2
+      # restores once and runs cache-dependent tests.
+      fail-fast: false
+      matrix:
+        phase: [1, 2]
+    name: e2e-ios (phase ${{ matrix.phase }})
+    steps:
+      - name: Select latest Xcode
+        run: |
+          LATEST=$(ls -d /Applications/Xcode_*.app 2>/dev/null | sort -V | tail -1)
+          if [ -n "$LATEST" ]; then
+            sudo xcode-select -s "$LATEST/Contents/Developer"
+          fi
+          xcodebuild -version
+
+      - name: Checkout smoke tests
+        uses: actions/checkout@v4
+        with:
+          repository: zodl-inc/zodl-qa
+          path: zodl-qa
+          token: ${{ secrets.ZODL_QA }}
+
+      - name: Download .app bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: zashi-internal-app
+          path: app-bundle
+
       - name: Boot simulator and install app
         run: |
-          # Boot, then wait for the device to be fully ready before installing.
           xcrun simctl boot "iPhone 17 Pro" || true
           xcrun simctl bootstatus "iPhone 17 Pro" -b
 
@@ -115,20 +172,27 @@ jobs:
           defaults write com.apple.iphonesimulator ConnectHardwareKeyboard 0
           defaults write com.apple.iphonesimulator AutomaticallyShowSoftKeyboard 1
 
-          # Resolve the .app explicitly — fail loudly if glob matched zero
-          # or more than one bundle.
+          # download-artifact strips the .app extension when path contains
+          # multiple files inside; restore it by detecting the bundle dir.
           shopt -s nullglob
-          APPS=(build/Build/Products/Debug-iphonesimulator/*.app)
-          if [ "${#APPS[@]}" -ne 1 ]; then
-              echo "Expected exactly one .app, found ${#APPS[@]}:"
-              printf '  %s\n' "${APPS[@]}"
+          APPS=(app-bundle/*.app app-bundle)
+          # The artifact uploads the bundle's contents under app-bundle/.
+          # Prefer an actual .app sibling if present, otherwise treat the
+          # download dir itself as the bundle root after renaming.
+          if [ -d app-bundle/Info.plist -o -f app-bundle/Info.plist ]; then
+              mv app-bundle zashi-internal.app
+              APP="zashi-internal.app"
+          else
+              APP=$(ls -d app-bundle/*.app 2>/dev/null | head -1)
+          fi
+          if [ -z "$APP" ]; then
+              echo "Could not find .app bundle after download. Contents:"
+              find app-bundle -maxdepth 2
               exit 1
           fi
-          APP="${APPS[0]}"
           echo "Installing $APP"
           xcrun simctl install booted "$APP"
 
-          # Verify the app is actually present before handing off to maestro.
           BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")
           echo "Bundle ID: $BUNDLE_ID"
           xcrun simctl listapps booted | grep -q "\"$BUNDLE_ID\"" \
@@ -141,17 +205,11 @@ jobs:
 
       - name: Run smoke tests
         env:
-          # XCUITest driver build/install can take a few minutes on CI;
-          # default 60s timeout isn't enough on a cold runner.
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 300000
-
-          # Wallet config consumed by scripts/run-smoke-ios.sh — the
-          # wrapper sources .env locally, but on CI we read each value
-          # from GitHub Secrets / repo variables instead. The wrapper
-          # resolves ZODL_TEST_DIRECTION (AUTO_ALTERNATE flips a state
-          # file each run so sender/receiver rotate), pre-splits the
-          # chosen seed into ZODL_WORD_1..24, and passes everything to
-          # Maestro via --env=KEY=VAL.
+          # 600s (was 300s). The first XCTest driver init on a cold
+          # sim regularly bumps against the lower bound; bumping gives
+          # headroom without masking real hangs (test still fails after
+          # 10 min instead of 5).
+          MAESTRO_DRIVER_STARTUP_TIMEOUT: 600000
           ZODL_TEST_SEED_ANDROID: ${{ secrets.ZODL_TEST_SEED_ANDROID }}
           ZODL_TEST_BIRTHDAY_ANDROID: ${{ secrets.ZODL_TEST_BIRTHDAY_ANDROID }}
           ZODL_TEST_ADDRESS_ANDROID: ${{ secrets.ZODL_TEST_ADDRESS_ANDROID }}
@@ -161,6 +219,7 @@ jobs:
           ZODL_TEST_ADDRESS_IOS: ${{ secrets.ZODL_TEST_ADDRESS_IOS }}
           ZODL_TEST_CONTACT_NAME_IOS: ${{ vars.ZODL_TEST_CONTACT_NAME_IOS || 'iOS Shield' }}
           ZODL_TEST_DIRECTION: ${{ vars.ZODL_TEST_DIRECTION || 'AUTO_ALTERNATE' }}
+          ZODL_TEST_PHASE: ${{ matrix.phase }}
           ZODL_TEST_SEND_AMOUNT: ${{ vars.ZODL_TEST_SEND_AMOUNT || '0.005' }}
           ZODL_TEST_BALANCE_MIN: ${{ vars.ZODL_TEST_BALANCE_MIN || '1.3' }}
           ZODL_TEST_BALANCE_WARN: ${{ vars.ZODL_TEST_BALANCE_WARN || '1.36' }}
@@ -169,9 +228,6 @@ jobs:
           ZODL_TEST_CROSSPAY_CHAIN: ${{ vars.ZODL_TEST_CROSSPAY_CHAIN || 'BASE' }}
           ZODL_TEST_CROSSPAY_USDC_AMOUNT: ${{ vars.ZODL_TEST_CROSSPAY_USDC_AMOUNT || '0.5' }}
           ZODL_TEST_SWAP_ZEC_AMOUNT: ${{ vars.ZODL_TEST_SWAP_ZEC_AMOUNT || '0.005' }}
-
-          # Cache the AUTO_ALTERNATE state outside $HOME default so that
-          # actions/cache (if added later) can persist it between runs.
           ZODL_TEST_STATE_DIR: ${{ github.workspace }}/.zodl-qa-state
         run: |
           chmod +x zodl-qa/scripts/run-smoke-ios.sh
@@ -181,5 +237,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: maestro-ios-results
+          name: maestro-ios-results-phase-${{ matrix.phase }}
           path: ~/.maestro/tests/

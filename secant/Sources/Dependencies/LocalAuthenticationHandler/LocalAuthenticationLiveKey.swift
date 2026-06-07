@@ -15,7 +15,11 @@ extension LocalAuthenticationClient: DependencyKey {
         Self(
             authenticate: {
 #if targetEnvironment(simulator)
-                return true
+                // Bypass on sim unless e2e launches with
+                // `-zodlE2EBiometric YES` to force the real path.
+                if !UserDefaults.standard.bool(forKey: "zodlE2EBiometric") {
+                    return true
+                }
 #endif
                 let context = LAContext()
                 var error: NSError?
