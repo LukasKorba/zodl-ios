@@ -14,7 +14,7 @@ final class DecommissionedServerMigrationTests: XCTestCase {
     // MARK: - Removal of decommissioned servers
 
     func test_endpoints_doNotContainDecommissionedServers() {
-        let hosts = ZcashSDKEnvironment.endpoints().map { $0.host }
+        let hosts = ZcashSDKEnvironment.endpoints(for: .mainnet).map { $0.host }
 
         XCTAssertFalse(hosts.contains("eu2.zec.stardust.rest"), "eu2.zec.stardust.rest must be removed from endpoints()")
         XCTAssertFalse(hosts.contains("jp.zec.stardust.rest"), "jp.zec.stardust.rest must be removed from endpoints()")
@@ -45,6 +45,8 @@ final class DecommissionedServerMigrationTests: XCTestCase {
         UserPreferencesStorageClient(
             server: { storage.server },
             setServer: { try storage.setServer($0) },
+            automaticServerSelection: { storage.automaticServerSelection },
+            setAutomaticServerSelection: { storage.setAutomaticServerSelection($0) },
             exchangeRate: { storage.exchangeRate },
             setExchangeRate: { try storage.setExchangeRate($0) },
             removeAll: { storage.removeAll() }
