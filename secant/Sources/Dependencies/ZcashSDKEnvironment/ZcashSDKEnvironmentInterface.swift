@@ -94,7 +94,7 @@ extension ZcashSDKEnvironment {
         var result: [LightWalletEndpoint] = []
 
         if !skipDefault {
-            result.append(LightWalletEndpoint(address: "zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: timeout))
+            result.append(defaultEndpoint(for: network))
         }
 
         result.append(
