@@ -1889,7 +1889,6 @@ extension VotingCoordFlow {
                         let castVoteSig = try await votingCrypto.signCastVote(hotkeySeed, networkId, builtBundle)
 
                         await send(.voteSubmissionStepUpdated(roundId: roundId, step: .confirming))
-                        @Dependency(\.transactionGuard) var transactionGuard
                         let txResult = try await transactionGuard.withSubmission {
                             try await votingAPI.submitVoteCommitment(builtBundle, castVoteSig)
                         }
