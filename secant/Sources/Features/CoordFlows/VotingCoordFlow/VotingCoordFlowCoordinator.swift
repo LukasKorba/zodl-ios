@@ -2908,7 +2908,9 @@ extension VotingCoordFlow {
                         registration.sighash != sig.sighash {
                         throw VotingFlowError.invalidDelegationSignature
                     }
-                    let delegTxResult = try await votingAPI.submitDelegation(registration)
+                    let delegTxResult = try await transactionGuard.withSubmission {
+                        try await votingAPI.submitDelegation(registration)
+                    }
                     try await votingCrypto.storeDelegationTxHash(roundId, bundleIdx, delegTxResult.txHash)
                     let vanPosition = try await Self.requireKeystoneDelegationVanPosition(
                         txHash: delegTxResult.txHash,
@@ -3601,7 +3603,10 @@ extension VotingCoordFlow {
                     roundId, bundleIndex, senderSeed, networkId, accountIndex
                 )
             }
-            let delegTxResult = try await votingAPI.submitDelegation(registration)
+            @Dependency(\.transactionGuard) var transactionGuard
+            let delegTxResult = try await transactionGuard.withSubmission {
+                try await votingAPI.submitDelegation(registration)
+            }
             LoggerProxy.info("Delegation TX \(bundleIndex) submitted: \(delegTxResult.txHash)")
 
             try await votingCrypto.storeDelegationTxHash(roundId, bundleIndex, delegTxResult.txHash)
