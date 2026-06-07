@@ -108,4 +108,61 @@ final class ServerSetupStoreTests: XCTestCase {
 
         XCTAssertFalse(store.state.isUpdatingServer, "onAppear must clear a stuck isUpdatingServer flag so the screen isn't wedged")
     }
+
+    func testSwitchingToAutomaticBenchmarksWhenNoFreshResultAndOffersFastest() async {
+        var initial = ServerSetup.State()
+        initial.connectionMode = .manual
+        initial.activeSyncServer = "na.zec.rocks:443" // current server, offered as a placeholder
+        initial.network = .mainnet
+        // topKServers empty -> switching to Automatic must benchmark
+
+        let store = TestStore(initialState: initial) {
+            ServerSetup()
+        } withDependencies: {
+            $0.sdkSynchronizer.evaluateBestOf = { _, _, _, _, _ in
+                [LightWalletEndpoint(address: "eu.zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: 0)]
+            }
+            $0.transactionGuard = .testValue
+        }
+        store.exhaustivity = .off
+
+        // Before benchmarking, Automatic offers the current server as a placeholder.
+        XCTAssertEqual(store.state.automaticDisplayServer, "na.zec.rocks:443")
+
+        await store.send(.connectionModeChanged(.automatic))
+        await store.receive(\.evaluateServers)
+        await store.receive(\.evaluatedServers)
+
+        // After benchmarking, Automatic offers the fastest server.
+        XCTAssertEqual(store.state.recommendedSyncServer, "eu.zec.rocks:443")
+        XCTAssertEqual(store.state.automaticDisplayServer, "eu.zec.rocks:443")
+    }
+
+    func testSwitchingToAutomaticReusesFreshBenchmark() async {
+        let benchmarked = LockIsolated(false)
+
+        var initial = ServerSetup.State()
+        initial.connectionMode = .manual
+        initial.activeSyncServer = "na.zec.rocks:443"
+        initial.topKServers = [.hardcoded("eu.zec.rocks:443")] // a fresh result already exists
+        initial.network = .mainnet
+
+        let store = TestStore(initialState: initial) {
+            ServerSetup()
+        } withDependencies: {
+            $0.sdkSynchronizer.evaluateBestOf = { _, _, _, _, _ in
+                benchmarked.setValue(true)
+                return []
+            }
+            $0.transactionGuard = .testValue
+        }
+        store.exhaustivity = .off
+
+        await store.send(.connectionModeChanged(.automatic))
+
+        // No benchmark runs; Automatic immediately offers the existing fastest server.
+        XCTAssertFalse(benchmarked.value, "must not re-benchmark when a fresh result already exists")
+        XCTAssertEqual(store.state.connectionMode, .automatic)
+        XCTAssertEqual(store.state.automaticDisplayServer, "eu.zec.rocks:443")
+    }
 }

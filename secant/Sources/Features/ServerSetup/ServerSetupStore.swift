@@ -68,6 +68,12 @@ struct ServerSetup {
             topKServers.first?.value(for: network)
         }
 
+        /// What the Automatic section offers: the benchmarked fastest server once available, else the
+        /// current sync server as a placeholder until the first benchmark completes.
+        var automaticDisplayServer: String {
+            recommendedSyncServer ?? activeSyncServer
+        }
+
         init(
             connectionMode: UserPreferencesStorage.ConnectionMode = .automatic,
             customServer: String = "",
@@ -183,6 +189,11 @@ struct ServerSetup {
                 if mode == .automatic {
                     state.selectedServer = state.initialSelectedServer
                     state.customServer = state.initialCustomServer
+                    // Benchmark so Automatic can offer the fastest server; reuse a fresh result if one
+                    // already exists (mirrors the manual branch's gate).
+                    if state.topKServers.isEmpty {
+                        return .send(.evaluateServers)
+                    }
                 } else if mode == .manual {
                     if previousMode != .manual && state.selectedServer == nil {
                         state.selectActiveSyncServerForManualMode()

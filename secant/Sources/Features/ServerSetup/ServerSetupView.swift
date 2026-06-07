@@ -77,14 +77,14 @@ struct ServerSetupView: View {
                     Spacer()
                 }
 
-                if store.connectionMode == .automatic && !store.activeSyncServer.isEmpty {
+                if store.connectionMode == .automatic && !store.automaticDisplayServer.isEmpty {
                     HStack(spacing: 8) {
-                        Text(store.activeSyncServer)
+                        Text(store.automaticDisplayServer)
                             .zFont(size: 14, style: Design.Text.tertiary)
 
                         if store.isEvaluatingServers {
                             testingBadge()
-                        } else {
+                        } else if store.automaticDisplayServer == store.activeSyncServer {
                             activeBadge()
                         }
                     }
