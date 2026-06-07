@@ -20,6 +20,7 @@
 		34755C6A2F8647B00093FC84 /* DisconnectHWWalletStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34755C602F8647B00093FC84 /* DisconnectHWWalletStore.swift */; };
 		34755C6B2F8647B00093FC84 /* DisconnectHWWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34755C612F8647B00093FC84 /* DisconnectHWWalletView.swift */; };
 		34755C6C2F8647B00093FC84 /* DisconnectHWWalletStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34755C602F8647B00093FC84 /* DisconnectHWWalletStore.swift */; };
+		348ECAA02FD5D95200BF9FE4 /* ZcashLightClientKit in Frameworks */ = {isa = PBXBuildFile; productRef = 348ECA9F2FD5D95200BF9FE4 /* ZcashLightClientKit */; };
 		34AA6DD82F85774F00D244E2 /* SwapAndPayStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6CF82F85774F00D244E2 /* SwapAndPayStore.swift */; };
 		34AA6DD92F85774F00D244E2 /* RemoteStorageInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C102F85774F00D244E2 /* RemoteStorageInterface.swift */; };
 		34AA6DDA2F85774F00D244E2 /* WalletConfigProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AA6C4B2F85774F00D244E2 /* WalletConfigProvider.swift */; };
@@ -3221,6 +3222,7 @@
 				34AA771C2F857DBB00D244E2 /* ComposableArchitecture in Frameworks */,
 				34AA778E2F85833900D244E2 /* Lottie in Frameworks */,
 				34AA77402F8580D700D244E2 /* CasePathsCore in Frameworks */,
+				348ECAA02FD5D95200BF9FE4 /* ZcashLightClientKit in Frameworks */,
 				34AA77A42F8583C300D244E2 /* BigDecimal in Frameworks */,
 				34AA77C02F85862200D244E2 /* UInt128 in Frameworks */,
 				34AA77782F8582AC00D244E2 /* Flexa in Frameworks */,
@@ -5579,6 +5581,7 @@
 				34AA77A32F8583C300D244E2 /* BigDecimal */,
 				34AA77BF2F85862200D244E2 /* UInt128 */,
 				34B967682F8CC49100823B20 /* Atomics */,
+				348ECA9F2FD5D95200BF9FE4 /* ZcashLightClientKit */,
 			);
 			productName = secant;
 			productReference = 9E41FFBB2CB2814500783CFD /* zashi-testnet.app */;
@@ -9000,7 +9003,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.ecc.zashi-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9030,7 +9033,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.ecc.zashi-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9060,7 +9063,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 3.1.0;
+				MARKETING_VERSION = 3.5.2;
 				OTHER_SWIFT_FLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "co.ecc.zashi-testnet";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -9647,6 +9650,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		348ECA9F2FD5D95200BF9FE4 /* ZcashLightClientKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9E4841512F869F5E00D0649B /* XCRemoteSwiftPackageReference "zcash-swift-wallet-sdk" */;
+			productName = ZcashLightClientKit;
+		};
 		34AA77132F857DA300D244E2 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 34AA77122F857DA300D244E2 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
