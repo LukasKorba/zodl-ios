@@ -375,5 +375,5 @@ extension AlertState where Action == ServerSetup.Action {
 }
 
 extension ServerSetup.State {
-    static var initial = ServerSetup.State()
+    static let initial = ServerSetup.State()
 }
