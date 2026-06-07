@@ -133,6 +133,8 @@ final class TransactionGuardTests: XCTestCase {
     }
 
     func testWithTimeoutThrowsWhenOperationExceedsDeadline() async {
+        // Cooperative case only: Task.sleep honors cancellation, so withTimeout can return and throw.
+        // A non-cancellable operation would not surface the timeout (see withTimeout / serverSwitchTimeout).
         do {
             try await withTimeout(.milliseconds(50)) {
                 try await Task.sleep(for: .seconds(10))
@@ -152,7 +154,10 @@ final class TransactionGuardTests: XCTestCase {
 
     func testSwitchWaitingReleasesGuardWhenSwitchTimesOut() async {
         let client = TransactionGuardClient.liveValue
-        // A switch body that hangs past its timeout must release the guard, not wedge it.
+        // A *cancellation-aware* switch body (Task.sleep) that overruns its timeout must release the
+        // guard, not wedge it. This holds only because Task.sleep honors cancellation; a body that
+        // ignored it would keep withTimeout (a structured task group) from returning and the guard
+        // would stay held. See serverSwitchTimeout for why that trade-off is intentional.
         let timedOut: Void? = try? await client.switchWaiting {
             try await withTimeout(.milliseconds(50)) {
                 try await Task.sleep(for: .seconds(10))

@@ -74,11 +74,19 @@ struct TransactionTimeoutError: Error {}
 
 /// Default deadline for a server switch. `switchTo` does stop → validate-over-Tor → start; the
 /// validation has its own 5s single-call timeout, but `start()` and Tor circuit setup have no
-/// Swift-level deadline, so this bounds the whole operation and guarantees the guard is released.
+/// Swift-level deadline. On expiry `withTimeout` *cancels* `switchTo`; the guard is released only
+/// once `switchTo` actually returns. If `switchTo` ignored cancellation and hung, the guard would
+/// stay held — a deliberate trade-off that favours switch/submission exclusivity over liveness:
+/// abandoning a half-applied switch could race a submission against a synchronizer still being rebuilt.
 let serverSwitchTimeout: Duration = .seconds(60)
 
-/// Run `operation`, throwing `TransactionTimeoutError` if it does not finish within `duration`.
-/// Whichever of the two finishes first wins; the loser is cancelled.
+/// Race `operation` against a `duration` timer; whichever finishes first wins and the loser is
+/// *cancelled* (a cancellation request, not a forced stop). Throws `TransactionTimeoutError` when
+/// the timer wins.
+///
+/// Caveat: this is a structured task group, so it returns only once *both* children have finished.
+/// If `operation` ignores cancellation and never returns, neither does this call — a hard deadline
+/// is only achievable when `operation` is cancellation-aware.
 func withTimeout<T: Sendable>(
     _ duration: Duration,
     operation: @escaping @Sendable () async throws -> T
