@@ -77,6 +77,10 @@ extension Root {
                 return .none
 
             case .destination(.serverSwitch):
+                // Mirror the smart-banner entry (RootCoordinator .serverSwitchRequested): reset the
+                // long-lived serverSetupState so each open re-benchmarks instead of showing a stale
+                // "Fastest servers" ranking and reusing a stale recommendedSyncServer on an Automatic Save.
+                state.serverSetupState = .initial
                 state.serverSetupViewBinding = true
                 return .none
 
