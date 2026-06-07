@@ -261,7 +261,7 @@ struct ServerSetup {
 
                 case .manual:
                     let serverString = state.selectedServer == String(localizable: .serverSetupCustom)
-                        ? state.customServer
+                        ? state.customServer.trimmingCharacters(in: .whitespaces)
                         : (state.selectedServer ?? "")
                     let isCustom = state.selectedServer == String(localizable: .serverSetupCustom)
 

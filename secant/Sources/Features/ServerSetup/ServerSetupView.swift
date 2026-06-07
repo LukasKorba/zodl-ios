@@ -308,9 +308,14 @@ struct ServerSetupView: View {
                     .shadow(color: .black.opacity(0.02), radius: 4, x: 0, y: -8)
 
                 let customLabel = String(localizable: .serverSetupCustom)
-                let customIsBlank = store.selectedServer == customLabel
-                    && store.customServer.trimmingCharacters(in: .whitespaces).isEmpty
-                let needsServer = store.connectionMode == .manual && (store.selectedServer == nil || customIsBlank)
+                // Disable Save when the custom input can't be parsed (blank, missing :port, etc.) so an
+                // invalid entry can't pass the enable-check and then fail in setServerTapped with an alert.
+                let customIsInvalid = store.selectedServer == customLabel
+                    && UserPreferencesStorage.ServerConfig.endpoint(
+                        for: store.customServer.trimmingCharacters(in: .whitespaces),
+                        streamingCallTimeoutInMillis: ZcashSDKEnvironment.ZcashSDKConstants.streamingCallTimeoutInMillis
+                    ) == nil
+                let needsServer = store.connectionMode == .manual && (store.selectedServer == nil || customIsInvalid)
                 let canSave = store.hasChanges && !needsServer
 
                 Button {
