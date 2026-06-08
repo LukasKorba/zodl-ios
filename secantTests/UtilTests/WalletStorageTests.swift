@@ -8,12 +8,14 @@
 import XCTest
 @preconcurrency import MnemonicSwift
 @preconcurrency import ZcashLightClientKit
-@testable import secant_testnet
+@testable import zashi_internal
 
 extension WalletStorage.WalletStorageError {
     var debugValue: String {
         switch self {
         case .alreadyImported: return "alreadyImported"
+        case .uninitializedAddressBookEncryptionKeys: return "uninitializedAddressBookEncryptionKeys"
+        case .uninitializedUserMetadataEncryptionKeys: return "uninitializedUserMetadataEncryptionKeys"
         case .uninitializedWallet: return "uninitializedWallet"
         case .storageError: return "storageError"
         case .unsupportedVersion: return "unsupportedVersion"
@@ -116,7 +118,7 @@ class WalletStorageTests: XCTestCase {
                 XCTFail("`testDeleteWallet` storing `walletData` failed.")
             }
 
-            storage.resetZashi()
+            try storage.resetZashi()
             
             let data = data(forKey: WalletStorage.Constants.zcashStoredWallet)
             

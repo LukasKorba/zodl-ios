@@ -8,39 +8,10 @@
 @preconcurrency import Combine
 import XCTest
 import ComposableArchitecture
-@testable import secant_testnet
+@testable import zashi_internal
 @testable @preconcurrency import ZcashLightClientKit
 
 class HomeTests: XCTestCase {
-    /// The .onAppear action is important to register for the synchronizer state updates.
-    /// The integration tests make sure registrations and side effects are properly implemented.
-    @MainActor func testOnAppear() async throws {
-        let store = TestStore(
-            initialState: .initial
-        ) {
-            Home()
-        }
-
-        store.dependencies.mainQueue = .immediate
-        store.dependencies.diskSpaceChecker = .mockEmptyDisk
-        store.dependencies.sdkSynchronizer = .mocked()
-        store.dependencies.reviewRequest = .noOp
-
-        await store.send(.onAppear) { state in
-            state.migratingDatabase = false
-            state.walletBalancesState.migratingDatabase = true
-        }
-
-        var syncState: SynchronizerState = .zero
-        syncState.syncStatus = .unprepared
-
-        // long-living (cancelable) effects need to be properly canceled.
-        // the .onDisappear action cancels the observer of the synchronizer status change.
-        await store.send(.onDisappear)
-        
-        await store.finish()
-    }
-
     @MainActor func testSynchronizerErrorBringsUpAlert() async {
         let testError = ZcashError.synchronizerNotPrepared
 

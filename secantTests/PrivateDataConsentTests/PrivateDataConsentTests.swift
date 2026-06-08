@@ -7,7 +7,7 @@
 
 import XCTest
 import ComposableArchitecture
-@testable import secant_testnet
+@testable import zashi_internal
 
 @MainActor
 final class PrivateDataConsentTests: XCTestCase {
@@ -19,9 +19,10 @@ final class PrivateDataConsentTests: XCTestCase {
         }
         
         let URL = URL(string: "https://electriccoin.co")!
-        
+
+        store.dependencies.databaseFiles = .noOp
         store.dependencies.databaseFiles.dataDbURLFor = { _ in URL }
-        
+
         await store.send(.onAppear) { state in
             state.dataDbURL = [URL]
         }
