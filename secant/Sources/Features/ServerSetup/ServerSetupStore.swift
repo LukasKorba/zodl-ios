@@ -28,7 +28,7 @@ struct ServerSetup {
         static let evaluationTimeoutSeconds = 60.0
         static let blocksToDownload: UInt64 = 100
         static let recommendedServerCount = 3
-        static let saveCompletionDelay: DispatchQueue.SchedulerTimeType.Stride = .seconds(1)
+        static let saveCompletionDelay = 1.0
     }
 
     private enum CancelID {
@@ -349,7 +349,7 @@ struct ServerSetup {
         userStoredPreferences.setAutomaticServerSelection(automatic)
         try userStoredPreferences.setServer(endpoint.serverConfig(isCustom: isCustom))
 
-        try await mainQueue.sleep(for: Benchmark.saveCompletionDelay)
+        try await mainQueue.sleep(for: .seconds(Benchmark.saveCompletionDelay))
         await send(.switchSucceeded(endpoint.server()))
     }
 }
