@@ -48,6 +48,11 @@ Zodl (formerly Zashi) is an iOS Zcash wallet built with SwiftUI and The Composab
 
 Closures must be `@Sendable`. Use `@preconcurrency import ZcashLightClientKit` when an SDK type is not yet `Sendable`.
 
+**Transaction guard (`Dependencies/TransactionGuard/`)** — the SDK's `switchTo(endpoint:)` tears down and rebuilds the synchronizer, so it must never overlap a transaction broadcast. A shared, non-reentrant FIFO-mutex actor (`@Dependency(\.transactionGuard)`) enforces this, applied **per call site** (so it's easy to forget on a new path):
+- Any new broadcast MUST be wrapped: `try await transactionGuard.withSubmission { ... }`. This covers send/swap/shield/Flexa/PCZT (`sdkSynchronizer.createProposedTransactions` / `createTransactionFromPCZT`) and voting (`votingAPI.submitDelegation` / `submitVoteCommitment`, `Voting.delegateSharesWithFallback`). A broadcast that skips the guard can race an automatic server switch and corrupt an in-flight transaction.
+- Server switches use the same guard: the manual Save path uses `switchWaiting { ... }` (waits, then wins); the automatic refresh (`autoServerSelection.refreshIfEnabled`) uses `switchIfIdle { ... } -> Bool` (skips if a submission/switch is active).
+- **Never nest** these helpers on the same task — the guard is non-reentrant and will deadlock. `withTimeout(serverSwitchTimeout)` bounds a switch.
+
 **Navigation** uses TCA's `StackState` with a `@Reducer enum Path` (coordinator pattern):
 ```swift
 @Reducer
