@@ -49,16 +49,6 @@
                ReferencedContainer = "container:secant.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0D4E7A2026B364180058B01E"
-               BuildableName = "secantUITests.xctest"
-               BlueprintName = "secantUITests"
-               ReferencedContainer = "container:secant.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
