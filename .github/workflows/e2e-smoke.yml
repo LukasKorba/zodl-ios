@@ -65,7 +65,7 @@ jobs:
       - name: Resolve packages
         run: |
           xcodebuild -project secant.xcodeproj \
-            -scheme zashi-internal \
+            -scheme zodl-internal \
             -resolvePackageDependencies \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH"
@@ -98,7 +98,7 @@ jobs:
         run: |
           xcodebuild build \
             -project secant.xcodeproj \
-            -scheme zashi-internal \
+            -scheme zodl-internal \
             -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=latest' \
             -derivedDataPath "$DERIVED_DATA_PATH" \
             -clonedSourcePackagesDirPath "$SOURCE_PACKAGES_PATH" \
@@ -112,7 +112,7 @@ jobs:
       - name: Upload .app bundle
         uses: actions/upload-artifact@v4
         with:
-          name: zashi-internal-app
+          name: zodl-internal-app
           # We could zip just the .app, but the entire Products dir is small
           # enough and keeping the bundle structure means the phase job can
           # `simctl install` it directly without unzipping a separate step.
@@ -157,7 +157,7 @@ jobs:
       - name: Download .app bundle
         uses: actions/download-artifact@v4
         with:
-          name: zashi-internal-app
+          name: zodl-internal-app
           path: app-bundle
 
       - name: Boot simulator and install app
@@ -180,8 +180,8 @@ jobs:
           # Prefer an actual .app sibling if present, otherwise treat the
           # download dir itself as the bundle root after renaming.
           if [ -d app-bundle/Info.plist -o -f app-bundle/Info.plist ]; then
-              mv app-bundle zashi-internal.app
-              APP="zashi-internal.app"
+              mv app-bundle zodl-internal.app
+              APP="zodl-internal.app"
           else
               APP=$(ls -d app-bundle/*.app 2>/dev/null | head -1)
           fi
