@@ -2579,7 +2579,6 @@
 		BFE03A2F84B2F8B97831CD9F /* ZatoshiTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8CBC2B9B582027B1AEAD379 /* ZatoshiTests.swift */; };
 		DB87FBCDB6C1FC4EA9311A26 /* DeeplinkURLParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2D883F371565C6BE48EFE83 /* DeeplinkURLParsingTests.swift */; };
 		F8D7DA12B79F620DB1AB1F78 /* MemoByteCountingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CA795A8CBA572BDBA583976 /* MemoByteCountingTests.swift */; };
-		FBE967B2D07B2A0C8E3225A7 /* WalletStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E8E758D85D67F6FDF8FD5C /* WalletStorageTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -3058,7 +3057,6 @@
 		37D0F0000000000000000001 /* StaticVotingConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticVotingConfig.swift; sourceTree = "<group>"; };
 		37D0F0000000000000000002 /* RoundAuthenticator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundAuthenticator.swift; sourceTree = "<group>"; };
 		40EEDC900ECC02431931F11A /* LoggerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LoggerTests.swift; sourceTree = "<group>"; };
-		58E8E758D85D67F6FDF8FD5C /* WalletStorageTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		64A5D635BF4FBF530D1B6880 /* HomeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HomeTests.swift; sourceTree = "<group>"; };
 		7CA795A8CBA572BDBA583976 /* MemoByteCountingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MemoByteCountingTests.swift; sourceTree = "<group>"; };
 		7D430BF2CF73CFB82A13F1CB /* SecItemClientTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SecItemClientTests.swift; sourceTree = "<group>"; };
@@ -3128,7 +3126,6 @@
 		9EEBF9772FBC813B00DD38DB /* VotingErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingErrorView.swift; sourceTree = "<group>"; };
 		9EEBF9822FBC814600DD38DB /* IneligibleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IneligibleView.swift; sourceTree = "<group>"; };
 		9EEBF9D22FBDAE2100DD38DB /* VotingHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingHelpers.swift; sourceTree = "<group>"; };
-		9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletStorageTests.swift; sourceTree = "<group>"; };
 		9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserPreferencesStorageTests.swift; sourceTree = "<group>"; };
 		AD0D00102D00000100000002 /* VotingSessionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingSessionTests.swift; sourceTree = "<group>"; };
 		AD0D00202D00000100000002 /* VotingAPIResponseParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VotingAPIResponseParserTests.swift; sourceTree = "<group>"; };
@@ -3276,7 +3273,6 @@
 				40EEDC900ECC02431931F11A /* LoggerTests.swift */,
 				7D430BF2CF73CFB82A13F1CB /* SecItemClientTests.swift */,
 				DCD04B216486D7A0AAB329F2 /* UserPreferencesStorageTests.swift */,
-				58E8E758D85D67F6FDF8FD5C /* WalletStorageTests.swift */,
 				D8CBC2B9B582027B1AEAD379 /* ZatoshiTests.swift */,
 			);
 			path = UtilTests;
@@ -5352,7 +5348,6 @@
 				9E0F574A2980260D005304FA /* LoggerTests.swift */,
 				9EAFEB852805A23100199FC9 /* SecItemClientTests.swift */,
 				9EF8135B27ECC25E0075AF48 /* UserPreferencesStorageTests.swift */,
-				9EF8135A27ECC25E0075AF48 /* WalletStorageTests.swift */,
 				9E39112D283F91600073DD9A /* ZatoshiTests.swift */,
 				34D06C902FD2CF0B00BB10EE /* DecommissionedServerMigrationTests.swift */,
 			);
@@ -5704,10 +5699,6 @@
 					0D4E7A1526B364180058B01E = {
 						CreatedOnToolsVersion = 12.5;
 						TestTargetID = 9E5AB4632C94777800065483;
-					};
-					0D4E7A2026B364180058B01E = {
-						CreatedOnToolsVersion = 12.5;
-						TestTargetID = 0D4E7A0426B364170058B01E;
 					};
 				};
 			};
@@ -7238,7 +7229,6 @@
 				921B3D95249329CD65C36E1B /* LoggerTests.swift in Sources */,
 				63B448CA6B0B3D800DE8CB2B /* SecItemClientTests.swift in Sources */,
 				2D502ADD8B5CBB60D72B642B /* UserPreferencesStorageTests.swift in Sources */,
-				FBE967B2D07B2A0C8E3225A7 /* WalletStorageTests.swift in Sources */,
 				BFE03A2F84B2F8B97831CD9F /* ZatoshiTests.swift in Sources */,
 				A9BE701F099CD0D1379F63AE /* ZatoshiStringRepresentationCommaTests.swift in Sources */,
 				A409BF1DAB30483E4CDB0DCB /* ZatoshiStringRepresentationTests.swift in Sources */,
