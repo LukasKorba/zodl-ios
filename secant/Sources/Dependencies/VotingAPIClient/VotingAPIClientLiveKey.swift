@@ -390,8 +390,6 @@ func delegateSharePayloads(
     var results: [DelegatedShareInfo] = []
 
     for (shareOffset, payload) in payloads.enumerated() {
-        let body = sharePostBody(for: payload, roundIdHex: roundIdHex)
-
         let targetCount = max(1, (availableServers.count + 1) / 2)
         var acceptedServers: [String] = []
         var triedServers = Set<String>()
@@ -411,6 +409,9 @@ func delegateSharePayloads(
                 for server in targets {
                     group.addTask {
                         do {
+                            // Build body inside the task: [String: Any] isn't Sendable, but SharePayload is —
+                            // recompute per task so the sending closure only captures Sendable values.
+                            let body = sharePostBody(for: payload, roundIdHex: roundIdHex)
                             try await postShare(server, body)
                             return (server, true)
                         } catch {

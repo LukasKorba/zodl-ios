@@ -11,6 +11,12 @@ import Foundation
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
 
+// FiatCurrencyResult is a value type whose stored members (Date, NSDecimalNumber, State enum) are all Sendable;
+// the SDK simply hasn't declared the conformance. Swift mandates `@unchecked Sendable` for retroactive conformance —
+// a checked variant isn't permitted across module boundaries — so this is the only way to let the value cross from
+// Combine's emitting queue into the @MainActor Task below without the SDK shipping the conformance itself.
+extension FiatCurrencyResult: @retroactive @unchecked Sendable {}
+
 @MainActor final class ExchangeRateProvider {
     enum Constants {
         static let cmcRateURL = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=ZEC&convert=USD"

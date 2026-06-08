@@ -93,7 +93,6 @@ struct Toast: ViewModifier {
 
     @ViewBuilder
     private func toastLabel(_ message: String) -> some View {
-        #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
             Text(message)
                 .zFont(size: 14, style: Design.Btns.Primary.bg)
@@ -103,9 +102,6 @@ struct Toast: ViewModifier {
         } else {
             fallbackToastLabel(message)
         }
-        #else
-        fallbackToastLabel(message)
-        #endif
     }
 
     private func fallbackToastLabel(_ message: String) -> some View {
