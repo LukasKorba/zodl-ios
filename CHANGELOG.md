@@ -6,6 +6,19 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ## [Unreleased]
 
+### 3.5.2 build 1 (20026-06-08)
+
+### Changed
+- Voting UI improvements.
+
+### Fixed
+- A connection timeout on iOS that could leave the wallet stuck mid-sync after fetching transactions.
+
+### Removed
+- Servers scheduled for decommissioning from the server list.
+
+## 3.5.1 build 2 (2026-06-01)
+
 ### Changed
 - Default server set to zec.rocks.
 - We now keep the screen awake while you're submitting Coinholder Polling votes — including the Keystone QR signing step — so the device doesn't lock mid-submission.
