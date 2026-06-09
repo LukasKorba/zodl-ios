@@ -474,6 +474,8 @@ extension Root.State {
 }
 
 extension Root {
+    // StoreOf<Root>.init is @MainActor (TCA 1.14+); factory must be too.
+    @MainActor
     static var placeholder: StoreOf<Root> {
         StoreOf<Root>(
             initialState: .initial

@@ -357,6 +357,8 @@ extension Home.State {
 }
 
 extension Home {
+    // StoreOf<Home>.init is @MainActor (TCA 1.14+); factories must be too.
+    @MainActor
     static var placeholder: StoreOf<Home> {
         StoreOf<Home>(
             initialState: .initial
@@ -365,6 +367,7 @@ extension Home {
         }
     }
 
+    @MainActor
     static var error: StoreOf<Home> {
         StoreOf<Home>(
             initialState: .init(

@@ -112,14 +112,15 @@ struct RequestZec {
                         
                         let encryptedOutput = ZIP321.request(payment, formattingOptions: .useEmptyParamIndex(omitAddressLabel: true))
                         state.encryptedOutput = encryptedOutput
-                        return .publisher {
-                            QRCodeGenerator.generate(
+                        let color = Asset.Colors.primary.systemColor
+                        return .run { [maxPrivacy = state.maxPrivacy] send in
+                            let image = await QRCodeGenerator.generate(
                                 from: encryptedOutput,
-                                maxPrivacy: state.maxPrivacy,
+                                maxPrivacy: maxPrivacy,
                                 vendor: .zashi,
-                                color: Asset.Colors.primary.systemColor
+                                color: color
                             )
-                            .map(Action.rememberQR)
+                            await send(.rememberQR(image))
                         }
                         .cancellable(id: state.cancelId)
                     } catch {
@@ -127,7 +128,7 @@ struct RequestZec {
                     }
                 }
                 return .none
-                
+
             case .generateEnlargedQRCode:
                 if let recipient = RecipientAddress(value: state.address.data, context: ParserContext.from(networkType: zcashSDKEnvironment.network().networkType)) {
                     do {
@@ -142,14 +143,14 @@ struct RequestZec {
                         
                         let encryptedOutput = ZIP321.request(payment, formattingOptions: .useEmptyParamIndex(omitAddressLabel: true))
                         state.encryptedOutput = encryptedOutput
-                        return .publisher {
-                            QRCodeGenerator.generate(
+                        return .run { [maxPrivacy = state.maxPrivacy] send in
+                            let image = await QRCodeGenerator.generate(
                                 from: encryptedOutput,
-                                maxPrivacy: state.maxPrivacy,
+                                maxPrivacy: maxPrivacy,
                                 vendor: .zashi,
                                 color: .black
                             )
-                            .map(Action.rememberEnlargedQR)
+                            await send(.rememberEnlargedQR(image))
                         }
                         .cancellable(id: state.cancelId)
                     } catch {

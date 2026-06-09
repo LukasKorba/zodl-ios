@@ -99,26 +99,27 @@ struct AddressDetails {
                 return .none
 
             case .generateQRCode:
-                return .publisher {
-                    QRCodeGenerator.generate(
-                        from: state.address.data,
-                        maxPrivacy: state.maxPrivacy,
+                let color = Asset.Colors.primary.systemColor
+                return .run { [data = state.address.data, maxPrivacy = state.maxPrivacy] send in
+                    let image = await QRCodeGenerator.generate(
+                        from: data,
+                        maxPrivacy: maxPrivacy,
                         vendor: .zashi,
-                        color: Asset.Colors.primary.systemColor
+                        color: color
                     )
-                    .map(Action.rememberQR)
+                    await send(.rememberQR(image))
                 }
                 .cancellable(id: state.cancelId)
-                
+
             case .generateEnlargedQRCode:
-                return .publisher {
-                    QRCodeGenerator.generate(
-                        from: state.address.data,
-                        maxPrivacy: state.maxPrivacy,
+                return .run { [data = state.address.data, maxPrivacy = state.maxPrivacy] send in
+                    let image = await QRCodeGenerator.generate(
+                        from: data,
+                        maxPrivacy: maxPrivacy,
                         vendor: .zashi,
                         color: .black
                     )
-                    .map(Action.rememberEnlargedQR)
+                    await send(.rememberEnlargedQR(image))
                 }
                 .cancellable(id: state.cancelId)
 

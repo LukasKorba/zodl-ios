@@ -41,8 +41,8 @@ struct ZashiButton<PrefixContent, AccessoryContent>: View where PrefixContent: V
         horizontalPadding: CGFloat = 18,
         verticalPadding: CGFloat = 12,
         minHeight: CGFloat? = nil,
-        prefixView: PrefixContent? = EmptyView(),
-        accessoryView: AccessoryContent? = EmptyView(),
+        prefixView: PrefixContent?,
+        accessoryView: AccessoryContent?,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -201,6 +201,86 @@ struct ZashiButton<PrefixContent, AccessoryContent>: View where PrefixContent: V
             ? Design.Btns.Ghost.bg
             : Design.Btns.Ghost.bgDisabled
         }
+    }
+}
+
+extension ZashiButton where PrefixContent == EmptyView, AccessoryContent == EmptyView {
+    init(
+        _ title: String,
+        type: `Type` = .primary,
+        infinityWidth: Bool = true,
+        fontSize: CGFloat = 16,
+        horizontalPadding: CGFloat = 18,
+        verticalPadding: CGFloat = 12,
+        minHeight: CGFloat? = nil,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            title,
+            type: type,
+            infinityWidth: infinityWidth,
+            fontSize: fontSize,
+            horizontalPadding: horizontalPadding,
+            verticalPadding: verticalPadding,
+            minHeight: minHeight,
+            prefixView: nil,
+            accessoryView: nil,
+            action: action
+        )
+    }
+}
+
+extension ZashiButton where PrefixContent == EmptyView {
+    init(
+        _ title: String,
+        type: `Type` = .primary,
+        infinityWidth: Bool = true,
+        fontSize: CGFloat = 16,
+        horizontalPadding: CGFloat = 18,
+        verticalPadding: CGFloat = 12,
+        minHeight: CGFloat? = nil,
+        accessoryView: AccessoryContent,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            title,
+            type: type,
+            infinityWidth: infinityWidth,
+            fontSize: fontSize,
+            horizontalPadding: horizontalPadding,
+            verticalPadding: verticalPadding,
+            minHeight: minHeight,
+            prefixView: nil,
+            accessoryView: accessoryView,
+            action: action
+        )
+    }
+}
+
+extension ZashiButton where AccessoryContent == EmptyView {
+    init(
+        _ title: String,
+        type: `Type` = .primary,
+        infinityWidth: Bool = true,
+        fontSize: CGFloat = 16,
+        horizontalPadding: CGFloat = 18,
+        verticalPadding: CGFloat = 12,
+        minHeight: CGFloat? = nil,
+        prefixView: PrefixContent,
+        action: @escaping () -> Void
+    ) {
+        self.init(
+            title,
+            type: type,
+            infinityWidth: infinityWidth,
+            fontSize: fontSize,
+            horizontalPadding: horizontalPadding,
+            verticalPadding: verticalPadding,
+            minHeight: minHeight,
+            prefixView: prefixView,
+            accessoryView: nil,
+            action: action
+        )
     }
 }
 

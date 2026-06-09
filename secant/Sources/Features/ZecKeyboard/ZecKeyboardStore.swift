@@ -91,8 +91,11 @@ struct ZecKeyboard {
                     return .none
                 }
 
-                let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                impactFeedback.impactOccurred()
+                // TCA Store is @MainActor; reducer body always runs on main. UIImpactFeedbackGenerator is @MainActor.
+                MainActor.assumeIsolated {
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                    impactFeedback.impactOccurred()
+                }
 
                 // backspace
                 if index == 11 {

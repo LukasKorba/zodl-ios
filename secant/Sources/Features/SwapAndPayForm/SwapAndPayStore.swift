@@ -1056,31 +1056,30 @@ struct SwapAndPay {
                 guard let depositAddress = state.quote?.depositAddress else {
                     return .none
                 }
+                let color = Asset.Colors.primary.systemColor
                 return .run { send in
-                    for await image in QRCodeGenerator.generate(
+                    let image = await QRCodeGenerator.generate(
                         from: depositAddress,
                         vendor: .zashi,
-                        color: Asset.Colors.primary.systemColor,
+                        color: color,
                         overlayedWithZcashLogo: false
-                    ).values {
-                        await send(.rememberQR(image))
-                    }
+                    )
+                    await send(.rememberQR(image))
                 }
                 .cancellable(id: state.QRCancelId)
-                
+
             case .generateEnlargedQRCode:
                 guard let depositAddress = state.quote?.depositAddress else {
                     return .none
                 }
                 return .run { send in
-                    for await image in QRCodeGenerator.generate(
+                    let image = await QRCodeGenerator.generate(
                         from: depositAddress,
                         vendor: .zashi,
                         color: .black,
                         overlayedWithZcashLogo: false
-                    ).values {
-                        await send(.rememberEnlargedQR(image))
-                    }
+                    )
+                    await send(.rememberEnlargedQR(image))
                 }
                 .cancellable(id: state.QRCancelId)
 

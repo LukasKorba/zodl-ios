@@ -312,21 +312,29 @@ struct SendForm {
                     return .none
                 }
                 state.amount = state.isLatestInputFiat ? state.amount.roundToAvoidDustSpend() : state.amount
-                return .run { [state, confirmationType] send in
+                return .run { [
+                    address = state.address,
+                    isValidTransparentAddress = state.isValidTransparentAddress,
+                    isValidTexAddress = state.isValidTexAddress,
+                    addMemoState = state.addMemoState,
+                    memoText = state.memoState.text,
+                    amount = state.amount,
+                    confirmationType
+                ] send in
                     do {
-                        let recipient = try Recipient(state.address.data, network: zcashSDKEnvironment.network().networkType)
-                        
+                        let recipient = try Recipient(address.data, network: zcashSDKEnvironment.network().networkType)
+
                         let memo: Memo?
-                        if state.isValidTransparentAddress || state.isValidTexAddress {
+                        if isValidTransparentAddress || isValidTexAddress {
                             memo = nil
-                        } else if let memoText = state.addMemoState ? state.memoState.text : nil {
-                            memo = memoText.isEmpty ? nil : try Memo(string: memoText)
+                        } else if let candidate = addMemoState ? memoText : nil {
+                            memo = candidate.isEmpty ? nil : try Memo(string: candidate)
                         } else {
                             memo = nil
                         }
 
-                        let proposal = try await sdkSynchronizer.proposeTransfer(account.id, recipient, state.amount, memo)
-                        
+                        let proposal = try await sdkSynchronizer.proposeTransfer(account.id, recipient, amount, memo)
+
                         await send(.proposal(proposal))
                         await send(.confirmationRequired(confirmationType))
                     } catch {

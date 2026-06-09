@@ -50,7 +50,8 @@ struct OSStatusError {
                 
             case .sendSupportMail:
                 let supportData = SupportDataGenerator.generateOSStatusError(osStatus: state.osStatus)
-                if MFMailComposeViewController.canSendMail() {
+                // TCA Store is @MainActor; reducer body always runs on main.
+                if MainActor.assumeIsolated({ MFMailComposeViewController.canSendMail() }) {
                     state.supportData = supportData
                 } else {
                     state.message = supportData.message
