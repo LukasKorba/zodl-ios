@@ -187,6 +187,7 @@ struct SendConfirmation {
     @Dependency(\.mainQueue) var mainQueue
     @Dependency(\.mnemonic) var mnemonic
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
+    @Dependency(\.transactionGuard) var transactionGuard
     @Dependency(\.walletStorage) var walletStorage
     @Dependency(\.zcashSDKEnvironment) var zcashSDKEnvironment
 
@@ -289,7 +290,9 @@ struct SendConfirmation {
                         let network = zcashSDKEnvironment.network().networkType
                         let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, zip32AccountIndex, network)
 
-                        let result = try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
+                        let result = try await transactionGuard.withSubmission {
+                            try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
+                        }
 
                         switch result {
                         case .grpcFailure(let txIds):
@@ -537,7 +540,9 @@ struct SendConfirmation {
                 #endif
                 return .run { send in
                     do {
-                        let result = try await sdkSynchronizer.createTransactionFromPCZT(pcztWithProofs, pcztWithSigs)
+                        let result = try await transactionGuard.withSubmission {
+                            try await sdkSynchronizer.createTransactionFromPCZT(pcztWithProofs, pcztWithSigs)
+                        }
 
                         await send(.resetPCZTs)
 

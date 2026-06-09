@@ -60,7 +60,7 @@ extension ZcashSDKEnvironment {
         if network == .mainnet {
             servers.append(.custom)
             
-            let mainnetServers = ZcashSDKEnvironment.endpoints(skipDefault: true).map {
+            let mainnetServers = ZcashSDKEnvironment.endpoints(for: network, skipDefault: true).map {
                 Server.hardcoded("\($0.host):\($0.port)")
             }
             
@@ -84,24 +84,30 @@ extension ZcashSDKEnvironment {
         )
     }
     
-    static func endpoints(skipDefault: Bool = false) -> [LightWalletEndpoint] {
-        var result: [LightWalletEndpoint] = []
-        
-        if !skipDefault {
-            result.append(LightWalletEndpoint(address: "zec.rocks", port: 443))
+    static func endpoints(for network: NetworkType, skipDefault: Bool = false) -> [LightWalletEndpoint] {
+        // Testnet has a single endpoint, so there is nothing to benchmark.
+        if network == .testnet {
+            return skipDefault ? [] : [defaultEndpoint(for: network)]
         }
-        
+
+        let timeout = ZcashSDKConstants.streamingCallTimeoutInMillis
+        var result: [LightWalletEndpoint] = []
+
+        if !skipDefault {
+            result.append(defaultEndpoint(for: network))
+        }
+
         result.append(
             contentsOf: [
-                LightWalletEndpoint(address: "na.zec.rocks", port: 443),
-                LightWalletEndpoint(address: "sa.zec.rocks", port: 443),
-                LightWalletEndpoint(address: "eu.zec.rocks", port: 443),
-                LightWalletEndpoint(address: "ap.zec.rocks", port: 443),
-                LightWalletEndpoint(address: "us.zec.stardust.rest", port: 443),
-                LightWalletEndpoint(address: "eu.zec.stardust.rest", port: 443)
+                LightWalletEndpoint(address: "na.zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: timeout),
+                LightWalletEndpoint(address: "sa.zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: timeout),
+                LightWalletEndpoint(address: "eu.zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: timeout),
+                LightWalletEndpoint(address: "ap.zec.rocks", port: 443, secure: true, streamingCallTimeoutInMillis: timeout),
+                LightWalletEndpoint(address: "us.zec.stardust.rest", port: 443, secure: true, streamingCallTimeoutInMillis: timeout),
+                LightWalletEndpoint(address: "eu.zec.stardust.rest", port: 443, secure: true, streamingCallTimeoutInMillis: timeout)
             ]
         )
-        
+
         return result
     }
 }

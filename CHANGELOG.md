@@ -6,7 +6,10 @@ directly impact users rather than highlighting other crucial architectural updat
 
 ## [Unreleased]
 
-### 3.5.2 build 1 (20026-06-08)
+### Added
+- Server selection now offers an Automatic mode that benchmarks known servers and keeps your wallet on the fastest one; Manual mode still lets you pin a specific server. Automatic switching is paused while sending, swapping, shielding, or voting.
+
+## 3.5.2 build 1 (20026-06-08)
 
 ### Changed
 - Voting UI improvements.

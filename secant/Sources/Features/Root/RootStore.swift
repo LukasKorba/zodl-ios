@@ -39,6 +39,7 @@ struct Root {
         var DidFinishLaunchingId = UUID()
         var CancelFlexaId = UUID()
         var shieldingProcessorCancelId = UUID()
+        var automaticServerRefreshCancelId = UUID()
 
         @Shared(.inMemory(.addressBookContacts)) var addressBookContacts: AddressBookContacts = .empty
         @Presents var alert: AlertState<Action>?
@@ -102,6 +103,13 @@ struct Root {
         var transactionsCoordFlowState = TransactionsCoordFlow.State.initial
         var walletBackupCoordFlowState = WalletBackupCoordFlow.State.initial
         var torSetupState = TorSetup.State.initial
+
+        /// True while Server Setup is presented via either entry point — the home-banner full-screen
+        /// cover (`serverSetupViewBinding`) or Settings → Choose Server (`chooseServerSetup`).
+        var isServerSetupVisible: Bool {
+            serverSetupViewBinding
+                || settingsState.path.contains { if case .chooseServerSetup = $0 { return true } else { return false } }
+        }
 
         init(
             appInitializationState: InitializationState = .uninitialized,
@@ -191,6 +199,7 @@ struct Root {
         case walletBackupCoordFlow(WalletBackupCoordFlow.Action)
         case torSetup(TorSetup.Action)
         case backToHomeFromServerSwitchTapped
+        case refreshAutomaticServer
 
         // Transactions
         case observeTransactions
@@ -255,6 +264,8 @@ struct Root {
     @Dependency(\.sdkSynchronizer) var sdkSynchronizer
     @Dependency(\.shieldingProcessor) var shieldingProcessor
     @Dependency(\.swapAndPay) var swapAndPay
+    @Dependency(\.autoServerSelection) var autoServerSelection
+    @Dependency(\.transactionGuard) var transactionGuard
     @Dependency(\.uriParser) var uriParser
     @Dependency(\.userDefaults) var userDefaults
     @Dependency(\.userMetadataProvider) var userMetadataProvider
@@ -415,6 +426,17 @@ struct Root {
 
             case .onboarding(.newWalletSuccessfulyCreated):
                 return .send(.initialization(.initializeSDK(.newWallet)))
+
+            case .refreshAutomaticServer:
+                // Skip during a background task, and while the user is on the Server Setup screen
+                // (a manual Save owns that window) to avoid redundant work and stale UI. Correctness
+                // against a concurrent manual switch is guaranteed by TransactionGuard regardless:
+                // the manual Save uses switchWaiting (waits, then wins) while this uses switchIfIdle.
+                guard state.bgTask == nil, !state.isServerSetupVisible else { return .none }
+                return .run { _ in
+                    await autoServerSelection.refreshIfEnabled()
+                }
+                .cancellable(id: state.automaticServerRefreshCancelId, cancelInFlight: true)
 
             default: return .none
             }

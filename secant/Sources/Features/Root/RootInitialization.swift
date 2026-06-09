@@ -196,6 +196,7 @@ extension Root {
                             LoggerProxy.event("BGTask synchronizer.start() PASSED")
                         }
                         await send(.initialization(.registerForSynchronizersUpdate))
+                        await send(.refreshAutomaticServer)
                     } catch {
                         if state.bgTask != nil {
                             LoggerProxy.event("BGTask synchronizer.start() failed \(error.toZcashError())")
@@ -400,7 +401,8 @@ extension Root {
                     .send(.batteryStateChanged),
                     .send(.observeTransactions),
                     .send(.observeShieldingProcessor),
-                    .send(.observeTorInit)
+                    .send(.observeTorInit),
+                    .send(.refreshAutomaticServer)
                 )
                 
             case .initialization(.loadedWalletAccounts(let walletAccounts)):

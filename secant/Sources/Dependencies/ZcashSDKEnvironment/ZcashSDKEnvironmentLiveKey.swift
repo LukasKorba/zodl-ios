@@ -39,17 +39,43 @@ extension ZcashSDKEnvironment {
     static func serverConfig(for network: NetworkType) -> UserPreferencesStorage.ServerConfig {
         migrateVersion1IfNeeded()
         migrateDecommissionedServersIfNeeded(for: network)
+        initializeAutomaticServerSelectionIfNeeded(for: network)
 
         guard let serverConfig = storedServerConfig() else {
             return defaultEndpoint(for: network).serverConfig()
         }
-        
-        // Migrate lwdX.zcash-infra.com servers to custom
+
+        return normalizedStoredServerConfig(serverConfig)
+    }
+
+    /// Historical `*.zcash-infra.com` hosts are treated as custom (manual) selections.
+    static func normalizedStoredServerConfig(
+        _ serverConfig: UserPreferencesStorage.ServerConfig
+    ) -> UserPreferencesStorage.ServerConfig {
         if serverConfig.host.hasSuffix(".zcash-infra.com") {
             return UserPreferencesStorage.ServerConfig(host: serverConfig.host, port: serverConfig.port, isCustom: true)
         }
-        
         return serverConfig
+    }
+
+    /// One-time initialization of the Automatic/Manual flag based on the user's existing server:
+    /// - no stored server, or it equals the default endpoint -> Automatic
+    /// - a custom server, or a non-default server -> Manual (preserve the explicit/private choice)
+    static func initializeAutomaticServerSelectionIfNeeded(for network: NetworkType) {
+        @Dependency(\.userStoredPreferences) var userStoredPreferences
+
+        guard userStoredPreferences.automaticServerSelection() == nil else { return }
+
+        var enableAutomatic = true
+        if let stored = userStoredPreferences.server() {
+            let normalized = normalizedStoredServerConfig(stored)
+            let defaultEndpoint = defaultEndpoint(for: network)
+            enableAutomatic = !normalized.isCustom
+                && normalized.host == defaultEndpoint.host
+                && normalized.port == defaultEndpoint.port
+        }
+
+        userStoredPreferences.setAutomaticServerSelection(enableAutomatic)
     }
     
     static func migrateVersion1IfNeeded() {

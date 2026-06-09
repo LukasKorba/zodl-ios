@@ -77,6 +77,10 @@ extension Root {
                 return .none
 
             case .destination(.serverSwitch):
+                // Mirror the smart-banner entry (RootCoordinator .serverSwitchRequested): reset the
+                // long-lived serverSetupState so each open re-benchmarks instead of showing a stale
+                // "Fastest servers" ranking and reusing a stale recommendedSyncServer on an Automatic Save.
+                state.serverSetupState = .initial
                 state.serverSetupViewBinding = true
                 return .none
 
@@ -115,8 +119,10 @@ extension Root {
                         let network = zcashSDKEnvironment.network().networkType
                         let spendingKey = try derivationTool.deriveSpendingKey(seedBytes, zip32AccountIndex, network)
 
-                        let result = try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
-                        
+                        let result = try await transactionGuard.withSubmission {
+                            try await sdkSynchronizer.createProposedTransactions(proposal, spendingKey)
+                        }
+
                         switch result {
                         case .partial:
                             await send(.flexaTransactionFailed(String(localizable: .partnersFlexaTransactionFailedMessage)))
