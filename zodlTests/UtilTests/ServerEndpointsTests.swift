@@ -1,6 +1,6 @@
 import XCTest
 @preconcurrency import ZcashLightClientKit
-@testable import zashi_internal
+@testable import zodl_internal
 
 final class ServerEndpointsTests: XCTestCase {
     func testTestnetReturnsOnlyDefault() {

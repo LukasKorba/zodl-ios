@@ -1,7 +1,7 @@
 import XCTest
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-@testable import zashi_internal
+@testable import zodl_internal
 
 final class AutomaticServerSelectionMigrationTests: XCTestCase {
     /// In-memory stand-in for the parts of `userStoredPreferences` the migration touches.

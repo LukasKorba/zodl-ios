@@ -1,7 +1,7 @@
 import XCTest
 import ComposableArchitecture
 import os
-@testable import zashi_internal
+@testable import zodl_internal
 
 final class AutomaticServerSelectionStorageTests: XCTestCase {
     func testFlagDefaultsToNilThenRoundTrips() {

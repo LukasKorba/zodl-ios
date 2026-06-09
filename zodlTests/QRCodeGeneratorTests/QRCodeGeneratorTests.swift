@@ -213,20 +213,12 @@ class QRCodeGeneratorTests: XCTestCase {
     }
 
     func testGenerateAsyncFutureCompletesSuccessfully() async {
-        let expectation = XCTestExpectation(description: "QR code future completes")
-
-        let future = QRCodeGenerator.generate(
+        let image = await QRCodeGenerator.generate(
             from: "async-test",
             overlayedWithZcashLogo: false
         )
 
-        let cancellable = future.sink { image in
-            XCTAssertNotNil(image, "QRCodeGenerator tests: `testGenerateAsyncFutureCompletesSuccessfully` is expected to produce a non-nil image")
-            expectation.fulfill()
-        }
-
-        await fulfillment(of: [expectation], timeout: 5.0)
-        cancellable.cancel()
+        XCTAssertNotNil(image, "QRCodeGenerator tests: `testGenerateAsyncFutureCompletesSuccessfully` is expected to produce a non-nil image")
     }
 
     func testGenerateCodeWithZIP321URI() {

@@ -1,7 +1,7 @@
 import XCTest
 import ComposableArchitecture
 @preconcurrency import ZcashLightClientKit
-@testable import zashi_internal
+@testable import zodl_internal
 
 final class AutoServerSelectionClientTests: XCTestCase {
     private final class Recorder: @unchecked Sendable {

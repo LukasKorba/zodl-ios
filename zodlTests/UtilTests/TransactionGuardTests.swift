@@ -1,5 +1,5 @@
 import XCTest
-@testable import zashi_internal
+@testable import zodl_internal
 
 final class TransactionGuardTests: XCTestCase {
     func testTryAcquireFailsWhileHeld() async {
