@@ -1,6 +1,19 @@
 {
     "releases": [
         {
+            "version": "3.5.3",
+            "date": "08-06-2026",
+            "timestamp": 1780930607,
+            "sections": [
+                {
+                    "title": "Fixed:",
+                    "bulletpoints": [
+                        "We fixed  Swap/Pay features."
+                    ]
+                }
+            ]
+        },
+        {
             "version": "3.5.2",
             "date": "05-06-2026",
             "timestamp": 1780658951,
